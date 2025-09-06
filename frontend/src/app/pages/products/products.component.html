@@ -1,0 +1,35 @@
+<div class="products-container">
+  <div class="header">
+    <h1>Products Management</h1>
+    <button mat-raised-button color="primary">
+      <mat-icon>add</mat-icon>
+      Add Product
+    </button>
+  </div>
+
+  <div class="products-grid">
+    <mat-card *ngFor="let product of products()" class="product-card">
+      <mat-card-content>
+        <div class="product-image">
+          <img [src]="product.image" [alt]="product.name" />
+        </div>
+        <div class="product-info">
+          <h3>{{ product.name }}</h3>
+          <p class="price">${{ product.price }}</p>
+          <mat-chip>{{ product.category }}</mat-chip>
+          <mat-chip [color]="product.status === 'Available' ? 'primary' : 'warn'">
+            {{ product.status }}
+          </mat-chip>
+        </div>
+        <div class="product-actions">
+          <button mat-icon-button (click)="onEditProduct(product)" color="primary">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button (click)="onDeleteProduct(product)" color="warn">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

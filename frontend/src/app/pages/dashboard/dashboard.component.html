@@ -1,0 +1,41 @@
+<div class="dashboard-container">
+  <h1 class="dashboard-title">Coffee Admin Dashboard</h1>
+
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon">people</mat-icon>
+          <div class="stat-info">
+            <h3>{{ totalUsers() }}</h3>
+            <p>Total Users</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon">shopping_cart</mat-icon>
+          <div class="stat-info">
+            <h3>{{ totalOrders() }}</h3>
+            <p>Total Orders</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon">attach_money</mat-icon>
+          <div class="stat-info">
+            <h3>${{ totalRevenue() }}</h3>
+            <p>Total Revenue</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

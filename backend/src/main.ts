@@ -1,0 +1,30 @@
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  // Enable CORS for frontend communication
+  app.enableCors({
+    origin: ['http://localhost:4200', 'http://localhost:8100'],
+    credentials: true,
+  });
+
+  // Global validation pipe
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
+
+  // Global prefix for all routes
+  app.setGlobalPrefix('api');
+
+  await app.listen(3000);
+  console.log('Coffee Admin API is running on: http://localhost:3000');
+}
+
+bootstrap();
