@@ -1,0 +1,8 @@
+{
+  "name": "coffee-admin",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular",
+  "id": "com.coffee.admin"
+}

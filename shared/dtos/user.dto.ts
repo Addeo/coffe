@@ -1,4 +1,4 @@
-import { User, UserRole } from '../interfaces/user.interface';
+import { User, UserRole, LoginRequest, LoginResponse, AuthUser } from '../interfaces/user.interface';
 
 export interface CreateUserDto {
   email: string;
@@ -18,3 +18,9 @@ export interface UpdateUserDto {
 }
 
 export interface UserDto extends Omit<User, 'password'> {}
+
+export interface AuthLoginDto extends LoginRequest {}
+
+export interface AuthLoginResponse extends LoginResponse {}
+
+export interface AuthUserDto extends AuthUser {}

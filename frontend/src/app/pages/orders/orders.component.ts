@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-orders',
@@ -15,7 +16,8 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     MatButtonModule,
     MatIconModule,
     MatChipsModule,
-    MatPaginatorModule
+    MatPaginatorModule,
+    MatCardModule
   ],
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss']

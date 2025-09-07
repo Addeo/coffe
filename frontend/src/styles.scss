@@ -1,21 +1,7 @@
 // Global styles for Coffee Admin Panel
 
 /* You can add global styles to this file, and also import other style files */
-@import '@angular/material/theming';
-
-// Include the common styles for Angular Material
-@include mat-core();
-
-// Define a custom theme
-$primary: mat-palette($mat-indigo);
-$accent: mat-palette($mat-pink, A200, A100, A400);
-$warn: mat-palette($mat-red);
-
-// Create the theme
-$theme: mat-light-theme($primary, $accent, $warn);
-
-// Include theme styles for Angular Material components
-@include angular-material-theme($theme);
+@import '@angular/material';
 
 // Global styles
 * {

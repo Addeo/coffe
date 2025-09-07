@@ -3,7 +3,7 @@ import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateCol
 export enum UserRole {
   ADMIN = 'admin',
   MANAGER = 'manager',
-  ENGINEER = 'engineer',
+  USER = 'user',
 }
 
 @Entity('users')
@@ -26,7 +26,7 @@ export class User {
   @Column({
     type: 'enum',
     enum: UserRole,
-    default: UserRole.ENGINEER,
+    default: UserRole.USER,
   })
   role: UserRole;
 
