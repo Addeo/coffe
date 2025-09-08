@@ -7,7 +7,7 @@ async function bootstrap() {
 
   // Enable CORS for frontend communication
   app.enableCors({
-    origin: ['http://localhost:4200', 'http://localhost:8100'],
+    origin: ['http://localhost:4200', 'http://localhost:8100', 'http://localhost:3000'],
     credentials: true,
   });
 
@@ -23,7 +23,7 @@ async function bootstrap() {
   // Global prefix for all routes
   app.setGlobalPrefix('api');
 
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 3002;
   await app.listen(port);
   console.log(`Coffee Admin API is running on: http://localhost:${port}`);
 }

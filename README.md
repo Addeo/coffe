@@ -63,7 +63,26 @@ A modern admin panel built with Angular/Ionic frontend and NestJS backend, conta
 ### Access Points
 - **Frontend**: http://localhost:4200 (Angular dev server)
 - **Backend API**: http://localhost:3000
-- **MySQL**: localhost:3306
+- **MySQL**: localhost:3307
+
+### Default Admin User
+- **Email**: admin@coffee.com
+- **Password**: password
+- **Role**: Admin
+
+**Важно**: После первого запуска системы админ пользователь будет автоматически создан в базе данных. Используйте эти учетные данные для входа в систему.
+
+#### Ручное добавление админа
+Если нужно добавить админа вручную, используйте скрипт:
+```bash
+# Через Docker
+docker exec coffee_mysql mysql -u coffee_user -pcoffee_password coffee_admin < create_admin.sql
+
+# Или через локальный MySQL клиент
+mysql -h localhost -P 3307 -u coffee_user -pcoffee_password coffee_admin < create_admin.sql
+```
+
+Пароль захеширован с помощью bcrypt: `$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi`
 
 ## 📁 Project Structure
 

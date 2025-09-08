@@ -48,3 +48,64 @@ body {
     padding: 0 16px;
   }
 }
+
+// Snackbar styles
+.mat-mdc-snack-bar-container {
+  &.success-snackbar {
+    .mdc-snackbar__surface {
+      background-color: #4caf50 !important;
+      color: white !important;
+    }
+  }
+
+  &.error-snackbar {
+    .mdc-snackbar__surface {
+      background-color: #f44336 !important;
+      color: white !important;
+    }
+  }
+
+  &.warning-snackbar {
+    .mdc-snackbar__surface {
+      background-color: #ff9800 !important;
+      color: white !important;
+    }
+  }
+
+  &.info-snackbar {
+    .mdc-snackbar__surface {
+      background-color: #2196f3 !important;
+      color: white !important;
+    }
+  }
+}
+
+// Legacy support for older Angular Material versions
+.success-snackbar {
+  background-color: #4caf50 !important;
+  color: white !important;
+}
+
+.error-snackbar {
+  background-color: #f44336 !important;
+  color: white !important;
+}
+
+.warning-snackbar {
+  background-color: #ff9800 !important;
+  color: white !important;
+}
+
+.info-snackbar {
+  background-color: #2196f3 !important;
+  color: white !important;
+}
+
+// Form validation styles
+.mat-mdc-form-field-error {
+  color: #f44336 !important;
+}
+
+.mat-mdc-form-field-required-marker {
+  color: #f44336;
+}

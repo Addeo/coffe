@@ -8,6 +8,7 @@ import { Organization } from './entities/organization.entity';
 import { Engineer } from './entities/engineer.entity';
 import { Product } from './entities/product.entity';
 import { File } from './entities/file.entity';
+import { TestController } from './modules/test/test.controller';
 
 @Module({
   imports: [
@@ -26,14 +27,15 @@ import { File } from './entities/file.entity';
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV === 'development',
     }),
-    // AuthModule,
+    AuthModule,
     // UsersModule,
     // ProductsModule,
     // OrdersModule,
     // FilesModule,
-    TestModule,
+    // TestModule,
   ],
-  controllers: [],
+  ],
+  controllers: [TestController],
   providers: [],
 })
 export class AppModule {}

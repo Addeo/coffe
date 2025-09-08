@@ -36,7 +36,7 @@ export class AuthService {
       apiUrl: `${environment.apiUrl}/auth/login`
     });
 
-    return this.http.post<AuthLoginResponse>(`${environment.apiUrl}/auth/login`, credentials).pipe(
+    return this.http.post<AuthLoginResponse>(environment.authUrl, credentials).pipe(
       tap(response => {
         console.log('✅ Login successful:', {
           user: response.user,
