@@ -2,15 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDa
 import { Organization } from './organization.entity';
 import { Engineer } from './engineer.entity';
 import { User } from './user.entity';
-import { TerritoryType } from './engineer.entity';
-
-export enum OrderStatus {
-  PENDING = 'pending',
-  ASSIGNED = 'assigned',
-  IN_PROGRESS = 'in_progress',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
-}
+import { OrderStatus, TerritoryType } from '../../../shared/interfaces/order.interface';
 
 @Entity('orders')
 export class Order {

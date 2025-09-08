@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { Engineer, EngineerType } from '../../entities/engineer.entity';
+import { Engineer } from '../../entities/engineer.entity';
 import { Organization } from '../../entities/organization.entity';
 import { WorkReport } from '../../entities/work-report.entity';
+import { EngineerType } from '@shared/interfaces/order.interface';
 
 @Injectable()
 export class CalculationService {

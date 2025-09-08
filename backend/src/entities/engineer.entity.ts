@@ -1,18 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from './user.entity';
-
-export enum EngineerType {
-  STAFF = 'staff',      // штатный
-  REMOTE = 'remote',    // удаленный
-  CONTRACT = 'contract' // наемный
-}
-
-export enum TerritoryType {
-  HOME = 'home',        // домашняя территория (≤60 км)
-  ZONE_1 = 'zone_1',    // 61-199 км (только для удаленного)
-  ZONE_2 = 'zone_2',    // 200-250 км
-  ZONE_3 = 'zone_3'     // >250 км
-}
+import { EngineerType, TerritoryType } from '../../../shared/interfaces/order.interface';
 
 @Entity('engineers')
 export class Engineer {

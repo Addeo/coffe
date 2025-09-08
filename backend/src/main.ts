@@ -23,8 +23,9 @@ async function bootstrap() {
   // Global prefix for all routes
   app.setGlobalPrefix('api');
 
-  await app.listen(3000);
-  console.log('Coffee Admin API is running on: http://localhost:3000');
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`Coffee Admin API is running on: http://localhost:${port}`);
 }
 
 bootstrap();

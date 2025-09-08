@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,9 +9,21 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ErrorStateMatcher } from '@angular/material/core';
 
 import { AuthService } from '../../services/auth.service';
-import { AuthLoginDto } from '@shared/dtos/user.dto';
+
+interface AuthLoginDto {
+  email: string;
+  password: string;
+}
+
+/** Error when invalid control is dirty, touched, or submitted. */
+export class MyErrorStateMatcher implements ErrorStateMatcher {
+  isErrorState(control: FormControl | null): boolean {
+    return !!(control && control.invalid && (control.dirty || control.touched));
+  }
+}
 
 @Component({
   selector: 'app-login',
@@ -36,16 +48,14 @@ export class LoginComponent {
   private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);
 
-  loginForm: FormGroup;
+  emailFormControl = new FormControl('', [Validators.required, Validators.email]);
+  passwordFormControl = new FormControl('', [Validators.required, Validators.minLength(6)]);
+  matcher = new MyErrorStateMatcher();
+
   isLoading = signal(false);
   hidePassword = signal(true);
 
   constructor() {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
-    });
-
     // Redirect if already authenticated
     if (this.authService.isAuthenticated()) {
       this.router.navigate(['/dashboard']);
@@ -53,16 +63,31 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
-    if (this.loginForm.valid) {
-      this.isLoading.set(true);
+    console.log('📝 Form submission started');
+    console.log('📧 Email valid:', this.emailFormControl.valid, 'Value:', this.emailFormControl.value);
+    console.log('🔒 Password valid:', this.passwordFormControl.valid, 'Value length:', this.passwordFormControl.value?.length || 0);
 
-      const credentials: AuthLoginDto = this.loginForm.value;
+    if (this.emailFormControl.valid && this.passwordFormControl.valid) {
+      this.isLoading.set(true);
+      console.log('✅ Form is valid, sending login request');
+
+      const credentials: AuthLoginDto = {
+        email: this.emailFormControl.value || '',
+        password: this.passwordFormControl.value || ''
+      };
+
+      console.log('📤 Sending credentials to auth service:', {
+        email: credentials.email,
+        passwordLength: credentials.password.length
+      });
 
       this.authService.login(credentials).subscribe({
         next: (response) => {
+          console.log('🎉 Login component received success response:', response);
           this.isLoading.set(false);
 
           const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+          console.log('🧭 Navigating to:', returnUrl);
           this.router.navigate([returnUrl]);
 
           this.snackBar.open('Login successful!', 'Close', {
@@ -71,6 +96,7 @@ export class LoginComponent {
           });
         },
         error: (error) => {
+          console.error('💥 Login component received error:', error);
           this.isLoading.set(false);
 
           let errorMessage = 'Login failed. Please try again.';
@@ -78,6 +104,7 @@ export class LoginComponent {
             errorMessage = error.error.message;
           }
 
+          console.log('📢 Showing error message:', errorMessage);
           this.snackBar.open(errorMessage, 'Close', {
             duration: 5000,
             panelClass: ['error-snackbar']
@@ -85,32 +112,13 @@ export class LoginComponent {
         }
       });
     } else {
-      this.markFormGroupTouched();
+      console.log('❌ Form is invalid, marking fields as touched');
+      this.emailFormControl.markAsTouched();
+      this.passwordFormControl.markAsTouched();
     }
   }
 
   togglePasswordVisibility(): void {
     this.hidePassword.update(current => !current);
-  }
-
-  private markFormGroupTouched(): void {
-    Object.keys(this.loginForm.controls).forEach(key => {
-      const control = this.loginForm.get(key);
-      control?.markAsTouched();
-    });
-  }
-
-  getErrorMessage(fieldName: string): string {
-    const control = this.loginForm.get(fieldName);
-    if (control?.hasError('required')) {
-      return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
-    }
-    if (control?.hasError('email')) {
-      return 'Please enter a valid email address';
-    }
-    if (control?.hasError('minlength')) {
-      return 'Password must be at least 6 characters long';
-    }
-    return '';
   }
 }

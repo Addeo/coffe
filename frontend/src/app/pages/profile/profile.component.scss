@@ -1,0 +1,169 @@
+.profile-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0;
+    color: #333;
+  }
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.avatar-card {
+  .avatar-section {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+
+    .avatar-placeholder {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      mat-icon {
+        font-size: 40px;
+        width: 40px;
+        height: 40px;
+        color: #666;
+      }
+    }
+
+    .avatar-info {
+      flex: 1;
+
+      h3 {
+        margin: 0 0 8px 0;
+        color: #333;
+      }
+
+      p {
+        margin: 0 0 16px 0;
+        color: #666;
+      }
+    }
+  }
+}
+
+.info-card {
+  .card-actions {
+    margin-left: auto;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+
+    .form-field {
+      flex: 1;
+    }
+  }
+
+  .form-field {
+    width: 100%;
+    margin-bottom: 16px;
+
+    &.full-width {
+      width: 100%;
+    }
+  }
+
+  .role-info {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+  }
+}
+
+.security-card {
+  .security-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+
+    .security-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      mat-icon {
+        color: #666;
+      }
+
+      h4 {
+        margin: 0 0 4px 0;
+        color: #333;
+      }
+
+      p {
+        margin: 0;
+        color: #666;
+        font-size: 0.875rem;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 16px;
+  }
+
+  .avatar-card {
+    .avatar-section {
+      flex-direction: column;
+      text-align: center;
+      gap: 16px;
+
+      .avatar-info {
+        h3, p {
+          margin-bottom: 8px;
+        }
+      }
+    }
+  }
+
+  .info-card {
+    .form-row {
+      flex-direction: column;
+      gap: 0;
+    }
+  }
+
+  .security-card {
+    .security-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}

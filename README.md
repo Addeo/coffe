@@ -142,7 +142,7 @@ export class UserProfileComponent {
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { UserDto } from '../../../shared/dtos/user.dto';
+import { UserDto } from '@shared/dtos/user.dto';
 
 @Injectable({
   providedIn: 'root'

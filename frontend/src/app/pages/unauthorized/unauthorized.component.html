@@ -1,0 +1,57 @@
+<div class="unauthorized-container">
+  <mat-card class="unauthorized-card">
+    <mat-card-header>
+      <div class="header-content">
+        <mat-icon class="error-icon">block</mat-icon>
+        <h1>Access Denied</h1>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="message-section">
+        <p class="main-message">
+          You don't have permission to access this page.
+        </p>
+
+        <div class="details-section" *ngIf="requiredRoles.length > 0">
+          <h3>Required Permissions:</h3>
+          <div class="roles-list">
+            <mat-chip
+              *ngFor="let role of requiredRoles"
+              color="warn"
+              selected>
+              {{ getRoleDisplay(role) }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <div class="current-role-section">
+          <h3>Your Current Role:</h3>
+          <mat-chip
+            [color]="currentUserRole ? 'primary' : 'accent'"
+            selected>
+            {{ getCurrentRoleDisplay() }}
+          </mat-chip>
+        </div>
+
+        <div class="attempted-url-section" *ngIf="attemptedUrl">
+          <p class="attempted-url">
+            <strong>Attempted URL:</strong> {{ attemptedUrl }}
+          </p>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions class="actions-section">
+      <button mat-raised-button color="primary" (click)="goBack()">
+        <mat-icon>home</mat-icon>
+        Go to Dashboard
+      </button>
+
+      <button mat-button (click)="goToLogin()" *ngIf="canRequestAccess()">
+        <mat-icon>login</mat-icon>
+        Request Access
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

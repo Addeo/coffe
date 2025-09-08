@@ -1,0 +1,110 @@
+<div class="profile-container">
+  <div class="header">
+    <h1>My Profile</h1>
+  </div>
+
+  <div class="profile-content">
+    <!-- Profile Avatar Section -->
+    <mat-card class="avatar-card">
+      <mat-card-content>
+        <div class="avatar-section">
+          <div class="avatar-placeholder">
+            <mat-icon>person</mat-icon>
+          </div>
+          <div class="avatar-info">
+            <h3>{{ currentUser()?.firstName }} {{ currentUser()?.lastName }}</h3>
+            <p>{{ currentUser()?.email }}</p>
+            <button mat-raised-button color="primary" (click)="uploadAvatar()">
+              <mat-icon>photo_camera</mat-icon>
+              Change Avatar
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Profile Information -->
+    <mat-card class="info-card">
+      <mat-card-header>
+        <mat-card-title>Profile Information</mat-card-title>
+        <mat-card-subtitle>Update your personal information</mat-card-subtitle>
+        <div class="card-actions">
+          <button mat-icon-button (click)="toggleEditMode()" [disabled]="isLoading()">
+            <mat-icon>{{ isEditing() ? 'close' : 'edit' }}</mat-icon>
+          </button>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>First Name</mat-label>
+              <input matInput formControlName="firstName" [readonly]="!isEditing()">
+              <mat-error *ngIf="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched">
+                First name is required and must be at least 2 characters
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Last Name</mat-label>
+              <input matInput formControlName="lastName" [readonly]="!isEditing()">
+              <mat-error *ngIf="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched">
+                Last name is required and must be at least 2 characters
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="form-field full-width">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" type="email" [readonly]="!isEditing()">
+            <mat-error *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched">
+              Please enter a valid email address
+            </mat-error>
+          </mat-form-field>
+
+          <div class="role-info" *ngIf="currentUser()?.role">
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <mat-label>Role</mat-label>
+              <input matInput [value]="getRoleDisplay(currentUser()!.role)" readonly>
+            </mat-form-field>
+          </div>
+
+          <div class="form-actions" *ngIf="isEditing()">
+            <button mat-button type="button" (click)="cancelEdit()" [disabled]="isLoading()">
+              Cancel
+            </button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="isLoading() || profileForm.invalid">
+              <mat-icon *ngIf="isLoading()">refresh</mat-icon>
+              <mat-icon *ngIf="!isLoading()">save</mat-icon>
+              {{ isLoading() ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Security Section -->
+    <mat-card class="security-card">
+      <mat-card-header>
+        <mat-card-title>Security</mat-card-title>
+        <mat-card-subtitle>Manage your account security</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="security-item">
+          <div class="security-info">
+            <mat-icon>lock</mat-icon>
+            <div>
+              <h4>Password</h4>
+              <p>Last changed: Recently</p>
+            </div>
+          </div>
+          <button mat-raised-button (click)="changePassword()">
+            Change Password
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

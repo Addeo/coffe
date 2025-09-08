@@ -38,6 +38,7 @@
 
 .full-width {
   width: 100%;
+  margin-bottom: 8px;
 }
 
 .login-button {
@@ -58,20 +59,67 @@
   .mat-mdc-text-field-wrapper {
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 8px;
+    padding-top: 16px;
   }
 
-  .mdc-notched-outline__leading,
-  .mdc-notched-outline__notch,
-  .mdc-notched-outline__trailing {
-    border-color: rgba(0, 0, 0, 0.12);
-    border-width: 1px;
+  .mdc-notched-outline {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: rgba(0, 0, 0, 0.12);
+      border-width: 1px;
+    }
   }
 
-  &.mat-focused .mdc-notched-outline__leading,
-  &.mat-focused .mdc-notched-outline__notch,
-  &.mat-focused .mdc-notched-outline__trailing {
-    border-color: #667eea;
-    border-width: 2px;
+  &.mat-focused .mdc-notched-outline {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: #667eea;
+      border-width: 2px;
+    }
+  }
+
+  // Fix for label clipping
+  .mdc-notched-outline__notch {
+    border-top: none !important;
+  }
+
+  .mat-mdc-form-field-label {
+    top: 16px;
+    left: 16px;
+    transform-origin: left top;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    position: absolute;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 16px;
+    line-height: 1.125;
+    font-weight: 400;
+    z-index: 1;
+  }
+
+  &.mat-focused .mat-mdc-form-field-label,
+  .mat-mdc-form-field-label.mat-mdc-form-field-label-notched {
+    transform: translateY(-8px) scale(0.75);
+    color: #667eea;
+  }
+
+  // Ensure proper spacing for floating labels
+  &.mat-form-field-has-label .mat-mdc-text-field-wrapper {
+    padding-top: 24px;
+  }
+
+  .mat-mdc-input-element {
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  // Fix for notched outline when label is present
+  .mdc-notched-outline--notched .mdc-notched-outline__notch {
+    border-top: none;
   }
 }
 

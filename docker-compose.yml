@@ -29,9 +29,10 @@ services:
     container_name: coffee_backend
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3001:3001"
     environment:
       NODE_ENV: development
+      PORT: 3001
       DB_HOST: mysql
       DB_PORT: 3306
       DB_USERNAME: coffee_user

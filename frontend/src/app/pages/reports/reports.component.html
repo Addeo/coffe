@@ -1,0 +1,39 @@
+<div class="reports-container">
+  <div class="header">
+    <h1>Reports & Analytics</h1>
+    <p>Generate and view various system reports</p>
+  </div>
+
+  <div class="reports-grid">
+    <mat-card *ngFor="let report of reports" class="report-card">
+      <mat-card-header>
+        <div class="report-icon">
+          <mat-icon>{{ report.icon }}</mat-icon>
+        </div>
+        <mat-card-title>{{ report.title }}</mat-card-title>
+        <mat-card-subtitle>{{ report.description }}</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p>{{ report.description }}</p>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-button (click)="generateReport(report.type)" [disabled]="isLoading()">
+          <mat-icon>play_arrow</mat-icon>
+          Generate
+        </button>
+        <button mat-button (click)="exportReport(report.type)">
+          <mat-icon>download</mat-icon>
+          Export
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" *ngIf="isLoading()">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Generating report...</p>
+  </div>
+</div>

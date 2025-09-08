@@ -30,12 +30,29 @@ export class AuthService {
   login(credentials: AuthLoginDto): Observable<AuthLoginResponse> {
     this.isLoadingSignal.set(true);
 
+    console.log('🔐 Login attempt:', {
+      email: credentials.email,
+      password: credentials.password ? '[HIDDEN]' : '',
+      apiUrl: `${environment.apiUrl}/auth/login`
+    });
+
     return this.http.post<AuthLoginResponse>(`${environment.apiUrl}/auth/login`, credentials).pipe(
       tap(response => {
+        console.log('✅ Login successful:', {
+          user: response.user,
+          tokenLength: response.access_token.length
+        });
         this.setSession(response);
         this.isLoadingSignal.set(false);
       }),
       catchError(error => {
+        console.error('❌ Login failed:', {
+          status: error.status,
+          statusText: error.statusText,
+          url: error.url,
+          message: error.error?.message || error.message,
+          fullError: error
+        });
         this.isLoadingSignal.set(false);
         return throwError(() => error);
       })
