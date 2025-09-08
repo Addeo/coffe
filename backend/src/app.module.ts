@@ -1,11 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthModule } from './modules/auth/auth.module';
-import { UsersModule } from './modules/users/users.module';
-import { ProductsModule } from './modules/products/products.module';
-import { OrdersModule } from './modules/orders/orders.module';
-import { FilesModule } from './modules/files/files.module';
 import { TestModule } from './modules/test/test.module';
 import { User } from './entities/user.entity';
 import { Order } from './entities/order.entity';

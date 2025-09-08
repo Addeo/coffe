@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { File } from '../../entities/file.entity';
 import { User } from '../../entities/user.entity';
-import { FileQueryDto, FileType } from '../../../../shared/dtos/file.dto';
+import { FileQueryDto, FileType } from '@dtos/file.dto';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -25,7 +25,7 @@ export class FilesService {
   ) {}
 
   async uploadFile(
-    file: Express.Multer.File,
+    file: any,
     userId: number,
     type: FileType = FileType.OTHER,
     description?: string
@@ -216,7 +216,7 @@ export class FilesService {
   }
 
   // Validate file type based on FileType enum
-  validateFileType(file: Express.Multer.File, allowedTypes: FileType[]): boolean {
+  validateFileType(file: any, allowedTypes: FileType[]): boolean {
     const mimeToType: { [key: string]: FileType } = {
       'image/jpeg': FileType.IMAGE,
       'image/png': FileType.IMAGE,

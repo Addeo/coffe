@@ -3,7 +3,7 @@ import { FilesService } from './files.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
-import { FileQueryDto, FileType } from '../../../../shared/dtos/file.dto';
+import { FileQueryDto, FileType } from '@dtos/file.dto';
 
 @Controller('files')
 @UseGuards(JwtAuthGuard)
@@ -13,7 +13,7 @@ export class FilesController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file,
     @Body() body: { type?: FileType; description?: string },
     @Request() req
   ) {
@@ -28,7 +28,7 @@ export class FilesController {
   @Post('upload/avatar')
   @UseInterceptors(FileInterceptor('file'))
   uploadAvatar(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file,
     @Request() req
   ) {
     // Validate that it's an image

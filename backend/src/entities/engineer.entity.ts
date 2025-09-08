@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { User } from './user.entity';
-import { EngineerType, TerritoryType } from '../../../shared/interfaces/order.interface';
+import { EngineerType } from '@interfaces/order.interface';
 
 @Entity('engineers')
 export class Engineer {

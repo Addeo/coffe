@@ -1,10 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from '../../entities/user.entity';
-import { LoginDto } from '../users/dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +17,9 @@ export class AuthService {
     const user = await this.userRepository.findOne({ where: { email } });
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      const { password, ...result } = user;
+      // Remove password from result for security
+      const result = { ...user };
+      delete result.password;
       return result;
     }
 

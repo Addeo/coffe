@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from '../../entities/order.entity';
 import { User } from '../../entities/user.entity';
-import { CreateOrderDto, UpdateOrderDto, AssignEngineerDto, OrdersQueryDto } from '../../../../shared/dtos/order.dto';
-import { OrderStatus } from '../../../../shared/interfaces/order.interface';
-import { UserRole } from '../../../../shared/interfaces/user.interface';
+import { CreateOrderDto, UpdateOrderDto, AssignEngineerDto, OrdersQueryDto } from '@dtos/order.dto';
+import { OrderStatus } from '@interfaces/order.interface';
+import { UserRole } from '@interfaces/user.interface';
 
 export interface OrdersResponse {
   data: Order[];

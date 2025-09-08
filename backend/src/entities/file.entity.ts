@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { User } from './user.entity';
-import { FileType } from '../../../shared/dtos/file.dto';
+import { FileType } from '@dtos/file.dto';
 
 @Entity('files')
 export class File {

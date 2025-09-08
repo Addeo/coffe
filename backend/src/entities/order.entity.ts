@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDa
 import { Organization } from './organization.entity';
 import { Engineer } from './engineer.entity';
 import { User } from './user.entity';
-import { OrderStatus, TerritoryType } from '../../../shared/interfaces/order.interface';
+import { OrderStatus, TerritoryType } from '@interfaces/order.interface';
 
 @Entity('orders')
 export class Order {

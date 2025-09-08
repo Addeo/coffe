@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Engineer } from '../../entities/engineer.entity';
 import { Organization } from '../../entities/organization.entity';
 import { WorkReport } from '../../entities/work-report.entity';
-import { EngineerType } from '@shared/interfaces/order.interface';
+import { EngineerType } from '@interfaces/order.interface';
 
 @Injectable()
 export class CalculationService {
@@ -84,8 +84,7 @@ export class CalculationService {
    */
   calculateCarUsage(
     engineer: Engineer,
-    distanceKm: number,
-    territoryType: string
+    distanceKm: number
   ): number {
     if (engineer.type === EngineerType.CONTRACT) {
       // 14 руб/км для наемных инженеров

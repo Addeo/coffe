@@ -19,7 +19,10 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@/*": ["src/*"],
-      "@shared/*": ["../shared/*"]
+      "@shared/*": ["src/shared/*"],
+      "@dtos/*": ["src/shared/dtos/*"],
+      "@interfaces/*": ["src/shared/interfaces/*"],
+      "@types/*": ["src/shared/types/*"]
     }
   }
 }
