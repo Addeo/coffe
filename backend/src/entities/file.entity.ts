@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { User } from './user.entity';
+import { Order } from './order.entity';
 import { FileType } from '@dtos/file.dto';
 
 @Entity('files')
@@ -38,6 +39,13 @@ export class File {
 
   @Column()
   uploadedById: number;
+
+  @ManyToOne(() => Order, { nullable: true })
+  @JoinColumn({ name: 'order_id' })
+  order: Order;
+
+  @Column({ nullable: true })
+  orderId: number;
 
   @CreateDateColumn()
   uploadedAt: Date;

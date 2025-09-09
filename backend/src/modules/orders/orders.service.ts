@@ -4,9 +4,13 @@ import { Repository } from 'typeorm';
 import { Order } from '../../entities/order.entity';
 import { User } from '../../entities/user.entity';
 import { Setting, SettingKey } from '../../entities/settings.entity';
+import { UserActivityLog, ActivityType } from '../../entities/user-activity-log.entity';
 import { CreateOrderDto, UpdateOrderDto, AssignEngineerDto, OrdersQueryDto } from '@dtos/order.dto';
 import { OrderStatus } from '@interfaces/order.interface';
 import { UserRole } from '../../entities/user.entity';
+import { NotificationsService } from '../notifications/notifications.service';
+import { StatisticsService } from '../statistics/statistics.service';
+import { NotificationPriority } from '../../entities/notification.entity';
 
 export interface OrdersResponse {
   data: Order[];
@@ -25,6 +29,10 @@ export class OrdersService {
     private readonly usersRepository: Repository<User>,
     @InjectRepository(Setting)
     private readonly settingsRepository: Repository<Setting>,
+    @InjectRepository(UserActivityLog)
+    private readonly activityLogRepository: Repository<UserActivityLog>,
+    private readonly notificationsService: NotificationsService,
+    private readonly statisticsService: StatisticsService,
   ) {}
 
   async create(createOrderDto: CreateOrderDto, userId: number): Promise<Order> {
@@ -42,10 +50,19 @@ export class OrdersService {
 
     const savedOrder = await this.ordersRepository.save(order);
 
+    // Логируем создание заказа
+    await this.logActivity(
+      savedOrder.id,
+      ActivityType.ORDER_CREATED,
+      `Order "${savedOrder.title}" was created`,
+      { createdById: userId },
+      userId
+    );
+
     // Check if auto-distribution is enabled and try to assign the order
     const autoDistributionEnabled = await this.getAutoDistributionEnabled();
     if (autoDistributionEnabled) {
-      await this.autoAssignOrder(savedOrder);
+      await this.autoAssignOrder(savedOrder, userId);
     }
 
     return savedOrder;
@@ -121,6 +138,7 @@ export class OrdersService {
 
   async update(id: number, updateOrderDto: UpdateOrderDto, user: User): Promise<Order> {
     const order = await this.findOne(id, user);
+    const oldStatus = order.status;
 
     // Check permissions for status updates
     if (updateOrderDto.status && user.role === UserRole.USER && updateOrderDto.status !== OrderStatus.COMPLETED) {
@@ -140,7 +158,37 @@ export class OrdersService {
     }
 
     Object.assign(order, updateOrderDto);
-    return this.ordersRepository.save(order);
+    const updatedOrder = await this.ordersRepository.save(order);
+
+    // Логируем изменение статуса заказа
+    if (updateOrderDto.status && oldStatus !== updateOrderDto.status) {
+      await this.logActivity(
+        id,
+        ActivityType.ORDER_STATUS_CHANGED,
+        `Order "${order.title}" status changed from ${oldStatus} to ${updateOrderDto.status}`,
+        {
+          oldStatus,
+          newStatus: updateOrderDto.status,
+          orderId: id
+        },
+        user.id
+      );
+
+      // Отправляем уведомления
+      await this.sendStatusChangeNotifications(updatedOrder, user.id);
+    }
+
+    // Если заказ завершен, пересчитываем статистику заработка
+    if (updateOrderDto.status === OrderStatus.COMPLETED && oldStatus !== OrderStatus.COMPLETED) {
+      const completionDate = updatedOrder.completionDate || new Date();
+      await this.statisticsService.calculateMonthlyEarnings(
+        updatedOrder.assignedEngineerId,
+        completionDate.getMonth() + 1,
+        completionDate.getFullYear()
+      );
+    }
+
+    return updatedOrder;
   }
 
   async assignEngineer(id: number, assignEngineerDto: AssignEngineerDto, user: User): Promise<Order> {
@@ -151,6 +199,12 @@ export class OrdersService {
 
     const order = await this.findOne(id, user);
 
+    // Check if there's already an assigned engineer
+    if (order.assignedEngineerId && order.assignedEngineerId !== assignEngineerDto.engineerId) {
+      // Проверяем, хочет ли пользователь перезаписать существующее назначение
+      // Здесь можно добавить дополнительную логику подтверждения
+    }
+
     // Check if engineer exists and is active
     const engineer = await this.usersRepository.findOne({
       where: { id: assignEngineerDto.engineerId, role: UserRole.USER, isActive: true }
@@ -160,11 +214,35 @@ export class OrdersService {
       throw new NotFoundException('Engineer not found or inactive');
     }
 
+    const oldEngineerId = order.assignedEngineerId;
     order.assignedEngineerId = assignEngineerDto.engineerId;
     order.assignedById = user.id;
     order.status = OrderStatus.PROCESSING;
 
-    return this.ordersRepository.save(order);
+    const updatedOrder = await this.ordersRepository.save(order);
+
+    // Логируем назначение инженера
+    await this.logActivity(
+      id,
+      ActivityType.ORDER_ASSIGNED,
+      `Order "${order.title}" was assigned to engineer ${engineer.firstName} ${engineer.lastName}`,
+      {
+        orderId: id,
+        assignedEngineerId: assignEngineerDto.engineerId,
+        oldEngineerId,
+      },
+      user.id
+    );
+
+    // Отправляем уведомление инженеру
+    await this.notificationsService.createOrderAssignedNotification(
+      id,
+      order.title,
+      assignEngineerDto.engineerId,
+      user.id
+    );
+
+    return updatedOrder;
   }
 
   async remove(id: number, user: User): Promise<void> {
@@ -237,14 +315,58 @@ export class OrdersService {
     return setting ? parseInt(setting.value, 10) : 5;
   }
 
-  private async autoAssignOrder(order: Order): Promise<void> {
+  private async autoAssignOrder(order: Order, createdById: number): Promise<void> {
     try {
       const availableEngineer = await this.findAvailableEngineer();
       if (availableEngineer) {
+        const oldEngineerId = order.assignedEngineerId;
         order.assignedEngineerId = availableEngineer.id;
-        order.assignedById = 1; // System user ID for auto-assignment
+        order.assignedById = createdById; // Используем ID создателя заказа
         order.status = OrderStatus.PROCESSING;
         await this.ordersRepository.save(order);
+
+        // Логируем авто-назначение
+        await this.logActivity(
+          order.id,
+          ActivityType.ORDER_AUTO_ASSIGNED,
+          `Order "${order.title}" was auto-assigned to engineer ${availableEngineer.firstName} ${availableEngineer.lastName}`,
+          {
+            orderId: order.id,
+            assignedEngineerId: availableEngineer.id,
+            oldEngineerId,
+            autoAssigned: true,
+          },
+          createdById
+        );
+
+        // Отправляем уведомление инженеру
+        await this.notificationsService.createOrderAssignedNotification(
+          order.id,
+          order.title,
+          availableEngineer.id,
+          createdById
+        );
+      } else {
+        // Если нет доступных инженеров, отправляем уведомление администраторам и менеджерам
+        const adminUsers = await this.usersRepository.find({
+          where: { role: UserRole.ADMIN, isActive: true }
+        });
+
+        const managerUsers = await this.usersRepository.find({
+          where: { role: UserRole.MANAGER, isActive: true }
+        });
+
+        const adminIds = adminUsers.map(user => user.id);
+        const managerIds = managerUsers.map(user => user.id);
+        const allRecipientIds = [...adminIds, ...managerIds];
+
+        await this.notificationsService.createSystemAlert(
+          allRecipientIds,
+          'No Available Engineers',
+          `Order "${order.title}" could not be auto-assigned because no engineers are available.`,
+          NotificationPriority.HIGH,
+          { orderId: order.id }
+        );
       }
     } catch (error) {
       // Log error but don't fail the order creation
@@ -254,9 +376,12 @@ export class OrdersService {
 
   private async findAvailableEngineer(): Promise<User | null> {
     const maxOrders = await this.getMaxOrdersPerEngineer();
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentYear = currentDate.getFullYear();
 
-    // Find engineers with fewer than max orders assigned
-    const engineers = await this.usersRepository
+    // Сначала находим инженеров с количеством активных заказов меньше максимального
+    const engineersWithCapacity = await this.usersRepository
       .createQueryBuilder('user')
       .leftJoin('user.assignedOrders', 'order', 'order.status IN (:statuses)', {
         statuses: [OrderStatus.PROCESSING, OrderStatus.WORKING, OrderStatus.REVIEW]
@@ -265,9 +390,122 @@ export class OrdersService {
       .andWhere('user.isActive = :isActive', { isActive: true })
       .groupBy('user.id')
       .having('COUNT(order.id) < :maxOrders', { maxOrders })
+      .select(['user.id', 'user.firstName', 'user.lastName', 'COUNT(order.id) as activeOrders'])
       .orderBy('COUNT(order.id)', 'ASC')
+      .getRawAndEntities();
+
+    if (engineersWithCapacity.entities.length === 0) {
+      return null;
+    }
+
+    // Среди доступных инженеров выбираем того, у кого меньше всего заработка за последний месяц
+    const engineerIds = engineersWithCapacity.entities.map(e => e.id);
+
+    // Получаем статистику заработка за последний месяц
+    const earningsStats = await this.settingsRepository
+      .createQueryBuilder('setting')
+      .where('setting.key = :key', { key: 'earnings_statistics' })
+      .andWhere('JSON_EXTRACT(setting.value, "$.userId") IN (:userIds)', { userIds: engineerIds })
+      .andWhere('JSON_EXTRACT(setting.value, "$.month") = :month', { month: currentMonth })
+      .andWhere('JSON_EXTRACT(setting.value, "$.year") = :year', { year: currentYear })
       .getMany();
 
-    return engineers.length > 0 ? engineers[0] : null;
+    // Если статистики нет, выбираем по количеству активных заказов
+    if (earningsStats.length === 0) {
+      return engineersWithCapacity.entities[0];
+    }
+
+    // Парсим статистику и выбираем инженера с минимальным заработком
+    let minEarnings = Infinity;
+    let selectedEngineer = engineersWithCapacity.entities[0];
+
+    for (const engineer of engineersWithCapacity.entities) {
+      const stat = earningsStats.find(s => {
+        try {
+          const value = JSON.parse(s.value);
+          return value.userId === engineer.id;
+        } catch {
+          return false;
+        }
+      });
+
+      if (stat) {
+        try {
+          const statData = JSON.parse(stat.value);
+          if (statData.totalEarnings < minEarnings) {
+            minEarnings = statData.totalEarnings;
+            selectedEngineer = engineer;
+          }
+        } catch {
+          // Если не удалось распарсить, пропускаем
+          continue;
+        }
+      } else {
+        // Если статистики нет для этого инженера, считаем его приоритетным
+        selectedEngineer = engineer;
+        break;
+      }
+    }
+
+    return selectedEngineer;
+  }
+
+  private async sendStatusChangeNotifications(order: Order, performedById: number): Promise<void> {
+    try {
+      // Собираем список пользователей для уведомления
+      const affectedUserIds: number[] = [];
+
+      // Добавляем создателя заказа
+      if (order.createdById && order.createdById !== performedById) {
+        affectedUserIds.push(order.createdById);
+      }
+
+      // Добавляем назначенного инженера
+      if (order.assignedEngineerId && order.assignedEngineerId !== performedById) {
+        affectedUserIds.push(order.assignedEngineerId);
+      }
+
+      // Добавляем менеджера, который назначил заказ
+      if (order.assignedById && order.assignedById !== performedById && !affectedUserIds.includes(order.assignedById)) {
+        affectedUserIds.push(order.assignedById);
+      }
+
+      if (affectedUserIds.length > 0) {
+        await this.notificationsService.createOrderStatusNotification(
+          order.id,
+          order.title,
+          order.status,
+          affectedUserIds,
+          performedById
+        );
+      }
+    } catch (error) {
+      console.error('Failed to send status change notifications:', error);
+    }
+  }
+
+  private async logActivity(
+    orderId: number,
+    activityType: ActivityType,
+    description: string,
+    metadata: any,
+    performedById: number
+  ): Promise<void> {
+    try {
+      const log = this.activityLogRepository.create({
+        userId: performedById, // Используем ID пользователя, который выполнил действие
+        activityType,
+        description,
+        metadata: {
+          ...metadata,
+          orderId,
+        },
+        performedById,
+      });
+
+      await this.activityLogRepository.save(log);
+    } catch (error) {
+      console.error('Failed to log activity:', error);
+    }
   }
 }

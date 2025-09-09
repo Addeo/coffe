@@ -3,7 +3,7 @@ export interface FileUploadDto {
   originalname: string;
   encoding: string;
   mimetype: string;
-  buffer: Buffer;
+  buffer: Uint8Array;
   size: number;
 }
 
@@ -31,6 +31,9 @@ export enum FileType {
   AVATAR = 'avatar',
   DOCUMENT = 'document',
   IMAGE = 'image',
+  ORDER_PHOTO = 'order_photo',        // Фото выполненной работы по заказу
+  ORDER_BEFORE = 'order_before',      // Фото до выполнения работы
+  ORDER_AFTER = 'order_after',        // Фото после выполнения работы
   OTHER = 'other'
 }
 

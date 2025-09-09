@@ -1,41 +1,218 @@
 <div class="dashboard-container">
-  <h1 class="dashboard-title">Coffee Admin Dashboard</h1>
+  <h1 class="dashboard-title">{{ dashboardTitle() }}</h1>
 
-  <div class="stats-grid">
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">people</mat-icon>
-          <div class="stat-info">
-            <h3>{{ totalUsers() }}</h3>
-            <p>Total Users</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
+  <!-- Loading indicator -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading dashboard data...</p>
+  </div>
 
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">shopping_cart</mat-icon>
-          <div class="stat-info">
-            <h3>{{ totalOrders() }}</h3>
-            <p>Total Orders</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
+  <div *ngIf="!isLoading()" class="dashboard-content">
+    <!-- Orders Statistics -->
+    <section class="stats-section">
+      <h2>Orders Overview</h2>
+      <div class="stats-grid">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">assignment</mat-icon>
+              <div class="stat-info">
+                <h3>{{ orderStats().total }}</h3>
+                <p>Total Orders</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
 
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">attach_money</mat-icon>
-          <div class="stat-info">
-            <h3>${{ totalRevenue() }}</h3>
-            <p>Total Revenue</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">schedule</mat-icon>
+              <div class="stat-info">
+                <h3>{{ orderStats().waiting }}</h3>
+                <p>{{ getStatusDisplay('waiting') }}</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">person_add</mat-icon>
+              <div class="stat-info">
+                <h3>{{ orderStats().processing }}</h3>
+                <p>{{ getStatusDisplay('processing') }}</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">build</mat-icon>
+              <div class="stat-info">
+                <h3>{{ orderStats().working }}</h3>
+                <p>{{ getStatusDisplay('working') }}</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">visibility</mat-icon>
+              <div class="stat-info">
+                <h3>{{ orderStats().review }}</h3>
+                <p>{{ getStatusDisplay('review') }}</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">check_circle</mat-icon>
+              <div class="stat-info">
+                <h3>{{ orderStats().completed }}</h3>
+                <p>{{ getStatusDisplay('completed') }}</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+
+    <!-- User Statistics (Admin/Manager only) -->
+    <section *ngIf="showUserStats()" class="stats-section">
+      <h2>User Management</h2>
+      <div class="stats-grid">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">people</mat-icon>
+              <div class="stat-info">
+                <h3>{{ userStats().totalUsers }}</h3>
+                <p>Total Users</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">person</mat-icon>
+              <div class="stat-info">
+                <h3>{{ userStats().activeUsers }}</h3>
+                <p>Active Users</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">person_add</mat-icon>
+              <div class="stat-info">
+                <h3>{{ userStats().newUsersThisMonth }}</h3>
+                <p>New This Month</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+
+    <!-- Earnings Statistics -->
+    <section *ngIf="showEarningsStats()" class="stats-section">
+      <h2>Earnings Overview</h2>
+      <div class="earnings-comparison">
+        <mat-card class="earnings-card">
+          <mat-card-content>
+            <div class="earnings-content">
+              <div class="earnings-current">
+                <h3>Current Month</h3>
+                <div *ngIf="earningsStats().currentMonth" class="earnings-details">
+                  <p class="earnings-amount">${{ earningsStats().currentMonth!.totalEarnings }}</p>
+                  <p class="earnings-orders">{{ earningsStats().currentMonth!.completedOrders }} orders</p>
+                </div>
+                <div *ngIf="!earningsStats().currentMonth" class="no-data">
+                  <p>No data available</p>
+                </div>
+              </div>
+
+              <div class="earnings-growth" *ngIf="earningsStats().currentMonth && earningsStats().previousMonth">
+                <mat-icon [style.color]="getGrowthColor(earningsStats().growth)">
+                  {{ getGrowthIcon(earningsStats().growth) }}
+                </mat-icon>
+                <span [style.color]="getGrowthColor(earningsStats().growth)">
+                  {{ earningsStats().growth >= 0 ? '+' : '' }}{{ earningsStats().growth.toFixed(1) }}%
+                </span>
+                <p>vs last month</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="actions-section">
+      <h2>Quick Actions</h2>
+      <div class="actions-grid">
+        <mat-card class="action-card" routerLink="/orders">
+          <mat-card-content>
+            <div class="action-content">
+              <mat-icon>shopping_cart</mat-icon>
+              <div>
+                <h4>View Orders</h4>
+                <p>Manage and track all orders</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card *ngIf="showUserStats()" class="action-card" routerLink="/users">
+          <mat-card-content>
+            <div class="action-content">
+              <mat-icon>people</mat-icon>
+              <div>
+                <h4>Manage Users</h4>
+                <p>View and manage user accounts</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="action-card" routerLink="/products">
+          <mat-card-content>
+            <div class="action-content">
+              <mat-icon>inventory</mat-icon>
+              <div>
+                <h4>Products</h4>
+                <p>Manage product catalog</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="action-card" routerLink="/reports">
+          <mat-card-content>
+            <div class="action-content">
+              <mat-icon>analytics</mat-icon>
+              <div>
+                <h4>Reports</h4>
+                <p>View detailed reports</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
   </div>
 </div>

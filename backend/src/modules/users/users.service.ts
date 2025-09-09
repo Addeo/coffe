@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User, UserRole } from '../../entities/user.entity';
+import { UserActivityLog, ActivityType } from '../../entities/user-activity-log.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -11,6 +12,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(UserActivityLog)
+    private activityLogRepository: Repository<UserActivityLog>,
   ) {}
 
   async create(createUserDto: CreateUserDto, createdById: number): Promise<User> {
@@ -21,7 +24,18 @@ export class UsersService {
       password: hashedPassword,
     });
 
-    return this.userRepository.save(user);
+    const savedUser = await this.userRepository.save(user);
+
+    // Логируем создание пользователя
+    await this.logActivity(
+      savedUser.id,
+      ActivityType.USER_CREATED,
+      `User ${savedUser.firstName} ${savedUser.lastName} was created`,
+      { createdById },
+      createdById
+    );
+
+    return savedUser;
   }
 
   async findAll(currentUser: any): Promise<User[]> {
@@ -78,6 +92,7 @@ export class UsersService {
       throw new Error('User not found or access denied');
     }
 
+    const oldUserData = { ...existingUser };
     const updateData = { ...updateUserDto };
 
     if (updateData.password) {
@@ -85,7 +100,21 @@ export class UsersService {
     }
 
     await this.userRepository.update(id, updateData);
-    return this.findOne(id, currentUser);
+    const updatedUser = await this.findOne(id, currentUser);
+
+    // Логируем изменения пользователя
+    const changes = this.getChanges(oldUserData, updatedUser);
+    if (changes.length > 0) {
+      await this.logActivity(
+        id,
+        ActivityType.USER_UPDATED,
+        `User ${updatedUser.firstName} ${updatedUser.lastName} was updated: ${changes.join(', ')}`,
+        { changes, oldData: oldUserData, newData: updatedUser },
+        currentUser.id
+      );
+    }
+
+    return updatedUser;
   }
 
   async remove(id: number, currentUser: any): Promise<boolean> {
@@ -96,6 +125,48 @@ export class UsersService {
     }
 
     await this.userRepository.delete(id);
+
+    // Логируем удаление пользователя
+    await this.logActivity(
+      id,
+      ActivityType.USER_DELETED,
+      `User ${existingUser.firstName} ${existingUser.lastName} was deleted`,
+      { deletedUser: existingUser },
+      currentUser.id
+    );
+
     return true;
+  }
+
+  private async logActivity(
+    userId: number,
+    activityType: ActivityType,
+    description: string,
+    metadata: any,
+    performedById: number
+  ): Promise<void> {
+    const log = this.activityLogRepository.create({
+      userId,
+      activityType,
+      description,
+      metadata,
+      performedById,
+    });
+
+    await this.activityLogRepository.save(log);
+  }
+
+  private getChanges(oldData: any, newData: any): string[] {
+    const changes: string[] = [];
+
+    if (oldData.email !== newData.email) changes.push('email');
+    if (oldData.firstName !== newData.firstName) changes.push('first name');
+    if (oldData.lastName !== newData.lastName) changes.push('last name');
+    if (oldData.role !== newData.role) changes.push('role');
+    if (oldData.isActive !== newData.isActive) {
+      changes.push(newData.isActive ? 'activated' : 'deactivated');
+    }
+
+    return changes;
   }
 }

@@ -19,6 +19,53 @@
       </a>
     </nav>
 
+    <!-- Notifications -->
+    <div class="notifications-menu" *ngIf="isAuthenticated()">
+      <button mat-icon-button [matMenuTriggerFor]="notificationsMenu" class="notifications-button">
+        <mat-icon class="notifications-icon">notifications</mat-icon>
+        <span class="notifications-badge" *ngIf="unreadCount() > 0" matBadge="{{ unreadCount() }}" matBadgeColor="warn"></span>
+      </button>
+
+      <mat-menu #notificationsMenu="matMenu" class="notifications-dropdown">
+        <div class="notifications-header" mat-menu-item disabled>
+          <h4>Notifications</h4>
+          <button mat-button *ngIf="unreadCount() > 0" (click)="onMarkAllAsRead()">
+            Mark all as read
+          </button>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div *ngIf="recentNotifications().length === 0" mat-menu-item disabled>
+          <mat-icon>notifications_none</mat-icon>
+          <span>No new notifications</span>
+        </div>
+
+        <div *ngFor="let notification of recentNotifications()" mat-menu-item
+             [class.unread]="notification.status === 'unread'"
+             (click)="onNotificationClick(notification)">
+          <div class="notification-item">
+            <mat-icon [style.color]="getPriorityColor(notification.priority)">
+              {{ getPriorityIcon(notification.priority) }}
+            </mat-icon>
+            <div class="notification-content">
+              <div class="notification-title">{{ notification.title }}</div>
+              <div class="notification-message">{{ notification.message }}</div>
+              <div class="notification-time">{{ notification.createdAt | date:'short' }}</div>
+            </div>
+            <mat-icon *ngIf="notification.status === 'unread'" class="unread-indicator">fiber_manual_record</mat-icon>
+          </div>
+        </div>
+
+        <mat-divider *ngIf="recentNotifications().length > 0"></mat-divider>
+
+        <button mat-menu-item (click)="onViewAllNotifications()">
+          <mat-icon>visibility</mat-icon>
+          <span>View all notifications</span>
+        </button>
+      </mat-menu>
+    </div>
+
     <!-- User Menu -->
     <div class="user-menu" *ngIf="isAuthenticated()">
       <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">

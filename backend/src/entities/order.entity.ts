@@ -1,10 +1,15 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, OneToMany, Index } from 'typeorm';
 import { Organization } from './organization.entity';
 import { Engineer } from './engineer.entity';
 import { User } from './user.entity';
+import { File } from './file.entity';
 import { OrderStatus, TerritoryType } from '@interfaces/order.interface';
 
 @Entity('orders')
+@Index(['assignedEngineerId', 'status'])
+@Index(['createdById', 'status'])
+@Index(['status', 'createdAt'])
+@Index(['organizationId'])
 export class Order {
   @PrimaryGeneratedColumn()
   id: number;
@@ -71,6 +76,9 @@ export class Order {
 
   @Column({ type: 'datetime', nullable: true })
   completionDate: Date;
+
+  @OneToMany(() => File, file => file.order)
+  files: File[];
 
   @CreateDateColumn()
   createdAt: Date;
