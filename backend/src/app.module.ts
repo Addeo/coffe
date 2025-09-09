@@ -21,6 +21,7 @@ import { EmailModule } from './modules/email/email.module';
 import { ExportModule } from './modules/export/export.module';
 import { BackupModule } from './modules/backup/backup.module';
 import { LoggerModule } from './modules/logger/logger.module';
+import { SchedulerModule } from './modules/scheduler/scheduler.module';
 
 @Module({
   imports: [
@@ -47,6 +48,8 @@ import { LoggerModule } from './modules/logger/logger.module';
     ExportModule,
     BackupModule,
     LoggerModule,
+    GmailModule,
+    SchedulerModule,
     // UsersModule,
     // ProductsModule,
     // OrdersModule,

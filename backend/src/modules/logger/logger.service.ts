@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConsoleLogger } from '@nestjs/common';
 
 export enum LogLevel {
   DEBUG = 'debug',
@@ -19,7 +20,7 @@ export interface LogContext {
 }
 
 @Injectable()
-export class LoggerService extends Logger {
+export class LoggerService extends ConsoleLogger {
   private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
     const timestamp = new Date().toISOString();
     const contextStr = context ? JSON.stringify(context) : '';

@@ -82,8 +82,8 @@ export class ExportService {
         title: order.title,
         status: this.getStatusDisplay(order.status),
         organization: order.organization?.name || 'N/A',
-        engineer: order.assignedEngineer
-          ? `${order.assignedEngineer.firstName} ${order.assignedEngineer.lastName}`
+        engineer: order.assignedEngineer?.user
+          ? `${order.assignedEngineer.user.firstName} ${order.assignedEngineer.user.lastName}`
           : 'Unassigned',
         createdBy: `${order.createdBy.firstName} ${order.createdBy.lastName}`,
         createdAt: order.createdAt.toLocaleDateString(),
