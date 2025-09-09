@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { GmailService } from '../gmail/gmail.service';
+// import { GmailService } from '../gmail/gmail.service';
 import { BackupService } from '../backup/backup.service';
 import { StatisticsService } from '../statistics/statistics.service';
 import { LoggerService } from '../logger/logger.service';
@@ -10,27 +10,27 @@ export class SchedulerService {
   private readonly logger = new Logger(SchedulerService.name);
 
   constructor(
-    private gmailService: GmailService,
+    // private gmailService: GmailService,
     private backupService: BackupService,
     private statisticsService: StatisticsService,
     private loggerService: LoggerService
   ) {}
 
-  // Проверка новых email каждые 5 минут
-  @Cron(CronExpression.EVERY_5_MINUTES)
-  async handleEmailCheck() {
-    try {
-      this.logger.debug('Starting scheduled email check');
-      await this.gmailService.checkNewEmails();
-      this.logger.debug('Scheduled email check completed');
-    } catch (error) {
-      this.logger.error('Scheduled email check failed:', error);
-      this.loggerService.error('Scheduled email check failed', error.stack, {
-        action: 'scheduled_task_failed',
-        resource: 'gmail',
-      });
-    }
-  }
+  // Проверка новых email каждые 5 минут (DISABLED - GmailService not available)
+  // @Cron(CronExpression.EVERY_5_MINUTES)
+  // async handleEmailCheck() {
+  //   try {
+  //     this.logger.debug('Starting scheduled email check');
+  //     await this.gmailService.checkNewEmails();
+  //     this.logger.debug('Scheduled email check completed');
+  //   } catch (error) {
+  //     this.logger.error('Scheduled email check failed:', error);
+  //     this.loggerService.error('Scheduled email check failed', error.stack, {
+  //       action: 'scheduled_task_failed',
+  //       resource: 'gmail',
+  //     });
+  //   }
+  // }
 
   // Ежемесячный бэкап базы данных в первый день месяца в 2:00
   @Cron('0 2 1 * *')

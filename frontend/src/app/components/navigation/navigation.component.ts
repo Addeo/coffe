@@ -77,7 +77,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
     }
 
     items.push(
-      { label: 'Products', route: '/products', icon: 'inventory' },
       { label: 'Orders', route: '/orders', icon: 'shopping_cart' },
       {
         label: 'Notifications',

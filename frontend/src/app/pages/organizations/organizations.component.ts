@@ -24,6 +24,7 @@ import { ToastService } from '../../services/toast.service';
 import { OrganizationDto, OrganizationsQueryDto } from '@shared/dtos/organization.dto';
 import { UserRole } from '@shared/interfaces/user.interface';
 import { DeleteConfirmationDialogComponent } from '../../components/modals/delete-confirmation-dialog.component';
+import { OrganizationDialogComponent } from '../../components/modals/organization-dialog.component';
 
 @Component({
   selector: 'app-organizations',
@@ -127,13 +128,39 @@ export class OrganizationsComponent implements OnInit {
   }
 
   onCreateOrganization(): void {
-    // TODO: Implement create organization dialog
-    this.toastService.showInfo('Create organization functionality will be implemented');
+    const dialogRef = this.dialog.open(OrganizationDialogComponent, {
+      data: { isEdit: false },
+      width: '600px',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Add new organization to the list
+        const updatedOrganizations = [...this.organizations(), result];
+        this.organizations.set(updatedOrganizations);
+        this.dataSource.data = updatedOrganizations;
+      }
+    });
   }
 
   onEditOrganization(organization: OrganizationDto): void {
-    // TODO: Implement edit organization dialog
-    this.toastService.showInfo(`Edit organization: ${organization.name}`);
+    const dialogRef = this.dialog.open(OrganizationDialogComponent, {
+      data: { organization, isEdit: true },
+      width: '600px',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Update organization in the list
+        const updatedOrganizations = this.organizations().map(org =>
+          org.id === result.id ? result : org
+        );
+        this.organizations.set(updatedOrganizations);
+        this.dataSource.data = updatedOrganizations;
+      }
+    });
   }
 
   onToggleStatus(organization: OrganizationDto): void {

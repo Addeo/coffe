@@ -14,7 +14,34 @@ import {
   AssignEngineerDto,
   OrdersQueryDto,
 } from '../../../shared/dtos/order.dto';
+
+// Temporarily extend CreateOrderDto until shared package is fixed
+interface ExtendedCreateOrderDto {
+  organizationId: number;
+  title: string;
+  description?: string;
+  location: string;
+  distanceKm?: number;
+  territoryType?: any;
+  source?: OrderSource;
+  plannedStartDate?: Date;
+}
+// Temporarily import OrderSource locally until shared package is fixed
+import { OrderSource } from '../../entities/order.entity';
 import { OrderStatus, TerritoryType } from '../../../shared/interfaces/order.interface';
+
+// Temporarily extend OrdersQueryDto until shared package is fixed
+interface ExtendedOrdersQueryDto {
+  page?: number;
+  limit?: number;
+  status?: OrderStatus;
+  organizationId?: number;
+  engineerId?: number;
+  source?: OrderSource;
+  createdById?: number;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
+}
 import { WorkResult } from '../../entities/work-report.entity';
 import { UserRole } from '../../entities/user.entity';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -52,7 +79,7 @@ export class OrdersService {
     private readonly calculationService: CalculationService
   ) {}
 
-  async create(createOrderDto: CreateOrderDto, userId: number): Promise<Order> {
+  async create(createOrderDto: ExtendedCreateOrderDto, userId: number): Promise<Order> {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -63,6 +90,7 @@ export class OrdersService {
       createdBy: user,
       createdById: userId,
       status: OrderStatus.WAITING,
+      source: createOrderDto.source || OrderSource.MANUAL,
     });
 
     const savedOrder = await this.ordersRepository.save(order);
@@ -85,13 +113,57 @@ export class OrdersService {
     return savedOrder;
   }
 
-  async findAll(query: OrdersQueryDto = {}, user: User): Promise<OrdersResponse> {
+  /**
+   * Создание автоматического заказа (например, из email интеграции)
+   */
+  async createAutomaticOrder(
+    createOrderDto: ExtendedCreateOrderDto,
+    source: OrderSource = OrderSource.AUTOMATIC,
+    createdById?: number
+  ): Promise<Order> {
+    // Если createdById не указан, используем системного пользователя (ID 1)
+    const systemUserId = createdById || 1;
+
+    const user = await this.usersRepository.findOne({ where: { id: systemUserId } });
+    if (!user) {
+      throw new NotFoundException('System user not found');
+    }
+
+    const order = this.ordersRepository.create({
+      ...createOrderDto,
+      createdBy: user,
+      createdById: systemUserId,
+      status: OrderStatus.WAITING,
+      source: source,
+    });
+
+    const savedOrder = await this.ordersRepository.save(order);
+
+    // Log automatic order creation
+    await this.logActivity(
+      savedOrder.id,
+      ActivityType.ORDER_CREATED,
+      `Automatic order "${savedOrder.title}" was created from ${source}`,
+      {
+        createdById: systemUserId,
+        source: source,
+        organizationId: createOrderDto.organizationId
+      },
+      systemUserId
+    );
+
+    return savedOrder;
+  }
+
+  async findAll(query: ExtendedOrdersQueryDto = {}, user: User): Promise<OrdersResponse> {
     const {
       page = 1,
       limit = 10,
       status,
       organizationId,
       engineerId,
+      source,
+      createdById,
       sortBy = 'createdAt',
       sortOrder = 'DESC',
     } = query;
@@ -120,6 +192,14 @@ export class OrdersService {
 
     if (engineerId) {
       queryBuilder.andWhere('order.assignedEngineerId = :engineerId', { engineerId });
+    }
+
+    if (source) {
+      queryBuilder.andWhere('order.source = :source', { source });
+    }
+
+    if (createdById) {
+      queryBuilder.andWhere('order.createdById = :createdById', { createdById });
     }
 
     queryBuilder
@@ -303,6 +383,12 @@ export class OrdersService {
     working: number;
     review: number;
     completed: number;
+    bySource: {
+      manual: number;
+      automatic: number;
+      email: number;
+      api: number;
+    };
   }> {
     const queryBuilder = this.ordersRepository.createQueryBuilder('order');
 
@@ -326,11 +412,49 @@ export class OrdersService {
       working: 0,
       review: 0,
       completed: 0,
+      bySource: {
+        manual: 0,
+        automatic: 0,
+        email: 0,
+        api: 0,
+      },
     };
 
     stats.forEach(stat => {
       result.total += parseInt(stat.count);
       result[stat.status] = parseInt(stat.count);
+    });
+
+    // Get source statistics
+    const sourceQuery = this.ordersRepository.createQueryBuilder('order')
+      .select('order.source', 'source')
+      .addSelect('COUNT(*)', 'count');
+
+    // Apply same role-based filtering
+    if (user.role === UserRole.USER) {
+      sourceQuery.where('order.assignedEngineerId = :userId', { userId: user.id });
+    }
+
+    sourceQuery.groupBy('order.source');
+
+    const sourceStats = await sourceQuery.getRawMany();
+
+    sourceStats.forEach(stat => {
+      const count = parseInt(stat.count);
+      switch (stat.source) {
+        case OrderSource.MANUAL:
+          result.bySource.manual = count;
+          break;
+        case OrderSource.AUTOMATIC:
+          result.bySource.automatic = count;
+          break;
+        case OrderSource.EMAIL:
+          result.bySource.email = count;
+          break;
+        case OrderSource.API:
+          result.bySource.api = count;
+          break;
+      }
     });
 
     return result;

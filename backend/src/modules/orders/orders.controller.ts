@@ -22,7 +22,22 @@ import {
   AssignEngineerDto,
   OrdersQueryDto,
 } from '../../../shared/dtos/order.dto';
+// Temporarily import OrderSource locally until shared package is fixed
+import { OrderSource } from '../../entities/order.entity';
 import { TerritoryType } from '../../../shared/interfaces/order.interface';
+
+// Temporarily extend OrdersQueryDto until shared package is fixed
+interface ExtendedOrdersQueryDto {
+  page?: number;
+  limit?: number;
+  status?: any;
+  organizationId?: number;
+  engineerId?: number;
+  source?: OrderSource;
+  createdById?: number;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
+}
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -35,9 +50,29 @@ export class OrdersController {
     return this.ordersService.create(createOrderDto, req.user.id);
   }
 
+  @Post('automatic')
+  @Roles(UserRole.ADMIN) // Только администраторы могут создавать автоматические заказы
+  createAutomatic(@Body() body: CreateOrderDto & { source?: OrderSource }, @Request() req) {
+    const { source = OrderSource.AUTOMATIC, ...createOrderDto } = body;
+    return this.ordersService.createAutomaticOrder(createOrderDto, source, req.user.id);
+  }
+
   @Get()
-  findAll(@Query() query: OrdersQueryDto, @Request() req) {
+  findAll(@Query() query: ExtendedOrdersQueryDto, @Request() req) {
     return this.ordersService.findAll(query, req.user);
+  }
+
+  @Get('my-orders')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  getMyCreatedOrders(@Query() query: ExtendedOrdersQueryDto, @Request() req) {
+    // Показываем заказы, созданные текущим пользователем
+    return this.ordersService.findAll({ ...query, createdById: req.user.id }, req.user);
+  }
+
+  @Get('by-source/:source')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  getOrdersBySource(@Param('source') source: OrderSource, @Query() query: ExtendedOrdersQueryDto, @Request() req) {
+    return this.ordersService.findAll({ ...query, source }, req.user);
   }
 
   @Get('stats')

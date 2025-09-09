@@ -57,27 +57,6 @@ export const routes: Routes = [
     data: { roles: ['admin', 'manager'], title: 'Edit Organization' },
   },
   {
-    path: 'products',
-    loadComponent: () =>
-      import('./pages/products/products.component').then(m => m.ProductsComponent),
-    canActivate: [AuthGuard],
-    data: { title: 'Product Management' },
-  },
-  {
-    path: 'products/create',
-    loadComponent: () =>
-      import('./pages/products/products.component').then(m => m.ProductsComponent),
-    canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'Create Product' },
-  },
-  {
-    path: 'products/:id/edit',
-    loadComponent: () =>
-      import('./pages/products/products.component').then(m => m.ProductsComponent),
-    canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'Edit Product' },
-  },
-  {
     path: 'orders',
     loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent),
     canActivate: [AuthGuard],

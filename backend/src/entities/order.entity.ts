@@ -13,6 +13,14 @@ import { Organization } from './organization.entity';
 import { Engineer } from './engineer.entity';
 import { User } from './user.entity';
 import { File } from './file.entity';
+// Temporarily define OrderSource locally until shared package is fixed
+export enum OrderSource {
+  MANUAL = 'manual', // создан вручную
+  AUTOMATIC = 'automatic', // создан автоматически через интеграцию
+  EMAIL = 'email', // создан из email
+  API = 'api', // создан через API
+}
+
 import { OrderStatus, TerritoryType } from '../../shared/interfaces/order.interface';
 
 @Entity('orders')
@@ -77,6 +85,13 @@ export class Order {
     default: OrderStatus.WAITING,
   })
   status: OrderStatus;
+
+  @Column({
+    type: 'enum',
+    enum: OrderSource,
+    default: OrderSource.MANUAL,
+  })
+  source: OrderSource;
 
   @Column({ type: 'date', nullable: true })
   plannedStartDate: Date;

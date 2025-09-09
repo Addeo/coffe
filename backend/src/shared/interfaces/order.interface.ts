@@ -32,6 +32,13 @@ export enum EngineerType {
   CONTRACT = 'contract', // наемный
 }
 
+export enum OrderSource {
+  MANUAL = 'manual', // создан вручную
+  AUTOMATIC = 'automatic', // создан автоматически через интеграцию
+  EMAIL = 'email', // создан из email
+  API = 'api', // создан через API
+}
+
 export interface Order {
   id: number;
   organizationId: number;
@@ -48,6 +55,7 @@ export interface Order {
   distanceKm?: number;
   territoryType?: TerritoryType;
   status: OrderStatus;
+  source: OrderSource;
   plannedStartDate?: Date;
   actualStartDate?: Date;
   completionDate?: Date;

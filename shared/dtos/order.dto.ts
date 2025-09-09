@@ -1,4 +1,4 @@
-import { OrderStatus, TerritoryType } from '../interfaces/order.interface';
+import { OrderStatus, TerritoryType, OrderSource } from '../interfaces/order.interface';
 import { FileResponseDto } from './file.dto';
 
 export interface CreateOrderDto {
@@ -8,6 +8,7 @@ export interface CreateOrderDto {
   location: string;
   distanceKm?: number;
   territoryType?: TerritoryType;
+  source?: OrderSource;
   plannedStartDate?: Date;
 }
 
@@ -19,6 +20,7 @@ export interface UpdateOrderDto {
   distanceKm?: number;
   territoryType?: TerritoryType;
   status?: OrderStatus;
+  source?: OrderSource;
   plannedStartDate?: Date;
   actualStartDate?: Date;
   completionDate?: Date;
@@ -61,6 +63,7 @@ export interface OrderDto {
   distanceKm?: number;
   territoryType?: TerritoryType;
   status: OrderStatus;
+  source: OrderSource;
   plannedStartDate?: Date;
   actualStartDate?: Date;
   completionDate?: Date;
@@ -77,4 +80,6 @@ export interface OrdersQueryDto {
   engineerId?: number;
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
+  source?: OrderSource;
+  createdById?: number;
 }

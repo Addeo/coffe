@@ -1,22 +1,8 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  UnauthorizedException,
-  BadRequestException,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
-import { User, UserRole } from '../../entities/user.entity';
+import { Controller, Get } from '@nestjs/common';
 
 @Controller('test')
 export class TestController {
-  constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>
-  ) {}
+  constructor() {}
   @Get()
   getHello() {
     return { message: 'Backend is working!' };
