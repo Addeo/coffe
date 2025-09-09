@@ -11,15 +11,9 @@ import { UserRole } from '@shared/interfaces/user.interface';
 @Component({
   selector: 'app-unauthorized',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule
-  ],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatChipsModule],
   templateUrl: './unauthorized.component.html',
-  styleUrls: ['./unauthorized.component.scss']
+  styleUrls: ['./unauthorized.component.scss'],
 })
 export class UnauthorizedComponent implements OnInit {
   private route = inject(ActivatedRoute);

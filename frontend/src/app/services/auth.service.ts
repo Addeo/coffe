@@ -7,7 +7,7 @@ import { UserRole, User } from '@shared/interfaces/user.interface';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
   private http = inject(HttpClient);
@@ -33,14 +33,14 @@ export class AuthService {
     console.log('🔐 Login attempt:', {
       email: credentials.email,
       password: credentials.password ? '[HIDDEN]' : '',
-      apiUrl: `${environment.apiUrl}/auth/login`
+      apiUrl: `${environment.apiUrl}/auth/login`,
     });
 
     return this.http.post<AuthLoginResponse>(environment.authUrl, credentials).pipe(
       tap(response => {
         console.log('✅ Login successful:', {
           user: response.user,
-          tokenLength: response.access_token.length
+          tokenLength: response.access_token.length,
         });
         this.setSession(response);
         this.isLoadingSignal.set(false);
@@ -51,7 +51,7 @@ export class AuthService {
           statusText: error.statusText,
           url: error.url,
           message: error.error?.message || error.message,
-          fullError: error
+          fullError: error,
         });
         this.isLoadingSignal.set(false);
         return throwError(() => error);

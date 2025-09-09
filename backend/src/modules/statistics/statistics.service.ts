@@ -14,7 +14,7 @@ export class StatisticsService {
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private userRepository: Repository<User>
   ) {}
 
   async calculateMonthlyEarnings(userId: number, month: number, year: number): Promise<void> {
@@ -69,7 +69,10 @@ export class StatisticsService {
     await this.earningsStatisticRepository.save(statistic);
   }
 
-  async getUserEarningsStatistics(userId: number, months: number = 12): Promise<EarningsStatistic[]> {
+  async getUserEarningsStatistics(
+    userId: number,
+    months: number = 12
+  ): Promise<EarningsStatistic[]> {
     const currentDate = new Date();
     const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - months + 1, 1);
 
@@ -82,7 +85,11 @@ export class StatisticsService {
       .getMany();
   }
 
-  async getTopEarnersByMonth(year: number, month: number, limit: number = 10): Promise<EarningsStatistic[]> {
+  async getTopEarnersByMonth(
+    year: number,
+    month: number,
+    limit: number = 10
+  ): Promise<EarningsStatistic[]> {
     return this.earningsStatisticRepository
       .createQueryBuilder('statistic')
       .leftJoinAndSelect('statistic.user', 'user')
@@ -97,7 +104,7 @@ export class StatisticsService {
   async getTotalEarningsByPeriod(
     startDate: Date,
     endDate: Date,
-    userId?: number,
+    userId?: number
   ): Promise<{ totalEarnings: number; totalOrders: number; averageOrderValue: number }> {
     const queryBuilder = this.earningsStatisticRepository
       .createQueryBuilder('statistic')
@@ -166,7 +173,10 @@ export class StatisticsService {
 
     let growth = 0;
     if (currentMonthStat && previousMonthStat && previousMonthStat.totalEarnings > 0) {
-      growth = ((currentMonthStat.totalEarnings - previousMonthStat.totalEarnings) / previousMonthStat.totalEarnings) * 100;
+      growth =
+        ((currentMonthStat.totalEarnings - previousMonthStat.totalEarnings) /
+          previousMonthStat.totalEarnings) *
+        100;
     }
 
     return {
@@ -181,8 +191,6 @@ export class StatisticsService {
       where: { role: UserRole.USER, isActive: true },
     });
 
-    await Promise.all(
-      users.map(user => this.calculateMonthlyEarnings(user.id, month, year))
-    );
+    await Promise.all(users.map(user => this.calculateMonthlyEarnings(user.id, month, year)));
   }
 }

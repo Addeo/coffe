@@ -1,11 +1,11 @@
 import { User } from './user.interface';
 
 export enum OrderStatus {
-  WAITING = 'waiting',        // в ожидании
-  PROCESSING = 'processing',  // в обработке
-  WORKING = 'working',        // в работе
-  REVIEW = 'review',          // на проверке
-  COMPLETED = 'completed'     // законченный
+  WAITING = 'waiting', // в ожидании
+  PROCESSING = 'processing', // в обработке
+  WORKING = 'working', // в работе
+  REVIEW = 'review', // на проверке
+  COMPLETED = 'completed', // законченный
 }
 
 export enum OrderStatusLabel {
@@ -13,23 +13,23 @@ export enum OrderStatusLabel {
   PROCESSING = 'Processing',
   WORKING = 'In Progress',
   REVIEW = 'Under Review',
-  COMPLETED = 'Completed'
+  COMPLETED = 'Completed',
 }
 
 export enum TerritoryType {
   URBAN = 'urban',
   SUBURBAN = 'suburban',
   RURAL = 'rural',
-  HOME = 'home',        // домашняя территория (≤60 км)
-  ZONE_1 = 'zone_1',    // 61-199 км (только для удаленного)
-  ZONE_2 = 'zone_2',    // 200-250 км
-  ZONE_3 = 'zone_3'     // >250 км
+  HOME = 'home', // домашняя территория (≤60 км)
+  ZONE_1 = 'zone_1', // 61-199 км (только для удаленного)
+  ZONE_2 = 'zone_2', // 200-250 км
+  ZONE_3 = 'zone_3', // >250 км
 }
 
 export enum EngineerType {
-  STAFF = 'staff',      // штатный
-  REMOTE = 'remote',    // удаленный
-  CONTRACT = 'contract' // наемный
+  STAFF = 'staff', // штатный
+  REMOTE = 'remote', // удаленный
+  CONTRACT = 'contract', // наемный
 }
 
 export interface Order {
@@ -70,4 +70,3 @@ export interface Engineer {
   specialization?: string;
   isActive: boolean;
 }
-

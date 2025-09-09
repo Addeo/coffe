@@ -24,10 +24,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatIconModule,
     MatSlideToggleModule,
     MatSelectModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.scss']
+  styleUrls: ['./settings.component.scss'],
 })
 export class SettingsComponent {
   private fb = inject(FormBuilder);
@@ -39,12 +39,12 @@ export class SettingsComponent {
   themes = [
     { value: 'light', label: 'Light' },
     { value: 'dark', label: 'Dark' },
-    { value: 'auto', label: 'Auto' }
+    { value: 'auto', label: 'Auto' },
   ];
 
   languages = [
     { value: 'en', label: 'English' },
-    { value: 'ru', label: 'Русский' }
+    { value: 'ru', label: 'Русский' },
   ];
 
   constructor() {
@@ -60,7 +60,7 @@ export class SettingsComponent {
       pushNotifications: [false],
       autoSave: [true],
       itemsPerPage: [10, [Validators.required, Validators.min(5), Validators.max(100)]],
-      timezone: ['UTC', [Validators.required]]
+      timezone: ['UTC', [Validators.required]],
     });
   }
 
@@ -87,7 +87,7 @@ export class SettingsComponent {
       pushNotifications: false,
       autoSave: true,
       itemsPerPage: 10,
-      timezone: 'UTC'
+      timezone: 'UTC',
     });
     this.snackBar.open('Settings reset to defaults', 'Close', { duration: 2000 });
   }

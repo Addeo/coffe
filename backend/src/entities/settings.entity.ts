@@ -1,4 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export enum SettingKey {
   AUTO_DISTRIBUTION_ENABLED = 'auto_distribution_enabled',
@@ -29,4 +35,3 @@ export class Setting {
   @UpdateDateColumn()
   updatedAt: Date;
 }
-

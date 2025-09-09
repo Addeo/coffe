@@ -1,6 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  FormControl,
+} from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -36,10 +42,10 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
   private fb = inject(FormBuilder);
@@ -64,8 +70,18 @@ export class LoginComponent {
 
   onSubmit(): void {
     console.log('📝 Form submission started');
-    console.log('📧 Email valid:', this.emailFormControl.valid, 'Value:', this.emailFormControl.value);
-    console.log('🔒 Password valid:', this.passwordFormControl.valid, 'Value length:', this.passwordFormControl.value?.length || 0);
+    console.log(
+      '📧 Email valid:',
+      this.emailFormControl.valid,
+      'Value:',
+      this.emailFormControl.value
+    );
+    console.log(
+      '🔒 Password valid:',
+      this.passwordFormControl.valid,
+      'Value length:',
+      this.passwordFormControl.value?.length || 0
+    );
 
     if (this.emailFormControl.valid && this.passwordFormControl.valid) {
       this.isLoading.set(true);
@@ -73,16 +89,16 @@ export class LoginComponent {
 
       const credentials: AuthLoginDto = {
         email: this.emailFormControl.value || '',
-        password: this.passwordFormControl.value || ''
+        password: this.passwordFormControl.value || '',
       };
 
       console.log('📤 Sending credentials to auth service:', {
         email: credentials.email,
-        passwordLength: credentials.password.length
+        passwordLength: credentials.password.length,
       });
 
       this.authService.login(credentials).subscribe({
-        next: (response) => {
+        next: response => {
           console.log('🎉 Login component received success response:', response);
           this.isLoading.set(false);
 
@@ -92,7 +108,7 @@ export class LoginComponent {
 
           this.toastService.success('Вход выполнен успешно!');
         },
-        error: (error) => {
+        error: error => {
           console.error('💥 Login component received error:', error);
           this.isLoading.set(false);
 
@@ -103,7 +119,7 @@ export class LoginComponent {
 
           console.log('📢 Showing error message:', errorMessage);
           this.toastService.error(errorMessage);
-        }
+        },
       });
     } else {
       console.log('❌ Form is invalid, marking fields as touched');

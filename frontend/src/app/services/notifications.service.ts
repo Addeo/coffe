@@ -22,7 +22,7 @@ export interface NotificationsResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NotificationsService {
   private http = inject(HttpClient);
@@ -31,7 +31,11 @@ export class NotificationsService {
   private unreadCountSubject = new BehaviorSubject<number>(0);
   unreadCount$ = this.unreadCountSubject.asObservable();
 
-  getNotifications(page: number = 1, limit: number = 20, status?: 'unread' | 'read'): Observable<NotificationsResponse> {
+  getNotifications(
+    page: number = 1,
+    limit: number = 20,
+    status?: 'unread' | 'read'
+  ): Observable<NotificationsResponse> {
     let params: any = { page, limit };
     if (status) {
       params.status = status;
@@ -41,31 +45,35 @@ export class NotificationsService {
   }
 
   getUnreadCount(): Observable<{ count: number }> {
-    return this.http.get<{ count: number }>(`${environment.apiUrl}/notifications/unread-count`).pipe(
-      tap(response => this.unreadCountSubject.next(response.count))
-    );
+    return this.http
+      .get<{ count: number }>(`${environment.apiUrl}/notifications/unread-count`)
+      .pipe(tap(response => this.unreadCountSubject.next(response.count)));
   }
 
   markAsRead(notificationId: number): Observable<{ success: boolean }> {
-    return this.http.post<{ success: boolean }>(`${environment.apiUrl}/notifications/${notificationId}/read`, {}).pipe(
-      tap(() => this.refreshUnreadCount())
-    );
+    return this.http
+      .post<{ success: boolean }>(`${environment.apiUrl}/notifications/${notificationId}/read`, {})
+      .pipe(tap(() => this.refreshUnreadCount()));
   }
 
   markAsUnread(notificationId: number): Observable<{ success: boolean }> {
-    return this.http.post<{ success: boolean }>(`${environment.apiUrl}/notifications/${notificationId}/unread`, {}).pipe(
-      tap(() => this.refreshUnreadCount())
-    );
+    return this.http
+      .post<{
+        success: boolean;
+      }>(`${environment.apiUrl}/notifications/${notificationId}/unread`, {})
+      .pipe(tap(() => this.refreshUnreadCount()));
   }
 
   markAllAsRead(): Observable<{ markedAsRead: number }> {
-    return this.http.post<{ markedAsRead: number }>(`${environment.apiUrl}/notifications/mark-all-read`, {}).pipe(
-      tap(() => this.refreshUnreadCount())
-    );
+    return this.http
+      .post<{ markedAsRead: number }>(`${environment.apiUrl}/notifications/mark-all-read`, {})
+      .pipe(tap(() => this.refreshUnreadCount()));
   }
 
   deleteNotification(notificationId: number): Observable<{ success: boolean }> {
-    return this.http.delete<{ success: boolean }>(`${environment.apiUrl}/notifications/${notificationId}`);
+    return this.http.delete<{ success: boolean }>(
+      `${environment.apiUrl}/notifications/${notificationId}`
+    );
   }
 
   private refreshUnreadCount(): void {

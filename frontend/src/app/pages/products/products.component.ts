@@ -8,15 +8,9 @@ import { MatChipsModule } from '@angular/material/chips';
 @Component({
   selector: 'app-products',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatChipsModule
-  ],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatChipsModule],
   templateUrl: './products.component.html',
-  styleUrls: ['./products.component.scss']
+  styleUrls: ['./products.component.scss'],
 })
 export class ProductsComponent implements OnInit {
   products = signal<any[]>([]);
@@ -31,18 +25,18 @@ export class ProductsComponent implements OnInit {
       {
         id: 1,
         name: 'Espresso',
-        price: 3.50,
+        price: 3.5,
         category: 'Coffee',
         status: 'Available',
-        image: '/assets/images/espresso.jpg'
+        image: '/assets/images/espresso.jpg',
       },
       {
         id: 2,
         name: 'Cappuccino',
-        price: 4.50,
+        price: 4.5,
         category: 'Coffee',
         status: 'Available',
-        image: '/assets/images/cappuccino.jpg'
+        image: '/assets/images/cappuccino.jpg',
       },
     ]);
   }

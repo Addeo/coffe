@@ -40,16 +40,22 @@
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>First Name</mat-label>
-              <input matInput formControlName="firstName" [readonly]="!isEditing()">
-              <mat-error *ngIf="profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched">
+              <input matInput formControlName="firstName" [readonly]="!isEditing()" />
+              <mat-error
+                *ngIf="
+                  profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched
+                "
+              >
                 First name is required and must be at least 2 characters
               </mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>Last Name</mat-label>
-              <input matInput formControlName="lastName" [readonly]="!isEditing()">
-              <mat-error *ngIf="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched">
+              <input matInput formControlName="lastName" [readonly]="!isEditing()" />
+              <mat-error
+                *ngIf="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched"
+              >
                 Last name is required and must be at least 2 characters
               </mat-error>
             </mat-form-field>
@@ -57,8 +63,10 @@
 
           <mat-form-field appearance="outline" class="form-field full-width">
             <mat-label>Email</mat-label>
-            <input matInput formControlName="email" type="email" [readonly]="!isEditing()">
-            <mat-error *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched">
+            <input matInput formControlName="email" type="email" [readonly]="!isEditing()" />
+            <mat-error
+              *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched"
+            >
               Please enter a valid email address
             </mat-error>
           </mat-form-field>
@@ -66,7 +74,7 @@
           <div class="role-info" *ngIf="currentUser()?.role">
             <mat-form-field appearance="outline" class="form-field full-width">
               <mat-label>Role</mat-label>
-              <input matInput [value]="getRoleDisplay(currentUser()!.role)" readonly>
+              <input matInput [value]="getRoleDisplay(currentUser()!.role)" readonly />
             </mat-form-field>
           </div>
 
@@ -74,7 +82,12 @@
             <button mat-button type="button" (click)="cancelEdit()" [disabled]="isLoading()">
               Cancel
             </button>
-            <button mat-raised-button color="primary" type="submit" [disabled]="isLoading() || profileForm.invalid">
+            <button
+              mat-raised-button
+              color="primary"
+              type="submit"
+              [disabled]="isLoading() || profileForm.invalid"
+            >
               <mat-icon *ngIf="isLoading()">refresh</mat-icon>
               <mat-icon *ngIf="!isLoading()">save</mat-icon>
               {{ isLoading() ? 'Saving...' : 'Save Changes' }}
@@ -100,9 +113,7 @@
               <p>Last changed: Recently</p>
             </div>
           </div>
-          <button mat-raised-button (click)="changePassword()">
-            Change Password
-          </button>
+          <button mat-raised-button (click)="changePassword()">Change Password</button>
         </div>
       </mat-card-content>
     </mat-card>

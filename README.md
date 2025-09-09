@@ -13,6 +13,7 @@ A modern admin panel built with Angular/Ionic frontend and NestJS backend, conta
 ## 📋 Development Rules
 
 ### Frontend (Angular + Ionic)
+
 - **Version**: Latest Angular (17+)
 - **UI Library**: Angular Material + Ionic components
 - **Components**: Standalone components only
@@ -22,12 +23,14 @@ A modern admin panel built with Angular/Ionic frontend and NestJS backend, conta
 - **Forms**: Reactive Forms with validation
 
 ### Backend (NestJS)
+
 - **ORM**: TypeORM with MySQL
 - **Validation**: class-validator + class-transformer
 - **Authentication**: JWT
 - **Architecture**: Modular structure with controllers, services, entities
 
 ### Shared Types
+
 - **Location**: `shared/` directory
 - **Structure**: Organized by domain (`dtos/`, `interfaces/`, `types/`)
 - **Usage**: Used by both frontend and backend for type safety
@@ -35,23 +38,27 @@ A modern admin panel built with Angular/Ionic frontend and NestJS backend, conta
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Docker & Docker Compose
 - Node.js 18+ (for local development)
 
 ### Development Setup
 
 1. **Clone and setup**:
+
    ```bash
    git clone <repository-url>
    cd coffee-admin-panel
    ```
 
 2. **Start with Docker**:
+
    ```bash
    npm run dev
    ```
 
 3. **Or run locally**:
+
    ```bash
    # Backend
    cd backend && npm install && npm run start:dev
@@ -61,11 +68,13 @@ A modern admin panel built with Angular/Ionic frontend and NestJS backend, conta
    ```
 
 ### Access Points
+
 - **Frontend**: http://localhost:4200 (Angular dev server)
 - **Backend API**: http://localhost:3000
 - **MySQL**: localhost:3307
 
 ### Default Admin User
+
 - **Email**: admin@coffee.com
 - **Password**: password
 - **Role**: Admin
@@ -73,7 +82,9 @@ A modern admin panel built with Angular/Ionic frontend and NestJS backend, conta
 **Важно**: После первого запуска системы админ пользователь будет автоматически создан в базе данных. Используйте эти учетные данные для входа в систему.
 
 #### Ручное добавление админа
+
 Если нужно добавить админа вручную, используйте скрипт:
+
 ```bash
 # Через Docker
 docker exec coffee_mysql mysql -u coffee_user -pcoffee_password coffee_admin < create_admin.sql
@@ -120,12 +131,14 @@ coffee-admin-panel/
 ## 🛠️ Development Guidelines
 
 ### Code Style
+
 - **TypeScript**: Strict mode enabled
 - **Imports**: Absolute paths with `@/` prefix
 - **Naming**: camelCase for variables/functions, PascalCase for classes
 - **Files**: kebab-case for filenames
 
 ### Component Structure
+
 ```typescript
 // user-profile.component.ts
 import { Component, inject, signal } from '@angular/core';
@@ -136,7 +149,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './user-profile.component.html',
-  styleUrls: ['./user-profile.component.scss']
+  styleUrls: ['./user-profile.component.scss'],
 })
 export class UserProfileComponent {
   private userService = inject(UserService);
@@ -156,6 +169,7 @@ export class UserProfileComponent {
 ```
 
 ### API Service Structure
+
 ```typescript
 // user.service.ts
 import { Injectable, inject } from '@angular/core';
@@ -164,7 +178,7 @@ import { Observable } from 'rxjs';
 import { UserDto } from '@shared/dtos/user.dto';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
   private http = inject(HttpClient);
@@ -196,6 +210,7 @@ npm run test:backend
 ## 📦 Deployment
 
 ### Production Build
+
 ```bash
 # Build all services
 npm run build
@@ -206,6 +221,7 @@ npm run build:backend
 ```
 
 ### Docker Deployment
+
 ```bash
 # Build and start production containers
 docker-compose -f docker-compose.prod.yml up -d
@@ -222,7 +238,6 @@ docker-compose -f docker-compose.prod.yml up -d
 ## 📄 License
 
 This project is licensed under the MIT License.
-
 
 admin@coffee.com
 admin123

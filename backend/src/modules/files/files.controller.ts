@@ -1,4 +1,18 @@
-import { Controller, Get, Post, Param, Delete, Query, UseGuards, UseInterceptors, UploadedFile, Body, Request, Res, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Delete,
+  Query,
+  UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  Body,
+  Request,
+  Res,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { FilesService } from './files.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -17,31 +31,18 @@ export class FilesController {
     @Body() body: { type?: FileType; description?: string },
     @Request() req
   ) {
-    return this.filesService.uploadFile(
-      file,
-      req.user.id,
-      body.type,
-      body.description
-    );
+    return this.filesService.uploadFile(file, req.user.id, body.type, body.description);
   }
 
   @Post('upload/avatar')
   @UseInterceptors(FileInterceptor('file'))
-  uploadAvatar(
-    @UploadedFile() file,
-    @Request() req
-  ) {
+  uploadAvatar(@UploadedFile() file, @Request() req) {
     // Validate that it's an image
     if (!file.mimetype.startsWith('image/')) {
       throw new Error('Only image files are allowed for avatars');
     }
 
-    return this.filesService.uploadFile(
-      file,
-      req.user.id,
-      FileType.AVATAR,
-      'User avatar'
-    );
+    return this.filesService.uploadFile(file, req.user.id, FileType.AVATAR, 'User avatar');
   }
 
   @Get()
@@ -70,10 +71,7 @@ export class FilesController {
   }
 
   @Get(':id/download')
-  async downloadFile(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res() res: Response
-  ) {
+  async downloadFile(@Param('id', ParseUUIDPipe) id: string, @Res() res: Response) {
     const file = await this.filesService.findOne(id);
     const filePath = await this.filesService.getFilePath(id);
 
@@ -84,10 +82,7 @@ export class FilesController {
   }
 
   @Get(':id/view')
-  async viewFile(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Res() res: Response
-  ) {
+  async viewFile(@Param('id', ParseUUIDPipe) id: string, @Res() res: Response) {
     const file = await this.filesService.findOne(id);
     const filePath = await this.filesService.getFilePath(id);
 

@@ -12,7 +12,7 @@ const execAsync = promisify(exec);
 export class BackupService {
   constructor(
     private configService: ConfigService,
-    private logger: LoggerService,
+    private logger: LoggerService
   ) {}
 
   async createDatabaseBackup(): Promise<string> {
@@ -44,15 +44,18 @@ export class BackupService {
       const stats = fs.statSync(backupFilePath);
       const fileSizeMB = (stats.size / (1024 * 1024)).toFixed(2);
 
-      this.logger.log(`Database backup created successfully: ${backupFileName} (${fileSizeMB} MB)`, {
-        action: 'backup_created',
-        resource: 'database',
-        metadata: {
-          fileName: backupFileName,
-          fileSize: stats.size,
-          filePath: backupFilePath,
-        },
-      });
+      this.logger.log(
+        `Database backup created successfully: ${backupFileName} (${fileSizeMB} MB)`,
+        {
+          action: 'backup_created',
+          resource: 'database',
+          metadata: {
+            fileName: backupFileName,
+            fileSize: stats.size,
+            filePath: backupFilePath,
+          },
+        }
+      );
 
       return backupFilePath;
     } catch (error) {
@@ -73,7 +76,8 @@ export class BackupService {
         return [];
       }
 
-      const files = fs.readdirSync(backupDir)
+      const files = fs
+        .readdirSync(backupDir)
         .filter(file => file.endsWith('.sql'))
         .map(file => {
           const filePath = path.join(backupDir, file);
@@ -143,7 +147,8 @@ export class BackupService {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - keepDays);
 
-      const files = fs.readdirSync(backupDir)
+      const files = fs
+        .readdirSync(backupDir)
         .filter(file => file.endsWith('.sql'))
         .map(file => {
           const filePath = path.join(backupDir, file);

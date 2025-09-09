@@ -31,7 +31,7 @@ import { File } from '../../entities/file.entity';
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
           'text/plain',
           'application/zip',
-          'application/x-zip-compressed'
+          'application/x-zip-compressed',
         ];
 
         if (allowedMimes.includes(file.mimetype)) {

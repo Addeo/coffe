@@ -7,7 +7,7 @@ import { Setting, SettingKey } from '../../entities/settings.entity';
 export class SettingsService implements OnModuleInit {
   constructor(
     @InjectRepository(Setting)
-    private settingsRepository: Repository<Setting>,
+    private settingsRepository: Repository<Setting>
   ) {}
 
   async onModuleInit() {

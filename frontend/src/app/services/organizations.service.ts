@@ -6,12 +6,12 @@ import {
   OrganizationDto,
   CreateOrganizationDto,
   UpdateOrganizationDto,
-  OrganizationsQueryDto
+  OrganizationsQueryDto,
 } from '@shared/dtos/organization.dto';
 import { PaginatedResponse } from '@shared/types/api.types';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class OrganizationsService {
   private http = inject(HttpClient);
@@ -43,7 +43,10 @@ export class OrganizationsService {
       params = params.set('sortOrder', query.sortOrder);
     }
 
-    return this.http.get<PaginatedResponse<OrganizationDto>>(`${environment.apiUrl}/organizations`, { params });
+    return this.http.get<PaginatedResponse<OrganizationDto>>(
+      `${environment.apiUrl}/organizations`,
+      { params }
+    );
   }
 
   getOrganization(id: number): Observable<OrganizationDto> {
@@ -55,7 +58,10 @@ export class OrganizationsService {
   }
 
   updateOrganization(id: number, organization: UpdateOrganizationDto): Observable<OrganizationDto> {
-    return this.http.patch<OrganizationDto>(`${environment.apiUrl}/organizations/${id}`, organization);
+    return this.http.patch<OrganizationDto>(
+      `${environment.apiUrl}/organizations/${id}`,
+      organization
+    );
   }
 
   deleteOrganization(id: number): Observable<void> {
@@ -63,6 +69,9 @@ export class OrganizationsService {
   }
 
   toggleOrganizationStatus(id: number): Observable<OrganizationDto> {
-    return this.http.patch<OrganizationDto>(`${environment.apiUrl}/organizations/${id}/toggle-status`, {});
+    return this.http.patch<OrganizationDto>(
+      `${environment.apiUrl}/organizations/${id}/toggle-status`,
+      {}
+    );
   }
 }

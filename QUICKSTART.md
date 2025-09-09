@@ -1,6 +1,7 @@
 # 🚀 Quick Start Guide
 
 ## Prerequisites
+
 - Docker & Docker Compose
 - Node.js 18+ (optional, for local development)
 
@@ -42,6 +43,7 @@ docker-compose up --build
 ## Development Workflow
 
 ### Frontend Development
+
 ```bash
 cd frontend
 npm install
@@ -49,6 +51,7 @@ npm start
 ```
 
 ### Backend Development
+
 ```bash
 cd backend
 npm install
@@ -56,6 +59,7 @@ npm run start:dev
 ```
 
 ### Shared Types
+
 ```bash
 cd shared
 npm run build

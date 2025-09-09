@@ -2,12 +2,18 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { CreateOrderDto, UpdateOrderDto, AssignEngineerDto, OrdersQueryDto, OrderDto } from '@shared/dtos/order.dto';
+import {
+  CreateOrderDto,
+  UpdateOrderDto,
+  AssignEngineerDto,
+  OrdersQueryDto,
+  OrderDto,
+} from '@shared/dtos/order.dto';
 import { PaginatedResponse } from '@shared/types/api.types';
 import { OrderStatus } from '@shared/interfaces/order.interface';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class OrdersService {
   private http = inject(HttpClient);
@@ -77,7 +83,10 @@ export class OrdersService {
   }
 
   assignEngineer(id: number, engineerData: AssignEngineerDto): Observable<OrderDto> {
-    return this.http.post<OrderDto>(`${environment.apiUrl}/orders/${id}/assign-engineer`, engineerData);
+    return this.http.post<OrderDto>(
+      `${environment.apiUrl}/orders/${id}/assign-engineer`,
+      engineerData
+    );
   }
 
   deleteOrder(id: number): Observable<void> {
@@ -97,7 +106,7 @@ export class OrdersService {
   updateMultipleOrders(orderIds: number[], updates: UpdateOrderDto): Observable<OrderDto[]> {
     return this.http.patch<OrderDto[]>(`${environment.apiUrl}/orders/batch`, {
       ids: orderIds,
-      updates
+      updates,
     });
   }
 }

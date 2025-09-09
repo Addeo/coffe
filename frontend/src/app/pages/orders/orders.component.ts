@@ -45,7 +45,7 @@ import { OrderDeleteConfirmationDialogComponent } from '../../components/modals/
     MatMenuModule,
   ],
   templateUrl: './orders.component.html',
-  styleUrls: ['./orders.component.scss']
+  styleUrls: ['./orders.component.scss'],
 })
 export class OrdersComponent implements OnInit {
   private ordersService = inject(OrdersService);
@@ -54,7 +54,16 @@ export class OrdersComponent implements OnInit {
   private modalService = inject(ModalService);
   private toastService = inject(ToastService);
 
-  displayedColumns: string[] = ['id', 'title', 'organization', 'assignedEngineer', 'status', 'createdAt', 'edit', 'actions'];
+  displayedColumns: string[] = [
+    'id',
+    'title',
+    'organization',
+    'assignedEngineer',
+    'status',
+    'createdAt',
+    'edit',
+    'actions',
+  ];
   dataSource = new MatTableDataSource<OrderDto>([]);
   isLoading = signal(false);
   orderStats = signal({
@@ -63,7 +72,7 @@ export class OrdersComponent implements OnInit {
     processing: 0,
     working: 0,
     review: 0,
-    completed: 0
+    completed: 0,
   });
 
   // Role-based permissions
@@ -97,26 +106,26 @@ export class OrdersComponent implements OnInit {
     }
 
     this.ordersService.getOrders(query).subscribe({
-      next: (response) => {
+      next: response => {
         this.dataSource.data = response.data;
         this.isLoading.set(false);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error loading orders:', error);
         this.toastService.error('Error loading orders');
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
   private loadOrderStats() {
     this.ordersService.getOrderStats().subscribe({
-      next: (stats) => {
+      next: stats => {
         this.orderStats.set(stats);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error loading order stats:', error);
-      }
+      },
     });
   }
 
@@ -128,7 +137,7 @@ export class OrdersComponent implements OnInit {
   onEditOrder(order: OrderDto) {
     const dialogRef = this.modalService.openDialog(OrderDialogComponent, {
       order,
-      isEdit: true
+      isEdit: true,
     });
 
     dialogRef.subscribe(result => {
@@ -140,13 +149,17 @@ export class OrdersComponent implements OnInit {
   }
 
   onViewOrder(order: OrderDto) {
-    const dialogRef = this.modalService.openDialog(OrderDialogComponent, {
-      order,
-      isEdit: true
-    }, {
-      disableClose: false,
-      data: { readonly: true }
-    });
+    const dialogRef = this.modalService.openDialog(
+      OrderDialogComponent,
+      {
+        order,
+        isEdit: true,
+      },
+      {
+        disableClose: false,
+        data: { readonly: true },
+      }
+    );
 
     dialogRef.subscribe(result => {
       if (result) {
@@ -171,7 +184,7 @@ export class OrdersComponent implements OnInit {
     }
 
     updateObservable.subscribe({
-      next: (updatedOrder) => {
+      next: updatedOrder => {
         // Update the order in the data source
         const index = this.dataSource.data.findIndex(o => o.id === order.id);
         if (index !== -1) {
@@ -181,10 +194,10 @@ export class OrdersComponent implements OnInit {
         this.loadOrderStats(); // Refresh stats
         this.toastService.success(`Order status updated to ${newStatus}`);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error updating order status:', error);
         this.toastService.error('Error updating order status');
-      }
+      },
     });
   }
 
@@ -198,7 +211,7 @@ export class OrdersComponent implements OnInit {
     const dialogRef = this.modalService.openDialog(OrderDeleteConfirmationDialogComponent, {
       order,
       title: 'Delete Order',
-      message: `Are you sure you want to delete order "${order.title}"?`
+      message: `Are you sure you want to delete order "${order.title}"?`,
     });
 
     dialogRef.subscribe(result => {
@@ -211,7 +224,7 @@ export class OrdersComponent implements OnInit {
 
   onCreateOrder() {
     const dialogRef = this.modalService.openDialog(OrderDialogComponent, {
-      isEdit: false
+      isEdit: false,
     });
 
     dialogRef.subscribe(result => {

@@ -39,10 +39,10 @@ import { ToastService } from '../../services/toast.service';
     MatProgressSpinnerModule,
     MatTabsModule,
     MatMenuModule,
-    MatBadgeModule
+    MatBadgeModule,
   ],
   templateUrl: './notifications.component.html',
-  styleUrls: ['./notifications.component.scss']
+  styleUrls: ['./notifications.component.scss'],
 })
 export class NotificationsComponent implements OnInit {
   private notificationsService = inject(NotificationsService);
@@ -78,7 +78,7 @@ export class NotificationsComponent implements OnInit {
 
     // Load all notifications
     this.notificationsService.getNotifications(1, 100).subscribe({
-      next: (response) => {
+      next: response => {
         const allNotifications = response.notifications;
 
         // Split into read/unread
@@ -92,11 +92,11 @@ export class NotificationsComponent implements OnInit {
 
         this.isLoading.set(false);
       },
-      error: (error) => {
+      error: error => {
         console.error('Failed to load notifications:', error);
         this.toastService.showError('Failed to load notifications');
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
@@ -114,10 +114,14 @@ export class NotificationsComponent implements OnInit {
 
   getCurrentDataSource(): MatTableDataSource<NotificationDto> {
     switch (this.selectedTabIndex()) {
-      case 0: return this.allDataSource;
-      case 1: return this.unreadDataSource;
-      case 2: return this.readDataSource;
-      default: return this.allDataSource;
+      case 0:
+        return this.allDataSource;
+      case 1:
+        return this.unreadDataSource;
+      case 2:
+        return this.readDataSource;
+      default:
+        return this.allDataSource;
     }
   }
 
@@ -130,10 +134,10 @@ export class NotificationsComponent implements OnInit {
         this.updateNotificationStatus(notification.id, 'read');
         this.toastService.showSuccess('Notification marked as read');
       },
-      error: (error) => {
+      error: error => {
         console.error('Failed to mark notification as read:', error);
         this.toastService.showError('Failed to mark notification as read');
-      }
+      },
     });
   }
 
@@ -146,10 +150,10 @@ export class NotificationsComponent implements OnInit {
         this.updateNotificationStatus(notification.id, 'unread');
         this.toastService.showSuccess('Notification marked as unread');
       },
-      error: (error) => {
+      error: error => {
         console.error('Failed to mark notification as unread:', error);
         this.toastService.showError('Failed to mark notification as unread');
-      }
+      },
     });
   }
 
@@ -160,10 +164,10 @@ export class NotificationsComponent implements OnInit {
         this.updateAllNotificationsStatus('read');
         this.toastService.showSuccess('All notifications marked as read');
       },
-      error: (error) => {
+      error: error => {
         console.error('Failed to mark all notifications as read:', error);
         this.toastService.showError('Failed to mark all notifications as read');
-      }
+      },
     });
   }
 
@@ -174,14 +178,16 @@ export class NotificationsComponent implements OnInit {
 
   private updateNotificationStatus(notificationId: number, status: 'read' | 'unread'): void {
     const updateNotification = (notifications: NotificationDto[]) => {
-      return notifications.map(n =>
-        n.id === notificationId ? { ...n, status } : n
-      );
+      return notifications.map(n => (n.id === notificationId ? { ...n, status } : n));
     };
 
     this.allDataSource.data = updateNotification(this.allDataSource.data);
-    this.unreadDataSource.data = updateNotification(this.unreadDataSource.data).filter(n => n.status === 'unread');
-    this.readDataSource.data = updateNotification(this.readDataSource.data).filter(n => n.status === 'read');
+    this.unreadDataSource.data = updateNotification(this.unreadDataSource.data).filter(
+      n => n.status === 'unread'
+    );
+    this.readDataSource.data = updateNotification(this.readDataSource.data).filter(
+      n => n.status === 'read'
+    );
   }
 
   private updateAllNotificationsStatus(status: 'read' | 'unread'): void {
@@ -191,7 +197,8 @@ export class NotificationsComponent implements OnInit {
 
     this.allDataSource.data = updateNotifications(this.allDataSource.data);
     this.unreadDataSource.data = status === 'unread' ? updateNotifications([]) : [];
-    this.readDataSource.data = status === 'read' ? updateNotifications(this.allDataSource.data) : [];
+    this.readDataSource.data =
+      status === 'read' ? updateNotifications(this.allDataSource.data) : [];
   }
 
   getPriorityColor(priority: string): string {
@@ -227,7 +234,7 @@ export class NotificationsComponent implements OnInit {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   }
 

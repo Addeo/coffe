@@ -13,7 +13,7 @@ export class UsersService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(UserActivityLog)
-    private activityLogRepository: Repository<UserActivityLog>,
+    private activityLogRepository: Repository<UserActivityLog>
   ) {}
 
   async create(createUserDto: CreateUserDto, createdById: number): Promise<User> {
@@ -41,7 +41,16 @@ export class UsersService {
   async findAll(currentUser: any): Promise<User[]> {
     const query = this.userRepository
       .createQueryBuilder('user')
-      .select(['user.id', 'user.email', 'user.firstName', 'user.lastName', 'user.role', 'user.isActive', 'user.createdAt', 'user.updatedAt']);
+      .select([
+        'user.id',
+        'user.email',
+        'user.firstName',
+        'user.lastName',
+        'user.role',
+        'user.isActive',
+        'user.createdAt',
+        'user.updatedAt',
+      ]);
 
     // Admin can see all users
     if (currentUser.role === UserRole.ADMIN) {
@@ -60,7 +69,16 @@ export class UsersService {
   async findOne(id: number, currentUser: any): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { id },
-      select: ['id', 'email', 'firstName', 'lastName', 'role', 'isActive', 'createdAt', 'updatedAt'],
+      select: [
+        'id',
+        'email',
+        'firstName',
+        'lastName',
+        'role',
+        'isActive',
+        'createdAt',
+        'updatedAt',
+      ],
     });
 
     if (!user) {

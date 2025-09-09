@@ -1,4 +1,11 @@
-import { Controller, Get, Post, Body, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -8,7 +15,7 @@ import { User, UserRole } from '../../entities/user.entity';
 export class TestController {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private userRepository: Repository<User>
   ) {}
   @Get()
   getHello() {
@@ -17,7 +24,9 @@ export class TestController {
 
   @Get('create-admin')
   async createAdminUser() {
-    const existingUser = await this.userRepository.findOne({ where: { email: 'admin@coffee.com' } });
+    const existingUser = await this.userRepository.findOne({
+      where: { email: 'admin@coffee.com' },
+    });
 
     if (existingUser) {
       return { message: 'Admin user already exists', user: existingUser };
@@ -45,7 +54,7 @@ export class TestController {
         lastName: savedUser.lastName,
         role: savedUser.role,
         isActive: savedUser.isActive,
-      }
+      },
     };
   }
 
@@ -68,8 +77,8 @@ export class TestController {
           email: body.email,
           firstName: 'Admin',
           lastName: 'User',
-          role: 'admin'
-        }
+          role: 'admin',
+        },
       };
     } else {
       throw new UnauthorizedException('Invalid email or password');

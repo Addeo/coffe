@@ -6,7 +6,7 @@ async function testDatabaseConnection() {
     port: 3307,
     user: 'coffee_user',
     password: 'coffee_password',
-    database: 'coffee_admin'
+    database: 'coffee_admin',
   };
 
   console.log('🔍 Тестирование подключения к базе данных...');
@@ -40,7 +40,6 @@ async function testDatabaseConnection() {
 
     await connection.end();
     console.log('\n🎉 Тест завершен успешно!');
-
   } catch (error) {
     console.error('❌ Ошибка подключения:', error.message);
     console.log('\n🔧 Возможные решения:');

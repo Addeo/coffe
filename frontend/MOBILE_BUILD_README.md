@@ -5,11 +5,13 @@
 ## Предварительные требования
 
 ### Для Android:
+
 - Android Studio (последняя версия)
 - JDK 11 или выше
 - Android SDK (API 22+ рекомендуется)
 
 ### Для iOS:
+
 - macOS
 - Xcode 13+
 - iOS Simulator или физическое устройство
@@ -82,11 +84,13 @@ npm run capacitor:add:ios
 ### Для Android:
 
 1. **Подготовка:**
+
    ```bash
    npm run build:android
    ```
 
 2. **Открытие в Android Studio:**
+
    ```bash
    npm run open:android
    ```
@@ -103,11 +107,13 @@ npm run capacitor:add:ios
 ### Для iOS:
 
 1. **Подготовка:**
+
    ```bash
    npm run build:ios
    ```
 
 2. **Открытие в Xcode:**
+
    ```bash
    npm run open:ios
    ```
@@ -120,29 +126,34 @@ npm run capacitor:add:ios
 ## Конфигурация
 
 ### Capacitor конфигурация (`capacitor.config.json`):
+
 - **appId**: `com.coffee.admin`
 - **appName**: `Coffee Admin`
 - **webDir**: `dist/coffee-admin`
 - Настроен Splash Screen
 
 ### Ionic конфигурация (`ionic.config.json`):
+
 - Тип проекта: Angular
 - Интеграция с Capacitor
 
 ## Полезные советы
 
 1. **Перед первой сборкой** убедитесь, что все зависимости установлены:
+
    ```bash
    npm install
    ```
 
 2. **Для Android** установите переменные окружения:
+
    ```bash
    export ANDROID_HOME=/path/to/Android/SDK
    export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
    ```
 
 3. **Очистка кэша** при проблемах:
+
    ```bash
    rm -rf node_modules android ios
    npm install
@@ -151,6 +162,7 @@ npm run capacitor:add:ios
    ```
 
 4. **Обновление зависимостей Capacitor**:
+
    ```bash
    npx cap update
    ```
@@ -175,21 +187,25 @@ frontend/
 ## Troubleshooting
 
 ### Android:
+
 - Убедитесь, что Android SDK установлен
 - Проверьте JAVA_HOME
 - Попробуйте `./gradlew clean` в папке android
 
 ### iOS:
+
 - Убедитесь, что Xcode установлен и настроен
 - Проверьте Command Line Tools: `xcode-select --install`
 - Для физического устройства настройте provisioning profile
 
 ### Общие проблемы:
+
 - Очистите node_modules и переустановите
 - Проверьте версии Node.js (рекомендуется 16+)
 - Убедитесь, что порты 4200, 8100 свободны
 
 ### Проблемы с Capacitor:
+
 - **"could not determine executable to run"**: Используйте `cap` вместо `npx cap`
 - **RxJS конфликты**: Очистите все node_modules и переустановите
 - **Android Studio не открывается**: Проверьте установку Android SDK

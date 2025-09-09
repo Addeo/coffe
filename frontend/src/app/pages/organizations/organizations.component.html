@@ -9,17 +9,21 @@
       <div class="actions-row">
         <mat-form-field class="search-field" appearance="outline">
           <mat-label>Search organizations</mat-label>
-          <input matInput
-                 (input)="onSearchChange($any($event.target).value)"
-                 [value]="searchQuery()"
-                 placeholder="Search by name...">
+          <input
+            matInput
+            (input)="onSearchChange($any($event.target).value)"
+            [value]="searchQuery()"
+            placeholder="Search by name..."
+          />
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
 
-        <button mat-raised-button
-                color="primary"
-                (click)="onCreateOrganization()"
-                *ngIf="canEdit()">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="onCreateOrganization()"
+          *ngIf="canEdit()"
+        >
           <mat-icon>add</mat-icon>
           Add Organization
         </button>
@@ -31,7 +35,6 @@
     <mat-card-content>
       <div class="table-container">
         <table mat-table [dataSource]="dataSource" matSort class="organizations-table">
-
           <!-- Name Column -->
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
@@ -67,8 +70,7 @@
           <ng-container matColumnDef="hasOvertime">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Overtime</th>
             <td mat-cell *matCellDef="let organization">
-              <mat-chip [color]="organization.hasOvertime ? 'primary' : 'warn'"
-                        selected>
+              <mat-chip [color]="organization.hasOvertime ? 'primary' : 'warn'" selected>
                 {{ organization.hasOvertime ? 'Yes' : 'No' }}
               </mat-chip>
             </td>
@@ -78,8 +80,7 @@
           <ng-container matColumnDef="isActive">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
             <td mat-cell *matCellDef="let organization">
-              <mat-chip [color]="getStatusColor(organization.isActive)"
-                        selected>
+              <mat-chip [color]="getStatusColor(organization.isActive)" selected>
                 {{ getStatusText(organization.isActive) }}
               </mat-chip>
             </td>
@@ -97,10 +98,12 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let organization">
-              <button mat-icon-button
-                      [matMenuTriggerFor]="menu"
-                      [disabled]="!canEdit()"
-                      aria-label="Organization actions">
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="menu"
+                [disabled]="!canEdit()"
+                aria-label="Organization actions"
+              >
                 <mat-icon>more_vert</mat-icon>
               </button>
 
@@ -117,9 +120,11 @@
 
                 <mat-divider></mat-divider>
 
-                <button mat-menu-item
-                        (click)="onDeleteOrganization(organization)"
-                        class="delete-action">
+                <button
+                  mat-menu-item
+                  (click)="onDeleteOrganization(organization)"
+                  class="delete-action"
+                >
                   <mat-icon>delete</mat-icon>
                   <span>Delete</span>
                 </button>
@@ -128,7 +133,7 @@
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
 
         <!-- Loading spinner -->
@@ -143,10 +148,12 @@
           <h3>No organizations found</h3>
           <p *ngIf="searchQuery()">No organizations match your search criteria.</p>
           <p *ngIf="!searchQuery()">Get started by creating your first organization.</p>
-          <button *ngIf="canEdit() && !searchQuery()"
-                  mat-raised-button
-                  color="primary"
-                  (click)="onCreateOrganization()">
+          <button
+            *ngIf="canEdit() && !searchQuery()"
+            mat-raised-button
+            color="primary"
+            (click)="onCreateOrganization()"
+          >
             <mat-icon>add</mat-icon>
             Add Organization
           </button>
@@ -154,11 +161,12 @@
       </div>
 
       <!-- Paginator -->
-      <mat-paginator *ngIf="organizations().length > 0"
-                     [pageSizeOptions]="[10, 25, 50]"
-                     showFirstLastButtons>
+      <mat-paginator
+        *ngIf="organizations().length > 0"
+        [pageSizeOptions]="[10, 25, 50]"
+        showFirstLastButtons
+      >
       </mat-paginator>
     </mat-card-content>
   </mat-card>
 </div>
-

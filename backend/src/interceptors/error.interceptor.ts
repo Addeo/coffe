@@ -19,7 +19,7 @@ export class ErrorInterceptor implements NestInterceptor {
     const { method, url, user, ip, headers } = request;
 
     return next.handle().pipe(
-      catchError((error) => {
+      catchError(error => {
         // Логируем ошибку
         const errorContext = {
           method,
@@ -35,28 +35,25 @@ export class ErrorInterceptor implements NestInterceptor {
           },
         };
 
-        this.logger.error(
-          `Request failed: ${method} ${url}`,
-          error.stack,
-          errorContext
-        );
+        this.logger.error(`Request failed: ${method} ${url}`, error.stack, errorContext);
 
         // Если это не HttpException, преобразуем в стандартную ошибку
         if (!(error instanceof HttpException)) {
-          return throwError(() =>
-            new HttpException(
-              {
-                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: 'Internal server error',
-                error: process.env.NODE_ENV === 'development' ? error.message : undefined,
-              },
-              HttpStatus.INTERNAL_SERVER_ERROR,
-            ),
+          return throwError(
+            () =>
+              new HttpException(
+                {
+                  statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                  message: 'Internal server error',
+                  error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR
+              )
           );
         }
 
         return throwError(() => error);
-      }),
+      })
     );
   }
 }

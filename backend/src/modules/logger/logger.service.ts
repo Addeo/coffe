@@ -47,14 +47,23 @@ export class LoggerService {
   }
 
   // Специфические методы для бизнес-логики
-  logUserAction(userId: number, action: string, resource: string, resourceId?: number, metadata?: any) {
-    this.log(`User ${userId} performed ${action} on ${resource}${resourceId ? ` (${resourceId})` : ''}`, {
-      userId,
-      action,
-      resource,
-      resourceId,
-      metadata,
-    });
+  logUserAction(
+    userId: number,
+    action: string,
+    resource: string,
+    resourceId?: number,
+    metadata?: any
+  ) {
+    this.log(
+      `User ${userId} performed ${action} on ${resource}${resourceId ? ` (${resourceId})` : ''}`,
+      {
+        userId,
+        action,
+        resource,
+        resourceId,
+        metadata,
+      }
+    );
   }
 
   logSecurityEvent(event: string, userId?: number, ip?: string, metadata?: any) {

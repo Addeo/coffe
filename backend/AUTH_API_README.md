@@ -3,9 +3,11 @@
 ## Authentication Endpoints
 
 ### POST /auth/login
+
 User authentication.
 
 **Request Body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -14,6 +16,7 @@ User authentication.
 ```
 
 **Response:**
+
 ```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -31,6 +34,7 @@ User authentication.
 ```
 
 **Errors:**
+
 - `401 Unauthorized` - Invalid credentials
 
 ## Endpoint Protection
@@ -38,6 +42,7 @@ User authentication.
 To protect endpoints, use the following guards:
 
 ### JWT Guard
+
 ```typescript
 @UseGuards(JwtAuthGuard)
 @Get('protected')
@@ -47,6 +52,7 @@ getProtectedData() {
 ```
 
 ### Roles Guard
+
 ```typescript
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)

@@ -41,7 +41,7 @@ export class GmailService {
     private configService: ConfigService,
     private loggerService: LoggerService,
     private ordersService: OrdersService,
-    private notificationsService: NotificationsService,
+    private notificationsService: NotificationsService
   ) {
     this.initializeGmailClient();
   }
@@ -128,9 +128,14 @@ export class GmailService {
 
     // Проверяем различные паттерны тегов
     const orderTags = [
-      '[ORDER]', '[ЗАКАЗ]', '[НОВЫЙ ЗАКАЗ]',
-      'ORDER:', 'ЗАКАЗ:', 'НОВЫЙ ЗАКАЗ:',
-      '#order', '#заказ'
+      '[ORDER]',
+      '[ЗАКАЗ]',
+      '[НОВЫЙ ЗАКАЗ]',
+      'ORDER:',
+      'ЗАКАЗ:',
+      'НОВЫЙ ЗАКАЗ:',
+      '#order',
+      '#заказ',
     ];
 
     const content = `${subject} ${body}`.toLowerCase();
@@ -148,13 +153,16 @@ export class GmailService {
       const orderData = this.parseOrderData(subject, body, from);
 
       // Создаем заказ как администратор (ID 1)
-      const order = await this.ordersService.create({
-        organizationId: orderData.organizationId,
-        title: orderData.title,
-        description: orderData.description,
-        location: orderData.location,
-        plannedStartDate: orderData.plannedStartDate,
-      }, 1); // Admin user ID
+      const order = await this.ordersService.create(
+        {
+          organizationId: orderData.organizationId,
+          title: orderData.title,
+          description: orderData.description,
+          location: orderData.location,
+          plannedStartDate: orderData.plannedStartDate,
+        },
+        1
+      ); // Admin user ID
 
       // Логируем создание заказа из email
       this.loggerService.log(`Order created from email: ${subject}`, {
@@ -169,7 +177,7 @@ export class GmailService {
 
       // Отправляем уведомление администраторам
       const adminUsers = await this.notificationsService['userRepository'].find({
-        where: { role: UserRole.ADMIN, isActive: true }
+        where: { role: UserRole.ADMIN, isActive: true },
       });
 
       for (const admin of adminUsers) {

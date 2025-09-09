@@ -7,15 +7,8 @@ import { WorkReport } from '../../entities/work-report.entity';
 import { SalaryCalculation } from '../../entities/salary-calculation.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      Engineer,
-      Organization,
-      WorkReport,
-      SalaryCalculation
-    ])
-  ],
+  imports: [TypeOrmModule.forFeature([Engineer, Organization, WorkReport, SalaryCalculation])],
   providers: [CalculationService],
-  exports: [CalculationService]
+  exports: [CalculationService],
 })
 export class CalculationsModule {}

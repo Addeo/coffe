@@ -37,10 +37,10 @@ import { DeleteConfirmationDialogComponent } from '../../components/modals/delet
     MatFormFieldModule,
     MatInputModule,
     MatTooltipModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   templateUrl: './users.component.html',
-  styleUrls: ['./users.component.scss']
+  styleUrls: ['./users.component.scss'],
 })
 export class UsersComponent implements OnInit {
   private usersService = inject(UsersService);
@@ -49,7 +49,16 @@ export class UsersComponent implements OnInit {
   private modalService = inject(ModalService);
   private toastService = inject(ToastService);
 
-  displayedColumns: string[] = ['id', 'firstName', 'lastName', 'email', 'role', 'isActive', 'createdAt', 'actions'];
+  displayedColumns: string[] = [
+    'id',
+    'firstName',
+    'lastName',
+    'email',
+    'role',
+    'isActive',
+    'createdAt',
+    'actions',
+  ];
   dataSource = new MatTableDataSource<UserDto>([]);
   isLoading = signal(false);
 
@@ -76,15 +85,15 @@ export class UsersComponent implements OnInit {
   private loadUsers() {
     this.isLoading.set(true);
     this.usersService.getUsers().subscribe({
-      next: (response) => {
+      next: response => {
         this.dataSource.data = response.data;
         this.isLoading.set(false);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error loading users:', error);
         this.toastService.error('Error loading users');
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
@@ -116,7 +125,7 @@ export class UsersComponent implements OnInit {
   onEditUser(user: UserDto) {
     const dialogRef = this.modalService.openDialog(UserDialogComponent, {
       user,
-      isEdit: true
+      isEdit: true,
     });
 
     dialogRef.subscribe(result => {
@@ -130,7 +139,7 @@ export class UsersComponent implements OnInit {
     const dialogRef = this.modalService.openDialog(DeleteConfirmationDialogComponent, {
       user,
       title: 'Delete User',
-      message: `Are you sure you want to delete user ${user.firstName} ${user.lastName}?`
+      message: `Are you sure you want to delete user ${user.firstName} ${user.lastName}?`,
     });
 
     dialogRef.subscribe(result => {
@@ -142,7 +151,7 @@ export class UsersComponent implements OnInit {
 
   onCreateUser() {
     const dialogRef = this.modalService.openDialog(UserDialogComponent, {
-      isEdit: false
+      isEdit: false,
     });
 
     dialogRef.subscribe(result => {
@@ -155,7 +164,7 @@ export class UsersComponent implements OnInit {
   onToggleUserStatus(user: UserDto) {
     const newStatus = !user.isActive;
     this.usersService.updateUser(user.id, { isActive: newStatus }).subscribe({
-      next: (updatedUser) => {
+      next: updatedUser => {
         // Update the user in the data source
         const index = this.dataSource.data.findIndex(u => u.id === user.id);
         if (index !== -1) {
@@ -164,10 +173,10 @@ export class UsersComponent implements OnInit {
         }
         this.toastService.success(`User ${newStatus ? 'activated' : 'deactivated'} successfully`);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error updating user status:', error);
         this.toastService.error('Error updating user status');
-      }
+      },
     });
   }
 

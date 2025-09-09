@@ -2,7 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from '../../entities/product.entity';
-import { CreateProductDto, UpdateProductDto, ProductsQueryDto } from '../../../shared/dtos/product.dto';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  ProductsQueryDto,
+} from '../../../shared/dtos/product.dto';
 
 export interface ProductsResponse {
   data: Product[];
@@ -16,7 +20,7 @@ export interface ProductsResponse {
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
-    private readonly productsRepository: Repository<Product>,
+    private readonly productsRepository: Repository<Product>
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
@@ -25,7 +29,16 @@ export class ProductsService {
   }
 
   async findAll(query: ProductsQueryDto = {}): Promise<ProductsResponse> {
-    const { page = 1, limit = 10, category, isActive, minPrice, maxPrice, sortBy = 'createdAt', sortOrder = 'DESC' } = query;
+    const {
+      page = 1,
+      limit = 10,
+      category,
+      isActive,
+      minPrice,
+      maxPrice,
+      sortBy = 'createdAt',
+      sortOrder = 'DESC',
+    } = query;
 
     const queryBuilder = this.productsRepository.createQueryBuilder('product');
 
@@ -109,7 +122,7 @@ export class ProductsService {
         'SUM(CASE WHEN product.isActive = 1 THEN 1 ELSE 0 END) as active',
         'SUM(CASE WHEN product.isActive = 0 THEN 1 ELSE 0 END) as inactive',
         'SUM(product.price * product.stockQuantity) as totalValue',
-        'AVG(product.price) as averagePrice'
+        'AVG(product.price) as averagePrice',
       ])
       .getRawOne();
 

@@ -6,7 +6,7 @@ import { UserDto, CreateUserDto, UpdateUserDto } from '@shared/dtos/user.dto';
 import { PaginatedResponse } from '@shared/types/api.types';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UsersService {
   private http = inject(HttpClient);

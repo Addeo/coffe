@@ -15,17 +15,18 @@ export const httpRequestInterceptor: HttpInterceptorFn = (req, next) => {
       return acc;
     }, {} as any),
     body: req.method !== 'GET' ? req.body : undefined,
-    withCredentials: req.withCredentials
+    withCredentials: req.withCredentials,
   });
 
   return next(req).pipe(
     tap(event => {
-      if (event.type === 4) { // HttpResponse
+      if (event.type === 4) {
+        // HttpResponse
         console.log('📥 HTTP Response:', {
           url: req.url,
           status: (event as any).status,
           statusText: (event as any).statusText,
-          body: (event as any).body
+          body: (event as any).body,
         });
       }
     }),
@@ -36,7 +37,7 @@ export const httpRequestInterceptor: HttpInterceptorFn = (req, next) => {
         status: error.status,
         statusText: error.statusText,
         message: error.message,
-        error: error.error
+        error: error.error,
       });
 
       // Показываем toast уведомление для HTTP ошибок

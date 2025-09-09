@@ -1,4 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Engineer } from './engineer.entity';
 import { User } from './user.entity';
 
@@ -6,7 +14,7 @@ export enum CalculationStatus {
   DRAFT = 'draft',
   CALCULATED = 'calculated',
   APPROVED = 'approved',
-  PAID = 'paid'
+  PAID = 'paid',
 }
 
 @Entity('salary_calculations')
@@ -60,7 +68,7 @@ export class SalaryCalculation {
   @Column({
     type: 'enum',
     enum: CalculationStatus,
-    default: CalculationStatus.DRAFT
+    default: CalculationStatus.DRAFT,
   })
   status: CalculationStatus;
 

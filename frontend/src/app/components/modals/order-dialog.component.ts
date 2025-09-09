@@ -36,7 +36,7 @@ export interface OrderDialogData {
     MatDatepickerModule,
     MatNativeDateModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="order-dialog">
@@ -48,7 +48,7 @@ export interface OrderDialogData {
         <form [formGroup]="orderForm" class="order-form">
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Title</mat-label>
-            <input matInput formControlName="title" placeholder="Enter order title">
+            <input matInput formControlName="title" placeholder="Enter order title" />
             <mat-error *ngIf="orderForm.get('title')?.hasError('required')">
               Title is required
             </mat-error>
@@ -56,10 +56,12 @@ export interface OrderDialogData {
 
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Description</mat-label>
-            <textarea matInput
-                      formControlName="description"
-                      placeholder="Enter order description"
-                      rows="3"></textarea>
+            <textarea
+              matInput
+              formControlName="description"
+              placeholder="Enter order description"
+              rows="3"
+            ></textarea>
           </mat-form-field>
 
           <div class="form-row">
@@ -77,7 +79,7 @@ export interface OrderDialogData {
 
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>Location</mat-label>
-              <input matInput formControlName="location" placeholder="Enter location">
+              <input matInput formControlName="location" placeholder="Enter location" />
               <mat-error *ngIf="orderForm.get('location')?.hasError('required')">
                 Location is required
               </mat-error>
@@ -87,12 +89,14 @@ export interface OrderDialogData {
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>Distance (km)</mat-label>
-              <input matInput
-                     type="number"
-                     formControlName="distanceKm"
-                     placeholder="Distance in km"
-                     min="0"
-                     step="0.1">
+              <input
+                matInput
+                type="number"
+                formControlName="distanceKm"
+                placeholder="Distance in km"
+                min="0"
+                step="0.1"
+              />
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">
@@ -111,7 +115,7 @@ export interface OrderDialogData {
 
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Planned Start Date</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="plannedStartDate">
+            <input matInput [matDatepicker]="picker" formControlName="plannedStartDate" />
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
           </mat-form-field>
@@ -120,145 +124,149 @@ export interface OrderDialogData {
 
       <mat-dialog-actions align="end">
         <button mat-button (click)="onCancel()">Cancel</button>
-        <button mat-raised-button
-                color="primary"
-                (click)="onSave()"
-                [disabled]="orderForm.invalid || isLoading()">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="onSave()"
+          [disabled]="orderForm.invalid || isLoading()"
+        >
           <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
           <span *ngIf="!isLoading()">{{ data.isEdit ? 'Update' : 'Create' }}</span>
         </button>
       </mat-dialog-actions>
     </div>
   `,
-  styles: [`
-    .order-dialog {
-      min-width: 600px;
-      max-width: 90vw;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    h2[mat-dialog-title] {
-      margin: 0;
-      padding: 24px 24px 16px 24px;
-      font-size: 24px;
-      font-weight: 500;
-      color: #1976d2;
-      border-bottom: 1px solid #e0e0e0;
-    }
-
-    .order-form {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      padding: 24px;
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-    }
-
-    .form-field {
-      flex: 1;
-      min-width: 0;
-    }
-
-    mat-form-field {
-      width: 100%;
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    mat-dialog-content {
-      padding: 0 !important;
-    }
-
-    mat-dialog-actions {
-      padding: 16px 24px 24px 24px;
-      margin: 0;
-      border-top: 1px solid #e0e0e0;
-      justify-content: flex-end;
-      gap: 12px;
-    }
-
-    button {
-      min-width: 100px;
-      border-radius: 8px;
-      text-transform: uppercase;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-    }
-
-    button[color="primary"] {
-      background-color: #1976d2;
-      color: white;
-    }
-
-    button[color="primary"]:disabled {
-      background-color: #ccc;
-      color: #666;
-    }
-
-    .mat-mdc-form-field {
-      margin-bottom: 0;
-    }
-
-    .mat-mdc-form-field-outline {
-      border-radius: 8px;
-    }
-
-    .mdc-text-field--outlined .mdc-notched-outline__leading,
-    .mdc-text-field--outlined .mdc-notched-outline__notch,
-    .mdc-text-field--outlined .mdc-notched-outline__trailing {
-      border-radius: 8px;
-    }
-
-    mat-error {
-      font-size: 12px;
-      margin-top: 4px;
-    }
-
-    /* Responsive design */
-    @media (max-width: 600px) {
+  styles: [
+    `
       .order-dialog {
-        min-width: 95vw;
-        margin: 16px;
-      }
-
-      .form-row {
-        flex-direction: column;
-        gap: 20px;
-      }
-
-      .order-form {
-        padding: 16px;
-        gap: 16px;
+        min-width: 600px;
+        max-width: 90vw;
+        border-radius: 12px;
+        overflow: hidden;
       }
 
       h2[mat-dialog-title] {
-        padding: 20px 16px 12px 16px;
-        font-size: 20px;
+        margin: 0;
+        padding: 24px 24px 16px 24px;
+        font-size: 24px;
+        font-weight: 500;
+        color: #1976d2;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .order-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 24px;
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+      }
+
+      .form-field {
+        flex: 1;
+        min-width: 0;
+      }
+
+      mat-form-field {
+        width: 100%;
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      mat-dialog-content {
+        padding: 0 !important;
       }
 
       mat-dialog-actions {
-        padding: 12px 16px 20px 16px;
-        flex-direction: column;
-        gap: 8px;
+        padding: 16px 24px 24px 24px;
+        margin: 0;
+        border-top: 1px solid #e0e0e0;
+        justify-content: flex-end;
+        gap: 12px;
       }
 
       button {
-        width: 100%;
-        min-width: unset;
+        min-width: 100px;
+        border-radius: 8px;
+        text-transform: uppercase;
+        font-weight: 500;
+        letter-spacing: 0.5px;
       }
-    }
-  `]
+
+      button[color='primary'] {
+        background-color: #1976d2;
+        color: white;
+      }
+
+      button[color='primary']:disabled {
+        background-color: #ccc;
+        color: #666;
+      }
+
+      .mat-mdc-form-field {
+        margin-bottom: 0;
+      }
+
+      .mat-mdc-form-field-outline {
+        border-radius: 8px;
+      }
+
+      .mdc-text-field--outlined .mdc-notched-outline__leading,
+      .mdc-text-field--outlined .mdc-notched-outline__notch,
+      .mdc-text-field--outlined .mdc-notched-outline__trailing {
+        border-radius: 8px;
+      }
+
+      mat-error {
+        font-size: 12px;
+        margin-top: 4px;
+      }
+
+      /* Responsive design */
+      @media (max-width: 600px) {
+        .order-dialog {
+          min-width: 95vw;
+          margin: 16px;
+        }
+
+        .form-row {
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .order-form {
+          padding: 16px;
+          gap: 16px;
+        }
+
+        h2[mat-dialog-title] {
+          padding: 20px 16px 12px 16px;
+          font-size: 20px;
+        }
+
+        mat-dialog-actions {
+          padding: 12px 16px 20px 16px;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        button {
+          width: 100%;
+          min-width: unset;
+        }
+      }
+    `,
+  ],
 })
 export class OrderDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -279,7 +287,7 @@ export class OrderDialogComponent implements OnInit {
     location: ['', [Validators.required]],
     distanceKm: [null],
     territoryType: [null],
-    plannedStartDate: [null]
+    plannedStartDate: [null],
   });
 
   ngOnInit() {
@@ -293,20 +301,20 @@ export class OrderDialogComponent implements OnInit {
         location: this.data.order.location,
         distanceKm: this.data.order.distanceKm,
         territoryType: this.data.order.territoryType,
-        plannedStartDate: this.data.order.plannedStartDate
+        plannedStartDate: this.data.order.plannedStartDate,
       });
     }
   }
 
   private loadOrganizations() {
     this.organizationsService.getOrganizations().subscribe({
-      next: (response) => {
+      next: response => {
         this.organizations.set(response.data.filter(org => org.isActive));
       },
-      error: (error) => {
+      error: error => {
         console.error('Error loading organizations:', error);
         this.toastService.error('Error loading organizations');
-      }
+      },
     });
   }
 
@@ -333,19 +341,19 @@ export class OrderDialogComponent implements OnInit {
       location: formValue.location,
       distanceKm: formValue.distanceKm || undefined,
       territoryType: formValue.territoryType || undefined,
-      plannedStartDate: formValue.plannedStartDate || undefined
+      plannedStartDate: formValue.plannedStartDate || undefined,
     };
 
     this.ordersService.createOrder(orderData).subscribe({
-      next: (order) => {
+      next: order => {
         this.toastService.success('Order created successfully');
         this.dialogRef.close(order);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error creating order:', error);
         this.toastService.error('Error creating order. Please try again.');
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
@@ -360,19 +368,19 @@ export class OrderDialogComponent implements OnInit {
       location: formValue.location,
       distanceKm: formValue.distanceKm || undefined,
       territoryType: formValue.territoryType || undefined,
-      plannedStartDate: formValue.plannedStartDate || undefined
+      plannedStartDate: formValue.plannedStartDate || undefined,
     };
 
     this.ordersService.updateOrder(this.data.order.id, orderData).subscribe({
-      next: (order) => {
+      next: order => {
         this.toastService.success('Order updated successfully');
         this.dialogRef.close(order);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error updating order:', error);
         this.toastService.error('Error updating order. Please try again.');
         this.isLoading.set(false);
-      }
+      },
     });
   }
 

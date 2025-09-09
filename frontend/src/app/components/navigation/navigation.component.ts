@@ -38,10 +38,10 @@ interface NavigationItem {
     MatBadgeModule,
     MatListModule,
     MatCardModule,
-    MatChipsModule
+    MatChipsModule,
   ],
   templateUrl: './navigation.component.html',
-  styleUrls: ['./navigation.component.scss']
+  styleUrls: ['./navigation.component.scss'],
 })
 export class NavigationComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
@@ -66,7 +66,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   navigationItems = computed<NavigationItem[]>(() => {
     const role = this.userRole();
     const items: NavigationItem[] = [
-      { label: 'Dashboard', route: '/dashboard', icon: 'dashboard' }
+      { label: 'Dashboard', route: '/dashboard', icon: 'dashboard' },
     ];
 
     if (role === UserRole.ADMIN || role === UserRole.MANAGER) {
@@ -79,7 +79,12 @@ export class NavigationComponent implements OnInit, OnDestroy {
     items.push(
       { label: 'Products', route: '/products', icon: 'inventory' },
       { label: 'Orders', route: '/orders', icon: 'shopping_cart' },
-      { label: 'Notifications', route: '/notifications', icon: 'notifications', badge: this.unreadCount() }
+      {
+        label: 'Notifications',
+        route: '/notifications',
+        icon: 'notifications',
+        badge: this.unreadCount(),
+      }
     );
 
     return items;
@@ -99,12 +104,12 @@ export class NavigationComponent implements OnInit, OnDestroy {
   private loadNotifications(): void {
     this.subscriptions.push(
       this.notificationsService.getNotifications(1, 5, 'unread').subscribe({
-        next: (response) => {
+        next: response => {
           this.recentNotifications.set(response.notifications);
         },
-        error: (error) => {
+        error: error => {
           console.error('Failed to load notifications:', error);
-        }
+        },
       })
     );
   }
@@ -134,16 +139,16 @@ export class NavigationComponent implements OnInit, OnDestroy {
           );
           this.recentNotifications.set(updatedNotifications);
         },
-        error: (error) => {
+        error: error => {
           console.error('Failed to mark notification as read:', error);
-        }
+        },
       });
     }
 
     // Navigate based on notification type
     if (notification.metadata?.orderId) {
       this.router.navigate(['/orders'], {
-        queryParams: { orderId: notification.metadata.orderId }
+        queryParams: { orderId: notification.metadata.orderId },
       });
     }
   }
@@ -154,13 +159,13 @@ export class NavigationComponent implements OnInit, OnDestroy {
         // Update local state
         const updatedNotifications = this.recentNotifications().map(n => ({
           ...n,
-          status: 'read' as const
+          status: 'read' as const,
         }));
         this.recentNotifications.set(updatedNotifications);
       },
-      error: (error) => {
+      error: error => {
         console.error('Failed to mark all notifications as read:', error);
-      }
+      },
     });
   }
 

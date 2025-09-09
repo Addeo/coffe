@@ -32,4 +32,3 @@ export interface OrganizationsQueryDto {
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
 }
-

@@ -13,7 +13,7 @@ export class SchedulerService {
     private gmailService: GmailService,
     private backupService: BackupService,
     private statisticsService: StatisticsService,
-    private loggerService: LoggerService,
+    private loggerService: LoggerService
   ) {}
 
   // Проверка новых email каждые 5 минут
@@ -75,10 +75,7 @@ export class SchedulerService {
 
       this.logger.log('Starting scheduled monthly statistics update');
 
-      await this.statisticsService.calculateAllUsersMonthlyEarnings(
-        currentMonth,
-        currentYear
-      );
+      await this.statisticsService.calculateAllUsersMonthlyEarnings(currentMonth, currentYear);
 
       this.loggerService.log('Monthly statistics update completed', {
         action: 'scheduled_statistics_completed',

@@ -1,4 +1,10 @@
-import { User, UserRole, LoginRequest, LoginResponse, AuthUser } from '../interfaces/user.interface';
+import {
+  User,
+  UserRole,
+  LoginRequest,
+  LoginResponse,
+  AuthUser,
+} from '../interfaces/user.interface';
 
 export interface CreateUserDto {
   email: string;

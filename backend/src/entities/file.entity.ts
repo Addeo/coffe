@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 import { Order } from './order.entity';
 import { FileType } from '../../shared/dtos/file.dto';
@@ -26,7 +33,7 @@ export class File {
   @Column({
     type: 'enum',
     enum: FileType,
-    default: FileType.OTHER
+    default: FileType.OTHER,
   })
   type: FileType;
 

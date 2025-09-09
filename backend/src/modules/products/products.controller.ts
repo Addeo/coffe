@@ -1,7 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { CreateProductDto, UpdateProductDto, ProductsQueryDto } from '../../../shared/dtos/product.dto';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  ProductsQueryDto,
+} from '../../../shared/dtos/product.dto';
 
 @Controller('products')
 @UseGuards(JwtAuthGuard)
@@ -39,10 +54,7 @@ export class ProductsController {
   }
 
   @Patch(':id/stock')
-  updateStock(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: { quantity: number }
-  ) {
+  updateStock(@Param('id', ParseIntPipe) id: number, @Body() body: { quantity: number }) {
     return this.productsService.updateStock(id, body.quantity);
   }
 

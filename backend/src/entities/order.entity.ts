@@ -1,4 +1,14 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn, OneToMany, Index } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  Index,
+} from 'typeorm';
 import { Organization } from './organization.entity';
 import { Engineer } from './engineer.entity';
 import { User } from './user.entity';
@@ -57,14 +67,14 @@ export class Order {
   @Column({
     type: 'enum',
     enum: TerritoryType,
-    nullable: true
+    nullable: true,
   })
   territoryType: TerritoryType;
 
   @Column({
     type: 'enum',
     enum: OrderStatus,
-    default: OrderStatus.WAITING
+    default: OrderStatus.WAITING,
   })
   status: OrderStatus;
 

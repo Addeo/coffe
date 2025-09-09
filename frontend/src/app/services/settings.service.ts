@@ -9,17 +9,24 @@ export interface AutoDistributionSettings {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SettingsService {
   private http = inject(HttpClient);
 
   getAutoDistributionSettings(): Observable<AutoDistributionSettings> {
-    return this.http.get<AutoDistributionSettings>(`${environment.apiUrl}/settings/auto-distribution`);
+    return this.http.get<AutoDistributionSettings>(
+      `${environment.apiUrl}/settings/auto-distribution`
+    );
   }
 
-  updateAutoDistributionSettings(settings: { enabled: boolean; maxOrdersPerEngineer?: number }): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${environment.apiUrl}/settings/auto-distribution`, settings);
+  updateAutoDistributionSettings(settings: {
+    enabled: boolean;
+    maxOrdersPerEngineer?: number;
+  }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${environment.apiUrl}/settings/auto-distribution`,
+      settings
+    );
   }
 }
-

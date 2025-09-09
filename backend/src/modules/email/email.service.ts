@@ -44,7 +44,7 @@ export class EmailService {
     to: string,
     userName: string,
     orderTitle: string,
-    newStatus: string,
+    newStatus: string
   ): Promise<void> {
     const subject = `Order Status Updated: ${orderTitle}`;
     const html = `
@@ -64,7 +64,7 @@ export class EmailService {
   async sendOrderAssignedNotification(
     to: string,
     userName: string,
-    orderTitle: string,
+    orderTitle: string
   ): Promise<void> {
     const subject = `New Order Assigned: ${orderTitle}`;
     const html = `
@@ -81,11 +81,7 @@ export class EmailService {
     await this.sendEmail({ to, subject, html });
   }
 
-  async sendUserStatusNotification(
-    to: string,
-    userName: string,
-    isActive: boolean,
-  ): Promise<void> {
+  async sendUserStatusNotification(to: string, userName: string, isActive: boolean): Promise<void> {
     const status = isActive ? 'activated' : 'deactivated';
     const subject = `Account ${status.charAt(0).toUpperCase() + status.slice(1)}`;
     const html = `
@@ -93,9 +89,10 @@ export class EmailService {
         <h2 style="color: #333;">Account Status Update</h2>
         <p>Hello ${userName},</p>
         <p>Your account has been ${status} by an administrator.</p>
-        ${isActive
-          ? '<p>You can now access all your orders and account features.</p>'
-          : '<p>Please contact an administrator if you need to reactivate your account.</p>'
+        ${
+          isActive
+            ? '<p>You can now access all your orders and account features.</p>'
+            : '<p>Please contact an administrator if you need to reactivate your account.</p>'
         }
         <br>
         <p>Best regards,<br>Coffee Admin Team</p>
@@ -109,7 +106,7 @@ export class EmailService {
     to: string,
     userName: string,
     title: string,
-    message: string,
+    message: string
   ): Promise<void> {
     const subject = `System Alert: ${title}`;
     const html = `

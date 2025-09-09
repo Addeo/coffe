@@ -20,45 +20,47 @@ import { NavigationComponent } from './components/navigation/navigation.componen
       </main>
     </div>
   `,
-  styles: [`
-    .app-container {
-      min-height: 100vh;
-      background-color: #fafafa;
-      font-family: 'Roboto', 'Helvetica Neue', sans-serif;
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    .main-content {
-      transition: all 0.3s ease;
-      position: relative;
-
-      &.with-nav {
-        margin-top: 64px; // Height of the toolbar
-        min-height: calc(100vh - 64px);
+  styles: [
+    `
+      .app-container {
+        min-height: 100vh;
+        background-color: #fafafa;
+        font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
 
-      // Ensure smooth transitions for content
-      ::ng-deep * {
-        transition: inherit;
-      }
-    }
+      .main-content {
+        transition: all 0.3s ease;
+        position: relative;
 
-    // Ensure login page takes full height
-    ::ng-deep router-outlet + * {
-      display: block;
-      height: 100%;
-      width: 100%;
-    }
+        &.with-nav {
+          margin-top: 64px; // Height of the toolbar
+          min-height: calc(100vh - 64px);
+        }
 
-    // Global loading state styling
-    ::ng-deep .mat-mdc-progress-spinner {
-      circle {
-        stroke: #1976d2;
+        // Ensure smooth transitions for content
+        ::ng-deep * {
+          transition: inherit;
+        }
       }
-    }
-  `]
+
+      // Ensure login page takes full height
+      ::ng-deep router-outlet + * {
+        display: block;
+        height: 100%;
+        width: 100%;
+      }
+
+      // Global loading state styling
+      ::ng-deep .mat-mdc-progress-spinner {
+        circle {
+          stroke: #1976d2;
+        }
+      }
+    `,
+  ],
 })
 export class AppComponent {
   private authService = inject(AuthService);

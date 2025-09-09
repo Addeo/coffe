@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+} from 'typeorm';
 import { Order } from './order.entity';
 import { Engineer } from './engineer.entity';
 import { TerritoryType } from '../../shared/interfaces/order.interface';
@@ -6,7 +13,7 @@ import { TerritoryType } from '../../shared/interfaces/order.interface';
 export enum WorkResult {
   COMPLETED = 'completed',
   PARTIAL = 'partial',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 @Entity('work_reports')
@@ -43,7 +50,7 @@ export class WorkReport {
   @Column({
     type: 'enum',
     enum: WorkResult,
-    default: WorkResult.COMPLETED
+    default: WorkResult.COMPLETED,
   })
   workResult: WorkResult;
 
@@ -53,7 +60,7 @@ export class WorkReport {
   @Column({
     type: 'enum',
     enum: TerritoryType,
-    nullable: true
+    nullable: true,
   })
   territoryType: TerritoryType;
 

@@ -7,7 +7,13 @@ async function bootstrap() {
 
   // Enable CORS for frontend communication
   app.enableCors({
-    origin: ['http://localhost:4200', 'http://localhost:8100', 'http://localhost:3000', 'http://localhost:4202', 'http://localhost:53545'],
+    origin: [
+      'http://localhost:4200',
+      'http://localhost:8100',
+      'http://localhost:3000',
+      'http://localhost:4202',
+      'http://localhost:53545',
+    ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -19,7 +25,7 @@ async function bootstrap() {
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
-    }),
+    })
   );
 
   // Global prefix for all routes

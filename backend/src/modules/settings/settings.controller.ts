@@ -14,8 +14,12 @@ export class SettingsController {
   @Get('auto-distribution')
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   async getAutoDistributionSetting() {
-    const enabled = await this.settingsService.getBooleanSetting(SettingKey.AUTO_DISTRIBUTION_ENABLED);
-    const maxOrders = await this.settingsService.getNumberSetting(SettingKey.MAX_ORDERS_PER_ENGINEER);
+    const enabled = await this.settingsService.getBooleanSetting(
+      SettingKey.AUTO_DISTRIBUTION_ENABLED
+    );
+    const maxOrders = await this.settingsService.getNumberSetting(
+      SettingKey.MAX_ORDERS_PER_ENGINEER
+    );
 
     return {
       autoDistributionEnabled: enabled,
@@ -25,7 +29,9 @@ export class SettingsController {
 
   @Post('auto-distribution')
   @Roles(UserRole.MANAGER)
-  async setAutoDistributionSetting(@Body() body: { enabled: boolean; maxOrdersPerEngineer?: number }) {
+  async setAutoDistributionSetting(
+    @Body() body: { enabled: boolean; maxOrdersPerEngineer?: number }
+  ) {
     await this.settingsService.setSetting(
       SettingKey.AUTO_DISTRIBUTION_ENABLED,
       body.enabled.toString()

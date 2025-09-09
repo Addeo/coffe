@@ -13,7 +13,8 @@
         *ngFor="let item of navigationItems()"
         [routerLink]="item.route"
         routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: false }">
+        [routerLinkActiveOptions]="{ exact: false }"
+      >
         <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
         <span>{{ item.label }}</span>
       </a>
@@ -23,7 +24,12 @@
     <div class="notifications-menu" *ngIf="isAuthenticated()">
       <button mat-icon-button [matMenuTriggerFor]="notificationsMenu" class="notifications-button">
         <mat-icon class="notifications-icon">notifications</mat-icon>
-        <span class="notifications-badge" *ngIf="unreadCount() > 0" matBadge="{{ unreadCount() }}" matBadgeColor="warn"></span>
+        <span
+          class="notifications-badge"
+          *ngIf="unreadCount() > 0"
+          matBadge="{{ unreadCount() }}"
+          matBadgeColor="warn"
+        ></span>
       </button>
 
       <mat-menu #notificationsMenu="matMenu" class="notifications-dropdown">
@@ -41,9 +47,12 @@
           <span>No new notifications</span>
         </div>
 
-        <div *ngFor="let notification of recentNotifications()" mat-menu-item
-             [class.unread]="notification.status === 'unread'"
-             (click)="onNotificationClick(notification)">
+        <div
+          *ngFor="let notification of recentNotifications()"
+          mat-menu-item
+          [class.unread]="notification.status === 'unread'"
+          (click)="onNotificationClick(notification)"
+        >
           <div class="notification-item">
             <mat-icon [style.color]="getPriorityColor(notification.priority)">
               {{ getPriorityIcon(notification.priority) }}
@@ -51,9 +60,11 @@
             <div class="notification-content">
               <div class="notification-title">{{ notification.title }}</div>
               <div class="notification-message">{{ notification.message }}</div>
-              <div class="notification-time">{{ notification.createdAt | date:'short' }}</div>
+              <div class="notification-time">{{ notification.createdAt | date: 'short' }}</div>
             </div>
-            <mat-icon *ngIf="notification.status === 'unread'" class="unread-indicator">fiber_manual_record</mat-icon>
+            <mat-icon *ngIf="notification.status === 'unread'" class="unread-indicator"
+              >fiber_manual_record</mat-icon
+            >
           </div>
         </div>
 

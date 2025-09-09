@@ -16,12 +16,14 @@ export interface EarningsComparison {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class StatisticsService {
   private http = inject(HttpClient);
 
   getEarningsComparison(): Observable<EarningsComparison> {
-    return this.http.get<EarningsComparison>(`${environment.apiUrl}/statistics/earnings/comparison`);
+    return this.http.get<EarningsComparison>(
+      `${environment.apiUrl}/statistics/earnings/comparison`
+    );
   }
 }

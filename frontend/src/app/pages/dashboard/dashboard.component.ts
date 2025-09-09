@@ -14,15 +14,9 @@ import { UserRole } from '@shared/interfaces/user.interface';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule
-  ],
+  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
   private authService = inject(AuthService);
@@ -42,19 +36,19 @@ export class DashboardComponent implements OnInit {
     processing: 0,
     working: 0,
     review: 0,
-    completed: 0
+    completed: 0,
   });
 
   userStats = signal({
     totalUsers: 0,
     activeUsers: 0,
-    newUsersThisMonth: 0
+    newUsersThisMonth: 0,
   });
 
   earningsStats = signal<EarningsComparison>({
     currentMonth: null,
     previousMonth: null,
-    growth: 0
+    growth: 0,
   });
 
   // Computed values for role-based content
@@ -72,9 +66,7 @@ export class DashboardComponent implements OnInit {
     }
   });
 
-  showUserStats = computed(() =>
-    this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER])
-  );
+  showUserStats = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
 
   showEarningsStats = computed(() =>
     this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER, UserRole.USER])
@@ -89,12 +81,12 @@ export class DashboardComponent implements OnInit {
 
     // Load order statistics
     this.ordersService.getOrderStats().subscribe({
-      next: (stats) => {
+      next: stats => {
         this.orderStats.set(stats);
       },
-      error: (error) => {
+      error: error => {
         console.error('Failed to load order stats:', error);
-      }
+      },
     });
 
     // Load user statistics (only for admin/manager)
@@ -112,7 +104,7 @@ export class DashboardComponent implements OnInit {
 
   private loadUserStats() {
     this.usersService.getUsers().subscribe({
-      next: (response) => {
+      next: response => {
         const users = response.data;
         this.userStats.set({
           totalUsers: users.length,
@@ -120,14 +112,15 @@ export class DashboardComponent implements OnInit {
           newUsersThisMonth: users.filter(u => {
             const userDate = new Date(u.createdAt);
             const now = new Date();
-            return userDate.getMonth() === now.getMonth() &&
-                   userDate.getFullYear() === now.getFullYear();
-          }).length
+            return (
+              userDate.getMonth() === now.getMonth() && userDate.getFullYear() === now.getFullYear()
+            );
+          }).length,
         });
       },
-      error: (error) => {
+      error: error => {
         console.error('Failed to load user stats:', error);
-      }
+      },
     });
   }
 
@@ -138,7 +131,7 @@ export class DashboardComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Failed to load earnings stats:', error);
-      }
+      },
     });
   }
 

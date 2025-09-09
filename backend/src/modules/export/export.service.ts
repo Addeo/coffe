@@ -17,7 +17,7 @@ export class ExportService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
     @InjectRepository(EarningsStatistic)
-    private earningsRepository: Repository<EarningsStatistic>,
+    private earningsRepository: Repository<EarningsStatistic>
   ) {}
 
   async exportOrdersReport(
@@ -25,7 +25,7 @@ export class ExportService {
     userRole: UserRole,
     userId?: number,
     startDate?: Date,
-    endDate?: Date,
+    endDate?: Date
   ): Promise<void> {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Orders Report');
@@ -76,7 +76,7 @@ export class ExportService {
     const orders = await queryBuilder.getMany();
 
     // Заполняем данными
-    orders.forEach((order) => {
+    orders.forEach(order => {
       worksheet.addRow({
         id: order.id,
         title: order.title,
@@ -96,11 +96,11 @@ export class ExportService {
     // Настройка HTTP ответа
     response.setHeader(
       'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     );
     response.setHeader(
       'Content-Disposition',
-      `attachment; filename=orders-report-${new Date().toISOString().split('T')[0]}.xlsx`,
+      `attachment; filename=orders-report-${new Date().toISOString().split('T')[0]}.xlsx`
     );
 
     await workbook.xlsx.write(response);
@@ -112,7 +112,7 @@ export class ExportService {
     userRole: UserRole,
     userId?: number,
     year?: number,
-    month?: number,
+    month?: number
   ): Promise<void> {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Earnings Report');
@@ -157,7 +157,7 @@ export class ExportService {
     const earnings = await queryBuilder.getMany();
 
     // Заполняем данными
-    earnings.forEach((earning) => {
+    earnings.forEach(earning => {
       worksheet.addRow({
         engineer: earning.user ? `${earning.user.firstName} ${earning.user.lastName}` : 'Unknown',
         month: earning.month,
@@ -172,11 +172,11 @@ export class ExportService {
     // Настройка HTTP ответа
     response.setHeader(
       'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     );
     response.setHeader(
       'Content-Disposition',
-      `attachment; filename=earnings-report-${new Date().toISOString().split('T')[0]}.xlsx`,
+      `attachment; filename=earnings-report-${new Date().toISOString().split('T')[0]}.xlsx`
     );
 
     await workbook.xlsx.write(response);

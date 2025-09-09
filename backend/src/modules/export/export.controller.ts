@@ -18,18 +18,12 @@ export class ExportController {
     @Res() response: Response,
     @Request() req,
     @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
+    @Query('endDate') endDate?: string
   ) {
     const start = startDate ? new Date(startDate) : undefined;
     const end = endDate ? new Date(endDate) : undefined;
 
-    await this.exportService.exportOrdersReport(
-      response,
-      req.user.role,
-      req.user.id,
-      start,
-      end
-    );
+    await this.exportService.exportOrdersReport(response, req.user.role, req.user.id, start, end);
   }
 
   @Get('earnings')
@@ -38,7 +32,7 @@ export class ExportController {
     @Res() response: Response,
     @Query('year') year?: number,
     @Query('month') month?: number,
-    @Query('userId') userId?: number,
+    @Query('userId') userId?: number
   ) {
     await this.exportService.exportEarningsReport(
       response,

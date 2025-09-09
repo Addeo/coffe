@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ModalService {
   private dialog = inject(MatDialog);
@@ -21,7 +21,7 @@ export class ModalService {
       hasBackdrop: true,
       backdropClass: 'modal-backdrop',
       panelClass: 'modal-panel',
-      ...config
+      ...config,
     });
 
     return dialogRef.afterClosed();

@@ -43,10 +43,10 @@ import { DeleteConfirmationDialogComponent } from '../../components/modals/delet
     MatProgressSpinnerModule,
     MatSlideToggleModule,
     MatMenuModule,
-    MatDividerModule
+    MatDividerModule,
   ],
   templateUrl: './organizations.component.html',
-  styleUrls: ['./organizations.component.scss']
+  styleUrls: ['./organizations.component.scss'],
 })
 export class OrganizationsComponent implements OnInit {
   private organizationsService = inject(OrganizationsService);
@@ -64,7 +64,15 @@ export class OrganizationsComponent implements OnInit {
   searchQuery = signal('');
 
   // Table
-  displayedColumns = ['name', 'baseRate', 'overtimeMultiplier', 'hasOvertime', 'isActive', 'createdAt', 'actions'];
+  displayedColumns = [
+    'name',
+    'baseRate',
+    'overtimeMultiplier',
+    'hasOvertime',
+    'isActive',
+    'createdAt',
+    'actions',
+  ];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -89,16 +97,16 @@ export class OrganizationsComponent implements OnInit {
   loadOrganizations(query?: OrganizationsQueryDto): void {
     this.isLoading.set(true);
     this.organizationsService.getOrganizations(query).subscribe({
-      next: (response) => {
+      next: response => {
         this.organizations.set(response.data);
         this.dataSource.data = response.data;
         this.isLoading.set(false);
       },
-      error: (error) => {
+      error: error => {
         console.error('Failed to load organizations:', error);
         this.toastService.showError('Failed to load organizations');
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
@@ -130,7 +138,7 @@ export class OrganizationsComponent implements OnInit {
 
   onToggleStatus(organization: OrganizationDto): void {
     this.organizationsService.toggleOrganizationStatus(organization.id).subscribe({
-      next: (updatedOrg) => {
+      next: updatedOrg => {
         // Update local data
         const updatedOrganizations = this.organizations().map(org =>
           org.id === updatedOrg.id ? updatedOrg : org
@@ -142,10 +150,10 @@ export class OrganizationsComponent implements OnInit {
           `Organization ${updatedOrg.name} ${updatedOrg.isActive ? 'activated' : 'deactivated'}`
         );
       },
-      error: (error) => {
+      error: error => {
         console.error('Failed to toggle organization status:', error);
         this.toastService.showError('Failed to update organization status');
-      }
+      },
     });
   }
 
@@ -155,8 +163,8 @@ export class OrganizationsComponent implements OnInit {
         title: 'Delete Organization',
         message: `Are you sure you want to delete "${organization.name}"? This action cannot be undone.`,
         confirmText: 'Delete',
-        cancelText: 'Cancel'
-      }
+        cancelText: 'Cancel',
+      },
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -164,16 +172,18 @@ export class OrganizationsComponent implements OnInit {
         this.organizationsService.deleteOrganization(organization.id).subscribe({
           next: () => {
             // Remove from local data
-            const updatedOrganizations = this.organizations().filter(org => org.id !== organization.id);
+            const updatedOrganizations = this.organizations().filter(
+              org => org.id !== organization.id
+            );
             this.organizations.set(updatedOrganizations);
             this.dataSource.data = updatedOrganizations;
 
             this.toastService.showSuccess('Organization deleted successfully');
           },
-          error: (error) => {
+          error: error => {
             console.error('Failed to delete organization:', error);
             this.toastService.showError('Failed to delete organization');
-          }
+          },
         });
       }
     });
@@ -183,7 +193,7 @@ export class OrganizationsComponent implements OnInit {
     return new Intl.NumberFormat('ru-RU', {
       style: 'currency',
       currency: 'RUB',
-      minimumFractionDigits: 2
+      minimumFractionDigits: 2,
     }).format(amount);
   }
 
@@ -199,4 +209,3 @@ export class OrganizationsComponent implements OnInit {
     return isActive ? 'Active' : 'Inactive';
   }
 }
-

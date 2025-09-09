@@ -24,16 +24,24 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatCardModule,
     MatSortModule,
     MatChipsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   templateUrl: './files.component.html',
-  styleUrls: ['./files.component.scss']
+  styleUrls: ['./files.component.scss'],
 })
 export class FilesComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
 
-  displayedColumns: string[] = ['filename', 'originalName', 'mimetype', 'size', 'type', 'uploadedAt', 'actions'];
+  displayedColumns: string[] = [
+    'filename',
+    'originalName',
+    'mimetype',
+    'size',
+    'type',
+    'uploadedAt',
+    'actions',
+  ];
   dataSource = new MatTableDataSource<any>([]);
   isLoading = signal(false);
 
@@ -60,8 +68,8 @@ export class FilesComponent implements OnInit {
         mimetype: 'application/pdf',
         size: 1024000,
         type: 'document',
-        uploadedAt: new Date()
-      }
+        uploadedAt: new Date(),
+      },
     ];
     this.isLoading.set(false);
   }

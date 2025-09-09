@@ -5,7 +5,12 @@ import { Order } from '../../entities/order.entity';
 import { User } from '../../entities/user.entity';
 import { Setting, SettingKey } from '../../entities/settings.entity';
 import { UserActivityLog, ActivityType } from '../../entities/user-activity-log.entity';
-import { CreateOrderDto, UpdateOrderDto, AssignEngineerDto, OrdersQueryDto } from '../../../shared/dtos/order.dto';
+import {
+  CreateOrderDto,
+  UpdateOrderDto,
+  AssignEngineerDto,
+  OrdersQueryDto,
+} from '../../../shared/dtos/order.dto';
 import { OrderStatus } from '../../../shared/interfaces/order.interface';
 import { UserRole } from '../../entities/user.entity';
 import { NotificationsService } from '../notifications/notifications.service';
@@ -32,7 +37,7 @@ export class OrdersService {
     @InjectRepository(UserActivityLog)
     private readonly activityLogRepository: Repository<UserActivityLog>,
     private readonly notificationsService: NotificationsService,
-    private readonly statisticsService: StatisticsService,
+    private readonly statisticsService: StatisticsService
   ) {}
 
   async create(createOrderDto: CreateOrderDto, userId: number): Promise<Order> {
@@ -69,9 +74,18 @@ export class OrdersService {
   }
 
   async findAll(query: OrdersQueryDto = {}, user: User): Promise<OrdersResponse> {
-    const { page = 1, limit = 10, status, organizationId, engineerId, sortBy = 'createdAt', sortOrder = 'DESC' } = query;
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      organizationId,
+      engineerId,
+      sortBy = 'createdAt',
+      sortOrder = 'DESC',
+    } = query;
 
-    const queryBuilder = this.ordersRepository.createQueryBuilder('order')
+    const queryBuilder = this.ordersRepository
+      .createQueryBuilder('order')
       .leftJoinAndSelect('order.organization', 'organization')
       .leftJoinAndSelect('order.assignedEngineer', 'engineer')
       .leftJoinAndSelect('order.createdBy', 'createdBy')
@@ -113,7 +127,8 @@ export class OrdersService {
   }
 
   async findOne(id: number, user: User): Promise<Order> {
-    const queryBuilder = this.ordersRepository.createQueryBuilder('order')
+    const queryBuilder = this.ordersRepository
+      .createQueryBuilder('order')
       .leftJoinAndSelect('order.organization', 'organization')
       .leftJoinAndSelect('order.assignedEngineer', 'engineer')
       .leftJoinAndSelect('order.createdBy', 'createdBy')
@@ -141,7 +156,11 @@ export class OrdersService {
     const oldStatus = order.status;
 
     // Check permissions for status updates
-    if (updateOrderDto.status && user.role === UserRole.USER && updateOrderDto.status !== OrderStatus.COMPLETED) {
+    if (
+      updateOrderDto.status &&
+      user.role === UserRole.USER &&
+      updateOrderDto.status !== OrderStatus.COMPLETED
+    ) {
       throw new BadRequestException('Users can only mark orders as completed');
     }
 
@@ -169,7 +188,7 @@ export class OrdersService {
         {
           oldStatus,
           newStatus: updateOrderDto.status,
-          orderId: id
+          orderId: id,
         },
         user.id
       );
@@ -191,7 +210,11 @@ export class OrdersService {
     return updatedOrder;
   }
 
-  async assignEngineer(id: number, assignEngineerDto: AssignEngineerDto, user: User): Promise<Order> {
+  async assignEngineer(
+    id: number,
+    assignEngineerDto: AssignEngineerDto,
+    user: User
+  ): Promise<Order> {
     // Only managers can assign engineers
     if (user.role !== UserRole.MANAGER) {
       throw new BadRequestException('Only managers can assign engineers to orders');
@@ -207,7 +230,7 @@ export class OrdersService {
 
     // Check if engineer exists and is active
     const engineer = await this.usersRepository.findOne({
-      where: { id: assignEngineerDto.engineerId, role: UserRole.USER, isActive: true }
+      where: { id: assignEngineerDto.engineerId, role: UserRole.USER, isActive: true },
     });
 
     if (!engineer) {
@@ -303,14 +326,14 @@ export class OrdersService {
 
   private async getAutoDistributionEnabled(): Promise<boolean> {
     const setting = await this.settingsRepository.findOne({
-      where: { key: SettingKey.AUTO_DISTRIBUTION_ENABLED }
+      where: { key: SettingKey.AUTO_DISTRIBUTION_ENABLED },
     });
     return setting?.value === 'true';
   }
 
   private async getMaxOrdersPerEngineer(): Promise<number> {
     const setting = await this.settingsRepository.findOne({
-      where: { key: SettingKey.MAX_ORDERS_PER_ENGINEER }
+      where: { key: SettingKey.MAX_ORDERS_PER_ENGINEER },
     });
     return setting ? parseInt(setting.value, 10) : 5;
   }
@@ -349,11 +372,11 @@ export class OrdersService {
       } else {
         // If no engineers are available, send notification to admins and managers
         const adminUsers = await this.usersRepository.find({
-          where: { role: UserRole.ADMIN, isActive: true }
+          where: { role: UserRole.ADMIN, isActive: true },
         });
 
         const managerUsers = await this.usersRepository.find({
-          where: { role: UserRole.MANAGER, isActive: true }
+          where: { role: UserRole.MANAGER, isActive: true },
         });
 
         const adminIds = adminUsers.map(user => user.id);
@@ -384,7 +407,7 @@ export class OrdersService {
     const engineersWithCapacity = await this.usersRepository
       .createQueryBuilder('user')
       .leftJoin('user.assignedOrders', 'order', 'order.status IN (:statuses)', {
-        statuses: [OrderStatus.PROCESSING, OrderStatus.WORKING, OrderStatus.REVIEW]
+        statuses: [OrderStatus.PROCESSING, OrderStatus.WORKING, OrderStatus.REVIEW],
       })
       .where('user.role = :userRole', { userRole: UserRole.USER })
       .andWhere('user.isActive = :isActive', { isActive: true })
@@ -466,7 +489,11 @@ export class OrdersService {
       }
 
       // Add manager who assigned the order
-      if (order.assignedById && order.assignedById !== performedById && !affectedUserIds.includes(order.assignedById)) {
+      if (
+        order.assignedById &&
+        order.assignedById !== performedById &&
+        !affectedUserIds.includes(order.assignedById)
+      ) {
         affectedUserIds.push(order.assignedById);
       }
 

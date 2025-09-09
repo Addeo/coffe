@@ -5,132 +5,142 @@ export const routes: Routes = [
   {
     path: '',
     redirectTo: '/dashboard',
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
   {
     path: 'login',
-    loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
+    loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent),
   },
   {
     path: 'dashboard',
-    loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [AuthGuard]
+    loadComponent: () =>
+      import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'users',
     loadComponent: () => import('./pages/users/users.component').then(m => m.UsersComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'User Management' }
+    data: { roles: ['admin', 'manager'], title: 'User Management' },
   },
   {
     path: 'users/create',
     loadComponent: () => import('./pages/users/users.component').then(m => m.UsersComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin'], title: 'Create User' }
+    data: { roles: ['admin'], title: 'Create User' },
   },
   {
     path: 'users/:id/edit',
     loadComponent: () => import('./pages/users/users.component').then(m => m.UsersComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'Edit User' }
+    data: { roles: ['admin', 'manager'], title: 'Edit User' },
   },
   {
     path: 'organizations',
-    loadComponent: () => import('./pages/organizations/organizations.component').then(m => m.OrganizationsComponent),
+    loadComponent: () =>
+      import('./pages/organizations/organizations.component').then(m => m.OrganizationsComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'Organization Management' }
+    data: { roles: ['admin', 'manager'], title: 'Organization Management' },
   },
   {
     path: 'organizations/create',
-    loadComponent: () => import('./pages/organizations/organizations.component').then(m => m.OrganizationsComponent),
+    loadComponent: () =>
+      import('./pages/organizations/organizations.component').then(m => m.OrganizationsComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin'], title: 'Create Organization' }
+    data: { roles: ['admin'], title: 'Create Organization' },
   },
   {
     path: 'organizations/:id/edit',
-    loadComponent: () => import('./pages/organizations/organizations.component').then(m => m.OrganizationsComponent),
+    loadComponent: () =>
+      import('./pages/organizations/organizations.component').then(m => m.OrganizationsComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'Edit Organization' }
+    data: { roles: ['admin', 'manager'], title: 'Edit Organization' },
   },
   {
     path: 'products',
-    loadComponent: () => import('./pages/products/products.component').then(m => m.ProductsComponent),
+    loadComponent: () =>
+      import('./pages/products/products.component').then(m => m.ProductsComponent),
     canActivate: [AuthGuard],
-    data: { title: 'Product Management' }
+    data: { title: 'Product Management' },
   },
   {
     path: 'products/create',
-    loadComponent: () => import('./pages/products/products.component').then(m => m.ProductsComponent),
+    loadComponent: () =>
+      import('./pages/products/products.component').then(m => m.ProductsComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'Create Product' }
+    data: { roles: ['admin', 'manager'], title: 'Create Product' },
   },
   {
     path: 'products/:id/edit',
-    loadComponent: () => import('./pages/products/products.component').then(m => m.ProductsComponent),
+    loadComponent: () =>
+      import('./pages/products/products.component').then(m => m.ProductsComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'Edit Product' }
+    data: { roles: ['admin', 'manager'], title: 'Edit Product' },
   },
   {
     path: 'orders',
     loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent),
     canActivate: [AuthGuard],
-    data: { title: 'Order Management' }
+    data: { title: 'Order Management' },
   },
   {
     path: 'orders/create',
     loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent),
     canActivate: [AuthGuard],
-    data: { title: 'Create Order' }
+    data: { title: 'Create Order' },
   },
   {
     path: 'orders/:id',
     loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent),
     canActivate: [AuthGuard],
-    data: { title: 'Order Details' }
+    data: { title: 'Order Details' },
   },
   {
     path: 'orders/:id/edit',
     loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent),
     canActivate: [AuthGuard],
-    data: { title: 'Edit Order' }
+    data: { title: 'Edit Order' },
   },
   {
     path: 'files',
     loadComponent: () => import('./pages/files/files.component').then(m => m.FilesComponent),
     canActivate: [AuthGuard],
-    data: { title: 'File Management' }
+    data: { title: 'File Management' },
   },
   {
     path: 'profile',
     loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),
     canActivate: [AuthGuard],
-    data: { title: 'My Profile' }
+    data: { title: 'My Profile' },
   },
   {
     path: 'reports',
     loadComponent: () => import('./pages/reports/reports.component').then(m => m.ReportsComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'Reports' }
+    data: { roles: ['admin', 'manager'], title: 'Reports' },
   },
   {
     path: 'notifications',
-    loadComponent: () => import('./pages/notifications/notifications.component').then(m => m.NotificationsComponent),
+    loadComponent: () =>
+      import('./pages/notifications/notifications.component').then(m => m.NotificationsComponent),
     canActivate: [AuthGuard],
-    data: { title: 'Notifications' }
+    data: { title: 'Notifications' },
   },
   {
     path: 'settings',
-    loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent),
+    loadComponent: () =>
+      import('./pages/settings/settings.component').then(m => m.SettingsComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin'], title: 'System Settings' }
+    data: { roles: ['admin'], title: 'System Settings' },
   },
   {
     path: 'unauthorized',
-    loadComponent: () => import('./pages/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent),
-    data: { title: 'Access Denied' }
+    loadComponent: () =>
+      import('./pages/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent),
+    data: { title: 'Access Denied' },
   },
   {
     path: '**',
-    redirectTo: '/dashboard'
-  }
+    redirectTo: '/dashboard',
+  },
 ];

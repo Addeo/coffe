@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Notification, NotificationType, NotificationStatus, NotificationPriority } from '../../entities/notification.entity';
+import {
+  Notification,
+  NotificationType,
+  NotificationStatus,
+  NotificationPriority,
+} from '../../entities/notification.entity';
 import { User } from '../../entities/user.entity';
 import { EmailService } from '../email/email.service';
 
@@ -12,7 +17,7 @@ export class NotificationsService {
     private notificationRepository: Repository<Notification>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    private emailService: EmailService,
+    private emailService: EmailService
   ) {}
 
   async createNotification(
@@ -21,7 +26,7 @@ export class NotificationsService {
     title: string,
     message: string,
     priority: NotificationPriority = NotificationPriority.MEDIUM,
-    metadata?: any,
+    metadata?: any
   ): Promise<Notification> {
     const notification = this.notificationRepository.create({
       userId,
@@ -56,7 +61,7 @@ export class NotificationsService {
     orderTitle: string,
     newStatus: string,
     affectedUserIds: number[],
-    performedById: number,
+    performedById: number
   ): Promise<void> {
     const notifications = affectedUserIds.map(userId =>
       this.createNotification(
@@ -76,7 +81,7 @@ export class NotificationsService {
     orderId: number,
     orderTitle: string,
     assignedUserId: number,
-    performedById: number,
+    performedById: number
   ): Promise<void> {
     await this.createNotification(
       assignedUserId,
@@ -91,7 +96,7 @@ export class NotificationsService {
   async createUserStatusNotification(
     userId: number,
     isActive: boolean,
-    performedById: number,
+    performedById: number
   ): Promise<void> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) return;
@@ -111,7 +116,7 @@ export class NotificationsService {
     title: string,
     message: string,
     priority: NotificationPriority = NotificationPriority.URGENT,
-    metadata?: any,
+    metadata?: any
   ): Promise<void> {
     const notifications = userIds.map(userId =>
       this.createNotification(
@@ -131,7 +136,7 @@ export class NotificationsService {
     userId: number,
     status?: NotificationStatus,
     page: number = 1,
-    limit: number = 20,
+    limit: number = 20
   ): Promise<{ notifications: Notification[]; total: number }> {
     const queryBuilder = this.notificationRepository
       .createQueryBuilder('notification')

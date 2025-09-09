@@ -13,7 +13,7 @@ export class StatisticsController {
   @Get('earnings')
   async getUserEarningsStatistics(
     @Request() req,
-    @Query('months', ParseIntPipe) months: number = 12,
+    @Query('months', ParseIntPipe) months: number = 12
   ) {
     return this.statisticsService.getUserEarningsStatistics(req.user.id, months);
   }
@@ -27,7 +27,7 @@ export class StatisticsController {
   async getUserRank(
     @Request() req,
     @Query('year', ParseIntPipe) year: number,
-    @Query('month', ParseIntPipe) month: number,
+    @Query('month', ParseIntPipe) month: number
   ) {
     const rank = await this.statisticsService.getUserRankByEarnings(req.user.id, year, month);
     return { rank };
@@ -38,7 +38,7 @@ export class StatisticsController {
   async getTopEarners(
     @Query('year', ParseIntPipe) year: number,
     @Query('month', ParseIntPipe) month: number,
-    @Query('limit', ParseIntPipe) limit: number = 10,
+    @Query('limit', ParseIntPipe) limit: number = 10
   ) {
     return this.statisticsService.getTopEarnersByMonth(year, month, limit);
   }
@@ -48,7 +48,7 @@ export class StatisticsController {
   async getTotalEarningsByPeriod(
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
-    @Query('userId', ParseIntPipe) userId?: number,
+    @Query('userId', ParseIntPipe) userId?: number
   ) {
     const start = new Date(startDate);
     const end = new Date(endDate);

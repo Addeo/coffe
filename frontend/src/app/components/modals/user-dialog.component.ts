@@ -30,7 +30,7 @@ export interface UserDialogData {
     MatButtonModule,
     MatSelectModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="user-dialog">
@@ -43,7 +43,7 @@ export interface UserDialogData {
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>First Name</mat-label>
-              <input matInput formControlName="firstName" placeholder="Enter first name">
+              <input matInput formControlName="firstName" placeholder="Enter first name" />
               <mat-error *ngIf="userForm.get('firstName')?.hasError('required')">
                 First name is required
               </mat-error>
@@ -51,7 +51,7 @@ export interface UserDialogData {
 
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>Last Name</mat-label>
-              <input matInput formControlName="lastName" placeholder="Enter last name">
+              <input matInput formControlName="lastName" placeholder="Enter last name" />
               <mat-error *ngIf="userForm.get('lastName')?.hasError('required')">
                 Last name is required
               </mat-error>
@@ -60,7 +60,12 @@ export interface UserDialogData {
 
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Email</mat-label>
-            <input matInput formControlName="email" type="email" placeholder="Enter email address">
+            <input
+              matInput
+              formControlName="email"
+              type="email"
+              placeholder="Enter email address"
+            />
             <mat-error *ngIf="userForm.get('email')?.hasError('required')">
               Email is required
             </mat-error>
@@ -83,7 +88,12 @@ export interface UserDialogData {
 
           <mat-form-field appearance="outline" class="form-field" *ngIf="!data.isEdit">
             <mat-label>Password</mat-label>
-            <input matInput formControlName="password" type="password" placeholder="Enter password">
+            <input
+              matInput
+              formControlName="password"
+              type="password"
+              placeholder="Enter password"
+            />
             <mat-error *ngIf="userForm.get('password')?.hasError('required')">
               Password is required
             </mat-error>
@@ -95,7 +105,12 @@ export interface UserDialogData {
           <div class="form-row" *ngIf="data.isEdit">
             <mat-form-field appearance="outline" class="form-field">
               <mat-label>New Password (optional)</mat-label>
-              <input matInput formControlName="password" type="password" placeholder="Leave empty to keep current password">
+              <input
+                matInput
+                formControlName="password"
+                type="password"
+                placeholder="Leave empty to keep current password"
+              />
               <mat-error *ngIf="userForm.get('password')?.hasError('minlength')">
                 Password must be at least 6 characters
               </mat-error>
@@ -106,144 +121,148 @@ export interface UserDialogData {
 
       <mat-dialog-actions align="end">
         <button mat-button (click)="onCancel()">Cancel</button>
-        <button mat-raised-button
-                color="primary"
-                (click)="onSave()"
-                [disabled]="userForm.invalid || isLoading()">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="onSave()"
+          [disabled]="userForm.invalid || isLoading()"
+        >
           <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
           <span *ngIf="!isLoading()">{{ data.isEdit ? 'Update' : 'Create' }}</span>
         </button>
       </mat-dialog-actions>
     </div>
   `,
-  styles: [`
-    .user-dialog {
-      min-width: 500px;
-      max-width: 90vw;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
-    h2[mat-dialog-title] {
-      margin: 0;
-      padding: 24px 24px 16px 24px;
-      font-size: 24px;
-      font-weight: 500;
-      color: #1976d2;
-      border-bottom: 1px solid #e0e0e0;
-    }
-
-    .user-form {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      padding: 24px;
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-    }
-
-    .form-field {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .form-field.full-width {
-      width: 100%;
-    }
-
-    mat-form-field {
-      width: 100%;
-    }
-
-    mat-dialog-content {
-      padding: 0 !important;
-    }
-
-    mat-dialog-actions {
-      padding: 16px 24px 24px 24px;
-      margin: 0;
-      border-top: 1px solid #e0e0e0;
-      justify-content: flex-end;
-      gap: 12px;
-    }
-
-    button {
-      min-width: 100px;
-      border-radius: 8px;
-      text-transform: uppercase;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-    }
-
-    button[color="primary"] {
-      background-color: #1976d2;
-      color: white;
-    }
-
-    button[color="primary"]:disabled {
-      background-color: #ccc;
-      color: #666;
-    }
-
-    .mat-mdc-form-field {
-      margin-bottom: 0;
-    }
-
-    .mat-mdc-form-field-outline {
-      border-radius: 8px;
-    }
-
-    .mdc-text-field--outlined .mdc-notched-outline__leading,
-    .mdc-text-field--outlined .mdc-notched-outline__notch,
-    .mdc-text-field--outlined .mdc-notched-outline__trailing {
-      border-radius: 8px;
-    }
-
-    mat-error {
-      font-size: 12px;
-      margin-top: 4px;
-    }
-
-    /* Responsive design */
-    @media (max-width: 600px) {
+  styles: [
+    `
       .user-dialog {
-        min-width: 95vw;
-        margin: 16px;
-      }
-
-      .form-row {
-        flex-direction: column;
-        gap: 20px;
-      }
-
-      .user-form {
-        padding: 16px;
-        gap: 16px;
+        min-width: 500px;
+        max-width: 90vw;
+        border-radius: 12px;
+        overflow: hidden;
       }
 
       h2[mat-dialog-title] {
-        padding: 20px 16px 12px 16px;
-        font-size: 20px;
+        margin: 0;
+        padding: 24px 24px 16px 24px;
+        font-size: 24px;
+        font-weight: 500;
+        color: #1976d2;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .user-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 24px;
+        max-height: 70vh;
+        overflow-y: auto;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+      }
+
+      .form-field {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .form-field.full-width {
+        width: 100%;
+      }
+
+      mat-form-field {
+        width: 100%;
+      }
+
+      mat-dialog-content {
+        padding: 0 !important;
       }
 
       mat-dialog-actions {
-        padding: 12px 16px 20px 16px;
-        flex-direction: column;
-        gap: 8px;
+        padding: 16px 24px 24px 24px;
+        margin: 0;
+        border-top: 1px solid #e0e0e0;
+        justify-content: flex-end;
+        gap: 12px;
       }
 
       button {
-        width: 100%;
-        min-width: unset;
+        min-width: 100px;
+        border-radius: 8px;
+        text-transform: uppercase;
+        font-weight: 500;
+        letter-spacing: 0.5px;
       }
-    }
-  `]
+
+      button[color='primary'] {
+        background-color: #1976d2;
+        color: white;
+      }
+
+      button[color='primary']:disabled {
+        background-color: #ccc;
+        color: #666;
+      }
+
+      .mat-mdc-form-field {
+        margin-bottom: 0;
+      }
+
+      .mat-mdc-form-field-outline {
+        border-radius: 8px;
+      }
+
+      .mdc-text-field--outlined .mdc-notched-outline__leading,
+      .mdc-text-field--outlined .mdc-notched-outline__notch,
+      .mdc-text-field--outlined .mdc-notched-outline__trailing {
+        border-radius: 8px;
+      }
+
+      mat-error {
+        font-size: 12px;
+        margin-top: 4px;
+      }
+
+      /* Responsive design */
+      @media (max-width: 600px) {
+        .user-dialog {
+          min-width: 95vw;
+          margin: 16px;
+        }
+
+        .form-row {
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .user-form {
+          padding: 16px;
+          gap: 16px;
+        }
+
+        h2[mat-dialog-title] {
+          padding: 20px 16px 12px 16px;
+          font-size: 20px;
+        }
+
+        mat-dialog-actions {
+          padding: 12px 16px 20px 16px;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        button {
+          width: 100%;
+          min-width: unset;
+        }
+      }
+    `,
+  ],
 })
 export class UserDialogComponent {
   private fb = inject(FormBuilder);
@@ -260,7 +279,7 @@ export class UserDialogComponent {
     lastName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     role: [UserRole.USER, [Validators.required]],
-    password: ['']
+    password: [''],
   });
 
   ngOnInit() {
@@ -269,7 +288,7 @@ export class UserDialogComponent {
         firstName: this.data.user.firstName,
         lastName: this.data.user.lastName,
         email: this.data.user.email,
-        role: this.data.user.role
+        role: this.data.user.role,
       });
 
       // Password is optional for editing
@@ -301,19 +320,19 @@ export class UserDialogComponent {
       lastName: formValue.lastName,
       email: formValue.email,
       password: formValue.password,
-      role: formValue.role
+      role: formValue.role,
     };
 
     this.usersService.createUser(userData).subscribe({
-      next: (user) => {
+      next: user => {
         this.toastService.success('User created successfully');
         this.dialogRef.close(user);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error creating user:', error);
         this.toastService.error('Error creating user. Please try again.');
         this.isLoading.set(false);
-      }
+      },
     });
   }
 
@@ -325,7 +344,7 @@ export class UserDialogComponent {
       firstName: formValue.firstName,
       lastName: formValue.lastName,
       email: formValue.email,
-      role: formValue.role
+      role: formValue.role,
     };
 
     // Only include password if it was provided
@@ -334,15 +353,15 @@ export class UserDialogComponent {
     }
 
     this.usersService.updateUser(this.data.user.id, userData).subscribe({
-      next: (user) => {
+      next: user => {
         this.toastService.success('User updated successfully');
         this.dialogRef.close(user);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error updating user:', error);
         this.toastService.error('Error updating user. Please try again.');
         this.isLoading.set(false);
-      }
+      },
     });
   }
 

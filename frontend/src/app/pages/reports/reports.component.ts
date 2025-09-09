@@ -9,15 +9,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [
-    CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatProgressSpinnerModule
-  ],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './reports.component.html',
-  styleUrls: ['./reports.component.scss']
+  styleUrls: ['./reports.component.scss'],
 })
 export class ReportsComponent {
   private snackBar = inject(MatSnackBar);
@@ -29,26 +23,26 @@ export class ReportsComponent {
       title: 'User Activity Report',
       description: 'Detailed report of user activities and login patterns',
       icon: 'people',
-      type: 'activity'
+      type: 'activity',
     },
     {
       title: 'Order Statistics',
       description: 'Comprehensive analysis of order data and trends',
       icon: 'shopping_cart',
-      type: 'orders'
+      type: 'orders',
     },
     {
       title: 'Product Performance',
       description: 'Analysis of product sales and inventory levels',
       icon: 'inventory',
-      type: 'products'
+      type: 'products',
     },
     {
       title: 'System Usage Report',
       description: 'Overall system usage statistics and performance metrics',
       icon: 'analytics',
-      type: 'system'
-    }
+      type: 'system',
+    },
   ];
 
   generateReport(reportType: string) {

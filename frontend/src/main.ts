@@ -13,10 +13,8 @@ import { httpRequestInterceptor } from './app/interceptors/http.interceptor';
 bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
-    provideHttpClient(
-      withInterceptors([httpRequestInterceptor, authInterceptor])
-    ),
+    provideHttpClient(withInterceptors([httpRequestInterceptor, authInterceptor])),
     provideAnimationsAsync(),
-    provideNativeDateAdapter()
-  ]
+    provideNativeDateAdapter(),
+  ],
 }).catch(err => console.error(err));

@@ -21,7 +21,7 @@ export class FilesService {
     @InjectRepository(File)
     private readonly filesRepository: Repository<File>,
     @InjectRepository(User)
-    private readonly usersRepository: Repository<User>,
+    private readonly usersRepository: Repository<User>
   ) {}
 
   async uploadFile(
@@ -51,9 +51,17 @@ export class FilesService {
   }
 
   async findAll(query: FileQueryDto = {}): Promise<FilesResponse> {
-    const { page = 1, limit = 10, mimetype, uploadedBy, sortBy = 'uploadedAt', sortOrder = 'DESC' } = query;
+    const {
+      page = 1,
+      limit = 10,
+      mimetype,
+      uploadedBy,
+      sortBy = 'uploadedAt',
+      sortOrder = 'DESC',
+    } = query;
 
-    const queryBuilder = this.filesRepository.createQueryBuilder('file')
+    const queryBuilder = this.filesRepository
+      .createQueryBuilder('file')
       .leftJoinAndSelect('file.uploadedBy', 'uploadedBy');
 
     if (mimetype) {
@@ -83,7 +91,7 @@ export class FilesService {
   async findOne(id: string): Promise<File> {
     const file = await this.filesRepository.findOne({
       where: { id },
-      relations: ['uploadedBy']
+      relations: ['uploadedBy'],
     });
 
     if (!file) {
@@ -138,7 +146,8 @@ export class FilesService {
   }
 
   async getFilesByType(type: FileType, query: FileQueryDto = {}): Promise<FilesResponse> {
-    const queryBuilder = this.filesRepository.createQueryBuilder('file')
+    const queryBuilder = this.filesRepository
+      .createQueryBuilder('file')
       .leftJoinAndSelect('file.uploadedBy', 'uploadedBy')
       .where('file.type = :type', { type });
 
@@ -168,12 +177,7 @@ export class FilesService {
   }> {
     const stats = await this.filesRepository
       .createQueryBuilder('file')
-      .select([
-        'COUNT(*) as total',
-        'SUM(file.size) as totalSize',
-        'file.type',
-        'file.mimetype'
-      ])
+      .select(['COUNT(*) as total', 'SUM(file.size) as totalSize', 'file.type', 'file.mimetype'])
       .groupBy('file.type')
       .addGroupBy('file.mimetype')
       .getRawMany();

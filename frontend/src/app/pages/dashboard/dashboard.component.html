@@ -139,19 +139,25 @@
                 <h3>Current Month</h3>
                 <div *ngIf="earningsStats().currentMonth" class="earnings-details">
                   <p class="earnings-amount">${{ earningsStats().currentMonth!.totalEarnings }}</p>
-                  <p class="earnings-orders">{{ earningsStats().currentMonth!.completedOrders }} orders</p>
+                  <p class="earnings-orders">
+                    {{ earningsStats().currentMonth!.completedOrders }} orders
+                  </p>
                 </div>
                 <div *ngIf="!earningsStats().currentMonth" class="no-data">
                   <p>No data available</p>
                 </div>
               </div>
 
-              <div class="earnings-growth" *ngIf="earningsStats().currentMonth && earningsStats().previousMonth">
+              <div
+                class="earnings-growth"
+                *ngIf="earningsStats().currentMonth && earningsStats().previousMonth"
+              >
                 <mat-icon [style.color]="getGrowthColor(earningsStats().growth)">
                   {{ getGrowthIcon(earningsStats().growth) }}
                 </mat-icon>
                 <span [style.color]="getGrowthColor(earningsStats().growth)">
-                  {{ earningsStats().growth >= 0 ? '+' : '' }}{{ earningsStats().growth.toFixed(1) }}%
+                  {{ earningsStats().growth >= 0 ? '+' : ''
+                  }}{{ earningsStats().growth.toFixed(1) }}%
                 </span>
                 <p>vs last month</p>
               </div>

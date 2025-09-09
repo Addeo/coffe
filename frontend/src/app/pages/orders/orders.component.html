@@ -82,7 +82,10 @@
         <div class="header-actions">
           <mat-form-field class="filter-field">
             <mat-label>Status Filter</mat-label>
-            <mat-select [value]="selectedStatus()" (selectionChange)="onStatusFilterChange($event.value)">
+            <mat-select
+              [value]="selectedStatus()"
+              (selectionChange)="onStatusFilterChange($event.value)"
+            >
               <mat-option value="">All Statuses</mat-option>
               <mat-option *ngFor="let status of statusOptions" [value]="status">
                 {{ getStatusDisplay(status) }}
@@ -92,7 +95,11 @@
 
           <mat-form-field class="search-field">
             <mat-label>Search orders</mat-label>
-            <input matInput (keyup)="applyFilter($event)" placeholder="Search by title, organization, etc.">
+            <input
+              matInput
+              (keyup)="applyFilter($event)"
+              placeholder="Search by title, organization, etc."
+            />
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
 
@@ -100,7 +107,12 @@
             <mat-icon>refresh</mat-icon>
           </button>
 
-          <button mat-raised-button color="primary" (click)="onCreateOrder()" *ngIf="canCreateOrders">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="onCreateOrder()"
+            *ngIf="canCreateOrders"
+          >
             <mat-icon>add</mat-icon>
             Add Order
           </button>
@@ -127,7 +139,7 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Title</th>
             <td mat-cell *matCellDef="let order">
               <strong>{{ order.title }}</strong>
-              <br>
+              <br />
               <small class="text-muted">{{ order.description }}</small>
             </td>
           </ng-container>
@@ -144,7 +156,7 @@
             <td mat-cell *matCellDef="let order">
               <div class="engineer-info">
                 <span>{{ getEngineerName(order) }}</span>
-                <br>
+                <br />
                 <small class="text-muted">by {{ getCreatorName(order) }}</small>
               </div>
             </td>
@@ -163,14 +175,20 @@
           <!-- Created Date Column -->
           <ng-container matColumnDef="createdAt">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
-            <td mat-cell *matCellDef="let order">{{ order.createdAt | date:'short' }}</td>
+            <td mat-cell *matCellDef="let order">{{ order.createdAt | date: 'short' }}</td>
           </ng-container>
 
           <!-- Edit Column -->
           <ng-container matColumnDef="edit">
             <th mat-header-cell *matHeaderCellDef>Edit</th>
             <td mat-cell *matCellDef="let order">
-              <button mat-icon-button (click)="onEditOrder(order)" color="primary" matTooltip="Edit order" *ngIf="canEditOrders">
+              <button
+                mat-icon-button
+                (click)="onEditOrder(order)"
+                color="primary"
+                matTooltip="Edit order"
+                *ngIf="canEditOrders"
+              >
                 <mat-icon>edit</mat-icon>
               </button>
             </td>
@@ -180,49 +198,62 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let order">
-              <button mat-icon-button (click)="onViewOrder(order)" color="primary" matTooltip="View details">
+              <button
+                mat-icon-button
+                (click)="onViewOrder(order)"
+                color="primary"
+                matTooltip="View details"
+              >
                 <mat-icon>visibility</mat-icon>
               </button>
 
-              <button mat-button
-                      [matMenuTriggerFor]="statusMenu"
-                      color="accent"
-                      matTooltip="Change status"
-                      *ngIf="canEditOrders">
+              <button
+                mat-button
+                [matMenuTriggerFor]="statusMenu"
+                color="accent"
+                matTooltip="Change status"
+                *ngIf="canEditOrders"
+              >
                 <mat-icon>edit</mat-icon>
               </button>
               <mat-menu #statusMenu="matMenu">
-                <button mat-menu-item
-                        *ngFor="let status of statusOptions"
-                        [disabled]="order.status === status"
-                        (click)="onUpdateStatus(order, status)">
+                <button
+                  mat-menu-item
+                  *ngFor="let status of statusOptions"
+                  [disabled]="order.status === status"
+                  (click)="onUpdateStatus(order, status)"
+                >
                   <mat-icon>{{ getStatusIcon(status) }}</mat-icon>
                   <span>{{ getStatusDisplay(status) }}</span>
                 </button>
               </mat-menu>
 
-              <button mat-icon-button
-                      (click)="onAssignEngineer(order)"
-                      [disabled]="order.status === 'completed'"
-                      color="primary"
-                      matTooltip="Assign engineer"
-                      *ngIf="canAssignEngineers">
+              <button
+                mat-icon-button
+                (click)="onAssignEngineer(order)"
+                [disabled]="order.status === 'completed'"
+                color="primary"
+                matTooltip="Assign engineer"
+                *ngIf="canAssignEngineers"
+              >
                 <mat-icon>person_add</mat-icon>
               </button>
 
-              <button mat-icon-button
-                      (click)="onDeleteOrder(order)"
-                      [disabled]="order.status !== 'waiting'"
-                      color="warn"
-                      matTooltip="Delete order"
-                      *ngIf="canDeleteOrders">
+              <button
+                mat-icon-button
+                (click)="onDeleteOrder(order)"
+                [disabled]="order.status !== 'waiting'"
+                color="warn"
+                matTooltip="Delete order"
+                *ngIf="canDeleteOrders"
+              >
                 <mat-icon>delete</mat-icon>
               </button>
             </td>
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
         </table>
 
         <!-- No data message -->
@@ -236,7 +267,8 @@
       <mat-paginator
         [pageSizeOptions]="[5, 10, 20, 50]"
         showFirstLastButtons
-        aria-label="Select page of orders">
+        aria-label="Select page of orders"
+      >
       </mat-paginator>
     </mat-card-content>
   </mat-card>

@@ -22,7 +22,7 @@ export interface DeleteConfirmationData {
     MatDialogModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
   ],
   template: `
     <div class="delete-dialog">
@@ -36,78 +36,76 @@ export interface DeleteConfirmationData {
           {{ data.message || 'Are you sure you want to delete this user?' }}
         </p>
         <div class="user-info" *ngIf="data.user">
-          <strong>{{ data.user.firstName }} {{ data.user.lastName }}</strong><br>
+          <strong>{{ data.user.firstName }} {{ data.user.lastName }}</strong
+          ><br />
           <small>{{ data.user.email }}</small>
         </div>
-        <p class="warning-text">
-          This action cannot be undone.
-        </p>
+        <p class="warning-text">This action cannot be undone.</p>
       </mat-dialog-content>
 
       <mat-dialog-actions align="end">
         <button mat-button (click)="onCancel()">Cancel</button>
-        <button mat-raised-button
-                color="warn"
-                (click)="onConfirm()"
-                [disabled]="isLoading()">
+        <button mat-raised-button color="warn" (click)="onConfirm()" [disabled]="isLoading()">
           <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
           <span *ngIf="!isLoading()">Delete</span>
         </button>
       </mat-dialog-actions>
     </div>
   `,
-  styles: [`
-    .delete-dialog {
-      max-width: 400px;
-    }
+  styles: [
+    `
+      .delete-dialog {
+        max-width: 400px;
+      }
 
-    .delete-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
+      .delete-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
 
-    .delete-header mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
-    }
+      .delete-header mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
 
-    .delete-message {
-      margin: 0 0 16px 0;
-      line-height: 1.5;
-    }
+      .delete-message {
+        margin: 0 0 16px 0;
+        line-height: 1.5;
+      }
 
-    .user-info {
-      background: #f5f5f5;
-      padding: 12px;
-      border-radius: 4px;
-      margin-bottom: 16px;
-    }
+      .user-info {
+        background: #f5f5f5;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 16px;
+      }
 
-    .user-info strong {
-      color: #333;
-    }
+      .user-info strong {
+        color: #333;
+      }
 
-    .user-info small {
-      color: #666;
-    }
+      .user-info small {
+        color: #666;
+      }
 
-    .warning-text {
-      color: #d32f2f;
-      font-weight: 500;
-      margin: 0;
-    }
+      .warning-text {
+        color: #d32f2f;
+        font-weight: 500;
+        margin: 0;
+      }
 
-    mat-dialog-actions {
-      padding: 16px 0 0 0;
-    }
+      mat-dialog-actions {
+        padding: 16px 0 0 0;
+      }
 
-    button {
-      min-width: 80px;
-    }
-  `]
+      button {
+        min-width: 80px;
+      }
+    `,
+  ],
 })
 export class DeleteConfirmationDialogComponent {
   private dialogRef = inject(MatDialogRef<DeleteConfirmationDialogComponent>);
@@ -127,11 +125,11 @@ export class DeleteConfirmationDialogComponent {
         this.toastService.success('User deleted successfully');
         this.dialogRef.close(true);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error deleting user:', error);
         this.toastService.error('Error deleting user. Please try again.');
         this.isLoading.set(false);
-      }
+      },
     });
   }
 

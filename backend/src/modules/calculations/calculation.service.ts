@@ -48,10 +48,10 @@ export class CalculationService {
    */
   private applyStaffOvertimeMultiplier(rate: number, organization: Organization): number {
     const multipliers: { [key: string]: number } = {
-      'Вистекс': 1.6,
+      Вистекс: 1.6,
       'Холод Вистекс': 1.8,
-      'Франко': 1.8,
-      'Локальный Сервис': 1.8
+      Франко: 1.8,
+      'Локальный Сервис': 1.8,
     };
 
     const multiplier = multipliers[organization.name] || 1;
@@ -70,10 +70,10 @@ export class CalculationService {
    */
   private getContractOvertimeRate(organization: Organization): number {
     const rates: { [key: string]: number } = {
-      'Вистекс': 1200,
+      Вистекс: 1200,
       'Холод Вистекс': 1400,
-      'Франко': 1200,
-      'Локальный Сервис': 1200
+      Франко: 1200,
+      'Локальный Сервис': 1200,
     };
 
     return rates[organization.name] || 700; // fallback to base rate
@@ -82,10 +82,7 @@ export class CalculationService {
   /**
    * Расчет эксплуатации автомобиля
    */
-  calculateCarUsage(
-    engineer: Engineer,
-    distanceKm: number
-  ): number {
+  calculateCarUsage(engineer: Engineer, distanceKm: number): number {
     if (engineer.type === EngineerType.CONTRACT) {
       // 14 руб/км для наемных инженеров
       return distanceKm * 14;
@@ -173,18 +170,14 @@ export class CalculationService {
       overtimeAmount,
       bonusAmount,
       carUsageAmount,
-      totalAmount
+      totalAmount,
     };
   }
 
   /**
    * Расчет дохода от заказчика
    */
-  calculateClientRevenue(
-    organization: Organization,
-    hours: number,
-    isOvertime: boolean
-  ): number {
+  calculateClientRevenue(organization: Organization, hours: number, isOvertime: boolean): number {
     let rate = organization.baseRate;
 
     if (isOvertime && organization.hasOvertime) {

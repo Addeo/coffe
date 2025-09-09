@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ToastService {
   private snackBar = inject(MatSnackBar);
@@ -20,7 +20,7 @@ export class ToastService {
     const finalConfig = { ...this.defaultConfig, ...config };
     return this.snackBar.open(message, action || 'OK', {
       ...finalConfig,
-      panelClass: ['toast-success']
+      panelClass: ['toast-success'],
     });
   }
 
@@ -31,7 +31,7 @@ export class ToastService {
     const finalConfig = { ...this.defaultConfig, ...config };
     return this.snackBar.open(message, action || 'Закрыть', {
       ...finalConfig,
-      panelClass: ['toast-error']
+      panelClass: ['toast-error'],
     });
   }
 
@@ -42,7 +42,7 @@ export class ToastService {
     const finalConfig = { ...this.defaultConfig, ...config };
     return this.snackBar.open(message, action || 'OK', {
       ...finalConfig,
-      panelClass: ['toast-info']
+      panelClass: ['toast-info'],
     });
   }
 
@@ -53,7 +53,7 @@ export class ToastService {
     const finalConfig = { ...this.defaultConfig, ...config };
     return this.snackBar.open(message, action || 'OK', {
       ...finalConfig,
-      panelClass: ['toast-warning']
+      panelClass: ['toast-warning'],
     });
   }
 
@@ -92,4 +92,3 @@ export class ToastService {
     return this.warning(message, action, config);
   }
 }
-
