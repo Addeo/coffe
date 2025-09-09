@@ -8,7 +8,10 @@ import { Organization } from './entities/organization.entity';
 import { Engineer } from './entities/engineer.entity';
 import { Product } from './entities/product.entity';
 import { File } from './entities/file.entity';
+import { Setting } from './entities/settings.entity';
 import { TestController } from './modules/test/test.controller';
+import { AuthModule } from './modules/auth/auth.module';
+import { SettingsModule } from './modules/settings/settings.module';
 
 @Module({
   imports: [
@@ -23,17 +26,17 @@ import { TestController } from './modules/test/test.controller';
       username: process.env.DB_USERNAME || 'coffee_user',
       password: process.env.DB_PASSWORD || 'coffee_password',
       database: process.env.DB_DATABASE || 'coffee_admin',
-      entities: [User, Order, Organization, Engineer, Product, File],
+      entities: [User, Order, Organization, Engineer, Product, File, Setting],
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV === 'development',
     }),
     AuthModule,
+    SettingsModule,
     // UsersModule,
     // ProductsModule,
     // OrdersModule,
     // FilesModule,
-    // TestModule,
-  ],
+    TestModule,
   ],
   controllers: [TestController],
   providers: [],

@@ -17,8 +17,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { OrdersService } from '../../services/orders.service';
+import { AuthService } from '../../services/auth.service';
 import { OrderDto, OrdersQueryDto } from '@shared/dtos/order.dto';
-import { OrderStatus } from '@shared/interfaces/order.interface';
+import { OrderStatus, OrderStatusLabel } from '@shared/interfaces/order.interface';
+import { UserRole } from '@shared/interfaces/user.interface';
 
 @Component({
   selector: 'app-orders',
@@ -44,6 +46,7 @@ import { OrderStatus } from '@shared/interfaces/order.interface';
 })
 export class OrdersComponent implements OnInit {
   private ordersService = inject(OrdersService);
+  private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
 
@@ -52,12 +55,19 @@ export class OrdersComponent implements OnInit {
   isLoading = signal(false);
   orderStats = signal({
     total: 0,
-    pending: 0,
-    assigned: 0,
-    inProgress: 0,
-    completed: 0,
-    cancelled: 0
+    waiting: 0,
+    processing: 0,
+    working: 0,
+    review: 0,
+    completed: 0
   });
+
+  // Role-based permissions
+  readonly canCreateOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
+  readonly canAssignEngineers = this.authService.hasRole(UserRole.MANAGER);
+  readonly canViewAllOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
+  readonly canEditOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
+  readonly canDeleteOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
 
   statusOptions = Object.values(OrderStatus);
   selectedStatus = signal<OrderStatus | ''>('');
@@ -121,14 +131,11 @@ export class OrdersComponent implements OnInit {
     let updateObservable;
 
     switch (newStatus) {
-      case OrderStatus.IN_PROGRESS:
+      case OrderStatus.WORKING:
         updateObservable = this.ordersService.startOrder(order.id);
         break;
       case OrderStatus.COMPLETED:
         updateObservable = this.ordersService.completeOrder(order.id);
-        break;
-      case OrderStatus.CANCELLED:
-        updateObservable = this.ordersService.cancelOrder(order.id);
         break;
       default:
         updateObservable = this.ordersService.updateOrder(order.id, { status: newStatus });
@@ -187,35 +194,48 @@ export class OrdersComponent implements OnInit {
     switch (status) {
       case OrderStatus.COMPLETED:
         return 'primary';
-      case OrderStatus.IN_PROGRESS:
+      case OrderStatus.WORKING:
         return 'accent';
-      case OrderStatus.PENDING:
-        return 'basic';
-      case OrderStatus.ASSIGNED:
+      case OrderStatus.PROCESSING:
         return 'accent';
-      case OrderStatus.CANCELLED:
+      case OrderStatus.REVIEW:
         return 'warn';
+      case OrderStatus.WAITING:
+        return 'basic';
       default:
         return 'basic';
     }
   }
 
   getStatusDisplay(status: OrderStatus): string {
-    return status.replace('_', ' ').toUpperCase();
+    switch (status) {
+      case OrderStatus.WAITING:
+        return OrderStatusLabel.WAITING;
+      case OrderStatus.PROCESSING:
+        return OrderStatusLabel.PROCESSING;
+      case OrderStatus.WORKING:
+        return OrderStatusLabel.WORKING;
+      case OrderStatus.REVIEW:
+        return OrderStatusLabel.REVIEW;
+      case OrderStatus.COMPLETED:
+        return OrderStatusLabel.COMPLETED;
+      default:
+        return status;
+    }
   }
 
   getStatusIcon(status: OrderStatus): string {
     switch (status) {
-      case OrderStatus.PENDING:
+      case OrderStatus.WAITING:
         return 'schedule';
-      case OrderStatus.ASSIGNED:
+      case OrderStatus.PROCESSING:
         return 'person_add';
-      case OrderStatus.IN_PROGRESS:
+      case OrderStatus.WORKING:
         return 'build';
+      case OrderStatus.REVIEW:
+        return 'visibility';
       case OrderStatus.COMPLETED:
         return 'check_circle';
-      case OrderStatus.CANCELLED:
-        return 'cancel';
       default:
         return 'help';
     }

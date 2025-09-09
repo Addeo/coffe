@@ -8,10 +8,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ErrorStateMatcher } from '@angular/material/core';
 
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 interface AuthLoginDto {
   email: string;
@@ -36,8 +36,7 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatProgressSpinnerModule
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
@@ -47,7 +46,7 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private snackBar = inject(MatSnackBar);
+  private toastService = inject(ToastService);
 
   emailFormControl = new FormControl('', [Validators.required, Validators.email]);
   passwordFormControl = new FormControl('', [Validators.required, Validators.minLength(6)]);
@@ -91,10 +90,7 @@ export class LoginComponent {
           console.log('🧭 Navigating to:', returnUrl);
           this.router.navigate([returnUrl]);
 
-          this.snackBar.open('Login successful!', 'Close', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
+          this.toastService.success('Вход выполнен успешно!');
         },
         error: (error) => {
           console.error('💥 Login component received error:', error);
@@ -106,10 +102,7 @@ export class LoginComponent {
           }
 
           console.log('📢 Showing error message:', errorMessage);
-          this.snackBar.open(errorMessage, 'Close', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+          this.toastService.error(errorMessage);
         }
       });
     } else {

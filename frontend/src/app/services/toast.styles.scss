@@ -1,0 +1,65 @@
+// Toast уведомления стили
+.toast-success {
+  background-color: #4caf50 !important;
+  color: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3) !important;
+
+  .mat-mdc-button {
+    color: white !important;
+  }
+}
+
+.toast-error {
+  background-color: #f44336 !important;
+  color: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3) !important;
+
+  .mat-mdc-button {
+    color: white !important;
+  }
+}
+
+.toast-info {
+  background-color: #2196f3 !important;
+  color: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3) !important;
+
+  .mat-mdc-button {
+    color: white !important;
+  }
+}
+
+.toast-warning {
+  background-color: #ff9800 !important;
+  color: white !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3) !important;
+
+  .mat-mdc-button {
+    color: white !important;
+  }
+}
+
+// Общие стили для всех toast уведомлений
+.mat-mdc-snack-bar-container {
+  .mdc-snackbar__surface {
+    border-radius: 8px !important;
+    font-family: 'Roboto', sans-serif !important;
+    font-weight: 500 !important;
+  }
+
+  .mdc-snackbar__label {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+  }
+
+  .mat-mdc-button {
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+  }
+}
+

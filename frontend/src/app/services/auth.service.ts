@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import { AuthLoginDto, AuthLoginResponse, AuthUserDto } from '@shared/dtos/user.dto';
 import { UserRole } from '@shared/interfaces/user.interface';
+import { User } from '@shared/interfaces/user.interface';
 import { environment } from '../../environments/environment';
 
 @Injectable({

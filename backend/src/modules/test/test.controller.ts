@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, UnauthorizedException, BadRequestException } from '@nestjs/common';
 
 @Controller('test')
 export class TestController {
@@ -22,12 +22,12 @@ export class TestController {
         }
       };
     } else {
-      throw new Error('Invalid email or password');
+      throw new UnauthorizedException('Invalid email or password');
     }
   }
 
   @Post('error-test')
   errorTest() {
-    throw new Error('This is a test error for notification testing');
+    throw new BadRequestException('This is a test error for notification testing');
   }
 }

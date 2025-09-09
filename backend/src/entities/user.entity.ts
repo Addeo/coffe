@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Order } from './order.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -32,6 +33,9 @@ export class User {
 
   @Column({ name: 'is_active', default: true })
   isActive: boolean;
+
+  @OneToMany(() => Order, order => order.assignedEngineer)
+  assignedOrders: Order[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

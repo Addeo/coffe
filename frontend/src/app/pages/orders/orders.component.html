@@ -18,8 +18,8 @@
         <div class="stat-content">
           <mat-icon class="stat-icon">schedule</mat-icon>
           <div class="stat-info">
-            <h3>{{ orderStats().pending }}</h3>
-            <p>Pending</p>
+            <h3>{{ orderStats().waiting }}</h3>
+            <p>В ожидании</p>
           </div>
         </div>
       </mat-card-content>
@@ -30,8 +30,8 @@
         <div class="stat-content">
           <mat-icon class="stat-icon">person_add</mat-icon>
           <div class="stat-info">
-            <h3>{{ orderStats().assigned }}</h3>
-            <p>Assigned</p>
+            <h3>{{ orderStats().processing }}</h3>
+            <p>В обработке</p>
           </div>
         </div>
       </mat-card-content>
@@ -42,8 +42,20 @@
         <div class="stat-content">
           <mat-icon class="stat-icon">build</mat-icon>
           <div class="stat-info">
-            <h3>{{ orderStats().inProgress }}</h3>
-            <p>In Progress</p>
+            <h3>{{ orderStats().working }}</h3>
+            <p>В работе</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon">visibility</mat-icon>
+          <div class="stat-info">
+            <h3>{{ orderStats().review }}</h3>
+            <p>На проверке</p>
           </div>
         </div>
       </mat-card-content>
@@ -55,19 +67,7 @@
           <mat-icon class="stat-icon">check_circle</mat-icon>
           <div class="stat-info">
             <h3>{{ orderStats().completed }}</h3>
-            <p>Completed</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">cancel</mat-icon>
-          <div class="stat-info">
-            <h3>{{ orderStats().cancelled }}</h3>
-            <p>Cancelled</p>
+            <p>Законченный</p>
           </div>
         </div>
       </mat-card-content>
@@ -100,7 +100,7 @@
             <mat-icon>refresh</mat-icon>
           </button>
 
-          <button mat-raised-button color="primary" (click)="onCreateOrder()">
+          <button mat-raised-button color="primary" (click)="onCreateOrder()" *ngIf="canCreateOrders">
             <mat-icon>add</mat-icon>
             Add Order
           </button>
@@ -174,7 +174,11 @@
                 <mat-icon>visibility</mat-icon>
               </button>
 
-              <button mat-button [matMenuTriggerFor]="statusMenu" color="accent" matTooltip="Change status">
+              <button mat-button
+                      [matMenuTriggerFor]="statusMenu"
+                      color="accent"
+                      matTooltip="Change status"
+                      *ngIf="canEditOrders">
                 <mat-icon>edit</mat-icon>
               </button>
               <mat-menu #statusMenu="matMenu">
@@ -189,17 +193,19 @@
 
               <button mat-icon-button
                       (click)="onAssignEngineer(order)"
-                      [disabled]="order.status === 'completed' || order.status === 'cancelled'"
+                      [disabled]="order.status === 'completed'"
                       color="primary"
-                      matTooltip="Assign engineer">
+                      matTooltip="Assign engineer"
+                      *ngIf="canAssignEngineers">
                 <mat-icon>person_add</mat-icon>
               </button>
 
               <button mat-icon-button
                       (click)="onDeleteOrder(order)"
-                      [disabled]="order.status !== 'pending'"
+                      [disabled]="order.status !== 'waiting'"
                       color="warn"
-                      matTooltip="Delete order">
+                      matTooltip="Delete order"
+                      *ngIf="canDeleteOrders">
                 <mat-icon>delete</mat-icon>
               </button>
             </td>

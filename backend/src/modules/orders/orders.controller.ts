@@ -1,14 +1,18 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards, Request, ParseIntPipe } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { UserRole } from '../../entities/user.entity';
 import { CreateOrderDto, UpdateOrderDto, AssignEngineerDto, OrdersQueryDto } from '@dtos/order.dto';
 
 @Controller('orders')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
   create(@Body() createOrderDto: CreateOrderDto, @Request() req) {
     return this.ordersService.create(createOrderDto, req.user.id);
   }
@@ -34,6 +38,7 @@ export class OrdersController {
   }
 
   @Post(':id/assign-engineer')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
   assignEngineer(
     @Param('id', ParseIntPipe) id: number,
     @Body() assignEngineerDto: AssignEngineerDto,

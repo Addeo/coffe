@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UsersService } from '../../services/users.service';
+import { AuthService } from '../../services/auth.service';
 import { UserDto } from '@shared/dtos/user.dto';
 import { UserRole } from '@shared/interfaces/user.interface';
 
@@ -40,6 +41,7 @@ import { UserRole } from '@shared/interfaces/user.interface';
 })
 export class UsersComponent implements OnInit {
   private usersService = inject(UsersService);
+  private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
 
@@ -47,11 +49,19 @@ export class UsersComponent implements OnInit {
   dataSource = new MatTableDataSource<UserDto>([]);
   isLoading = signal(false);
 
+  // Role-based visibility
+  readonly canViewUsers = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
+  readonly canCreateUsers = this.authService.isAdmin();
+  readonly canEditUsers = this.authService.isAdmin();
+  readonly canDeleteUsers = this.authService.isAdmin();
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit() {
-    this.loadUsers();
+    if (this.canViewUsers) {
+      this.loadUsers();
+    }
   }
 
   ngAfterViewInit() {

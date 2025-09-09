@@ -52,19 +52,19 @@ export class OrdersService {
 
   getOrderStats(): Observable<{
     total: number;
-    pending: number;
-    assigned: number;
-    inProgress: number;
+    waiting: number;
+    processing: number;
+    working: number;
+    review: number;
     completed: number;
-    cancelled: number;
   }> {
     return this.http.get<{
       total: number;
-      pending: number;
-      assigned: number;
-      inProgress: number;
+      waiting: number;
+      processing: number;
+      working: number;
+      review: number;
       completed: number;
-      cancelled: number;
     }>(`${environment.apiUrl}/orders/stats`);
   }
 
@@ -86,15 +86,11 @@ export class OrdersService {
 
   // Convenience methods for status updates
   startOrder(id: number): Observable<OrderDto> {
-    return this.updateOrder(id, { status: OrderStatus.IN_PROGRESS });
+    return this.updateOrder(id, { status: OrderStatus.WORKING });
   }
 
   completeOrder(id: number): Observable<OrderDto> {
     return this.updateOrder(id, { status: OrderStatus.COMPLETED });
-  }
-
-  cancelOrder(id: number): Observable<OrderDto> {
-    return this.updateOrder(id, { status: OrderStatus.CANCELLED });
   }
 
   // Batch operations

@@ -18,6 +18,40 @@
   }
 }
 
+.header-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+
+  .search-field {
+    width: 300px;
+  }
+}
+
+.access-denied {
+  text-align: center;
+  padding: 48px 24px;
+
+  mat-icon {
+    font-size: 4rem;
+    width: 4rem;
+    height: 4rem;
+    color: #ccc;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 8px 0;
+    color: #666;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0;
+    color: #999;
+  }
+}
+
 .users-table {
   width: 100%;
 }

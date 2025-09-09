@@ -3,9 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from '../../entities/order.entity';
 import { User } from '../../entities/user.entity';
+import { Setting, SettingKey } from '../../entities/settings.entity';
 import { CreateOrderDto, UpdateOrderDto, AssignEngineerDto, OrdersQueryDto } from '@dtos/order.dto';
 import { OrderStatus } from '@interfaces/order.interface';
-import { UserRole } from '@interfaces/user.interface';
+import { UserRole } from '../../entities/user.entity';
 
 export interface OrdersResponse {
   data: Order[];
@@ -22,6 +23,8 @@ export class OrdersService {
     private readonly ordersRepository: Repository<Order>,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(Setting)
+    private readonly settingsRepository: Repository<Setting>,
   ) {}
 
   async create(createOrderDto: CreateOrderDto, userId: number): Promise<Order> {
@@ -34,10 +37,18 @@ export class OrdersService {
       ...createOrderDto,
       createdBy: user,
       createdById: userId,
-      status: OrderStatus.PENDING,
+      status: OrderStatus.WAITING,
     });
 
-    return this.ordersRepository.save(order);
+    const savedOrder = await this.ordersRepository.save(order);
+
+    // Check if auto-distribution is enabled and try to assign the order
+    const autoDistributionEnabled = await this.getAutoDistributionEnabled();
+    if (autoDistributionEnabled) {
+      await this.autoAssignOrder(savedOrder);
+    }
+
+    return savedOrder;
   }
 
   async findAll(query: OrdersQueryDto = {}, user: User): Promise<OrdersResponse> {
@@ -51,13 +62,10 @@ export class OrdersService {
 
     // Apply filters based on user role
     if (user.role === UserRole.USER) {
-      // Regular users can only see orders they created
-      queryBuilder.andWhere('order.createdById = :userId', { userId: user.id });
-    } else if (user.role === UserRole.MANAGER) {
-      // Managers can see orders from their organization or assigned to them
-      queryBuilder.andWhere('(order.createdById = :userId OR order.assignedById = :userId)', { userId: user.id });
+      // Regular users can only see orders assigned to them
+      queryBuilder.andWhere('order.assignedEngineerId = :userId', { userId: user.id });
     }
-    // Admins can see all orders
+    // Admins and managers can see all orders
 
     if (status) {
       queryBuilder.andWhere('order.status = :status', { status });
@@ -97,10 +105,10 @@ export class OrdersService {
 
     // Apply role-based access control
     if (user.role === UserRole.USER) {
-      queryBuilder.andWhere('order.createdById = :userId', { userId: user.id });
-    } else if (user.role === UserRole.MANAGER) {
-      queryBuilder.andWhere('(order.createdById = :userId OR order.assignedById = :userId)', { userId: user.id });
+      // Regular users can only see orders assigned to them
+      queryBuilder.andWhere('order.assignedEngineerId = :userId', { userId: user.id });
     }
+    // Admins and managers can see all orders
 
     const order = await queryBuilder.getOne();
 
@@ -115,8 +123,8 @@ export class OrdersService {
     const order = await this.findOne(id, user);
 
     // Check permissions for status updates
-    if (updateOrderDto.status && user.role === UserRole.USER && updateOrderDto.status !== OrderStatus.CANCELLED) {
-      throw new BadRequestException('Users can only cancel orders');
+    if (updateOrderDto.status && user.role === UserRole.USER && updateOrderDto.status !== OrderStatus.COMPLETED) {
+      throw new BadRequestException('Users can only mark orders as completed');
     }
 
     // Set assignedBy if assigning engineer
@@ -125,7 +133,7 @@ export class OrdersService {
     }
 
     // Set actual dates based on status
-    if (updateOrderDto.status === OrderStatus.IN_PROGRESS && !order.actualStartDate) {
+    if (updateOrderDto.status === OrderStatus.WORKING && !order.actualStartDate) {
       updateOrderDto.actualStartDate = new Date();
     } else if (updateOrderDto.status === OrderStatus.COMPLETED && !order.completionDate) {
       updateOrderDto.completionDate = new Date();
@@ -136,9 +144,9 @@ export class OrdersService {
   }
 
   async assignEngineer(id: number, assignEngineerDto: AssignEngineerDto, user: User): Promise<Order> {
-    // Only managers and admins can assign engineers
-    if (user.role === UserRole.USER) {
-      throw new BadRequestException('Insufficient permissions to assign engineers');
+    // Only managers can assign engineers
+    if (user.role !== UserRole.MANAGER) {
+      throw new BadRequestException('Only managers can assign engineers to orders');
     }
 
     const order = await this.findOne(id, user);
@@ -154,7 +162,7 @@ export class OrdersService {
 
     order.assignedEngineerId = assignEngineerDto.engineerId;
     order.assignedById = user.id;
-    order.status = OrderStatus.ASSIGNED;
+    order.status = OrderStatus.PROCESSING;
 
     return this.ordersRepository.save(order);
   }
@@ -162,9 +170,9 @@ export class OrdersService {
   async remove(id: number, user: User): Promise<void> {
     const order = await this.findOne(id, user);
 
-    // Only allow deletion of pending orders
-    if (order.status !== OrderStatus.PENDING) {
-      throw new BadRequestException('Can only delete pending orders');
+    // Only allow deletion of waiting orders
+    if (order.status !== OrderStatus.WAITING) {
+      throw new BadRequestException('Can only delete waiting orders');
     }
 
     // Only creator or admin can delete
@@ -177,20 +185,20 @@ export class OrdersService {
 
   async getOrderStats(user: User): Promise<{
     total: number;
-    pending: number;
-    assigned: number;
-    inProgress: number;
+    waiting: number;
+    processing: number;
+    working: number;
+    review: number;
     completed: number;
-    cancelled: number;
   }> {
     const queryBuilder = this.ordersRepository.createQueryBuilder('order');
 
     // Apply role-based filtering
     if (user.role === UserRole.USER) {
-      queryBuilder.where('order.createdById = :userId', { userId: user.id });
-    } else if (user.role === UserRole.MANAGER) {
-      queryBuilder.where('(order.createdById = :userId OR order.assignedById = :userId)', { userId: user.id });
+      // Regular users can only see orders assigned to them
+      queryBuilder.where('order.assignedEngineerId = :userId', { userId: user.id });
     }
+    // Admins and managers can see all orders
 
     const stats = await queryBuilder
       .select('order.status', 'status')
@@ -200,11 +208,11 @@ export class OrdersService {
 
     const result = {
       total: 0,
-      pending: 0,
-      assigned: 0,
-      inProgress: 0,
+      waiting: 0,
+      processing: 0,
+      working: 0,
+      review: 0,
       completed: 0,
-      cancelled: 0,
     };
 
     stats.forEach(stat => {
@@ -213,5 +221,53 @@ export class OrdersService {
     });
 
     return result;
+  }
+
+  private async getAutoDistributionEnabled(): Promise<boolean> {
+    const setting = await this.settingsRepository.findOne({
+      where: { key: SettingKey.AUTO_DISTRIBUTION_ENABLED }
+    });
+    return setting?.value === 'true';
+  }
+
+  private async getMaxOrdersPerEngineer(): Promise<number> {
+    const setting = await this.settingsRepository.findOne({
+      where: { key: SettingKey.MAX_ORDERS_PER_ENGINEER }
+    });
+    return setting ? parseInt(setting.value, 10) : 5;
+  }
+
+  private async autoAssignOrder(order: Order): Promise<void> {
+    try {
+      const availableEngineer = await this.findAvailableEngineer();
+      if (availableEngineer) {
+        order.assignedEngineerId = availableEngineer.id;
+        order.assignedById = 1; // System user ID for auto-assignment
+        order.status = OrderStatus.PROCESSING;
+        await this.ordersRepository.save(order);
+      }
+    } catch (error) {
+      // Log error but don't fail the order creation
+      console.error('Auto-assignment failed:', error);
+    }
+  }
+
+  private async findAvailableEngineer(): Promise<User | null> {
+    const maxOrders = await this.getMaxOrdersPerEngineer();
+
+    // Find engineers with fewer than max orders assigned
+    const engineers = await this.usersRepository
+      .createQueryBuilder('user')
+      .leftJoin('user.assignedOrders', 'order', 'order.status IN (:statuses)', {
+        statuses: [OrderStatus.PROCESSING, OrderStatus.WORKING, OrderStatus.REVIEW]
+      })
+      .where('user.role = :userRole', { userRole: UserRole.USER })
+      .andWhere('user.isActive = :isActive', { isActive: true })
+      .groupBy('user.id')
+      .having('COUNT(order.id) < :maxOrders', { maxOrders })
+      .orderBy('COUNT(order.id)', 'ASC')
+      .getMany();
+
+    return engineers.length > 0 ? engineers[0] : null;
   }
 }
