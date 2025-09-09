@@ -6,7 +6,7 @@ echo "========================================"
 # Test frontend build
 echo "📦 Building frontend..."
 cd frontend
-if npm run build -- --configuration production --base-href /coffee-admin/; then
+if npm run build -- --configuration production --base-href /coffe/; then
     echo "✅ Frontend build successful"
 else
     echo "❌ Frontend build failed"
@@ -15,7 +15,7 @@ fi
 
 # Test serving locally
 echo "🌐 Starting local server..."
-npx http-server dist/coffee-admin -p 8080 &
+npx http-server dist/coffe -p 8080 &
 SERVER_PID=$!
 
 # Wait a moment for server to start
@@ -43,5 +43,5 @@ echo "3. Deploy backend to Render.com using render.yaml"
 echo "4. Update frontend environment.prod.ts with backend URL"
 echo ""
 echo "Demo URLs (after deployment):"
-echo "- Frontend: https://[your-username].github.io/coffee-admin/"
+echo "- Frontend: https://[your-username].github.io/coffe/"
 echo "- Backend: https://coffee-admin-demo.onrender.com"

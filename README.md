@@ -4,7 +4,7 @@ A modern admin panel built with Angular/Ionic frontend and NestJS backend, conta
 
 ## 🌐 Live Demo
 
-🚀 **Frontend Demo**: [GitHub Pages](https://[your-username].github.io/coffee-admin/)
+🚀 **Frontend Demo**: [GitHub Pages](https://addeo.github.io/coffe/)
 🚀 **Backend API**: [Render](https://coffee-admin-demo-backend.onrender.com) (if deployed)
 
 ### Demo Features

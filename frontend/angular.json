@@ -43,7 +43,7 @@
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "/coffee-admin/"
+              "baseHref": "/coffe/"
             },
             "development": {
               "optimization": false,
