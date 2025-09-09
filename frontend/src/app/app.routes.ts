@@ -35,6 +35,24 @@ export const routes: Routes = [
     data: { roles: ['admin', 'manager'], title: 'Edit User' }
   },
   {
+    path: 'organizations',
+    loadComponent: () => import('./pages/organizations/organizations.component').then(m => m.OrganizationsComponent),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin', 'manager'], title: 'Organization Management' }
+  },
+  {
+    path: 'organizations/create',
+    loadComponent: () => import('./pages/organizations/organizations.component').then(m => m.OrganizationsComponent),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin'], title: 'Create Organization' }
+  },
+  {
+    path: 'organizations/:id/edit',
+    loadComponent: () => import('./pages/organizations/organizations.component').then(m => m.OrganizationsComponent),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin', 'manager'], title: 'Edit Organization' }
+  },
+  {
     path: 'products',
     loadComponent: () => import('./pages/products/products.component').then(m => m.ProductsComponent),
     canActivate: [AuthGuard],
@@ -93,6 +111,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/reports/reports.component').then(m => m.ReportsComponent),
     canActivate: [AuthGuard],
     data: { roles: ['admin', 'manager'], title: 'Reports' }
+  },
+  {
+    path: 'notifications',
+    loadComponent: () => import('./pages/notifications/notifications.component').then(m => m.NotificationsComponent),
+    canActivate: [AuthGuard],
+    data: { title: 'Notifications' }
   },
   {
     path: 'settings',

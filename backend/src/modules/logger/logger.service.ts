@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ConsoleLogger } from '@nestjs/common';
 
 export enum LogLevel {
   DEBUG = 'debug',
@@ -20,7 +19,9 @@ export interface LogContext {
 }
 
 @Injectable()
-export class LoggerService extends ConsoleLogger {
+export class LoggerService {
+  private logger = new Logger('CustomLogger');
+
   private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
     const timestamp = new Date().toISOString();
     const contextStr = context ? JSON.stringify(context) : '';
@@ -29,20 +30,20 @@ export class LoggerService extends ConsoleLogger {
   }
 
   debug(message: string, context?: LogContext) {
-    super.debug(this.formatMessage(LogLevel.DEBUG, message, context));
+    this.logger.debug(this.formatMessage(LogLevel.DEBUG, message, context));
   }
 
   log(message: string, context?: LogContext) {
-    super.log(this.formatMessage(LogLevel.INFO, message, context));
+    this.logger.log(this.formatMessage(LogLevel.INFO, message, context));
   }
 
   warn(message: string, context?: LogContext) {
-    super.warn(this.formatMessage(LogLevel.WARN, message, context));
+    this.logger.warn(this.formatMessage(LogLevel.WARN, message, context));
   }
 
   error(message: string, trace?: string, context?: LogContext) {
     const formattedMessage = this.formatMessage(LogLevel.ERROR, message, context);
-    super.error(formattedMessage, trace);
+    this.logger.error(formattedMessage, trace);
   }
 
   // Специфические методы для бизнес-логики

@@ -1,0 +1,164 @@
+<div class="organizations-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>Organizations Management</mat-card-title>
+      <mat-card-subtitle>Manage company organizations and their settings</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="actions-row">
+        <mat-form-field class="search-field" appearance="outline">
+          <mat-label>Search organizations</mat-label>
+          <input matInput
+                 (input)="onSearchChange($any($event.target).value)"
+                 [value]="searchQuery()"
+                 placeholder="Search by name...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <button mat-raised-button
+                color="primary"
+                (click)="onCreateOrganization()"
+                *ngIf="canEdit()">
+          <mat-icon>add</mat-icon>
+          Add Organization
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="table-card">
+    <mat-card-content>
+      <div class="table-container">
+        <table mat-table [dataSource]="dataSource" matSort class="organizations-table">
+
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+            <td mat-cell *matCellDef="let organization">
+              <div class="name-cell">
+                <strong>{{ organization.name }}</strong>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Base Rate Column -->
+          <ng-container matColumnDef="baseRate">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Base Rate</th>
+            <td mat-cell *matCellDef="let organization">
+              {{ formatCurrency(organization.baseRate) }}/hour
+            </td>
+          </ng-container>
+
+          <!-- Overtime Multiplier Column -->
+          <ng-container matColumnDef="overtimeMultiplier">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Overtime Rate</th>
+            <td mat-cell *matCellDef="let organization">
+              <span *ngIf="organization.overtimeMultiplier; else noOvertime">
+                {{ organization.overtimeMultiplier }}x
+              </span>
+              <ng-template #noOvertime>
+                <span class="no-data">—</span>
+              </ng-template>
+            </td>
+          </ng-container>
+
+          <!-- Has Overtime Column -->
+          <ng-container matColumnDef="hasOvertime">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Overtime</th>
+            <td mat-cell *matCellDef="let organization">
+              <mat-chip [color]="organization.hasOvertime ? 'primary' : 'warn'"
+                        selected>
+                {{ organization.hasOvertime ? 'Yes' : 'No' }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="isActive">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <td mat-cell *matCellDef="let organization">
+              <mat-chip [color]="getStatusColor(organization.isActive)"
+                        selected>
+                {{ getStatusText(organization.isActive) }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Created Date Column -->
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
+            <td mat-cell *matCellDef="let organization">
+              {{ formatDate(organization.createdAt) }}
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let organization">
+              <button mat-icon-button
+                      [matMenuTriggerFor]="menu"
+                      [disabled]="!canEdit()"
+                      aria-label="Organization actions">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="onEditOrganization(organization)">
+                  <mat-icon>edit</mat-icon>
+                  <span>Edit</span>
+                </button>
+
+                <button mat-menu-item (click)="onToggleStatus(organization)">
+                  <mat-icon>{{ organization.isActive ? 'block' : 'check_circle' }}</mat-icon>
+                  <span>{{ organization.isActive ? 'Deactivate' : 'Activate' }}</span>
+                </button>
+
+                <mat-divider></mat-divider>
+
+                <button mat-menu-item
+                        (click)="onDeleteOrganization(organization)"
+                        class="delete-action">
+                  <mat-icon>delete</mat-icon>
+                  <span>Delete</span>
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <!-- Loading spinner -->
+        <div *ngIf="isLoading()" class="loading-container">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Loading organizations...</p>
+        </div>
+
+        <!-- No data message -->
+        <div *ngIf="!isLoading() && organizations().length === 0" class="no-data-container">
+          <mat-icon class="no-data-icon">business</mat-icon>
+          <h3>No organizations found</h3>
+          <p *ngIf="searchQuery()">No organizations match your search criteria.</p>
+          <p *ngIf="!searchQuery()">Get started by creating your first organization.</p>
+          <button *ngIf="canEdit() && !searchQuery()"
+                  mat-raised-button
+                  color="primary"
+                  (click)="onCreateOrganization()">
+            <mat-icon>add</mat-icon>
+            Add Organization
+          </button>
+        </div>
+      </div>
+
+      <!-- Paginator -->
+      <mat-paginator *ngIf="organizations().length > 0"
+                     [pageSizeOptions]="[10, 25, 50]"
+                     showFirstLastButtons>
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+</div>
+

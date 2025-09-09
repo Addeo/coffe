@@ -63,5 +63,33 @@ export class ToastService {
   dismiss() {
     this.snackBar.dismiss();
   }
+
+  /**
+   * Показать уведомление об успехе (alias для success)
+   */
+  showSuccess(message: string, action?: string, config?: Partial<MatSnackBarConfig>) {
+    return this.success(message, action, config);
+  }
+
+  /**
+   * Показать уведомление об ошибке (alias для error)
+   */
+  showError(message: string, action?: string, config?: Partial<MatSnackBarConfig>) {
+    return this.error(message, action, config);
+  }
+
+  /**
+   * Показать информационное уведомление (alias для info)
+   */
+  showInfo(message: string, action?: string, config?: Partial<MatSnackBarConfig>) {
+    return this.info(message, action, config);
+  }
+
+  /**
+   * Показать предупреждение (alias для warning)
+   */
+  showWarning(message: string, action?: string, config?: Partial<MatSnackBarConfig>) {
+    return this.warning(message, action, config);
+  }
 }
 

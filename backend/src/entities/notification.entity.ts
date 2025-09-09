@@ -5,6 +5,7 @@ export enum NotificationType {
   ORDER_STATUS_CHANGED = 'order_status_changed',
   ORDER_ASSIGNED = 'order_assigned',
   ORDER_CREATED = 'order_created',
+  ORDER_CREATED_FROM_EMAIL = 'order_created_from_email',
   USER_ACTIVATED = 'user_activated',
   USER_DEACTIVATED = 'user_deactivated',
   SYSTEM_ALERT = 'system_alert',

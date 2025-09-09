@@ -16,6 +16,13 @@ import { AuthService } from '../../services/auth.service';
 import { NotificationsService, NotificationDto } from '../../services/notifications.service';
 import { UserRole } from '@shared/interfaces/user.interface';
 
+interface NavigationItem {
+  label: string;
+  route: string;
+  icon: string;
+  badge?: number;
+}
+
 @Component({
   selector: 'app-navigation',
   standalone: true,
@@ -56,21 +63,23 @@ export class NavigationComponent implements OnInit, OnDestroy {
   });
 
   // Computed navigation items based on user role
-  navigationItems = computed(() => {
+  navigationItems = computed<NavigationItem[]>(() => {
     const role = this.userRole();
-    const items = [
+    const items: NavigationItem[] = [
       { label: 'Dashboard', route: '/dashboard', icon: 'dashboard' }
     ];
 
     if (role === UserRole.ADMIN || role === UserRole.MANAGER) {
       items.push(
-        { label: 'Users', route: '/users', icon: 'people' }
+        { label: 'Users', route: '/users', icon: 'people' },
+        { label: 'Organizations', route: '/organizations', icon: 'business' }
       );
     }
 
     items.push(
       { label: 'Products', route: '/products', icon: 'inventory' },
-      { label: 'Orders', route: '/orders', icon: 'shopping_cart' }
+      { label: 'Orders', route: '/orders', icon: 'shopping_cart' },
+      { label: 'Notifications', route: '/notifications', icon: 'notifications', badge: this.unreadCount() }
     );
 
     return items;

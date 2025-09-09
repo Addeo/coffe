@@ -23,15 +23,25 @@ import { NavigationComponent } from './components/navigation/navigation.componen
   styles: [`
     .app-container {
       min-height: 100vh;
-      background-color: #f5f5f5;
+      background-color: #fafafa;
+      font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     .main-content {
-      transition: margin-top 0.2s ease;
+      transition: all 0.3s ease;
+      position: relative;
 
       &.with-nav {
         margin-top: 64px; // Height of the toolbar
         min-height: calc(100vh - 64px);
+      }
+
+      // Ensure smooth transitions for content
+      ::ng-deep * {
+        transition: inherit;
       }
     }
 
@@ -39,6 +49,14 @@ import { NavigationComponent } from './components/navigation/navigation.componen
     ::ng-deep router-outlet + * {
       display: block;
       height: 100%;
+      width: 100%;
+    }
+
+    // Global loading state styling
+    ::ng-deep .mat-mdc-progress-spinner {
+      circle {
+        stroke: #1976d2;
+      }
     }
   `]
 })

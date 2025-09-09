@@ -1,9 +1,9 @@
-# Аутентификация API
+# Authentication API
 
-## Эндпоинты аутентификации
+## Authentication Endpoints
 
 ### POST /auth/login
-Аутентификация пользователя.
+User authentication.
 
 **Request Body:**
 ```json
@@ -31,18 +31,18 @@
 ```
 
 **Errors:**
-- `401 Unauthorized` - Неверные учетные данные
+- `401 Unauthorized` - Invalid credentials
 
-## Защита эндпоинтов
+## Endpoint Protection
 
-Для защиты эндпоинтов используйте следующие guards:
+To protect endpoints, use the following guards:
 
 ### JWT Guard
 ```typescript
 @UseGuards(JwtAuthGuard)
 @Get('protected')
 getProtectedData() {
-  // Этот эндпоинт требует аутентификации
+  // This endpoint requires authentication
 }
 ```
 
@@ -52,11 +52,11 @@ getProtectedData() {
 @Roles(UserRole.ADMIN)
 @Get('admin-only')
 getAdminData() {
-  // Этот эндпоинт доступен только админам
+  // This endpoint is available only to admins
 }
 ```
 
-## Переменные окружения
+## Environment Variables
 
 ```env
 # JWT Configuration
@@ -70,25 +70,25 @@ DB_PASSWORD=coffee_password
 DB_DATABASE=coffee_admin
 ```
 
-## Роли пользователей
+## User Roles
 
-- `ADMIN` - Администратор (полный доступ)
-- `MANAGER` - Менеджер (управление заказами и продуктами)
-- `USER` - Пользователь (просмотр и базовые операции)
+- `ADMIN` - Administrator (full access)
+- `MANAGER` - Manager (order and product management)
+- `USER` - User (view and basic operations)
 
-## Запуск
+## Getting Started
 
-1. Установите переменные окружения (скопируйте `env.example` в `.env`)
-2. Запустите базу данных MySQL
-3. Выполните миграции: `npm run migration:run`
-4. Запустите сервер: `npm run start:dev`
+1. Set up environment variables (copy `env.example` to `.env`)
+2. Start the MySQL database
+3. Run migrations: `npm run migration:run`
+4. Start the server: `npm run start:dev`
 
-## Тестирование
+## Testing
 
 ```bash
-# Запуск всех тестов
+# Run all tests
 npm run test
 
-# Запуск E2E тестов
+# Run E2E tests
 npm run test:e2e
 ```

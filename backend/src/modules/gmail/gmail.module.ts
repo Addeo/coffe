@@ -5,10 +5,13 @@ import { GmailController } from './gmail.controller';
 import { OrdersModule } from '../orders/orders.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { LoggerModule } from '../logger/logger.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../../entities/user.entity';
 
 @Module({
   imports: [
     ConfigModule,
+    TypeOrmModule.forFeature([User]),
     OrdersModule,
     NotificationsModule,
     LoggerModule,

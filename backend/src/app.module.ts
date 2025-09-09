@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TestModule } from './modules/test/test.module';
 import { User } from './entities/user.entity';
 import { Order } from './entities/order.entity';
@@ -21,7 +22,9 @@ import { EmailModule } from './modules/email/email.module';
 import { ExportModule } from './modules/export/export.module';
 import { BackupModule } from './modules/backup/backup.module';
 import { LoggerModule } from './modules/logger/logger.module';
+import { GmailModule } from './modules/gmail/gmail.module';
 import { SchedulerModule } from './modules/scheduler/scheduler.module';
+import { OrdersModule } from './modules/orders/orders.module';
 
 @Module({
   imports: [
@@ -29,6 +32,7 @@ import { SchedulerModule } from './modules/scheduler/scheduler.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST || 'localhost',
@@ -50,9 +54,9 @@ import { SchedulerModule } from './modules/scheduler/scheduler.module';
     LoggerModule,
     GmailModule,
     SchedulerModule,
+    OrdersModule,
     // UsersModule,
     // ProductsModule,
-    // OrdersModule,
     // FilesModule,
     TestModule,
   ],

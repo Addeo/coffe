@@ -52,6 +52,12 @@ export class NotificationsService {
     );
   }
 
+  markAsUnread(notificationId: number): Observable<{ success: boolean }> {
+    return this.http.post<{ success: boolean }>(`${environment.apiUrl}/notifications/${notificationId}/unread`, {}).pipe(
+      tap(() => this.refreshUnreadCount())
+    );
+  }
+
   markAllAsRead(): Observable<{ markedAsRead: number }> {
     return this.http.post<{ markedAsRead: number }>(`${environment.apiUrl}/notifications/mark-all-read`, {}).pipe(
       tap(() => this.refreshUnreadCount())

@@ -4,7 +4,7 @@ import { Repository, Between, LessThan } from 'typeorm';
 import { EarningsStatistic } from '../../entities/earnings-statistic.entity';
 import { Order } from '../../entities/order.entity';
 import { User, UserRole } from '../../entities/user.entity';
-import { OrderStatus } from '@interfaces/order.interface';
+import { OrderStatus } from '../../../shared/interfaces/order.interface';
 
 @Injectable()
 export class StatisticsService {

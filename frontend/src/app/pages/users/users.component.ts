@@ -5,7 +5,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -16,8 +15,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UsersService } from '../../services/users.service';
 import { AuthService } from '../../services/auth.service';
+import { ModalService } from '../../services/modal.service';
+import { ToastService } from '../../services/toast.service';
 import { UserDto } from '@shared/dtos/user.dto';
 import { UserRole } from '@shared/interfaces/user.interface';
+import { UserDialogComponent } from '../../components/modals/user-dialog.component';
+import { DeleteConfirmationDialogComponent } from '../../components/modals/delete-confirmation-dialog.component';
 
 @Component({
   selector: 'app-users',
@@ -42,8 +45,9 @@ import { UserRole } from '@shared/interfaces/user.interface';
 export class UsersComponent implements OnInit {
   private usersService = inject(UsersService);
   private authService = inject(AuthService);
-  private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
+  private modalService = inject(ModalService);
+  private toastService = inject(ToastService);
 
   displayedColumns: string[] = ['id', 'firstName', 'lastName', 'email', 'role', 'isActive', 'createdAt', 'actions'];
   dataSource = new MatTableDataSource<UserDto>([]);
@@ -78,7 +82,7 @@ export class UsersComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading users:', error);
-        this.snackBar.open('Error loading users', 'Close', { duration: 3000 });
+        this.toastService.error('Error loading users');
         this.isLoading.set(false);
       }
     });
@@ -110,21 +114,42 @@ export class UsersComponent implements OnInit {
   }
 
   onEditUser(user: UserDto) {
-    // TODO: Open edit user dialog
-    console.log('Edit user:', user);
-    this.snackBar.open('Edit functionality coming soon', 'Close', { duration: 2000 });
+    const dialogRef = this.modalService.openDialog(UserDialogComponent, {
+      user,
+      isEdit: true
+    });
+
+    dialogRef.subscribe(result => {
+      if (result) {
+        this.loadUsers();
+      }
+    });
   }
 
   onDeleteUser(user: UserDto) {
-    // TODO: Open delete confirmation dialog
-    console.log('Delete user:', user);
-    this.snackBar.open('Delete functionality coming soon', 'Close', { duration: 2000 });
+    const dialogRef = this.modalService.openDialog(DeleteConfirmationDialogComponent, {
+      user,
+      title: 'Delete User',
+      message: `Are you sure you want to delete user ${user.firstName} ${user.lastName}?`
+    });
+
+    dialogRef.subscribe(result => {
+      if (result) {
+        this.loadUsers();
+      }
+    });
   }
 
   onCreateUser() {
-    // TODO: Open create user dialog
-    console.log('Create new user');
-    this.snackBar.open('Create functionality coming soon', 'Close', { duration: 2000 });
+    const dialogRef = this.modalService.openDialog(UserDialogComponent, {
+      isEdit: false
+    });
+
+    dialogRef.subscribe(result => {
+      if (result) {
+        this.loadUsers();
+      }
+    });
   }
 
   onToggleUserStatus(user: UserDto) {
@@ -137,15 +162,11 @@ export class UsersComponent implements OnInit {
           this.dataSource.data[index] = updatedUser;
           this.dataSource._updateChangeSubscription();
         }
-        this.snackBar.open(
-          `User ${newStatus ? 'activated' : 'deactivated'} successfully`,
-          'Close',
-          { duration: 3000 }
-        );
+        this.toastService.success(`User ${newStatus ? 'activated' : 'deactivated'} successfully`);
       },
       error: (error) => {
         console.error('Error updating user status:', error);
-        this.snackBar.open('Error updating user status', 'Close', { duration: 3000 });
+        this.toastService.error('Error updating user status');
       }
     });
   }

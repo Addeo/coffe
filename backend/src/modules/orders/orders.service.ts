@@ -5,8 +5,8 @@ import { Order } from '../../entities/order.entity';
 import { User } from '../../entities/user.entity';
 import { Setting, SettingKey } from '../../entities/settings.entity';
 import { UserActivityLog, ActivityType } from '../../entities/user-activity-log.entity';
-import { CreateOrderDto, UpdateOrderDto, AssignEngineerDto, OrdersQueryDto } from '@dtos/order.dto';
-import { OrderStatus } from '@interfaces/order.interface';
+import { CreateOrderDto, UpdateOrderDto, AssignEngineerDto, OrdersQueryDto } from '../../../shared/dtos/order.dto';
+import { OrderStatus } from '../../../shared/interfaces/order.interface';
 import { UserRole } from '../../entities/user.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { StatisticsService } from '../statistics/statistics.service';
@@ -50,7 +50,7 @@ export class OrdersService {
 
     const savedOrder = await this.ordersRepository.save(order);
 
-    // Логируем создание заказа
+    // Log order creation
     await this.logActivity(
       savedOrder.id,
       ActivityType.ORDER_CREATED,
@@ -160,7 +160,7 @@ export class OrdersService {
     Object.assign(order, updateOrderDto);
     const updatedOrder = await this.ordersRepository.save(order);
 
-    // Логируем изменение статуса заказа
+    // Log order status change
     if (updateOrderDto.status && oldStatus !== updateOrderDto.status) {
       await this.logActivity(
         id,
@@ -174,11 +174,11 @@ export class OrdersService {
         user.id
       );
 
-      // Отправляем уведомления
+      // Send notifications
       await this.sendStatusChangeNotifications(updatedOrder, user.id);
     }
 
-    // Если заказ завершен, пересчитываем статистику заработка
+    // If order is completed, recalculate earnings statistics
     if (updateOrderDto.status === OrderStatus.COMPLETED && oldStatus !== OrderStatus.COMPLETED) {
       const completionDate = updatedOrder.completionDate || new Date();
       await this.statisticsService.calculateMonthlyEarnings(
@@ -201,8 +201,8 @@ export class OrdersService {
 
     // Check if there's already an assigned engineer
     if (order.assignedEngineerId && order.assignedEngineerId !== assignEngineerDto.engineerId) {
-      // Проверяем, хочет ли пользователь перезаписать существующее назначение
-      // Здесь можно добавить дополнительную логику подтверждения
+      // Check if user wants to overwrite existing assignment
+      // Additional confirmation logic can be added here
     }
 
     // Check if engineer exists and is active
@@ -221,7 +221,7 @@ export class OrdersService {
 
     const updatedOrder = await this.ordersRepository.save(order);
 
-    // Логируем назначение инженера
+    // Log engineer assignment
     await this.logActivity(
       id,
       ActivityType.ORDER_ASSIGNED,
@@ -234,7 +234,7 @@ export class OrdersService {
       user.id
     );
 
-    // Отправляем уведомление инженеру
+    // Send notification to engineer
     await this.notificationsService.createOrderAssignedNotification(
       id,
       order.title,
@@ -321,11 +321,11 @@ export class OrdersService {
       if (availableEngineer) {
         const oldEngineerId = order.assignedEngineerId;
         order.assignedEngineerId = availableEngineer.id;
-        order.assignedById = createdById; // Используем ID создателя заказа
+        order.assignedById = createdById; // Use order creator's ID
         order.status = OrderStatus.PROCESSING;
         await this.ordersRepository.save(order);
 
-        // Логируем авто-назначение
+        // Log auto-assignment
         await this.logActivity(
           order.id,
           ActivityType.ORDER_AUTO_ASSIGNED,
@@ -339,7 +339,7 @@ export class OrdersService {
           createdById
         );
 
-        // Отправляем уведомление инженеру
+        // Send notification to engineer
         await this.notificationsService.createOrderAssignedNotification(
           order.id,
           order.title,
@@ -347,7 +347,7 @@ export class OrdersService {
           createdById
         );
       } else {
-        // Если нет доступных инженеров, отправляем уведомление администраторам и менеджерам
+        // If no engineers are available, send notification to admins and managers
         const adminUsers = await this.usersRepository.find({
           where: { role: UserRole.ADMIN, isActive: true }
         });
@@ -380,7 +380,7 @@ export class OrdersService {
     const currentMonth = currentDate.getMonth() + 1;
     const currentYear = currentDate.getFullYear();
 
-    // Сначала находим инженеров с количеством активных заказов меньше максимального
+    // First, find engineers with active orders count less than maximum
     const engineersWithCapacity = await this.usersRepository
       .createQueryBuilder('user')
       .leftJoin('user.assignedOrders', 'order', 'order.status IN (:statuses)', {
@@ -398,10 +398,10 @@ export class OrdersService {
       return null;
     }
 
-    // Среди доступных инженеров выбираем того, у кого меньше всего заработка за последний месяц
+    // Among available engineers, select the one with the least earnings for the last month
     const engineerIds = engineersWithCapacity.entities.map(e => e.id);
 
-    // Получаем статистику заработка за последний месяц
+    // Get earnings statistics for the last month
     const earningsStats = await this.settingsRepository
       .createQueryBuilder('setting')
       .where('setting.key = :key', { key: 'earnings_statistics' })
@@ -410,12 +410,12 @@ export class OrdersService {
       .andWhere('JSON_EXTRACT(setting.value, "$.year") = :year', { year: currentYear })
       .getMany();
 
-    // Если статистики нет, выбираем по количеству активных заказов
+    // If no statistics available, select by active orders count
     if (earningsStats.length === 0) {
       return engineersWithCapacity.entities[0];
     }
 
-    // Парсим статистику и выбираем инженера с минимальным заработком
+    // Parse statistics and select engineer with minimum earnings
     let minEarnings = Infinity;
     let selectedEngineer = engineersWithCapacity.entities[0];
 
@@ -437,11 +437,11 @@ export class OrdersService {
             selectedEngineer = engineer;
           }
         } catch {
-          // Если не удалось распарсить, пропускаем
+          // If parsing failed, skip
           continue;
         }
       } else {
-        // Если статистики нет для этого инженера, считаем его приоритетным
+        // If no statistics available for this engineer, consider him priority
         selectedEngineer = engineer;
         break;
       }
@@ -452,20 +452,20 @@ export class OrdersService {
 
   private async sendStatusChangeNotifications(order: Order, performedById: number): Promise<void> {
     try {
-      // Собираем список пользователей для уведомления
+      // Collect list of users to notify
       const affectedUserIds: number[] = [];
 
-      // Добавляем создателя заказа
+      // Add order creator
       if (order.createdById && order.createdById !== performedById) {
         affectedUserIds.push(order.createdById);
       }
 
-      // Добавляем назначенного инженера
+      // Add assigned engineer
       if (order.assignedEngineerId && order.assignedEngineerId !== performedById) {
         affectedUserIds.push(order.assignedEngineerId);
       }
 
-      // Добавляем менеджера, который назначил заказ
+      // Add manager who assigned the order
       if (order.assignedById && order.assignedById !== performedById && !affectedUserIds.includes(order.assignedById)) {
         affectedUserIds.push(order.assignedById);
       }
@@ -493,7 +493,7 @@ export class OrdersService {
   ): Promise<void> {
     try {
       const log = this.activityLogRepository.create({
-        userId: performedById, // Используем ID пользователя, который выполнил действие
+        userId: performedById, // Use ID of user who performed the action
         activityType,
         description,
         metadata: {

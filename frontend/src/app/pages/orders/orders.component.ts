@@ -6,7 +6,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -18,9 +17,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { OrdersService } from '../../services/orders.service';
 import { AuthService } from '../../services/auth.service';
+import { ModalService } from '../../services/modal.service';
+import { ToastService } from '../../services/toast.service';
 import { OrderDto, OrdersQueryDto } from '@shared/dtos/order.dto';
 import { OrderStatus, OrderStatusLabel } from '@shared/interfaces/order.interface';
 import { UserRole } from '@shared/interfaces/user.interface';
+import { OrderDialogComponent } from '../../components/modals/order-dialog.component';
+import { OrderDeleteConfirmationDialogComponent } from '../../components/modals/order-delete-confirmation-dialog.component';
 
 @Component({
   selector: 'app-orders',
@@ -47,10 +50,11 @@ import { UserRole } from '@shared/interfaces/user.interface';
 export class OrdersComponent implements OnInit {
   private ordersService = inject(OrdersService);
   private authService = inject(AuthService);
-  private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
+  private modalService = inject(ModalService);
+  private toastService = inject(ToastService);
 
-  displayedColumns: string[] = ['id', 'title', 'organization', 'assignedEngineer', 'status', 'createdAt', 'actions'];
+  displayedColumns: string[] = ['id', 'title', 'organization', 'assignedEngineer', 'status', 'createdAt', 'edit', 'actions'];
   dataSource = new MatTableDataSource<OrderDto>([]);
   isLoading = signal(false);
   orderStats = signal({
@@ -99,7 +103,7 @@ export class OrdersComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading orders:', error);
-        this.snackBar.open('Error loading orders', 'Close', { duration: 3000 });
+        this.toastService.error('Error loading orders');
         this.isLoading.set(false);
       }
     });
@@ -121,10 +125,35 @@ export class OrdersComponent implements OnInit {
     this.loadOrders();
   }
 
+  onEditOrder(order: OrderDto) {
+    const dialogRef = this.modalService.openDialog(OrderDialogComponent, {
+      order,
+      isEdit: true
+    });
+
+    dialogRef.subscribe(result => {
+      if (result) {
+        this.loadOrders();
+        this.loadOrderStats();
+      }
+    });
+  }
+
   onViewOrder(order: OrderDto) {
-    // TODO: Open order details dialog
-    console.log('View order:', order);
-    this.snackBar.open('Order details coming soon', 'Close', { duration: 2000 });
+    const dialogRef = this.modalService.openDialog(OrderDialogComponent, {
+      order,
+      isEdit: true
+    }, {
+      disableClose: false,
+      data: { readonly: true }
+    });
+
+    dialogRef.subscribe(result => {
+      if (result) {
+        this.loadOrders();
+        this.loadOrderStats();
+      }
+    });
   }
 
   onUpdateStatus(order: OrderDto, newStatus: OrderStatus) {
@@ -150,11 +179,11 @@ export class OrdersComponent implements OnInit {
           this.dataSource._updateChangeSubscription();
         }
         this.loadOrderStats(); // Refresh stats
-        this.snackBar.open(`Order status updated to ${newStatus}`, 'Close', { duration: 3000 });
+        this.toastService.success(`Order status updated to ${newStatus}`);
       },
       error: (error) => {
         console.error('Error updating order status:', error);
-        this.snackBar.open('Error updating order status', 'Close', { duration: 3000 });
+        this.toastService.error('Error updating order status');
       }
     });
   }
@@ -162,19 +191,35 @@ export class OrdersComponent implements OnInit {
   onAssignEngineer(order: OrderDto) {
     // TODO: Open engineer assignment dialog
     console.log('Assign engineer to order:', order);
-    this.snackBar.open('Engineer assignment coming soon', 'Close', { duration: 2000 });
+    this.toastService.info('Engineer assignment coming soon');
   }
 
   onDeleteOrder(order: OrderDto) {
-    // TODO: Open delete confirmation dialog
-    console.log('Delete order:', order);
-    this.snackBar.open('Delete functionality coming soon', 'Close', { duration: 2000 });
+    const dialogRef = this.modalService.openDialog(OrderDeleteConfirmationDialogComponent, {
+      order,
+      title: 'Delete Order',
+      message: `Are you sure you want to delete order "${order.title}"?`
+    });
+
+    dialogRef.subscribe(result => {
+      if (result) {
+        this.loadOrders();
+        this.loadOrderStats();
+      }
+    });
   }
 
   onCreateOrder() {
-    // TODO: Open create order dialog
-    console.log('Create new order');
-    this.snackBar.open('Create order functionality coming soon', 'Close', { duration: 2000 });
+    const dialogRef = this.modalService.openDialog(OrderDialogComponent, {
+      isEdit: false
+    });
+
+    dialogRef.subscribe(result => {
+      if (result) {
+        this.loadOrders();
+        this.loadOrderStats();
+      }
+    });
   }
 
   getOrganizationName(order: OrderDto): string {

@@ -1,7 +1,6 @@
 // Global styles for Coffee Admin Panel
 
 /* You can add global styles to this file, and also import other style files */
-@import '@angular/material';
 @import './app/services/toast.styles.scss';
 
 // Global styles
@@ -14,27 +13,187 @@ html, body {
   margin: 0;
   padding: 0;
   font-family: 'Roboto', 'Helvetica Neue', sans-serif;
-  background-color: #f5f5f5;
+  background-color: #fafafa;
+  color: #333;
+  line-height: 1.5;
 }
 
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Typography improvements
+h1, h2, h3, h4, h5, h6 {
+  margin: 0 0 16px 0;
+  font-weight: 500;
+  color: #333;
+  line-height: 1.3;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.1rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin: 0 0 16px 0;
+  color: #666;
+}
+
+// Link styles
+a {
+  color: #1976d2;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #1565c0;
+  text-decoration: underline;
 }
 
 // Custom component themes
 .mat-mdc-card {
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.mat-mdc-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
 }
 
 .mat-mdc-button {
-  border-radius: 6px;
+  border-radius: 8px;
   text-transform: none;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+}
+
+.mat-mdc-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .mat-mdc-chip {
   border-radius: 16px;
+  font-weight: 500;
+}
+
+// Enhanced form field styles
+.mat-mdc-form-field {
+  .mat-mdc-text-field-wrapper {
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.8);
+    transition: all 0.2s ease;
+  }
+
+  .mdc-notched-outline {
+    border-radius: 8px;
+  }
+
+  &.mat-focused .mdc-notched-outline {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: #1976d2;
+      border-width: 2px;
+    }
+  }
+}
+
+// Utility classes
+.page-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  background-color: #fafafa;
+  min-height: calc(100vh - 64px);
+}
+
+.content-card {
+  margin-bottom: 24px;
+  border-radius: 12px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  p {
+    margin-top: 16px;
+    color: #666;
+    font-size: 1.1rem;
+  }
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #666;
+
+  mat-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.25rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
+
+// Text utility classes
+.text-muted {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.text-primary {
+  color: #1976d2;
+}
+
+.text-success {
+  color: #4caf50;
+}
+
+.text-warning {
+  color: #ff9800;
+}
+
+.text-error {
+  color: #f44336;
 }
 
 // Responsive utilities
@@ -109,4 +268,91 @@ body {
 
 .mat-mdc-form-field-required-marker {
   color: #f44336;
+}
+
+// Modal dialog styles
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(2px);
+}
+
+.modal-panel {
+  border-radius: 16px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+  overflow: hidden;
+  max-height: 90vh;
+}
+
+// Enhanced dialog animations
+.mat-mdc-dialog-container {
+  animation: modalEnter 0.3s ease-out;
+
+  &.ng-animating {
+    animation: modalEnter 0.3s ease-out;
+  }
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+// Dialog content styling
+.mat-mdc-dialog-content {
+  padding: 0 !important;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.mat-mdc-dialog-title {
+  margin: 0 !important;
+  padding: 24px 24px 16px 24px !important;
+  font-size: 24px !important;
+  font-weight: 500 !important;
+  color: #1976d2 !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+}
+
+.mat-mdc-dialog-actions {
+  padding: 16px 24px 24px 24px !important;
+  margin: 0 !important;
+  border-top: 1px solid #e0e0e0 !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+}
+
+// Override default Material dialog positioning to center properly
+.cdk-overlay-pane.mat-mdc-dialog-panel {
+  max-width: 90vw !important;
+  max-height: 90vh !important;
+}
+
+// Mobile responsive dialogs
+@media (max-width: 600px) {
+  .cdk-overlay-pane.mat-mdc-dialog-panel {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 16px !important;
+  }
+
+  .mat-mdc-dialog-title {
+    padding: 20px 16px 12px 16px !important;
+    font-size: 20px !important;
+  }
+
+  .mat-mdc-dialog-content {
+    padding: 16px !important;
+  }
+
+  .mat-mdc-dialog-actions {
+    padding: 12px 16px 20px 16px !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
 }

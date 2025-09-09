@@ -1,11 +1,19 @@
 import { User } from './user.interface';
 
 export enum OrderStatus {
-  PENDING = 'pending',
-  ASSIGNED = 'assigned',
-  IN_PROGRESS = 'in_progress',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
+  WAITING = 'waiting',        // в ожидании
+  PROCESSING = 'processing',  // в обработке
+  WORKING = 'working',        // в работе
+  REVIEW = 'review',          // на проверке
+  COMPLETED = 'completed'     // законченный
+}
+
+export enum OrderStatusLabel {
+  WAITING = 'Waiting',
+  PROCESSING = 'Processing',
+  WORKING = 'In Progress',
+  REVIEW = 'Under Review',
+  COMPLETED = 'Completed'
 }
 
 export enum TerritoryType {

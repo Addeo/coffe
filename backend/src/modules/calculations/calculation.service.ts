@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { Engineer } from '../../entities/engineer.entity';
 import { Organization } from '../../entities/organization.entity';
 import { WorkReport } from '../../entities/work-report.entity';
-import { EngineerType } from '@interfaces/order.interface';
+import { EngineerType } from '../../../shared/interfaces/order.interface';
 
 @Injectable()
 export class CalculationService {
   /**
-   * Расчет часов работы с округлением до 0.25 часа в большую сторону
+   * Calculate work hours with rounding up to 0.25 hours
    */
   calculateWorkHours(startTime: Date, endTime: Date): number {
     const diffMs = endTime.getTime() - startTime.getTime();

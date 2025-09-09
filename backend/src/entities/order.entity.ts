@@ -3,7 +3,7 @@ import { Organization } from './organization.entity';
 import { Engineer } from './engineer.entity';
 import { User } from './user.entity';
 import { File } from './file.entity';
-import { OrderStatus, TerritoryType } from '@interfaces/order.interface';
+import { OrderStatus, TerritoryType } from '../../shared/interfaces/order.interface';
 
 @Entity('orders')
 @Index(['assignedEngineerId', 'status'])

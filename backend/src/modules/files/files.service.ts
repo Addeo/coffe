@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { File } from '../../entities/file.entity';
 import { User } from '../../entities/user.entity';
-import { FileQueryDto, FileType } from '@dtos/file.dto';
+import { FileQueryDto, FileType } from '../../../shared/dtos/file.dto';
 import * as fs from 'fs';
 import * as path from 'path';
 

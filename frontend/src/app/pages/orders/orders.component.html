@@ -19,7 +19,7 @@
           <mat-icon class="stat-icon">schedule</mat-icon>
           <div class="stat-info">
             <h3>{{ orderStats().waiting }}</h3>
-            <p>В ожидании</p>
+            <p>Waiting</p>
           </div>
         </div>
       </mat-card-content>
@@ -31,7 +31,7 @@
           <mat-icon class="stat-icon">person_add</mat-icon>
           <div class="stat-info">
             <h3>{{ orderStats().processing }}</h3>
-            <p>В обработке</p>
+            <p>Processing</p>
           </div>
         </div>
       </mat-card-content>
@@ -43,7 +43,7 @@
           <mat-icon class="stat-icon">build</mat-icon>
           <div class="stat-info">
             <h3>{{ orderStats().working }}</h3>
-            <p>В работе</p>
+            <p>In Progress</p>
           </div>
         </div>
       </mat-card-content>
@@ -55,7 +55,7 @@
           <mat-icon class="stat-icon">visibility</mat-icon>
           <div class="stat-info">
             <h3>{{ orderStats().review }}</h3>
-            <p>На проверке</p>
+            <p>Under Review</p>
           </div>
         </div>
       </mat-card-content>
@@ -67,7 +67,7 @@
           <mat-icon class="stat-icon">check_circle</mat-icon>
           <div class="stat-info">
             <h3>{{ orderStats().completed }}</h3>
-            <p>Законченный</p>
+            <p>Completed</p>
           </div>
         </div>
       </mat-card-content>
@@ -164,6 +164,16 @@
           <ng-container matColumnDef="createdAt">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
             <td mat-cell *matCellDef="let order">{{ order.createdAt | date:'short' }}</td>
+          </ng-container>
+
+          <!-- Edit Column -->
+          <ng-container matColumnDef="edit">
+            <th mat-header-cell *matHeaderCellDef>Edit</th>
+            <td mat-cell *matCellDef="let order">
+              <button mat-icon-button (click)="onEditOrder(order)" color="primary" matTooltip="Edit order" *ngIf="canEditOrders">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </td>
           </ng-container>
 
           <!-- Actions Column -->

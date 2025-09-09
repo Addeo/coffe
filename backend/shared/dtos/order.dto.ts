@@ -1,4 +1,5 @@
 import { OrderStatus, TerritoryType } from '../interfaces/order.interface';
+import { FileResponseDto } from './file.dto';
 
 export interface CreateOrderDto {
   organizationId: number;
@@ -63,6 +64,7 @@ export interface OrderDto {
   plannedStartDate?: Date;
   actualStartDate?: Date;
   completionDate?: Date;
+  files?: FileResponseDto[];
   createdAt: Date;
   updatedAt: Date;
 }

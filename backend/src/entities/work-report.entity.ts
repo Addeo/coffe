@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
 import { Order } from './order.entity';
 import { Engineer } from './engineer.entity';
-import { TerritoryType } from '@interfaces/order.interface';
+import { TerritoryType } from '../../shared/interfaces/order.interface';
 
 export enum WorkResult {
   COMPLETED = 'completed',

@@ -5,6 +5,8 @@ import { OAuth2Client } from 'google-auth-library';
 import { LoggerService } from '../logger/logger.service';
 import { OrdersService } from '../orders/orders.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType, NotificationPriority } from '../../entities/notification.entity';
+import { UserRole } from '../../entities/user.entity';
 
 interface GmailMessage {
   id: string;
@@ -167,16 +169,16 @@ export class GmailService {
 
       // Отправляем уведомление администраторам
       const adminUsers = await this.notificationsService['userRepository'].find({
-        where: { role: 'admin', isActive: true }
+        where: { role: UserRole.ADMIN, isActive: true }
       });
 
       for (const admin of adminUsers) {
         await this.notificationsService.createNotification(
           admin.id,
-          'order_created_from_email',
+          NotificationType.ORDER_CREATED_FROM_EMAIL,
           'New Order from Email',
           `Order "${order.title}" was created from email: ${subject}`,
-          'high',
+          NotificationPriority.HIGH,
           { orderId: order.id, emailSubject: subject, emailFrom: from }
         );
       }

@@ -3,7 +3,7 @@ import { FilesService } from './files.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
-import { FileQueryDto, FileType } from '@dtos/file.dto';
+import { FileQueryDto, FileType } from '../../../shared/dtos/file.dto';
 
 @Controller('files')
 @UseGuards(JwtAuthGuard)
