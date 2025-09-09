@@ -147,7 +147,7 @@ export class OrdersService {
       {
         createdById: systemUserId,
         source: source,
-        organizationId: createOrderDto.organizationId
+        organizationId: createOrderDto.organizationId,
       },
       systemUserId
     );
@@ -426,7 +426,8 @@ export class OrdersService {
     });
 
     // Get source statistics
-    const sourceQuery = this.ordersRepository.createQueryBuilder('order')
+    const sourceQuery = this.ordersRepository
+      .createQueryBuilder('order')
       .select('order.source', 'source')
       .addSelect('COUNT(*)', 'count');
 
@@ -690,7 +691,7 @@ export class OrdersService {
     // Получаем заказ
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
-      relations: ['organization']
+      relations: ['organization'],
     });
 
     if (!order) {
@@ -700,7 +701,7 @@ export class OrdersService {
     // Получаем инженера
     const engineer = await this.engineersRepository.findOne({
       where: { userId: engineerId },
-      relations: ['user']
+      relations: ['user'],
     });
 
     if (!engineer) {
@@ -733,7 +734,7 @@ export class OrdersService {
       territoryType,
       photoUrl: workReportData.photoUrl,
       notes: workReportData.notes,
-      workResult: WorkResult.COMPLETED // По умолчанию считаем завершенным
+      workResult: WorkResult.COMPLETED, // По умолчанию считаем завершенным
     });
 
     // Рассчитываем стоимость
@@ -760,7 +761,7 @@ export class OrdersService {
         hours: totalHours,
         calculatedAmount: calculations.calculatedAmount,
         carUsageAmount: calculations.carUsageAmount,
-        isOvertime: calculations.isOvertime
+        isOvertime: calculations.isOvertime,
       },
       engineer.userId
     );
@@ -775,14 +776,18 @@ export class OrdersService {
     return this.workReportsRepository.find({
       where: { orderId },
       relations: ['engineer', 'engineer.user'],
-      order: { submittedAt: 'DESC' }
+      order: { submittedAt: 'DESC' },
     });
   }
 
   /**
    * Получение отчетов о работе для инженера
    */
-  async getEngineerWorkReports(engineerId: number, startDate?: Date, endDate?: Date): Promise<WorkReport[]> {
+  async getEngineerWorkReports(
+    engineerId: number,
+    startDate?: Date,
+    endDate?: Date
+  ): Promise<WorkReport[]> {
     const query = this.workReportsRepository
       .createQueryBuilder('workReport')
       .leftJoinAndSelect('workReport.order', 'order')

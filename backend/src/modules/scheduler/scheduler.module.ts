@@ -7,7 +7,12 @@ import { StatisticsModule } from '../statistics/statistics.module';
 import { LoggerModule } from '../logger/logger.module';
 
 @Module({
-  imports: [ScheduleModule.forRoot(), /* GmailModule, */ BackupModule, StatisticsModule, LoggerModule],
+  imports: [
+    ScheduleModule.forRoot(),
+    /* GmailModule, */ BackupModule,
+    StatisticsModule,
+    LoggerModule,
+  ],
   providers: [SchedulerService],
 })
 export class SchedulerModule {}

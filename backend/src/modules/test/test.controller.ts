@@ -10,7 +10,7 @@ export class TestController {
       message: 'Backend is working!',
       timestamp: new Date().toISOString(),
       version: '1.0.0',
-      status: 'success'
+      status: 'success',
     };
   }
 
@@ -20,7 +20,7 @@ export class TestController {
       status: 'ok',
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
-      memory: process.memoryUsage()
+      memory: process.memoryUsage(),
     };
   }
 }

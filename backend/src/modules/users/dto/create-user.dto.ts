@@ -1,4 +1,13 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength, IsOptional, IsNumber, Min } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  IsOptional,
+  IsNumber,
+  Min,
+} from 'class-validator';
 import { UserRole } from '../../../entities/user.entity';
 import { EngineerType } from '../../../../shared/interfaces/order.interface';
 

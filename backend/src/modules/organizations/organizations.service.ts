@@ -20,13 +20,13 @@ export class OrganizationsService {
   async findAll(): Promise<Organization[]> {
     return this.organizationRepository.find({
       where: { isActive: true },
-      order: { name: 'ASC' }
+      order: { name: 'ASC' },
     });
   }
 
   async findOne(id: number): Promise<Organization> {
     const organization = await this.organizationRepository.findOne({
-      where: { id, isActive: true }
+      where: { id, isActive: true },
     });
 
     if (!organization) {
@@ -51,7 +51,7 @@ export class OrganizationsService {
 
   async findByName(name: string): Promise<Organization | null> {
     return this.organizationRepository.findOne({
-      where: { name, isActive: true }
+      where: { name, isActive: true },
     });
   }
 }

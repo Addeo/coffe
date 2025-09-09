@@ -272,11 +272,7 @@ export class CalculationService {
     workReport: WorkReport
   ): { calculatedAmount: number; carUsageAmount: number; isOvertime: boolean } {
     // Определение сверхурочного времени
-    const isOvertime = this.isOvertimeWork(
-      workReport.startTime,
-      workReport.endTime,
-      engineer.type
-    );
+    const isOvertime = this.isOvertimeWork(workReport.startTime, workReport.endTime, engineer.type);
 
     // Расчет оплаты за работу
     const calculatedAmount = this.calculateEngineerPayment(
@@ -301,7 +297,7 @@ export class CalculationService {
     return {
       calculatedAmount,
       carUsageAmount,
-      isOvertime
+      isOvertime,
     };
   }
 

@@ -8,6 +8,7 @@ A modern admin panel built with Angular/Ionic frontend and NestJS backend, conta
 🚀 **Backend API**: [Render](https://coffee-admin-demo-backend.onrender.com) (if deployed)
 
 ### Demo Features
+
 - ✅ User Authentication
 - ✅ Organization Management (CRUD)
 - ✅ Responsive Design
@@ -15,6 +16,7 @@ A modern admin panel built with Angular/Ionic frontend and NestJS backend, conta
 - ✅ Real-time Updates
 
 ### Test Accounts
+
 - **Admin**: admin@coffee.com / password
 - **Manager**: manager@coffee.com / password
 - **Engineer**: engineer@coffee.com / password

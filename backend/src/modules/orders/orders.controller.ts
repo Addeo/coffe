@@ -71,7 +71,11 @@ export class OrdersController {
 
   @Get('by-source/:source')
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
-  getOrdersBySource(@Param('source') source: OrderSource, @Query() query: ExtendedOrdersQueryDto, @Request() req) {
+  getOrdersBySource(
+    @Param('source') source: OrderSource,
+    @Query() query: ExtendedOrdersQueryDto,
+    @Request() req
+  ) {
     return this.ordersService.findAll({ ...query, source }, req.user);
   }
 
@@ -114,7 +118,8 @@ export class OrdersController {
   @Roles(UserRole.USER) // Only engineers can create work reports
   createWorkReport(
     @Param('id', ParseIntPipe) orderId: number,
-    @Body() workReportData: {
+    @Body()
+    workReportData: {
       startTime: string;
       endTime: string;
       distanceKm?: number;

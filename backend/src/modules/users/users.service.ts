@@ -36,7 +36,9 @@ export class UsersService {
         userId: savedUser.id,
         type: createUserDto.engineerType,
         baseRate: createUserDto.baseRate || 700, // Default base rate
-        overtimeRate: createUserDto.overtimeRate || (createUserDto.engineerType === EngineerType.CONTRACT ? 1200 : 700), // Default overtime rate
+        overtimeRate:
+          createUserDto.overtimeRate ||
+          (createUserDto.engineerType === EngineerType.CONTRACT ? 1200 : 700), // Default overtime rate
         planHoursMonth: createUserDto.planHoursMonth || 160, // Default plan hours
         homeTerritoryFixedAmount: createUserDto.homeTerritoryFixedAmount || 0,
         isActive: true,
