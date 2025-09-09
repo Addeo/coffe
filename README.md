@@ -2,6 +2,23 @@
 
 A modern admin panel built with Angular/Ionic frontend and NestJS backend, containerized with Docker for easy deployment.
 
+## 🌐 Live Demo
+
+🚀 **Frontend Demo**: [GitHub Pages](https://[your-username].github.io/coffee-admin/)
+🚀 **Backend API**: [Render](https://coffee-admin-demo-backend.onrender.com) (if deployed)
+
+### Demo Features
+- ✅ User Authentication
+- ✅ Organization Management (CRUD)
+- ✅ Responsive Design
+- ✅ Mobile Compatible
+- ✅ Real-time Updates
+
+### Test Accounts
+- **Admin**: admin@coffee.com / password
+- **Manager**: manager@coffee.com / password
+- **Engineer**: engineer@coffee.com / password
+
 ## 🏗️ Architecture
 
 - **Frontend**: Angular 17+ with Ionic Framework for mobile compatibility

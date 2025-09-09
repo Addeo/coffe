@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: '/api',
-  appName: 'Coffee Admin Panel',
+  apiUrl: 'https://coffee-admin-demo-backend.onrender.com', // Замените на ваш бесплатный backend URL
+  appName: 'Coffee Admin Panel Demo',
+  demo: true,
 };

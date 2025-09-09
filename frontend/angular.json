@@ -42,7 +42,8 @@
                   "maximumError": "4kb"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "baseHref": "/coffee-admin/"
             },
             "development": {
               "optimization": false,
