@@ -10,7 +10,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { OrganizationsService } from '../../services/organizations.service';
 import { ToastService } from '../../services/toast.service';
-import { CreateOrganizationDto, UpdateOrganizationDto, OrganizationDto } from '@shared/dtos/organization.dto';
+import {
+  CreateOrganizationDto,
+  UpdateOrganizationDto,
+  OrganizationDto,
+} from '@shared/dtos/organization.dto';
 
 export interface OrganizationDialogData {
   organization?: OrganizationDto;
@@ -82,9 +86,7 @@ export interface OrganizationDialogData {
 
           <div class="form-row">
             <div class="toggle-field">
-              <mat-slide-toggle formControlName="hasOvertime">
-                Has Overtime
-              </mat-slide-toggle>
+              <mat-slide-toggle formControlName="hasOvertime"> Has Overtime </mat-slide-toggle>
               <span class="toggle-hint">Check if this organization pays overtime</span>
             </div>
           </div>
@@ -291,7 +293,9 @@ export class OrganizationDialogComponent {
     const organizationData: CreateOrganizationDto = {
       name: formValue.name,
       baseRate: parseFloat(formValue.baseRate),
-      overtimeMultiplier: formValue.overtimeMultiplier ? parseFloat(formValue.overtimeMultiplier) : undefined,
+      overtimeMultiplier: formValue.overtimeMultiplier
+        ? parseFloat(formValue.overtimeMultiplier)
+        : undefined,
       hasOvertime: formValue.hasOvertime,
     };
 
@@ -315,21 +319,25 @@ export class OrganizationDialogComponent {
     const organizationData: UpdateOrganizationDto = {
       name: formValue.name,
       baseRate: parseFloat(formValue.baseRate),
-      overtimeMultiplier: formValue.overtimeMultiplier ? parseFloat(formValue.overtimeMultiplier) : undefined,
+      overtimeMultiplier: formValue.overtimeMultiplier
+        ? parseFloat(formValue.overtimeMultiplier)
+        : undefined,
       hasOvertime: formValue.hasOvertime,
     };
 
-    this.organizationsService.updateOrganization(this.data.organization.id, organizationData).subscribe({
-      next: organization => {
-        this.toastService.showSuccess('Organization updated successfully');
-        this.dialogRef.close(organization);
-      },
-      error: error => {
-        console.error('Error updating organization:', error);
-        this.toastService.showError('Error updating organization. Please try again.');
-        this.isLoading.set(false);
-      },
-    });
+    this.organizationsService
+      .updateOrganization(this.data.organization.id, organizationData)
+      .subscribe({
+        next: organization => {
+          this.toastService.showSuccess('Organization updated successfully');
+          this.dialogRef.close(organization);
+        },
+        error: error => {
+          console.error('Error updating organization:', error);
+          this.toastService.showError('Error updating organization. Please try again.');
+          this.isLoading.set(false);
+        },
+      });
   }
 
   onCancel() {
