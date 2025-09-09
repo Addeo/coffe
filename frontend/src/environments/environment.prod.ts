@@ -1,6 +1,7 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://coffee-admin-demo-backend.onrender.com', // Замените на ваш бесплатный backend URL
+  apiUrl: 'https://your-ngrok-url.ngrok.io/api', // Замените на ваш ngrok URL
+  authUrl: 'https://your-ngrok-url.ngrok.io/api/auth/login', // Замените на ваш ngrok URL
   appName: 'Coffee Admin Panel Demo',
   demo: true,
 };
