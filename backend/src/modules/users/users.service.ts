@@ -4,8 +4,10 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User, UserRole } from '../../entities/user.entity';
 import { UserActivityLog, ActivityType } from '../../entities/user-activity-log.entity';
+import { Engineer } from '../../entities/engineer.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { EngineerType } from '../../../shared/interfaces/order.interface';
 
 @Injectable()
 export class UsersService {
@@ -13,7 +15,9 @@ export class UsersService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(UserActivityLog)
-    private activityLogRepository: Repository<UserActivityLog>
+    private activityLogRepository: Repository<UserActivityLog>,
+    @InjectRepository(Engineer)
+    private engineerRepository: Repository<Engineer>
   ) {}
 
   async create(createUserDto: CreateUserDto, createdById: number): Promise<User> {
@@ -26,12 +30,27 @@ export class UsersService {
 
     const savedUser = await this.userRepository.save(user);
 
+    // If user is an engineer (USER role), create engineer record
+    if (createUserDto.role === UserRole.USER && createUserDto.engineerType) {
+      const engineer = this.engineerRepository.create({
+        userId: savedUser.id,
+        type: createUserDto.engineerType,
+        baseRate: createUserDto.baseRate || 700, // Default base rate
+        overtimeRate: createUserDto.overtimeRate || (createUserDto.engineerType === EngineerType.CONTRACT ? 1200 : 700), // Default overtime rate
+        planHoursMonth: createUserDto.planHoursMonth || 160, // Default plan hours
+        homeTerritoryFixedAmount: createUserDto.homeTerritoryFixedAmount || 0,
+        isActive: true,
+      });
+
+      await this.engineerRepository.save(engineer);
+    }
+
     // Логируем создание пользователя
     await this.logActivity(
       savedUser.id,
       ActivityType.USER_CREATED,
       `User ${savedUser.firstName} ${savedUser.lastName} was created`,
-      { createdById },
+      { createdById, role: createUserDto.role, engineerType: createUserDto.engineerType },
       createdById
     );
 

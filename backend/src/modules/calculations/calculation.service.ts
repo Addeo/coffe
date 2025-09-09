@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Engineer } from '../../entities/engineer.entity';
 import { Organization } from '../../entities/organization.entity';
 import { WorkReport } from '../../entities/work-report.entity';
-import { EngineerType } from '../../../shared/interfaces/order.interface';
+import { EngineerType, TerritoryType } from '../../../shared/interfaces/order.interface';
 
 @Injectable()
 export class CalculationService {
@@ -190,10 +190,129 @@ export class CalculationService {
   /**
    * Определение типа территории по расстоянию
    */
-  getTerritoryType(distanceKm: number, engineerType: EngineerType): string {
-    if (distanceKm <= 60) return 'home';
-    if (distanceKm <= 199 && engineerType === EngineerType.REMOTE) return 'zone_1';
-    if (distanceKm <= 250) return 'zone_2';
-    return 'zone_3';
+  getTerritoryType(distanceKm: number, engineerType: EngineerType): TerritoryType {
+    if (distanceKm <= 60) return TerritoryType.HOME;
+    if (distanceKm <= 199 && engineerType === EngineerType.REMOTE) return TerritoryType.ZONE_1;
+    if (distanceKm <= 250) return TerritoryType.ZONE_2;
+    return TerritoryType.ZONE_3;
+  }
+
+  /**
+   * Определение сверхурочного времени
+   */
+  isOvertimeWork(startTime: Date, endTime: Date, engineerType: EngineerType): boolean {
+    const hours = this.calculateWorkHours(startTime, endTime);
+    const dayOfWeek = startTime.getDay(); // 0 = Sunday, 6 = Saturday
+
+    // Работа в выходные всегда считается сверхурочной
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      return true;
+    }
+
+    // Для наемных инженеров - любая работа считается по фиксированной ставке
+    if (engineerType === EngineerType.CONTRACT) {
+      return false; // Наемные всегда работают по фиксированной ставке
+    }
+
+    // Сверхурочное время после 8 часов в день
+    const dailyHours = this.getDailyHoursWorked(startTime, hours);
+    return dailyHours > 8;
+  }
+
+  /**
+   * Получение часов работы за день (упрощенная версия)
+   */
+  private getDailyHoursWorked(workDate: Date, hours: number): number {
+    // В реальном приложении здесь должен быть запрос к БД
+    // для получения всех часов работы инженера за этот день
+    // Пока возвращаем переданные часы как базовое значение
+    return hours;
+  }
+
+  /**
+   * Расчет транспорта с учетом типа территории
+   */
+  calculateTransportByTerritory(engineer: Engineer, territoryType: TerritoryType): number {
+    if (engineer.type === EngineerType.CONTRACT) {
+      // Для наемных расчет по километражу не нужен - они получают фиксированную ставку
+      return 0;
+    }
+
+    // Фиксированная сумма за домашнюю территорию
+    let amount = engineer.homeTerritoryFixedAmount;
+
+    // Дополнительные суммы за зоны
+    switch (territoryType) {
+      case TerritoryType.ZONE_1:
+        if (engineer.type === EngineerType.REMOTE) {
+          amount += 1000;
+        }
+        break;
+      case TerritoryType.ZONE_2:
+        amount += 1500;
+        break;
+      case TerritoryType.ZONE_3:
+        amount += 2000;
+        break;
+      case TerritoryType.HOME:
+      default:
+        // Только фиксированная сумма
+        break;
+    }
+
+    return amount;
+  }
+
+  /**
+   * Расчет полной стоимости работы (включая транспорт)
+   */
+  calculateWorkReportTotals(
+    engineer: Engineer,
+    organization: Organization,
+    workReport: WorkReport
+  ): { calculatedAmount: number; carUsageAmount: number; isOvertime: boolean } {
+    // Определение сверхурочного времени
+    const isOvertime = this.isOvertimeWork(
+      workReport.startTime,
+      workReport.endTime,
+      engineer.type
+    );
+
+    // Расчет оплаты за работу
+    const calculatedAmount = this.calculateEngineerPayment(
+      engineer,
+      organization,
+      workReport.totalHours,
+      isOvertime
+    );
+
+    // Расчет транспорта
+    let carUsageAmount = 0;
+    if (workReport.distanceKm && workReport.territoryType) {
+      if (engineer.type === EngineerType.CONTRACT) {
+        // Для наемных - по километражу
+        carUsageAmount = workReport.distanceKm * 14;
+      } else {
+        // Для штатных и удаленных - по зонам
+        carUsageAmount = this.calculateTransportByTerritory(engineer, workReport.territoryType);
+      }
+    }
+
+    return {
+      calculatedAmount,
+      carUsageAmount,
+      isOvertime
+    };
+  }
+
+  /**
+   * Проверка превышения месячной нормы часов
+   */
+  checkMonthlyOvertime(engineer: Engineer, totalMonthlyHours: number): boolean {
+    if (engineer.type === EngineerType.CONTRACT) {
+      return false; // Наемные работают без месячной нормы
+    }
+
+    return totalMonthlyHours > engineer.planHoursMonth;
   }
 }

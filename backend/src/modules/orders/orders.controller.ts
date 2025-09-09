@@ -22,6 +22,7 @@ import {
   AssignEngineerDto,
   OrdersQueryDto,
 } from '../../../shared/dtos/order.dto';
+import { TerritoryType } from '../../../shared/interfaces/order.interface';
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -71,5 +72,47 @@ export class OrdersController {
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number, @Request() req) {
     return this.ordersService.remove(id, req.user);
+  }
+
+  // Work Reports endpoints
+  @Post(':id/work-reports')
+  @Roles(UserRole.USER) // Only engineers can create work reports
+  createWorkReport(
+    @Param('id', ParseIntPipe) orderId: number,
+    @Body() workReportData: {
+      startTime: string;
+      endTime: string;
+      distanceKm?: number;
+      territoryType?: TerritoryType;
+      photoUrl?: string;
+      notes?: string;
+    },
+    @Request() req
+  ) {
+    return this.ordersService.createWorkReport(orderId, req.user.id, {
+      ...workReportData,
+      startTime: new Date(workReportData.startTime),
+      endTime: new Date(workReportData.endTime),
+    });
+  }
+
+  @Get(':id/work-reports')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  getWorkReports(@Param('id', ParseIntPipe) orderId: number) {
+    return this.ordersService.getWorkReports(orderId);
+  }
+
+  @Get('work-reports/my')
+  @Roles(UserRole.USER) // Only engineers can see their own work reports
+  getMyWorkReports(
+    @Request() req,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string
+  ) {
+    return this.ordersService.getEngineerWorkReports(
+      req.user.id,
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined
+    );
   }
 }

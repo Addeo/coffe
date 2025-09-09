@@ -3,6 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from '../../entities/order.entity';
 import { User } from '../../entities/user.entity';
+import { Engineer } from '../../entities/engineer.entity';
+import { Organization } from '../../entities/organization.entity';
+import { WorkReport } from '../../entities/work-report.entity';
 import { Setting, SettingKey } from '../../entities/settings.entity';
 import { UserActivityLog, ActivityType } from '../../entities/user-activity-log.entity';
 import {
@@ -11,11 +14,13 @@ import {
   AssignEngineerDto,
   OrdersQueryDto,
 } from '../../../shared/dtos/order.dto';
-import { OrderStatus } from '../../../shared/interfaces/order.interface';
+import { OrderStatus, TerritoryType } from '../../../shared/interfaces/order.interface';
+import { WorkResult } from '../../entities/work-report.entity';
 import { UserRole } from '../../entities/user.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { StatisticsService } from '../statistics/statistics.service';
 import { NotificationPriority } from '../../entities/notification.entity';
+import { CalculationService } from '../calculations/calculation.service';
 
 export interface OrdersResponse {
   data: Order[];
@@ -32,12 +37,19 @@ export class OrdersService {
     private readonly ordersRepository: Repository<Order>,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    @InjectRepository(Engineer)
+    private readonly engineersRepository: Repository<Engineer>,
+    @InjectRepository(Organization)
+    private readonly organizationsRepository: Repository<Organization>,
+    @InjectRepository(WorkReport)
+    private readonly workReportsRepository: Repository<WorkReport>,
     @InjectRepository(Setting)
     private readonly settingsRepository: Repository<Setting>,
     @InjectRepository(UserActivityLog)
     private readonly activityLogRepository: Repository<UserActivityLog>,
     private readonly notificationsService: NotificationsService,
-    private readonly statisticsService: StatisticsService
+    private readonly statisticsService: StatisticsService,
+    private readonly calculationService: CalculationService
   ) {}
 
   async create(createOrderDto: CreateOrderDto, userId: number): Promise<Order> {
@@ -534,5 +546,134 @@ export class OrdersService {
     } catch (error) {
       console.error('Failed to log activity:', error);
     }
+  }
+
+  /**
+   * Создание отчета о выполненной работе с автоматическим расчетом
+   */
+  async createWorkReport(
+    orderId: number,
+    engineerId: number,
+    workReportData: {
+      startTime: Date;
+      endTime: Date;
+      distanceKm?: number;
+      territoryType?: TerritoryType;
+      photoUrl?: string;
+      notes?: string;
+    }
+  ): Promise<WorkReport> {
+    // Получаем заказ
+    const order = await this.ordersRepository.findOne({
+      where: { id: orderId },
+      relations: ['organization']
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // Получаем инженера
+    const engineer = await this.engineersRepository.findOne({
+      where: { userId: engineerId },
+      relations: ['user']
+    });
+
+    if (!engineer) {
+      throw new NotFoundException('Engineer not found');
+    }
+
+    // Рассчитываем время работы
+    const totalHours = this.calculationService.calculateWorkHours(
+      workReportData.startTime,
+      workReportData.endTime
+    );
+
+    // Определяем тип территории, если не указан
+    let territoryType = workReportData.territoryType;
+    if (!territoryType && workReportData.distanceKm) {
+      territoryType = this.calculationService.getTerritoryType(
+        workReportData.distanceKm,
+        engineer.type
+      );
+    }
+
+    // Создаем отчет о работе
+    const workReport = this.workReportsRepository.create({
+      order,
+      engineer,
+      startTime: workReportData.startTime,
+      endTime: workReportData.endTime,
+      totalHours,
+      distanceKm: workReportData.distanceKm,
+      territoryType,
+      photoUrl: workReportData.photoUrl,
+      notes: workReportData.notes,
+      workResult: WorkResult.COMPLETED // По умолчанию считаем завершенным
+    });
+
+    // Рассчитываем стоимость
+    const calculations = this.calculationService.calculateWorkReportTotals(
+      engineer,
+      order.organization,
+      workReport
+    );
+
+    workReport.isOvertime = calculations.isOvertime;
+    workReport.calculatedAmount = calculations.calculatedAmount;
+    workReport.carUsageAmount = calculations.carUsageAmount;
+
+    // Сохраняем отчет
+    const savedReport = await this.workReportsRepository.save(workReport);
+
+    // Логируем создание отчета
+    await this.logActivity(
+      orderId,
+      ActivityType.ORDER_STATUS_CHANGED, // Используем существующий тип активности
+      `Work report created for order ${order.title} by engineer ${engineer.user.firstName} ${engineer.user.lastName}`,
+      {
+        workReportId: savedReport.id,
+        hours: totalHours,
+        calculatedAmount: calculations.calculatedAmount,
+        carUsageAmount: calculations.carUsageAmount,
+        isOvertime: calculations.isOvertime
+      },
+      engineer.userId
+    );
+
+    return savedReport;
+  }
+
+  /**
+   * Получение отчетов о работе для заказа
+   */
+  async getWorkReports(orderId: number): Promise<WorkReport[]> {
+    return this.workReportsRepository.find({
+      where: { orderId },
+      relations: ['engineer', 'engineer.user'],
+      order: { submittedAt: 'DESC' }
+    });
+  }
+
+  /**
+   * Получение отчетов о работе для инженера
+   */
+  async getEngineerWorkReports(engineerId: number, startDate?: Date, endDate?: Date): Promise<WorkReport[]> {
+    const query = this.workReportsRepository
+      .createQueryBuilder('workReport')
+      .leftJoinAndSelect('workReport.order', 'order')
+      .leftJoinAndSelect('workReport.engineer', 'engineer')
+      .leftJoinAndSelect('engineer.user', 'user')
+      .where('workReport.engineerId = :engineerId', { engineerId });
+
+    if (startDate) {
+      query.andWhere('workReport.submittedAt >= :startDate', { startDate });
+    }
+
+    if (endDate) {
+      query.andWhere('workReport.submittedAt <= :endDate', { endDate });
+    }
+
+    return query.orderBy('workReport.submittedAt', 'DESC').getMany();
   }
 }

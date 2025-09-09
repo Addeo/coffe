@@ -13,7 +13,7 @@ import { Setting } from './entities/settings.entity';
 import { UserActivityLog } from './entities/user-activity-log.entity';
 import { Notification } from './entities/notification.entity';
 import { EarningsStatistic } from './entities/earnings-statistic.entity';
-import { TestController } from './modules/test/test.controller';
+import { WorkReport } from './entities/work-report.entity';
 import { AuthModule } from './modules/auth/auth.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -22,9 +22,10 @@ import { EmailModule } from './modules/email/email.module';
 import { ExportModule } from './modules/export/export.module';
 import { BackupModule } from './modules/backup/backup.module';
 import { LoggerModule } from './modules/logger/logger.module';
-import { GmailModule } from './modules/gmail/gmail.module';
 import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { OrdersModule } from './modules/orders/orders.module';
+import { UsersModule } from './modules/users/users.module';
+import { OrganizationsModule } from './modules/organizations/organizations.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { OrdersModule } from './modules/orders/orders.module';
         UserActivityLog,
         Notification,
         EarningsStatistic,
+        WorkReport,
       ],
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV === 'development',
@@ -63,15 +65,15 @@ import { OrdersModule } from './modules/orders/orders.module';
     ExportModule,
     BackupModule,
     LoggerModule,
-    GmailModule,
-    SchedulerModule,
     OrdersModule,
-    // UsersModule,
+    SchedulerModule,
+    UsersModule,
+    OrganizationsModule,
     // ProductsModule,
     // FilesModule,
     TestModule,
   ],
-  controllers: [TestController],
+  controllers: [],
   providers: [],
 })
 export class AppModule {}
