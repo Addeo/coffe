@@ -15,7 +15,7 @@
     "build": "docker compose build",
     "build:frontend": "npm run build --workspace=frontend",
     "build:backend": "npm run build --workspace=backend",
-    "deploy:frontend": "cd frontend && ng build --configuration production && cd .. && git add -f frontend/dist/ && git commit -m 'Deploy frontend to gh-pages [skip ci]' && git subtree push --prefix frontend/dist/coffee-admin origin gh-pages",
+    "deploy:frontend": "cd frontend && ng build --configuration production && cd .. && git subtree push --prefix frontend/dist/coffee-admin origin gh-pages",
     "test": "npm run test --workspace=frontend && npm run test --workspace=backend",
     "lint": "npm run lint --workspace=frontend && npm run lint --workspace=backend",
     "lintFormat": "npm run lint && npm run format",
@@ -25,6 +25,10 @@
     "docker:logs": "docker compose logs -f"
   },
   "devDependencies": {
+    "@angular-eslint/builder": "^20.2.0",
+    "@angular-eslint/eslint-plugin": "^20.2.0",
+    "@angular-eslint/eslint-plugin-template": "^20.2.0",
+    "@angular-eslint/template-parser": "^20.2.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
