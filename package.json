@@ -15,7 +15,7 @@
     "build": "docker compose build",
     "build:frontend": "npm run build --workspace=frontend",
     "build:backend": "npm run build --workspace=backend",
-    "deploy:frontend": "cd frontend && npm run deploy",
+    "deploy:frontend": "bash scripts/deploy-frontend.sh",
     "test": "npm run test --workspace=frontend && npm run test --workspace=backend",
     "lint": "npm run lint --workspace=frontend && npm run lint --workspace=backend",
     "lintFormat": "npm run lint && npm run format",
