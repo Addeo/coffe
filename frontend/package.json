@@ -6,7 +6,7 @@
     "dev": "ng serve --host 0.0.0.0 --port 4202",
     "start": "ng serve --host 0.0.0.0 --port 4202",
     "build": "ng build --configuration production",
-    "deploy": "ng build --configuration production && gh-pages -d dist/coffee-admin --repo https://github.com/Addeo/coffe-deploy.git --branch main --no-history --add",
+    "deploy": "HUSKY=0 ng build --configuration production && gh-pages -d dist/coffee-admin --repo https://github.com/Addeo/coffe-deploy.git --branch gh-pages --no-history",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
