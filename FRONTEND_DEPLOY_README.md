@@ -20,6 +20,7 @@
 #### 2. Настройка репозитория
 
 Workflow файл `.github/workflows/deploy-frontend.yml` уже создан и настроен для:
+
 - Автоматического развертывания при пуше в `main` ветку
 - Только при изменениях в папке `frontend/`
 - Использования Node.js 18
@@ -28,6 +29,7 @@ Workflow файл `.github/workflows/deploy-frontend.yml` уже создан и
 #### 3. Первый запуск
 
 1. Сделайте коммит и пуш изменений в `main` ветку:
+
 ```bash
 git add .
 git commit -m "Add GitHub Pages deployment"
@@ -43,12 +45,14 @@ git push origin main
 Если вы предпочитаете развертывать локально:
 
 1. Установите `gh-pages` пакет:
+
 ```bash
 cd frontend
 npm install
 ```
 
 2. Разверните приложение:
+
 ```bash
 npm run deploy
 ```
@@ -61,12 +65,15 @@ npm run deploy
 ### Важные настройки
 
 #### Base Href
+
 В `angular.json` уже настроен `baseHref: "/coffe/"` для production сборки. Это означает, что ваше приложение будет доступно по адресу:
+
 ```
 https://YOUR_USERNAME.github.io/coffe/
 ```
 
 #### API URL для Production
+
 В `src/environments/environment.prod.ts` настройте ваш production API URL:
 
 ```typescript
@@ -121,15 +128,19 @@ export const environment = {
 ### Troubleshooting
 
 #### Проблема: Assets не загружаются
+
 **Решение**: Проверьте `baseHref` в `angular.json` и убедитесь, что пути к assets относительные
 
 #### Проблема: CORS ошибки
+
 **Решение**: Настройте CORS на backend или используйте proxy
 
 #### Проблема: Routing не работает
+
 **Решение**: Убедитесь, что в GitHub Pages настроен fallback на `index.html` для SPA routing
 
 #### Проблема: Workflow не запускается
+
 **Решение**: Проверьте, что файл workflow находится в правильной папке `.github/workflows/`
 
 ### Структура файлов для развертывания
@@ -149,20 +160,25 @@ frontend/
 ### Дополнительные настройки
 
 #### Custom Domain
+
 Если у вас есть кастомный домен:
+
 1. Добавьте `CNAME` файл в корень проекта
 2. Настройте DNS записи
 3. Укажите домен в настройках GitHub Pages
 
 #### HTTPS
+
 GitHub Pages автоматически предоставляет HTTPS для всех сайтов.
 
 #### Analytics
+
 Для добавления аналитики используйте Google Analytics или другие сервисы в `index.html`.
 
 ### Поддержка
 
 Если возникнут проблемы с развертыванием, проверьте:
+
 1. Логи GitHub Actions
 2. Консоль браузера
 3. Network вкладку в DevTools
