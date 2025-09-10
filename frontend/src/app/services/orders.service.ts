@@ -25,33 +25,15 @@ export class OrdersService {
   getOrders(query: OrdersQueryDto = {}): Observable<PaginatedResponse<OrderDto>> {
     let params = new HttpParams();
 
-    if (query.page !== undefined) {
-      params = params.set('page', query.page.toString());
-    }
-
-    if (query.limit !== undefined) {
-      params = params.set('limit', query.limit.toString());
-    }
-
-    if (query.status) {
-      params = params.set('status', query.status);
-    }
-
-    if (query.organizationId) {
-      params = params.set('organizationId', query.organizationId.toString());
-    }
-
-    if (query.engineerId) {
-      params = params.set('engineerId', query.engineerId.toString());
-    }
-
-    if (query.sortBy) {
-      params = params.set('sortBy', query.sortBy);
-    }
-
-    if (query.sortOrder) {
-      params = params.set('sortOrder', query.sortOrder);
-    }
+    Object.entries(query).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        if (value instanceof Date) {
+          params = params.set(key, value.toISOString());
+        } else {
+          params = params.set(key, value.toString());
+        }
+      }
+    });
 
     return this.http.get<PaginatedResponse<OrderDto>>(`${environment.apiUrl}/orders`, { params });
   }

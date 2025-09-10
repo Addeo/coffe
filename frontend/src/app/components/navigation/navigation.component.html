@@ -6,6 +6,17 @@
       <span class="brand-text">Coffee Admin</span>
     </div>
 
+    <!-- Mobile Menu Button -->
+    <button
+      mat-icon-button
+      class="mobile-menu-button"
+      *ngIf="isAuthenticated()"
+      (click)="toggleMobileMenu()"
+      aria-label="Toggle mobile menu"
+    >
+      <mat-icon>{{ isMobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
+    </button>
+
     <!-- Navigation Links -->
     <nav class="nav-links" *ngIf="isAuthenticated()">
       <a
@@ -19,6 +30,58 @@
         <span>{{ item.label }}</span>
       </a>
     </nav>
+
+    <!-- Mobile Navigation Menu -->
+    <div
+      class="mobile-menu-overlay"
+      *ngIf="isMobileMenuOpen()"
+      (click)="closeMobileMenu()"
+    >
+      <div class="mobile-menu-content" (click)="$event.stopPropagation()">
+        <div class="mobile-menu-header">
+          <div class="brand">
+            <mat-icon class="brand-icon">local_cafe</mat-icon>
+            <span class="brand-text">Coffee Admin</span>
+          </div>
+          <button
+            mat-icon-button
+            (click)="closeMobileMenu()"
+            aria-label="Close menu"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <nav class="mobile-nav-links">
+          <a
+            mat-button
+            *ngFor="let item of navigationItems()"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: false }"
+            (click)="closeMobileMenu()"
+          >
+            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+            <span>{{ item.label }}</span>
+            <span *ngIf="item.badge" class="mobile-badge" matBadge="{{ item.badge }}" matBadgeColor="warn"></span>
+          </a>
+        </nav>
+
+        <div class="mobile-menu-footer">
+          <div class="user-info-mobile">
+            <div class="user-details">
+              <div class="user-full-name">{{ userName() }}</div>
+              <div class="user-role">{{ getRoleDisplayName(userRole()!) }}</div>
+              <div class="user-email">{{ currentUser()?.email }}</div>
+            </div>
+          </div>
+          <button mat-stroked-button (click)="logout()" class="logout-mobile">
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Notifications -->
     <div class="notifications-menu" *ngIf="isAuthenticated()">

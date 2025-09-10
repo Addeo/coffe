@@ -13,9 +13,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrdersService } from '../../services/orders.service';
 import { OrganizationsService } from '../../services/organizations.service';
 import { ToastService } from '../../services/toast.service';
-import { CreateOrderDto, UpdateOrderDto, OrderDto } from '@shared/dtos/order.dto';
-import { TerritoryType, OrderStatus } from '@shared/interfaces/order.interface';
-import { OrganizationDto } from '@shared/dtos/organization.dto';
+import { CreateOrderDto, UpdateOrderDto, OrderDto } from '../../../../../shared/dtos/order.dto';
+import { TerritoryType, OrderStatus, OrderSource } from '../../../../../shared/interfaces/order.interface';
+import { OrganizationDto } from '../../../../../shared/dtos/organization.dto';
 
 export interface OrderDialogData {
   order?: OrderDto;
@@ -119,6 +119,45 @@ export interface OrderDialogData {
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
           </mat-form-field>
+
+          <div class="form-row" *ngIf="data.isEdit">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Order Status</mat-label>
+              <mat-select formControlName="status">
+                <mat-option [value]="OrderStatus.WAITING">Waiting</mat-option>
+                <mat-option [value]="OrderStatus.PROCESSING">Processing</mat-option>
+                <mat-option [value]="OrderStatus.WORKING">In Progress</mat-option>
+                <mat-option [value]="OrderStatus.REVIEW">Under Review</mat-option>
+                <mat-option [value]="OrderStatus.COMPLETED">Completed</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Source</mat-label>
+              <mat-select formControlName="source">
+                <mat-option [value]="OrderSource.MANUAL">Manual</mat-option>
+                <mat-option [value]="OrderSource.AUTOMATIC">Automatic</mat-option>
+                <mat-option [value]="OrderSource.EMAIL">Email</mat-option>
+                <mat-option [value]="OrderSource.API">API</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row" *ngIf="data.isEdit">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Actual Start Date</mat-label>
+              <input matInput [matDatepicker]="actualPicker" formControlName="actualStartDate" />
+              <mat-datepicker-toggle matSuffix [for]="actualPicker"></mat-datepicker-toggle>
+              <mat-datepicker #actualPicker></mat-datepicker>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Completion Date</mat-label>
+              <input matInput [matDatepicker]="completionPicker" formControlName="completionDate" />
+              <mat-datepicker-toggle matSuffix [for]="completionPicker"></mat-datepicker-toggle>
+              <mat-datepicker #completionPicker></mat-datepicker>
+            </mat-form-field>
+          </div>
         </form>
       </mat-dialog-content>
 
@@ -279,6 +318,8 @@ export class OrderDialogComponent implements OnInit {
   isLoading = signal(false);
   organizations = signal<OrganizationDto[]>([]);
   TerritoryType = TerritoryType;
+  OrderStatus = OrderStatus;
+  OrderSource = OrderSource;
 
   orderForm: FormGroup = this.fb.group({
     title: ['', [Validators.required]],
@@ -288,6 +329,10 @@ export class OrderDialogComponent implements OnInit {
     distanceKm: [null],
     territoryType: [null],
     plannedStartDate: [null],
+    source: [OrderSource.MANUAL],
+    status: [OrderStatus.WAITING],
+    actualStartDate: [null],
+    completionDate: [null],
   });
 
   ngOnInit() {
@@ -302,6 +347,10 @@ export class OrderDialogComponent implements OnInit {
         distanceKm: this.data.order.distanceKm,
         territoryType: this.data.order.territoryType,
         plannedStartDate: this.data.order.plannedStartDate,
+        source: this.data.order.source,
+        status: this.data.order.status,
+        actualStartDate: this.data.order.actualStartDate,
+        completionDate: this.data.order.completionDate,
       });
     }
   }
@@ -342,6 +391,7 @@ export class OrderDialogComponent implements OnInit {
       distanceKm: formValue.distanceKm || undefined,
       territoryType: formValue.territoryType || undefined,
       plannedStartDate: formValue.plannedStartDate || undefined,
+      source: formValue.source,
     };
 
     this.ordersService.createOrder(orderData).subscribe({
@@ -369,6 +419,10 @@ export class OrderDialogComponent implements OnInit {
       distanceKm: formValue.distanceKm || undefined,
       territoryType: formValue.territoryType || undefined,
       plannedStartDate: formValue.plannedStartDate || undefined,
+      source: formValue.source,
+      status: formValue.status,
+      actualStartDate: formValue.actualStartDate || undefined,
+      completionDate: formValue.completionDate || undefined,
     };
 
     this.ordersService.updateOrder(this.data.order.id, orderData).subscribe({

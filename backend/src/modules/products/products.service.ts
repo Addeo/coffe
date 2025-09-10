@@ -32,10 +32,13 @@ export class ProductsService {
     const {
       page = 1,
       limit = 10,
+      search,
       category,
       isActive,
       minPrice,
       maxPrice,
+      minStockQuantity,
+      maxStockQuantity,
       sortBy = 'createdAt',
       sortOrder = 'DESC',
     } = query;
@@ -56,6 +59,21 @@ export class ProductsService {
 
     if (maxPrice !== undefined) {
       queryBuilder.andWhere('product.price <= :maxPrice', { maxPrice });
+    }
+
+    if (minStockQuantity !== undefined) {
+      queryBuilder.andWhere('product.stockQuantity >= :minStockQuantity', { minStockQuantity });
+    }
+
+    if (maxStockQuantity !== undefined) {
+      queryBuilder.andWhere('product.stockQuantity <= :maxStockQuantity', { maxStockQuantity });
+    }
+
+    if (search) {
+      queryBuilder.andWhere(
+        '(product.name LIKE :search OR product.description LIKE :search)',
+        { search: `%${search}%` }
+      );
     }
 
     queryBuilder

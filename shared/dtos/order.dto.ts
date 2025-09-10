@@ -82,4 +82,15 @@ export interface OrdersQueryDto {
   sortOrder?: 'ASC' | 'DESC';
   source?: OrderSource;
   createdById?: number;
+  search?: string; // search by title, description, or location
+  territoryType?: TerritoryType;
+  minDistanceKm?: number;
+  maxDistanceKm?: number;
+  plannedStartDateFrom?: Date;
+  plannedStartDateTo?: Date;
+  actualStartDateFrom?: Date;
+  actualStartDateTo?: Date;
+  completionDateFrom?: Date;
+  completionDateTo?: Date;
+  assignedById?: number;
 }

@@ -52,6 +52,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   // Reactive signals
   unreadCount = signal(0);
   recentNotifications = signal<NotificationDto[]>([]);
+  isMobileMenuOpen = signal(false);
 
   // Reactive computed values
   currentUser = this.authService.currentUser;
@@ -126,6 +127,14 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen.set(!this.isMobileMenuOpen());
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen.set(false);
   }
 
   onNotificationClick(notification: NotificationDto): void {

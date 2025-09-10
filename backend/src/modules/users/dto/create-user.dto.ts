@@ -54,4 +54,7 @@ export class CreateUserDto {
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
   homeTerritoryFixedAmount?: number;
+
+  @IsOptional()
+  engineerIsActive?: boolean;
 }

@@ -26,17 +26,9 @@ import {
 import { OrderSource } from '../../entities/order.entity';
 import { TerritoryType } from '../../../shared/interfaces/order.interface';
 
-// Temporarily extend OrdersQueryDto until shared package is fixed
-interface ExtendedOrdersQueryDto {
-  page?: number;
-  limit?: number;
-  status?: any;
-  organizationId?: number;
-  engineerId?: number;
-  source?: OrderSource;
-  createdById?: number;
-  sortBy?: string;
-  sortOrder?: 'ASC' | 'DESC';
+// Extended OrdersQueryDto with additional filters
+interface ExtendedOrdersQueryDto extends OrdersQueryDto {
+  // All properties from OrdersQueryDto plus any additional ones if needed
 }
 
 @Controller('orders')

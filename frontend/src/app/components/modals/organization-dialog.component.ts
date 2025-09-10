@@ -14,7 +14,7 @@ import {
   CreateOrganizationDto,
   UpdateOrganizationDto,
   OrganizationDto,
-} from '@shared/dtos/organization.dto';
+} from '../../../../../shared/dtos/organization.dto';
 
 export interface OrganizationDialogData {
   organization?: OrganizationDto;
@@ -88,6 +88,14 @@ export interface OrganizationDialogData {
             <div class="toggle-field">
               <mat-slide-toggle formControlName="hasOvertime"> Has Overtime </mat-slide-toggle>
               <span class="toggle-hint">Check if this organization pays overtime</span>
+            </div>
+          </div>
+
+          <!-- Active status field (only for editing) -->
+          <div class="form-row" *ngIf="data.isEdit">
+            <div class="toggle-field">
+              <mat-slide-toggle formControlName="isActive"> Active </mat-slide-toggle>
+              <span class="toggle-hint">Check if this organization is active</span>
             </div>
           </div>
         </form>
@@ -261,6 +269,7 @@ export class OrganizationDialogComponent {
     baseRate: [0, [Validators.required, Validators.min(0.01)]],
     overtimeMultiplier: [null],
     hasOvertime: [false],
+    isActive: [true],
   });
 
   ngOnInit() {
@@ -323,6 +332,7 @@ export class OrganizationDialogComponent {
         ? parseFloat(formValue.overtimeMultiplier)
         : undefined,
       hasOvertime: formValue.hasOvertime,
+      isActive: formValue.isActive,
     };
 
     this.organizationsService

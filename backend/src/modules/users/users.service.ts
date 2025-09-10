@@ -7,7 +7,16 @@ import { UserActivityLog, ActivityType } from '../../entities/user-activity-log.
 import { Engineer } from '../../entities/engineer.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UsersQueryDto } from '../../../shared/dtos/user.dto';
 import { EngineerType } from '../../../shared/interfaces/order.interface';
+
+export interface UsersResponse {
+  data: User[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 @Injectable()
 export class UsersService {
@@ -59,9 +68,22 @@ export class UsersService {
     return savedUser;
   }
 
-  async findAll(currentUser: any): Promise<User[]> {
+  async findAll(currentUser: any, queryDto: UsersQueryDto = {}): Promise<UsersResponse> {
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      role,
+      isActive,
+      engineerType,
+      engineerIsActive,
+      sortBy = 'createdAt',
+      sortOrder = 'DESC',
+    } = queryDto;
+
     const query = this.userRepository
       .createQueryBuilder('user')
+      .leftJoinAndSelect('user.assignedOrders', 'assignedOrders')
       .select([
         'user.id',
         'user.email',
@@ -73,18 +95,81 @@ export class UsersService {
         'user.updatedAt',
       ]);
 
-    // Admin can see all users
+    // Apply access control based on user role
     if (currentUser.role === UserRole.ADMIN) {
-      return query.getMany();
+      // Admin can see all users
+    } else if (currentUser.role === UserRole.MANAGER) {
+      // Manager can see only regular users (not admins or other managers)
+      query.andWhere('user.role = :userRole', { userRole: UserRole.USER });
+    } else {
+      // Regular users cannot see any users
+      return {
+        data: [],
+        total: 0,
+        page,
+        limit,
+        totalPages: 0,
+      };
     }
 
-    // Manager can see only regular users (not admins or other managers)
-    if (currentUser.role === UserRole.MANAGER) {
-      return query.where('user.role = :userRole', { userRole: UserRole.USER }).getMany();
+    // Apply filters
+    if (role) {
+      query.andWhere('user.role = :role', { role });
     }
 
-    // Regular users cannot see any users
-    return [];
+    if (isActive !== undefined) {
+      query.andWhere('user.isActive = :isActive', { isActive });
+    }
+
+    if (search) {
+      query.andWhere(
+        '(user.firstName LIKE :search OR user.lastName LIKE :search OR user.email LIKE :search)',
+        { search: `%${search}%` }
+      );
+    }
+
+    // Filter by engineer type and status for USER role
+    if (role === UserRole.USER || currentUser.role === UserRole.MANAGER) {
+      if (engineerType || engineerIsActive !== undefined) {
+        query.leftJoin('user.engineers', 'engineer');
+
+        if (engineerType) {
+          query.andWhere('engineer.type = :engineerType', { engineerType });
+        }
+
+        if (engineerIsActive !== undefined) {
+          query.andWhere('engineer.isActive = :engineerIsActive', { engineerIsActive });
+        }
+      }
+    }
+
+    // Apply sorting
+    query.orderBy(`user.${sortBy}`, sortOrder);
+
+    // Apply pagination
+    query.skip((page - 1) * limit).take(limit);
+
+    const [data, total] = await query.getManyAndCount();
+
+    // Load engineer data for USER role users
+    if (data.some(user => user.role === UserRole.USER)) {
+      for (const user of data) {
+        if (user.role === UserRole.USER) {
+          const engineer = await this.engineerRepository.findOne({ where: { userId: user.id } });
+          if (engineer) {
+            (user as any).engineer = engineer;
+          }
+        }
+      }
+    }
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: number, currentUser: any): Promise<User | null> {
@@ -100,6 +185,7 @@ export class UsersService {
         'createdAt',
         'updatedAt',
       ],
+      relations: ['assignedOrders'],
     });
 
     if (!user) {
@@ -108,11 +194,23 @@ export class UsersService {
 
     // Admin can see all users
     if (currentUser.role === UserRole.ADMIN) {
+      // Include engineer data for USER role
+      if (user.role === UserRole.USER) {
+        const engineer = await this.engineerRepository.findOne({ where: { userId: id } });
+        if (engineer) {
+          (user as any).engineer = engineer;
+        }
+      }
       return user;
     }
 
     // Manager can see only regular users
     if (currentUser.role === UserRole.MANAGER && user.role === UserRole.USER) {
+      // Include engineer data for USER role
+      const engineer = await this.engineerRepository.findOne({ where: { userId: id } });
+      if (engineer) {
+        (user as any).engineer = engineer;
+      }
       return user;
     }
 
@@ -140,6 +238,35 @@ export class UsersService {
 
     await this.userRepository.update(id, updateData);
     const updatedUser = await this.findOne(id, currentUser);
+
+    // Update engineer data if provided and user role is USER
+    if (updateUserDto.role === UserRole.USER && updateUserDto.engineerType) {
+      let engineer = await this.engineerRepository.findOne({ where: { userId: id } });
+
+      if (engineer) {
+        // Update existing engineer
+        await this.engineerRepository.update(engineer.id, {
+          type: updateUserDto.engineerType,
+          baseRate: updateUserDto.baseRate || engineer.baseRate,
+          overtimeRate: updateUserDto.overtimeRate || engineer.overtimeRate,
+          planHoursMonth: updateUserDto.planHoursMonth || engineer.planHoursMonth,
+          homeTerritoryFixedAmount: updateUserDto.homeTerritoryFixedAmount || engineer.homeTerritoryFixedAmount,
+          isActive: updateUserDto.engineerIsActive !== undefined ? updateUserDto.engineerIsActive : engineer.isActive,
+        });
+      } else {
+        // Create new engineer record if it doesn't exist
+        engineer = this.engineerRepository.create({
+          userId: id,
+          type: updateUserDto.engineerType,
+          baseRate: updateUserDto.baseRate || 700,
+          overtimeRate: updateUserDto.overtimeRate || (updateUserDto.engineerType === EngineerType.CONTRACT ? 1200 : 700),
+          planHoursMonth: updateUserDto.planHoursMonth || 160,
+          homeTerritoryFixedAmount: updateUserDto.homeTerritoryFixedAmount || 0,
+          isActive: updateUserDto.engineerIsActive !== undefined ? updateUserDto.engineerIsActive : true,
+        });
+        await this.engineerRepository.save(engineer);
+      }
+    }
 
     // Логируем изменения пользователя
     const changes = this.getChanges(oldUserData, updatedUser);

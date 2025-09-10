@@ -31,10 +31,13 @@ export interface ProductDto {
 export interface ProductsQueryDto {
   page?: number;
   limit?: number;
+  search?: string; // search by name or description
   category?: string;
   isActive?: boolean;
   minPrice?: number;
   maxPrice?: number;
+  minStockQuantity?: number;
+  maxStockQuantity?: number;
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
 }

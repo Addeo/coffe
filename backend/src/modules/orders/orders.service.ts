@@ -30,17 +30,9 @@ interface ExtendedCreateOrderDto {
 import { OrderSource } from '../../entities/order.entity';
 import { OrderStatus, TerritoryType } from '../../../shared/interfaces/order.interface';
 
-// Temporarily extend OrdersQueryDto until shared package is fixed
-interface ExtendedOrdersQueryDto {
-  page?: number;
-  limit?: number;
-  status?: OrderStatus;
-  organizationId?: number;
-  engineerId?: number;
-  source?: OrderSource;
-  createdById?: number;
-  sortBy?: string;
-  sortOrder?: 'ASC' | 'DESC';
+// Extended OrdersQueryDto with additional filters
+interface ExtendedOrdersQueryDto extends OrdersQueryDto {
+  // All properties from OrdersQueryDto plus any additional ones if needed
 }
 import { WorkResult } from '../../entities/work-report.entity';
 import { UserRole } from '../../entities/user.entity';
@@ -166,6 +158,17 @@ export class OrdersService {
       createdById,
       sortBy = 'createdAt',
       sortOrder = 'DESC',
+      search,
+      territoryType,
+      minDistanceKm,
+      maxDistanceKm,
+      plannedStartDateFrom,
+      plannedStartDateTo,
+      actualStartDateFrom,
+      actualStartDateTo,
+      completionDateFrom,
+      completionDateTo,
+      assignedById,
     } = query;
 
     const queryBuilder = this.ordersRepository
@@ -200,6 +203,53 @@ export class OrdersService {
 
     if (createdById) {
       queryBuilder.andWhere('order.createdById = :createdById', { createdById });
+    }
+
+    if (assignedById) {
+      queryBuilder.andWhere('order.assignedById = :assignedById', { assignedById });
+    }
+
+    if (search) {
+      queryBuilder.andWhere(
+        '(order.title LIKE :search OR order.description LIKE :search OR order.location LIKE :search)',
+        { search: `%${search}%` }
+      );
+    }
+
+    if (territoryType) {
+      queryBuilder.andWhere('order.territoryType = :territoryType', { territoryType });
+    }
+
+    if (minDistanceKm !== undefined) {
+      queryBuilder.andWhere('order.distanceKm >= :minDistanceKm', { minDistanceKm });
+    }
+
+    if (maxDistanceKm !== undefined) {
+      queryBuilder.andWhere('order.distanceKm <= :maxDistanceKm', { maxDistanceKm });
+    }
+
+    if (plannedStartDateFrom) {
+      queryBuilder.andWhere('order.plannedStartDate >= :plannedStartDateFrom', { plannedStartDateFrom });
+    }
+
+    if (plannedStartDateTo) {
+      queryBuilder.andWhere('order.plannedStartDate <= :plannedStartDateTo', { plannedStartDateTo });
+    }
+
+    if (actualStartDateFrom) {
+      queryBuilder.andWhere('order.actualStartDate >= :actualStartDateFrom', { actualStartDateFrom });
+    }
+
+    if (actualStartDateTo) {
+      queryBuilder.andWhere('order.actualStartDate <= :actualStartDateTo', { actualStartDateTo });
+    }
+
+    if (completionDateFrom) {
+      queryBuilder.andWhere('order.completionDate >= :completionDateFrom', { completionDateFrom });
+    }
+
+    if (completionDateTo) {
+      queryBuilder.andWhere('order.completionDate <= :completionDateTo', { completionDateTo });
     }
 
     queryBuilder

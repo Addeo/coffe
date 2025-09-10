@@ -29,6 +29,11 @@ export interface OrganizationsQueryDto {
   limit?: number;
   search?: string;
   isActive?: boolean;
+  hasOvertime?: boolean;
+  minBaseRate?: number;
+  maxBaseRate?: number;
+  minOvertimeMultiplier?: number;
+  maxOvertimeMultiplier?: number;
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
 }

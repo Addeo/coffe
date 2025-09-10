@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, effect, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, signal, computed, effect, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -49,7 +49,7 @@ import { OrganizationDialogComponent } from '../../components/modals/organizatio
   templateUrl: './organizations.component.html',
   styleUrls: ['./organizations.component.scss'],
 })
-export class OrganizationsComponent implements OnInit {
+export class OrganizationsComponent implements OnInit, AfterViewInit {
   private organizationsService = inject(OrganizationsService);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
@@ -85,9 +85,21 @@ export class OrganizationsComponent implements OnInit {
     return user?.role === UserRole.ADMIN || user?.role === UserRole.MANAGER;
   });
 
+  constructor() {
+    // Setup data source filter predicate
+    this.dataSource.filterPredicate = (data: OrganizationDto, filter: string) => {
+      return data.name.toLowerCase().includes(filter);
+    };
+
+    // Watch for search query changes
+    effect(() => {
+      const query = this.searchQuery();
+      this.dataSource.filter = query.trim().toLowerCase();
+    });
+  }
+
   ngOnInit(): void {
     this.loadOrganizations();
-    this.setupDataSource();
   }
 
   ngAfterViewInit(): void {
@@ -99,27 +111,19 @@ export class OrganizationsComponent implements OnInit {
     this.isLoading.set(true);
     this.organizationsService.getOrganizations(query).subscribe({
       next: response => {
-        this.organizations.set(response.data);
-        this.dataSource.data = response.data;
+        const organizations = response.data || [];
+        this.organizations.set(organizations);
+        this.dataSource.data = organizations;
         this.isLoading.set(false);
       },
       error: error => {
         console.error('Failed to load organizations:', error);
         this.toastService.showError('Failed to load organizations');
+        // Ensure we set an empty array on error to prevent undefined
+        this.organizations.set([]);
+        this.dataSource.data = [];
         this.isLoading.set(false);
       },
-    });
-  }
-
-  private setupDataSource(): void {
-    this.dataSource.filterPredicate = (data: OrganizationDto, filter: string) => {
-      return data.name.toLowerCase().includes(filter);
-    };
-
-    // Watch for search query changes
-    effect(() => {
-      const query = this.searchQuery();
-      this.dataSource.filter = query.trim().toLowerCase();
     });
   }
 
@@ -137,7 +141,8 @@ export class OrganizationsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // Add new organization to the list
-        const updatedOrganizations = [...this.organizations(), result];
+        const currentOrganizations = this.organizations() || [];
+        const updatedOrganizations = [...currentOrganizations, result];
         this.organizations.set(updatedOrganizations);
         this.dataSource.data = updatedOrganizations;
       }
@@ -154,7 +159,8 @@ export class OrganizationsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // Update organization in the list
-        const updatedOrganizations = this.organizations().map(org =>
+        const currentOrganizations = this.organizations() || [];
+        const updatedOrganizations = currentOrganizations.map(org =>
           org.id === result.id ? result : org
         );
         this.organizations.set(updatedOrganizations);
@@ -167,7 +173,8 @@ export class OrganizationsComponent implements OnInit {
     this.organizationsService.toggleOrganizationStatus(organization.id).subscribe({
       next: updatedOrg => {
         // Update local data
-        const updatedOrganizations = this.organizations().map(org =>
+        const currentOrganizations = this.organizations() || [];
+        const updatedOrganizations = currentOrganizations.map(org =>
           org.id === updatedOrg.id ? updatedOrg : org
         );
         this.organizations.set(updatedOrganizations);
@@ -199,7 +206,8 @@ export class OrganizationsComponent implements OnInit {
         this.organizationsService.deleteOrganization(organization.id).subscribe({
           next: () => {
             // Remove from local data
-            const updatedOrganizations = this.organizations().filter(
+            const currentOrganizations = this.organizations() || [];
+            const updatedOrganizations = currentOrganizations.filter(
               org => org.id !== organization.id
             );
             this.organizations.set(updatedOrganizations);

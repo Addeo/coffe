@@ -10,8 +10,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UsersService } from '../../services/users.service';
 import { ToastService } from '../../services/toast.service';
-import { CreateUserDto, UpdateUserDto, UserDto } from '@shared/dtos/user.dto';
-import { UserRole } from '@shared/interfaces/user.interface';
+import { CreateUserDto, UpdateUserDto, UserDto, EngineerDto } from '../../../../../shared/dtos/user.dto';
+import { UserRole } from '../../../../../shared/interfaces/user.interface';
+import { EngineerType } from '../../../../../shared/interfaces/order.interface';
 
 export interface UserDialogData {
   user?: UserDto;
@@ -76,7 +77,7 @@ export interface UserDialogData {
 
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Role</mat-label>
-            <mat-select formControlName="role">
+            <mat-select formControlName="role" (selectionChange)="onRoleChange()">
               <mat-option [value]="UserRole.USER">User</mat-option>
               <mat-option [value]="UserRole.MANAGER">Manager</mat-option>
               <mat-option [value]="UserRole.ADMIN">Administrator</mat-option>
@@ -84,6 +85,98 @@ export interface UserDialogData {
             <mat-error *ngIf="userForm.get('role')?.hasError('required')">
               Role is required
             </mat-error>
+          </mat-form-field>
+
+          <!-- Engineer-specific fields (only show if role is USER) -->
+          <div *ngIf="userForm.get('role')?.value === UserRole.USER">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Engineer Type</mat-label>
+              <mat-select formControlName="engineerType">
+                <mat-option [value]="EngineerType.STAFF">Staff Engineer</mat-option>
+                <mat-option [value]="EngineerType.REMOTE">Remote Engineer</mat-option>
+                <mat-option [value]="EngineerType.CONTRACT">Contract Engineer</mat-option>
+              </mat-select>
+              <mat-error *ngIf="userForm.get('engineerType')?.hasError('required')">
+                Engineer type is required
+              </mat-error>
+            </mat-form-field>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Base Rate (₽/hour)</mat-label>
+                <input
+                  matInput
+                  formControlName="baseRate"
+                  type="number"
+                  step="0.01"
+                  placeholder="700"
+                />
+                <mat-error *ngIf="userForm.get('baseRate')?.hasError('min')">
+                  Base rate must be positive
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Overtime Rate (₽/hour)</mat-label>
+                <input
+                  matInput
+                  formControlName="overtimeRate"
+                  type="number"
+                  step="0.01"
+                  placeholder="700"
+                />
+                <mat-error *ngIf="userForm.get('overtimeRate')?.hasError('min')">
+                  Overtime rate must be positive
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Plan Hours/Month</mat-label>
+                <input
+                  matInput
+                  formControlName="planHoursMonth"
+                  type="number"
+                  placeholder="160"
+                />
+                <mat-error *ngIf="userForm.get('planHoursMonth')?.hasError('min')">
+                  Plan hours must be at least 1
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Home Territory Fixed Amount (₽)</mat-label>
+                <input
+                  matInput
+                  formControlName="homeTerritoryFixedAmount"
+                  type="number"
+                  step="0.01"
+                  placeholder="0"
+                />
+                <mat-error *ngIf="userForm.get('homeTerritoryFixedAmount')?.hasError('min')">
+                  Amount must be positive
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Active status field -->
+          <mat-form-field appearance="outline" class="form-field" *ngIf="data.isEdit">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="isActive">
+              <mat-option [value]="true">Active</mat-option>
+              <mat-option [value]="false">Inactive</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Engineer active status field (only for USER role) -->
+          <mat-form-field appearance="outline" class="form-field" *ngIf="data.isEdit && userForm.get('role')?.value === UserRole.USER">
+            <mat-label>Engineer Status</mat-label>
+            <mat-select formControlName="engineerIsActive">
+              <mat-option [value]="true">Active Engineer</mat-option>
+              <mat-option [value]="false">Inactive Engineer</mat-option>
+            </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field" *ngIf="!data.isEdit">
@@ -273,6 +366,7 @@ export class UserDialogComponent {
   data: UserDialogData = inject(MAT_DIALOG_DATA);
   isLoading = signal(false);
   UserRole = UserRole;
+  EngineerType = EngineerType;
 
   userForm: FormGroup = this.fb.group({
     firstName: ['', [Validators.required]],
@@ -280,6 +374,14 @@ export class UserDialogComponent {
     email: ['', [Validators.required, Validators.email]],
     role: [UserRole.USER, [Validators.required]],
     password: [''],
+    isActive: [true],
+    // Engineer-specific fields
+    engineerType: [EngineerType.STAFF],
+    baseRate: [700, [Validators.min(0)]],
+    overtimeRate: [700, [Validators.min(0)]],
+    planHoursMonth: [160, [Validators.min(1)]],
+    homeTerritoryFixedAmount: [0, [Validators.min(0)]],
+    engineerIsActive: [true],
   });
 
   ngOnInit() {
@@ -289,7 +391,20 @@ export class UserDialogComponent {
         lastName: this.data.user.lastName,
         email: this.data.user.email,
         role: this.data.user.role,
+        isActive: this.data.user.isActive,
       });
+
+      // Fill engineer data if exists
+      if (this.data.user.engineer) {
+        this.userForm.patchValue({
+          engineerType: this.data.user.engineer.type,
+          baseRate: this.data.user.engineer.baseRate,
+          overtimeRate: this.data.user.engineer.overtimeRate || 0,
+          planHoursMonth: this.data.user.engineer.planHoursMonth,
+          homeTerritoryFixedAmount: this.data.user.engineer.homeTerritoryFixedAmount,
+          engineerIsActive: this.data.user.engineer.isActive,
+        });
+      }
 
       // Password is optional for editing
       this.userForm.get('password')?.setValidators([Validators.minLength(6)]);
@@ -321,6 +436,12 @@ export class UserDialogComponent {
       email: formValue.email,
       password: formValue.password,
       role: formValue.role,
+      // Engineer-specific fields (only if role is USER)
+      engineerType: formValue.role === UserRole.USER ? formValue.engineerType : undefined,
+      baseRate: formValue.role === UserRole.USER ? formValue.baseRate : undefined,
+      overtimeRate: formValue.role === UserRole.USER ? formValue.overtimeRate : undefined,
+      planHoursMonth: formValue.role === UserRole.USER ? formValue.planHoursMonth : undefined,
+      homeTerritoryFixedAmount: formValue.role === UserRole.USER ? formValue.homeTerritoryFixedAmount : undefined,
     };
 
     this.usersService.createUser(userData).subscribe({
@@ -345,11 +466,22 @@ export class UserDialogComponent {
       lastName: formValue.lastName,
       email: formValue.email,
       role: formValue.role,
+      isActive: formValue.isActive,
     };
 
     // Only include password if it was provided
     if (formValue.password) {
       userData.password = formValue.password;
+    }
+
+    // Engineer-specific fields (only if role is USER)
+    if (formValue.role === UserRole.USER) {
+      userData.engineerType = formValue.engineerType;
+      userData.baseRate = formValue.baseRate;
+      userData.overtimeRate = formValue.overtimeRate;
+      userData.planHoursMonth = formValue.planHoursMonth;
+      userData.homeTerritoryFixedAmount = formValue.homeTerritoryFixedAmount;
+      userData.engineerIsActive = formValue.engineerIsActive;
     }
 
     this.usersService.updateUser(this.data.user.id, userData).subscribe({
@@ -363,6 +495,21 @@ export class UserDialogComponent {
         this.isLoading.set(false);
       },
     });
+  }
+
+  onRoleChange() {
+    const role = this.userForm.get('role')?.value;
+    if (role !== UserRole.USER) {
+      // Clear engineer fields if role is not USER
+      this.userForm.patchValue({
+        engineerType: EngineerType.STAFF,
+        baseRate: 700,
+        overtimeRate: 700,
+        planHoursMonth: 160,
+        homeTerritoryFixedAmount: 0,
+        engineerIsActive: true,
+      });
+    }
   }
 
   onCancel() {

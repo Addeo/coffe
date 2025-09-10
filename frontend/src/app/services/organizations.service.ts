@@ -19,28 +19,12 @@ export class OrganizationsService {
   getOrganizations(query?: OrganizationsQueryDto): Observable<PaginatedResponse<OrganizationDto>> {
     let params = new HttpParams();
 
-    if (query?.page !== undefined) {
-      params = params.set('page', query.page.toString());
-    }
-
-    if (query?.limit !== undefined) {
-      params = params.set('limit', query.limit.toString());
-    }
-
-    if (query?.search) {
-      params = params.set('search', query.search);
-    }
-
-    if (query?.isActive !== undefined) {
-      params = params.set('isActive', query.isActive.toString());
-    }
-
-    if (query?.sortBy) {
-      params = params.set('sortBy', query.sortBy);
-    }
-
-    if (query?.sortOrder) {
-      params = params.set('sortOrder', query.sortOrder);
+    if (query) {
+      Object.entries(query).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          params = params.set(key, value.toString());
+        }
+      });
     }
 
     return this.http.get<PaginatedResponse<OrganizationDto>>(

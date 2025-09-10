@@ -44,6 +44,7 @@
     "@capacitor/ios": "^5.0.0",
     "@ionic/angular": "^7.0.0",
     "@ionic/storage-angular": "^4.0.0",
+    "coffee-shared": "file:../shared",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.0"
