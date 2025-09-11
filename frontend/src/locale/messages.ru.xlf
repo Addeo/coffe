@@ -469,6 +469,22 @@
         <source>Created</source>
         <target>Создано</target>
       </trans-unit>
+      <trans-unit id="notifications.allNotifications" datatype="html">
+        <source>All Notifications</source>
+        <target>Все уведомления</target>
+      </trans-unit>
+      <trans-unit id="notifications.unreadTab" datatype="html">
+        <source>Unread</source>
+        <target>Непрочитанные</target>
+      </trans-unit>
+      <trans-unit id="notifications.readTab" datatype="html">
+        <source>Read</source>
+        <target>Прочитанные</target>
+      </trans-unit>
+      <trans-unit id="notifications.markAsUnread" datatype="html">
+        <source>Mark as Unread</source>
+        <target>Отметить как непрочитанное</target>
+      </trans-unit>
       <trans-unit id="notifications.actions" datatype="html">
         <source>Actions</source>
         <target>Действия</target>
