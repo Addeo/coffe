@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ScheduleModule } from '@nestjs/schedule';
+// import { ScheduleModule } from '@nestjs/schedule';
 import { TestModule } from './modules/test/test.module';
 import { User } from './entities/user.entity';
 import { Order } from './entities/order.entity';
@@ -34,7 +34,7 @@ import { CalculationsModule } from './modules/calculations/calculations.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    ScheduleModule.forRoot(),
+    // ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST || 'localhost',
@@ -58,6 +58,11 @@ import { CalculationsModule } from './modules/calculations/calculations.module';
       ],
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV === 'development',
+      charset: 'utf8mb4',
+      extra: {
+        charset: 'utf8mb4_unicode_ci',
+        connectionLimit: 10,
+      },
     }),
     AuthModule,
     SettingsModule,

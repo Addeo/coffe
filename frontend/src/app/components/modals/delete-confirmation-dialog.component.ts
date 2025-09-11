@@ -9,9 +9,11 @@ import { ToastService } from '../../services/toast.service';
 import { UserDto } from '@shared/dtos/user.dto';
 
 export interface DeleteConfirmationData {
-  user: UserDto;
+  user?: UserDto;
   title?: string;
   message?: string;
+  confirmText?: string;
+  cancelText?: string;
 }
 
 @Component({
@@ -44,10 +46,10 @@ export interface DeleteConfirmationData {
       </mat-dialog-content>
 
       <mat-dialog-actions align="end">
-        <button mat-button (click)="onCancel()">Отмена</button>
+        <button mat-button (click)="onCancel()">{{ data.cancelText || 'Отмена' }}</button>
         <button mat-raised-button color="warn" (click)="onConfirm()" [disabled]="isLoading()">
           <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
-          <span *ngIf="!isLoading()">Удалить</span>
+          <span *ngIf="!isLoading()">{{ data.confirmText || 'Удалить' }}</span>
         </button>
       </mat-dialog-actions>
     </div>
@@ -116,24 +118,37 @@ export class DeleteConfirmationDialogComponent {
   isLoading = signal(false);
 
   onConfirm() {
-    if (!this.data.user) return;
+    console.log('🗑️ Dialog onConfirm called with data:', this.data);
 
-    this.isLoading.set(true);
-
-    this.usersService.deleteUser(this.data.user.id).subscribe({
-      next: () => {
-        this.toastService.success('User deleted successfully');
-        this.dialogRef.close(true);
-      },
-      error: error => {
-        console.error('Error deleting user:', error);
-        this.toastService.error('Error deleting user. Please try again.');
-        this.isLoading.set(false);
-      },
-    });
+    // Если есть пользователь и включена автоматическая обработка
+    if (this.data.user && this.shouldAutoDelete()) {
+      console.log('🗑️ Auto-deleting user:', this.data.user.id);
+      this.isLoading.set(true);
+      this.usersService.deleteUser(this.data.user.id).subscribe({
+        next: () => {
+          this.toastService.showSuccess('User deleted successfully');
+          this.dialogRef.close(true);
+        },
+        error: error => {
+          console.error('Error deleting user:', error);
+          this.toastService.showError('Error deleting user. Please try again.');
+          this.isLoading.set(false);
+        },
+      });
+    } else {
+      console.log('🗑️ Returning confirmation (no auto-delete)');
+      // Просто возвращаем подтверждение
+      this.dialogRef.close(true);
+    }
   }
 
   onCancel() {
+    console.log('🗑️ Dialog onCancel called');
     this.dialogRef.close(false);
+  }
+
+  private shouldAutoDelete(): boolean {
+    // Для совместимости с существующими вызовами пользователей
+    return !!this.data.user;
   }
 }

@@ -27,6 +27,9 @@ export class OrganizationsService {
   }
 
   async findAll(queryDto: OrganizationsQueryDto = {}): Promise<OrganizationsResponse> {
+    // Set UTF-8 encoding for the connection
+    await this.organizationRepository.query('SET NAMES utf8mb4');
+    await this.organizationRepository.query('SET CHARACTER SET utf8mb4');
     const {
       page = 1,
       limit = 10,
@@ -43,8 +46,10 @@ export class OrganizationsService {
 
     const queryBuilder = this.organizationRepository.createQueryBuilder('organization');
 
-    // Apply filters
-    if (isActive !== undefined) {
+    // Apply filters - by default show only active organizations
+    if (isActive === undefined) {
+      queryBuilder.andWhere('organization.isActive = :isActive', { isActive: true });
+    } else {
       queryBuilder.andWhere('organization.isActive = :isActive', { isActive });
     }
 

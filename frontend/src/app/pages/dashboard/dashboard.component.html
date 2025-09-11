@@ -4,13 +4,13 @@
   <!-- Loading indicator -->
   <div *ngIf="isLoading()" class="loading-container">
     <mat-spinner diameter="40"></mat-spinner>
-    <p>Loading dashboard data...</p>
+    <p>Загрузка данных панели управления...</p>
   </div>
 
   <div *ngIf="!isLoading()" class="dashboard-content">
     <!-- Orders Statistics -->
     <section class="stats-section">
-      <h2>Orders Overview</h2>
+      <h2>Обзор заказов</h2>
       <div class="stats-grid">
         <mat-card class="stat-card">
           <mat-card-content>
@@ -18,7 +18,7 @@
               <mat-icon class="stat-icon">assignment</mat-icon>
               <div class="stat-info">
                 <h3>{{ orderStats().total }}</h3>
-                <p>Total Orders</p>
+                <p>Всего заказов</p>
               </div>
             </div>
           </mat-card-content>
@@ -88,7 +88,7 @@
 
     <!-- User Statistics (Admin/Manager only) -->
     <section *ngIf="showUserStats()" class="stats-section">
-      <h2>User Management</h2>
+      <h2>Управление пользователями</h2>
       <div class="stats-grid">
         <mat-card class="stat-card">
           <mat-card-content>
@@ -96,7 +96,7 @@
               <mat-icon class="stat-icon">people</mat-icon>
               <div class="stat-info">
                 <h3>{{ userStats().totalUsers }}</h3>
-                <p>Total Users</p>
+                <p>Всего пользователей</p>
               </div>
             </div>
           </mat-card-content>
@@ -108,7 +108,7 @@
               <mat-icon class="stat-icon">person</mat-icon>
               <div class="stat-info">
                 <h3>{{ userStats().activeUsers }}</h3>
-                <p>Active Users</p>
+                <p>Активные пользователи</p>
               </div>
             </div>
           </mat-card-content>
@@ -120,7 +120,7 @@
               <mat-icon class="stat-icon">person_add</mat-icon>
               <div class="stat-info">
                 <h3>{{ userStats().newUsersThisMonth }}</h3>
-                <p>New This Month</p>
+                <p>Новых в этом месяце</p>
               </div>
             </div>
           </mat-card-content>
@@ -130,21 +130,21 @@
 
     <!-- Earnings Statistics -->
     <section *ngIf="showEarningsStats()" class="stats-section">
-      <h2>Earnings Overview</h2>
+      <h2>Обзор доходов</h2>
       <div class="earnings-comparison">
         <mat-card class="earnings-card">
           <mat-card-content>
             <div class="earnings-content">
               <div class="earnings-current">
-                <h3>Current Month</h3>
+                <h3>Текущий месяц</h3>
                 <div *ngIf="earningsStats().currentMonth" class="earnings-details">
                   <p class="earnings-amount">${{ earningsStats().currentMonth!.totalEarnings }}</p>
                   <p class="earnings-orders">
-                    {{ earningsStats().currentMonth!.completedOrders }} orders
+                    {{ earningsStats().currentMonth!.completedOrders }} заказов
                   </p>
                 </div>
                 <div *ngIf="!earningsStats().currentMonth" class="no-data">
-                  <p>No data available</p>
+                  <p>Данные недоступны</p>
                 </div>
               </div>
 
@@ -159,7 +159,7 @@
                   {{ earningsStats().growth >= 0 ? '+' : ''
                   }}{{ earningsStats().growth.toFixed(1) }}%
                 </span>
-                <p>vs last month</p>
+                <p>по сравнению с прошлым месяцем</p>
               </div>
             </div>
           </mat-card-content>
@@ -169,15 +169,15 @@
 
     <!-- Quick Actions -->
     <section class="actions-section">
-      <h2>Quick Actions</h2>
+      <h2>Быстрые действия</h2>
       <div class="actions-grid">
         <mat-card class="action-card" routerLink="/orders">
           <mat-card-content>
             <div class="action-content">
               <mat-icon>shopping_cart</mat-icon>
               <div>
-                <h4>View Orders</h4>
-                <p>Manage and track all orders</p>
+                <h4>Просмотр заказов</h4>
+                <p>Управление и отслеживание всех заказов</p>
               </div>
             </div>
           </mat-card-content>
@@ -188,8 +188,8 @@
             <div class="action-content">
               <mat-icon>people</mat-icon>
               <div>
-                <h4>Manage Users</h4>
-                <p>View and manage user accounts</p>
+                <h4>Управление пользователями</h4>
+                <p>Просмотр и управление учетными записями пользователей</p>
               </div>
             </div>
           </mat-card-content>
@@ -212,8 +212,8 @@
             <div class="action-content">
               <mat-icon>analytics</mat-icon>
               <div>
-                <h4>Reports</h4>
-                <p>View detailed reports</p>
+                <h4>Отчеты</h4>
+                <p>Просмотр подробных отчетов</p>
               </div>
             </div>
           </mat-card-content>

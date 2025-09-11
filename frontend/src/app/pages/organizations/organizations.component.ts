@@ -85,6 +85,11 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
     return user?.role === UserRole.ADMIN || user?.role === UserRole.MANAGER;
   });
 
+  canDelete = computed(() => {
+    const user = this.currentUser();
+    return user?.role === UserRole.ADMIN; // Только админы могут удалять
+  });
+
   constructor() {
     // Setup data source filter predicate
     this.dataSource.filterPredicate = (data: OrganizationDto, filter: string) => {
@@ -192,6 +197,16 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
   }
 
   onDeleteOrganization(organization: OrganizationDto): void {
+    console.log('🗑️ onDeleteOrganization called for:', organization.name, 'User role:', this.currentUser()?.role);
+
+    // Проверяем права пользователя
+    if (!this.canDelete()) {
+      console.log('🗑️ User does not have delete permissions');
+      this.toastService.showError('У вас нет прав на удаление организаций. Требуется роль администратора.');
+      return;
+    }
+
+    console.log('🗑️ Opening delete confirmation dialog');
     const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
       data: {
         title: 'Delete Organization',
@@ -202,9 +217,21 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
+      console.log('🗑️ Delete confirmation dialog result:', result, typeof result);
+
       if (result) {
+        console.log('🗑️ Starting organization deletion:', {
+          organizationId: organization.id,
+          organizationName: organization.name,
+          user: this.currentUser()?.email,
+          userRole: this.currentUser()?.role,
+          hasToken: !!this.authService.getToken()
+        });
+
         this.organizationsService.deleteOrganization(organization.id).subscribe({
           next: () => {
+            console.log('✅ Organization deleted successfully:', organization.id);
+
             // Remove from local data
             const currentOrganizations = this.organizations() || [];
             const updatedOrganizations = currentOrganizations.filter(
@@ -214,12 +241,38 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
             this.dataSource.data = updatedOrganizations;
 
             this.toastService.showSuccess('Organization deleted successfully');
+
+            // Перезагрузим список для синхронизации с сервером
+            this.loadOrganizations();
           },
           error: error => {
-            console.error('Failed to delete organization:', error);
-            this.toastService.showError('Failed to delete organization');
+            console.error('❌ Failed to delete organization:', {
+              error: error,
+              organizationId: organization.id,
+              status: error.status,
+              statusText: error.statusText,
+              url: error.url,
+              userRole: this.currentUser()?.role
+            });
+
+            let errorMessage = 'Failed to delete organization';
+            if (error.status === 401) {
+              errorMessage = 'Не авторизован. Пожалуйста, войдите в систему снова.';
+              // Можно добавить редирект на страницу логина
+              // this.router.navigate(['/login']);
+            } else if (error.status === 403) {
+              errorMessage = 'Недостаточно прав для удаления организации. Требуется роль администратора.';
+            } else if (error.status === 404) {
+              errorMessage = 'Организация не найдена.';
+            } else if (error.error?.message) {
+              errorMessage = error.error.message;
+            }
+
+            this.toastService.showError(errorMessage);
           },
         });
+      } else {
+        console.log('🗑️ User cancelled deletion');
       }
     });
   }

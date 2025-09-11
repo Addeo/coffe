@@ -15,6 +15,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
+  min-height: 64px; // Material toolbar height
 }
 
 // Brand section
@@ -22,17 +23,20 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0; // Don't shrink brand section
 
   .brand-icon {
     font-size: 28px;
     height: 28px;
     width: 28px;
+    flex-shrink: 0;
   }
 
   .brand-text {
     font-size: 20px;
     font-weight: 600;
     letter-spacing: 0.5px;
+    white-space: nowrap;
   }
 }
 
@@ -53,6 +57,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 1; // Take available space
+  justify-content: center; // Center navigation links
+  min-width: 0; // Allow shrinking
 
   a {
     display: flex;
@@ -61,11 +68,18 @@
     padding: 8px 16px;
     border-radius: 8px;
     transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
 
     .nav-icon {
       font-size: 18px;
       height: 18px;
       width: 18px;
+      flex-shrink: 0;
+    }
+
+    span {
+      font-size: 14px;
     }
 
     &:hover {
@@ -77,6 +91,14 @@
       font-weight: 500;
     }
   }
+}
+
+// Right section (notifications + user menu)
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0; // Don't shrink right section
 }
 
 // User menu
@@ -93,6 +115,7 @@
       font-size: 24px;
       height: 24px;
       width: 24px;
+      flex-shrink: 0;
     }
 
     .user-name {
@@ -107,6 +130,7 @@
       font-size: 18px;
       height: 18px;
       width: 18px;
+      flex-shrink: 0;
     }
 
     &:hover {

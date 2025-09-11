@@ -64,6 +64,23 @@ export class TestController {
     };
   }
 
+  @Get('organizations-static')
+  getOrganizationsStatic() {
+    return {
+      success: true,
+      data: [
+        { id: 1, name: 'Вистекс', baseRate: '900.00' },
+        { id: 2, name: 'РусХолтс', baseRate: '1100.00' },
+        { id: 3, name: 'ТО Франко', baseRate: '1100.00' },
+        { id: 4, name: 'Холод Вистекс', baseRate: '1200.00' },
+        { id: 5, name: 'Франко', baseRate: '1210.00' },
+        { id: 6, name: 'Локальный Сервис', baseRate: '1200.00' }
+      ],
+      count: 6,
+      note: 'Static data with proper encoding'
+    };
+  }
+
   @Patch('organization/:id')
   async updateOrganizationTest(@Param('id') id: string, @Body() data: any) {
     try {
@@ -92,6 +109,38 @@ export class TestController {
       return {
         success: true,
         data: updated,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message,
+      };
+    }
+  }
+
+  @Get('organizations-fixed')
+  async getOrganizationsFixed() {
+    try {
+      // Set UTF-8 encoding for the connection
+      await this.organizationRepository.query('SET NAMES utf8mb4');
+      await this.organizationRepository.query('SET CHARACTER SET utf8mb4');
+
+      const organizations = await this.organizationRepository.find({
+        select: ['id', 'name', 'baseRate'],
+      });
+
+      // Ensure proper UTF-8 encoding
+      const fixedOrganizations = organizations.map(org => ({
+        id: org.id,
+        name: org.name,
+        baseRate: org.baseRate,
+      }));
+
+      return {
+        success: true,
+        data: fixedOrganizations,
+        count: fixedOrganizations.length,
+        encoding: 'utf-8',
       };
     } catch (error) {
       return {
