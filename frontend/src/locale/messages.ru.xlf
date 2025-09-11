@@ -739,6 +739,80 @@
         <source>Request Access</source>
         <target>Запросить доступ</target>
       </trans-unit>
+
+      <!-- Additional keys from latest extraction -->
+      <trans-unit id="navigation.profile" datatype="html">
+        <source>My Profile</source>
+        <target>Мой профиль</target>
+      </trans-unit>
+      <trans-unit id="dashboard.inventory" datatype="html">
+        <source>Inventory</source>
+        <target>Инвентарь</target>
+      </trans-unit>
+      <trans-unit id="dashboard.manageInventory" datatype="html">
+        <source>Manage inventory and orders</source>
+        <target>Управление инвентарем и заказами</target>
+      </trans-unit>
+
+      <!-- Order Dialog -->
+      <trans-unit id="order.title" datatype="html">
+        <source>Title</source>
+        <target>Название</target>
+      </trans-unit>
+      <trans-unit id="order.titleRequired" datatype="html">
+        <source>Title is required</source>
+        <target>Название обязательно</target>
+      </trans-unit>
+      <trans-unit id="order.description" datatype="html">
+        <source>Description</source>
+        <target>Описание</target>
+      </trans-unit>
+      <trans-unit id="order.organization" datatype="html">
+        <source>Organization</source>
+        <target>Организация</target>
+      </trans-unit>
+      <trans-unit id="order.organizationRequired" datatype="html">
+        <source>Organization is required</source>
+        <target>Организация обязательна</target>
+      </trans-unit>
+      <trans-unit id="order.location" datatype="html">
+        <source>Location</source>
+        <target>Местоположение</target>
+      </trans-unit>
+      <trans-unit id="order.locationRequired" datatype="html">
+        <source>Location is required</source>
+        <target>Местоположение обязательно</target>
+      </trans-unit>
+      <trans-unit id="order.distance" datatype="html">
+        <source>Distance (km)</source>
+        <target>Расстояние (км)</target>
+      </trans-unit>
+
+      <!-- Organization Dialog -->
+      <trans-unit id="organization.name" datatype="html">
+        <source>Organization Name</source>
+        <target>Название организации</target>
+      </trans-unit>
+      <trans-unit id="organization.nameRequired" datatype="html">
+        <source>Organization name is required</source>
+        <target>Название организации обязательно</target>
+      </trans-unit>
+      <trans-unit id="organization.baseRate" datatype="html">
+        <source>Base Rate (RUB/hour)</source>
+        <target>Базовая ставка (руб/час)</target>
+      </trans-unit>
+      <trans-unit id="organization.baseRateRequired" datatype="html">
+        <source>Base rate is required</source>
+        <target>Базовая ставка обязательна</target>
+      </trans-unit>
+      <trans-unit id="organization.baseRateMin" datatype="html">
+        <source>Base rate must be greater than 0</source>
+        <target>Базовая ставка должна быть больше 0</target>
+      </trans-unit>
+      <trans-unit id="organization.overtimeMultiplier" datatype="html">
+        <source>Overtime Multiplier</source>
+        <target>Множитель переработки</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

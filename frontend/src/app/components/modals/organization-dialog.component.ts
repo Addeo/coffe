@@ -38,40 +38,40 @@ export interface OrganizationDialogData {
   template: `
     <div class="organization-dialog">
       <h2 mat-dialog-title>
-        {{ data.isEdit ? 'Edit Organization' : 'Create New Organization' }}
+        {{ data.isEdit ? 'Редактировать организацию' : 'Создать новую организацию' }}
       </h2>
 
       <mat-dialog-content>
         <form [formGroup]="organizationForm" class="organization-form">
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Organization Name</mat-label>
-            <input matInput formControlName="name" placeholder="Enter organization name" />
-            <mat-error *ngIf="organizationForm.get('name')?.hasError('required')">
-              Organization name is required
+            <mat-label i18n="@@organization.name">Organization Name</mat-label>
+            <input matInput formControlName="name" placeholder="Введите название организации" />
+            <mat-error *ngIf="organizationForm.get('name')?.hasError('required')" i18n="@@organization.nameRequired">
+              Название организации обязательно
             </mat-error>
           </mat-form-field>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Base Rate (RUB/hour)</mat-label>
+              <mat-label i18n="@@organization.baseRate">Base Rate (RUB/hour)</mat-label>
               <input
                 matInput
                 formControlName="baseRate"
                 type="number"
                 step="0.01"
                 min="0"
-                placeholder="Enter base rate"
+                placeholder="Введите базовую ставку"
               />
-              <mat-error *ngIf="organizationForm.get('baseRate')?.hasError('required')">
-                Base rate is required
+              <mat-error *ngIf="organizationForm.get('baseRate')?.hasError('required')" i18n="@@organization.baseRateRequired">
+                Базовая ставка обязательна
               </mat-error>
-              <mat-error *ngIf="organizationForm.get('baseRate')?.hasError('min')">
-                Base rate must be greater than 0
+              <mat-error *ngIf="organizationForm.get('baseRate')?.hasError('min')" i18n="@@organization.baseRateMin">
+                Базовая ставка должна быть больше 0
               </mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Overtime Multiplier</mat-label>
+              <mat-label i18n="@@organization.overtimeMultiplier">Overtime Multiplier</mat-label>
               <input
                 matInput
                 formControlName="overtimeMultiplier"
@@ -102,7 +102,7 @@ export interface OrganizationDialogData {
       </mat-dialog-content>
 
       <mat-dialog-actions align="end">
-        <button mat-button (click)="onCancel()">Cancel</button>
+        <button mat-button (click)="onCancel()">Отмена</button>
         <button
           mat-raised-button
           color="primary"
@@ -110,7 +110,7 @@ export interface OrganizationDialogData {
           [disabled]="organizationForm.invalid || isLoading()"
         >
           <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
-          <span *ngIf="!isLoading()">{{ data.isEdit ? 'Update' : 'Create' }}</span>
+          <span *ngIf="!isLoading()">{{ data.isEdit ? 'Обновить' : 'Создать' }}</span>
         </button>
       </mat-dialog-actions>
     </div>

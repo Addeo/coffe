@@ -41,59 +41,59 @@ export interface OrderDialogData {
   template: `
     <div class="order-dialog">
       <h2 mat-dialog-title>
-        {{ data.isEdit ? 'Edit Order' : 'Create New Order' }}
+        {{ data.isEdit ? 'Редактировать заказ' : 'Создать новый заказ' }}
       </h2>
 
       <mat-dialog-content>
         <form [formGroup]="orderForm" class="order-form">
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Title</mat-label>
-            <input matInput formControlName="title" placeholder="Enter order title" />
-            <mat-error *ngIf="orderForm.get('title')?.hasError('required')">
-              Title is required
+            <mat-label i18n="@@order.title">Title</mat-label>
+            <input matInput formControlName="title" placeholder="Введите название заказа" />
+            <mat-error *ngIf="orderForm.get('title')?.hasError('required')" i18n="@@order.titleRequired">
+              Название обязательно
             </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Description</mat-label>
+            <mat-label i18n="@@order.description">Description</mat-label>
             <textarea
               matInput
               formControlName="description"
-              placeholder="Enter order description"
+              placeholder="Введите описание заказа"
               rows="3"
             ></textarea>
           </mat-form-field>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Organization</mat-label>
+              <mat-label i18n="@@order.organization">Organization</mat-label>
               <mat-select formControlName="organizationId">
                 <mat-option *ngFor="let org of organizations()" [value]="org.id">
                   {{ org.name }}
                 </mat-option>
               </mat-select>
-              <mat-error *ngIf="orderForm.get('organizationId')?.hasError('required')">
-                Organization is required
+              <mat-error *ngIf="orderForm.get('organizationId')?.hasError('required')" i18n="@@order.organizationRequired">
+                Организация обязательна
               </mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Location</mat-label>
-              <input matInput formControlName="location" placeholder="Enter location" />
-              <mat-error *ngIf="orderForm.get('location')?.hasError('required')">
-                Location is required
+              <mat-label i18n="@@order.location">Location</mat-label>
+              <input matInput formControlName="location" placeholder="Введите местоположение" />
+              <mat-error *ngIf="orderForm.get('location')?.hasError('required')" i18n="@@order.locationRequired">
+                Местоположение обязательно
               </mat-error>
             </mat-form-field>
           </div>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Distance (km)</mat-label>
+              <mat-label i18n="@@order.distance">Distance (km)</mat-label>
               <input
                 matInput
                 type="number"
                 formControlName="distanceKm"
-                placeholder="Distance in km"
+                placeholder="Расстояние в км"
                 min="0"
                 step="0.1"
               />
@@ -162,7 +162,7 @@ export interface OrderDialogData {
       </mat-dialog-content>
 
       <mat-dialog-actions align="end">
-        <button mat-button (click)="onCancel()">Cancel</button>
+        <button mat-button (click)="onCancel()">Отмена</button>
         <button
           mat-raised-button
           color="primary"
@@ -170,7 +170,7 @@ export interface OrderDialogData {
           [disabled]="orderForm.invalid || isLoading()"
         >
           <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
-          <span *ngIf="!isLoading()">{{ data.isEdit ? 'Update' : 'Create' }}</span>
+          <span *ngIf="!isLoading()">{{ data.isEdit ? 'Обновить' : 'Создать' }}</span>
         </button>
       </mat-dialog-actions>
     </div>

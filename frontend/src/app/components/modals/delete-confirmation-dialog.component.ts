@@ -28,26 +28,26 @@ export interface DeleteConfirmationData {
     <div class="delete-dialog">
       <div class="delete-header">
         <mat-icon color="warn">warning</mat-icon>
-        <h2 mat-dialog-title>{{ data.title || 'Confirm Delete' }}</h2>
+        <h2 mat-dialog-title>{{ data.title || 'Подтвердить удаление' }}</h2>
       </div>
 
       <mat-dialog-content>
         <p class="delete-message">
-          {{ data.message || 'Are you sure you want to delete this user?' }}
+          {{ data.message || 'Вы уверены, что хотите удалить этого пользователя?' }}
         </p>
         <div class="user-info" *ngIf="data.user">
           <strong>{{ data.user.firstName }} {{ data.user.lastName }}</strong
           ><br />
           <small>{{ data.user.email }}</small>
         </div>
-        <p class="warning-text">This action cannot be undone.</p>
+        <p class="warning-text">Это действие нельзя отменить.</p>
       </mat-dialog-content>
 
       <mat-dialog-actions align="end">
-        <button mat-button (click)="onCancel()">Cancel</button>
+        <button mat-button (click)="onCancel()">Отмена</button>
         <button mat-raised-button color="warn" (click)="onConfirm()" [disabled]="isLoading()">
           <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
-          <span *ngIf="!isLoading()">Delete</span>
+          <span *ngIf="!isLoading()">Удалить</span>
         </button>
       </mat-dialog-actions>
     </div>

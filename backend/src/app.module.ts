@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-// import { ScheduleModule } from '@nestjs/schedule';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TestModule } from './modules/test/test.module';
 import { User } from './entities/user.entity';
 import { Order } from './entities/order.entity';
@@ -14,6 +14,7 @@ import { UserActivityLog } from './entities/user-activity-log.entity';
 import { Notification } from './entities/notification.entity';
 import { EarningsStatistic } from './entities/earnings-statistic.entity';
 import { WorkReport } from './entities/work-report.entity';
+import { SalaryCalculation } from './entities/salary-calculation.entity';
 import { AuthModule } from './modules/auth/auth.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -22,10 +23,10 @@ import { EmailModule } from './modules/email/email.module';
 import { ExportModule } from './modules/export/export.module';
 import { BackupModule } from './modules/backup/backup.module';
 import { LoggerModule } from './modules/logger/logger.module';
-// import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { UsersModule } from './modules/users/users.module';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
+import { CalculationsModule } from './modules/calculations/calculations.module';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
       isGlobal: true,
       envFilePath: '.env',
     }),
-    // ScheduleModule.forRoot(),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST || 'localhost',
@@ -53,6 +54,7 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
         Notification,
         EarningsStatistic,
         WorkReport,
+        SalaryCalculation,
       ],
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV === 'development',
@@ -66,9 +68,9 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
     BackupModule,
     LoggerModule,
     OrdersModule,
-    // SchedulerModule,
     UsersModule,
     OrganizationsModule,
+    CalculationsModule,
     // ProductsModule,
     // FilesModule,
     TestModule,

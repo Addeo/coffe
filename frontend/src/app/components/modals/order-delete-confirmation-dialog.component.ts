@@ -29,29 +29,29 @@ export interface OrderDeleteConfirmationData {
     <div class="delete-dialog">
       <div class="delete-header">
         <mat-icon color="warn">warning</mat-icon>
-        <h2 mat-dialog-title>{{ data.title || 'Delete Order' }}</h2>
+        <h2 mat-dialog-title>{{ data.title || 'Удалить заказ' }}</h2>
       </div>
 
       <mat-dialog-content>
         <p class="delete-message">
-          {{ data.message || 'Are you sure you want to delete this order?' }}
+          {{ data.message || 'Вы уверены, что хотите удалить этот заказ?' }}
         </p>
         <div class="order-info" *ngIf="data.order">
           <strong>{{ data.order.title }}</strong
           ><br />
           <small>{{ data.order.location }}</small
           ><br />
-          <small class="text-muted">Organization: {{ data.order.organization?.name }}</small
+          <small class="text-muted">Организация: {{ data.order.organization?.name }}</small
           ><br />
-          <small class="text-muted">Status: {{ getStatusDisplay(data.order.status) }}</small>
+          <small class="text-muted">Статус: {{ getStatusDisplay(data.order.status) }}</small>
         </div>
         <p class="warning-text">
-          This action cannot be undone. Only orders with "Waiting" status can be deleted.
+          Это действие нельзя отменить. Можно удалять только заказы со статусом "Ожидание".
         </p>
       </mat-dialog-content>
 
       <mat-dialog-actions align="end">
-        <button mat-button (click)="onCancel()">Cancel</button>
+        <button mat-button (click)="onCancel()">Отмена</button>
         <button
           mat-raised-button
           color="warn"
@@ -59,7 +59,7 @@ export interface OrderDeleteConfirmationData {
           [disabled]="isLoading() || (data.order && data.order.status !== 'waiting')"
         >
           <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
-          <span *ngIf="!isLoading()">Delete</span>
+          <span *ngIf="!isLoading()">Удалить</span>
         </button>
       </mat-dialog-actions>
     </div>

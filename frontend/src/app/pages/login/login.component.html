@@ -1,40 +1,40 @@
 <div class="login-container">
   <mat-card class="login-card">
     <mat-card-header>
-      <mat-card-title class="login-title" i18n="@@login.title">Coffee Admin Panel</mat-card-title>
-      <mat-card-subtitle class="login-subtitle" i18n="@@login.subtitle">Please sign in to continue</mat-card-subtitle>
+      <mat-card-title class="login-title" i18n="@@login.title">Панель администратора Coffee</mat-card-title>
+      <mat-card-subtitle class="login-subtitle" i18n="@@login.subtitle">Пожалуйста, войдите для продолжения</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
       <form class="login-form">
         <!-- Email Field -->
         <mat-form-field class="full-width">
-          <mat-label i18n="@@login.email">Email</mat-label>
+          <mat-label i18n="@@login.email">Электронная почта</mat-label>
           <input
             type="email"
             matInput
             [formControl]="emailFormControl"
             [errorStateMatcher]="matcher"
-            placeholder="Ex. admin@coffee.com"
+            placeholder="Например: admin@coffee.com"
           />
-          <mat-hint i18n="@@form.errorsAppearInstantly">Errors appear instantly!</mat-hint>
+          <mat-hint i18n="@@form.errorsAppearInstantly">Ошибки появляются мгновенно!</mat-hint>
           @if (emailFormControl.hasError('email') && !emailFormControl.hasError('required')) {
-            <mat-error i18n="@@form.emailInvalid">Please enter a valid email address</mat-error>
+            <mat-error i18n="@@form.emailInvalid">Пожалуйста, введите корректный email адрес</mat-error>
           }
           @if (emailFormControl.hasError('required')) {
-            <mat-error i18n="@@form.emailRequired">Email is <strong>required</strong></mat-error>
+            <mat-error i18n="@@form.emailRequired">Электронная почта <strong>обязательна</strong></mat-error>
           }
         </mat-form-field>
 
         <!-- Password Field -->
         <mat-form-field class="full-width">
-          <mat-label i18n="@@login.password">Password</mat-label>
+          <mat-label i18n="@@login.password">Пароль</mat-label>
           <input
             [type]="hidePassword() ? 'password' : 'text'"
             matInput
             [formControl]="passwordFormControl"
             [errorStateMatcher]="matcher"
-            placeholder="Enter your secure password"
+            placeholder="Введите надежный пароль"
           />
           <button
             mat-icon-button
@@ -46,14 +46,14 @@
           >
             <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
-          <mat-hint i18n="@@form.passwordMinLength">At least 6 characters required</mat-hint>
+          <mat-hint i18n="@@form.passwordMinLength">Требуется минимум 6 символов</mat-hint>
           @if (
             passwordFormControl.hasError('minlength') && !passwordFormControl.hasError('required')
           ) {
-            <mat-error i18n="@@form.passwordTooShort">Password must be at least 6 characters long</mat-error>
+            <mat-error i18n="@@form.passwordTooShort">Пароль должен содержать минимум 6 символов</mat-error>
           }
           @if (passwordFormControl.hasError('required')) {
-            <mat-error i18n="@@form.passwordRequired">Password is <strong>required</strong></mat-error>
+            <mat-error i18n="@@form.passwordRequired">Пароль <strong>обязателен</strong></mat-error>
           }
         </mat-form-field>
 

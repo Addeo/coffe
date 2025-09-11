@@ -3,9 +3,9 @@
     <mat-card-header>
       <mat-card-title>
         <mat-icon>notifications</mat-icon>
-        <span i18n="@@notifications.title">Notifications</span>
+        <span i18n="@@notifications.title">Уведомления</span>
       </mat-card-title>
-      <mat-card-subtitle i18n="@@notifications.subtitle">View and manage your notifications</mat-card-subtitle>
+      <mat-card-subtitle i18n="@@notifications.subtitle">Просмотр и управление уведомлениями</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
@@ -13,22 +13,22 @@
         <div class="stats">
           <mat-chip [color]="'primary'">
             <mat-icon>notifications</mat-icon>
-            <span i18n="@@notifications.total">Total</span>: {{ getTotalCount() }}
+            <span i18n="@@notifications.total">Всего</span>: {{ getTotalCount() }}
           </mat-chip>
           <mat-chip [color]="'warn'">
             <mat-icon>mark_email_unread</mat-icon>
-            <span i18n="@@notifications.unread">Unread</span>: {{ getUnreadCount() }}
+            <span i18n="@@notifications.unread">Непрочитанные</span>: {{ getUnreadCount() }}
           </mat-chip>
           <mat-chip [color]="'accent'">
             <mat-icon>mark_email_read</mat-icon>
-            <span i18n="@@notifications.read">Read</span>: {{ getReadCount() }}
+            <span i18n="@@notifications.read">Прочитанные</span>: {{ getReadCount() }}
           </mat-chip>
         </div>
 
         <div class="action-buttons">
           <button mat-raised-button (click)="loadNotifications()" [disabled]="isLoading()">
             <mat-icon>refresh</mat-icon>
-            <span i18n="@@notifications.refresh">Refresh</span>
+            <span i18n="@@notifications.refresh">Обновить</span>
           </button>
 
           <button
@@ -38,7 +38,7 @@
             [disabled]="getUnreadCount() === 0"
           >
             <mat-icon>mark_email_read</mat-icon>
-            <span i18n="@@notifications.markAllAsRead">Mark All as Read</span>
+            <span i18n="@@notifications.markAllAsRead">Отметить все как прочитанные</span>
           </button>
         </div>
       </div>
@@ -53,16 +53,16 @@
             <table mat-table [dataSource]="allDataSource" matSort class="notifications-table">
               <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
                 <ng-container *ngIf="column === 'type'">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@notifications.type">Type</th>
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@notifications.type">Тип</th>
                   <td mat-cell *matCellDef="let notification">
-                    <mat-chip [color]="getNotificationTypeColor(notification.type)" selected>
-                      {{ getNotificationTypeDisplay(notification.type) }}
+                    <mat-chip [color]="getNotificationТипColor(notification.type)" selected>
+                      {{ getNotificationТипDisplay(notification.type) }}
                     </mat-chip>
                   </td>
                 </ng-container>
 
                 <ng-container *ngIf="column === 'title'">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@notifications.title">Title</th>
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@notifications.title">Заголовок</th>
                   <td mat-cell *matCellDef="let notification">
                     <div class="title-cell">
                       <strong>{{ notification.title }}</strong>
@@ -74,7 +74,7 @@
                 </ng-container>
 
                 <ng-container *ngIf="column === 'message'">
-                  <th mat-header-cell *matHeaderCellDef i18n="@@notifications.message">Message</th>
+                  <th mat-header-cell *matHeaderCellDef i18n="@@notifications.message">Сообщение</th>
                   <td mat-cell *matCellDef="let notification">
                     <div class="message-cell">
                       {{ notification.message }}
@@ -83,7 +83,7 @@
                 </ng-container>
 
                 <ng-container *ngIf="column === 'priority'">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@notifications.priority">Priority</th>
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@notifications.priority">Приоритет</th>
                   <td mat-cell *matCellDef="let notification">
                     <mat-chip [color]="getPriorityColor(notification.priority)" selected>
                       <mat-icon>{{ getPriorityIcon(notification.priority) }}</mat-icon>
@@ -93,14 +93,14 @@
                 </ng-container>
 
                 <ng-container *ngIf="column === 'createdAt'">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@notifications.created">Created</th>
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@notifications.created">Создано</th>
                   <td mat-cell *matCellDef="let notification">
                     {{ formatDate(notification.createdAt) }}
                   </td>
                 </ng-container>
 
                 <ng-container *ngIf="column === 'actions'">
-                  <th mat-header-cell *matHeaderCellDef i18n="@@notifications.actions">Actions</th>
+                  <th mat-header-cell *matHeaderCellDef i18n="@@notifications.actions">Действия</th>
                   <td mat-cell *matCellDef="let notification">
                     <button
                       mat-icon-button
@@ -117,7 +117,7 @@
                         (click)="onMarkAsRead(notification)"
                       >
                         <mat-icon>mark_email_read</mat-icon>
-                        <span i18n="@@notifications.markAsRead">Mark as Read</span>
+                        <span i18n="@@notifications.markAsRead">Отметить как прочитанное</span>
                       </button>
 
                       <button
@@ -126,12 +126,12 @@
                         (click)="onMarkAsUnread(notification)"
                       >
                         <mat-icon>mark_email_unread</mat-icon>
-                        <span i18n="@@notifications.markAsUnread">Mark as Unread</span>
+                        <span i18n="@@notifications.markAsUnread">Отметить как непрочитанное</span>
                       </button>
 
                       <button mat-menu-item (click)="onDeleteNotification(notification)">
                         <mat-icon>delete</mat-icon>
-                        <span i18n="@@notifications.delete">Delete</span>
+                        <span i18n="@@notifications.delete">Удалить</span>
                       </button>
                     </mat-menu>
                   </td>
@@ -150,16 +150,16 @@
               <!-- Same columns as above -->
               <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
                 <ng-container *ngIf="column === 'type'">
-                  <th mat-header-cell *matHeaderCellDef>Type</th>
+                  <th mat-header-cell *matHeaderCellDef>Тип</th>
                   <td mat-cell *matCellDef="let notification">
-                    <mat-chip [color]="getNotificationTypeColor(notification.type)" selected>
-                      {{ getNotificationTypeDisplay(notification.type) }}
+                    <mat-chip [color]="getNotificationТипColor(notification.type)" selected>
+                      {{ getNotificationТипDisplay(notification.type) }}
                     </mat-chip>
                   </td>
                 </ng-container>
 
                 <ng-container *ngIf="column === 'title'">
-                  <th mat-header-cell *matHeaderCellDef>Title</th>
+                  <th mat-header-cell *matHeaderCellDef>Заголовок</th>
                   <td mat-cell *matCellDef="let notification">
                     <div class="title-cell">
                       <strong>{{ notification.title }}</strong>
@@ -169,7 +169,7 @@
                 </ng-container>
 
                 <ng-container *ngIf="column === 'message'">
-                  <th mat-header-cell *matHeaderCellDef>Message</th>
+                  <th mat-header-cell *matHeaderCellDef>Сообщение</th>
                   <td mat-cell *matCellDef="let notification">
                     <div class="message-cell">
                       {{ notification.message }}
@@ -232,23 +232,23 @@
               <!-- Same columns as above, but without unread indicator -->
               <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
                 <ng-container *ngIf="column === 'type'">
-                  <th mat-header-cell *matHeaderCellDef>Type</th>
+                  <th mat-header-cell *matHeaderCellDef>Тип</th>
                   <td mat-cell *matCellDef="let notification">
-                    <mat-chip [color]="getNotificationTypeColor(notification.type)" selected>
-                      {{ getNotificationTypeDisplay(notification.type) }}
+                    <mat-chip [color]="getNotificationТипColor(notification.type)" selected>
+                      {{ getNotificationТипDisplay(notification.type) }}
                     </mat-chip>
                   </td>
                 </ng-container>
 
                 <ng-container *ngIf="column === 'title'">
-                  <th mat-header-cell *matHeaderCellDef>Title</th>
+                  <th mat-header-cell *matHeaderCellDef>Заголовок</th>
                   <td mat-cell *matCellDef="let notification">
                     <strong>{{ notification.title }}</strong>
                   </td>
                 </ng-container>
 
                 <ng-container *ngIf="column === 'message'">
-                  <th mat-header-cell *matHeaderCellDef>Message</th>
+                  <th mat-header-cell *matHeaderCellDef>Сообщение</th>
                   <td mat-cell *matCellDef="let notification">
                     <div class="message-cell">
                       {{ notification.message }}
