@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://demo-coffee.ngrok.io/api',
-  authUrl: 'https://demo-coffee.ngrok.io/api/auth/login',
+  apiUrl: 'https://705dfed3f074.ngrok-free.app/api',
+  authUrl: 'https://705dfed3f074.ngrok-free.app/api/auth/login',
   appName: 'Coffee Admin Panel',
 };
