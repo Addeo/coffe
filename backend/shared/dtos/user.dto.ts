@@ -5,6 +5,7 @@ import {
   LoginResponse,
   AuthUser,
 } from '../interfaces/user.interface';
+import { EngineerType } from '../interfaces/order.interface';
 
 export interface CreateUserDto {
   email: string;
@@ -30,3 +31,15 @@ export interface AuthLoginDto extends LoginRequest {}
 export interface AuthLoginResponse extends LoginResponse {}
 
 export interface AuthUserDto extends AuthUser {}
+
+export interface UsersQueryDto {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: UserRole;
+  isActive?: boolean;
+  engineerType?: EngineerType;
+  engineerIsActive?: boolean;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
+}

@@ -25,6 +25,17 @@ export class OrganizationsController {
     return this.organizationsService.findAll(query);
   }
 
+  @Get('public')
+  @UseGuards() // Отключить guards для этого эндпоинта
+  findAllPublic() {
+    return this.organizationsService.findAll({});
+  }
+
+  @Patch('public/:id')
+  updatePublic(@Param('id') id: string, @Body() updateOrganizationDto: any) {
+    return this.organizationsService.update(+id, updateOrganizationDto);
+  }
+
   @Get(':id')
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   findOne(@Param('id') id: string) {

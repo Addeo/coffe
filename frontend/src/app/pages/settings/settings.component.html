@@ -1,7 +1,7 @@
 <div class="settings-container">
   <div class="header">
-    <h1>System Settings</h1>
-    <p>Configure system-wide settings and preferences</p>
+    <h1 i18n="@@settings.title">System Settings</h1>
+    <p i18n="@@settings.subtitle">Configure system-wide settings and preferences</p>
   </div>
 
   <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
@@ -9,17 +9,17 @@
       <!-- General Settings -->
       <mat-card class="settings-section">
         <mat-card-header>
-          <mat-card-title>General Settings</mat-card-title>
+          <mat-card-title i18n="@@settings.generalSettings">General Settings</mat-card-title>
         </mat-card-header>
 
         <mat-card-content>
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Site Name</mat-label>
+            <mat-label i18n="@@settings.siteName">Site Name</mat-label>
             <input matInput formControlName="siteName" />
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Theme</mat-label>
+            <mat-label i18n="@@settings.theme">Theme</mat-label>
             <mat-select formControlName="theme">
               <mat-option *ngFor="let theme of themes" [value]="theme.value">
                 {{ theme.label }}
@@ -28,7 +28,7 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Language</mat-label>
+            <mat-label i18n="@@settings.language">Language</mat-label>
             <mat-select formControlName="language">
               <mat-option *ngFor="let lang of languages" [value]="lang.value">
                 {{ lang.label }}
@@ -37,7 +37,7 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Items Per Page</mat-label>
+            <mat-label i18n="@@settings.itemsPerPage">Items Per Page</mat-label>
             <input matInput type="number" formControlName="itemsPerPage" />
           </mat-form-field>
         </mat-card-content>
@@ -46,17 +46,17 @@
       <!-- Notifications -->
       <mat-card class="settings-section">
         <mat-card-header>
-          <mat-card-title>Notifications</mat-card-title>
+          <mat-card-title i18n="@@settings.notifications">Notifications</mat-card-title>
         </mat-card-header>
 
         <mat-card-content>
           <div class="toggle-setting">
-            <span>Email Notifications</span>
+            <span i18n="@@settings.emailNotifications">Email Notifications</span>
             <mat-slide-toggle formControlName="emailNotifications"></mat-slide-toggle>
           </div>
 
           <div class="toggle-setting">
-            <span>Push Notifications</span>
+            <span i18n="@@settings.pushNotifications">Push Notifications</span>
             <mat-slide-toggle formControlName="pushNotifications"></mat-slide-toggle>
           </div>
         </mat-card-content>
@@ -65,17 +65,17 @@
       <!-- System Settings -->
       <mat-card class="settings-section">
         <mat-card-header>
-          <mat-card-title>System Preferences</mat-card-title>
+          <mat-card-title i18n="@@settings.systemPreferences">System Preferences</mat-card-title>
         </mat-card-header>
 
         <mat-card-content>
           <div class="toggle-setting">
-            <span>Auto Save</span>
+            <span i18n="@@settings.autoSave">Auto Save</span>
             <mat-slide-toggle formControlName="autoSave"></mat-slide-toggle>
           </div>
 
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Timezone</mat-label>
+            <mat-label i18n="@@settings.timezone">Timezone</mat-label>
             <input matInput formControlName="timezone" />
           </mat-form-field>
         </mat-card-content>
@@ -84,7 +84,7 @@
       <!-- Actions -->
       <mat-card class="settings-section actions-section">
         <mat-card-header>
-          <mat-card-title>Actions</mat-card-title>
+          <mat-card-title i18n="@@settings.actions">Actions</mat-card-title>
         </mat-card-header>
 
         <mat-card-content>
@@ -97,22 +97,22 @@
             >
               <mat-icon *ngIf="isLoading()">refresh</mat-icon>
               <mat-icon *ngIf="!isLoading()">save</mat-icon>
-              {{ isLoading() ? 'Saving...' : 'Save Settings' }}
+              {{ isLoading() ? 'Сохранение...' : 'Сохранить настройки' }}
             </button>
 
             <button mat-button type="button" (click)="resetToDefaults()">
               <mat-icon>restore</mat-icon>
-              Reset to Defaults
+              <span i18n="@@settings.resetToDefaults">Reset to Defaults</span>
             </button>
 
             <button mat-button type="button" (click)="exportSettings()">
               <mat-icon>download</mat-icon>
-              Export Settings
+              <span i18n="@@settings.exportSettings">Export Settings</span>
             </button>
 
             <button mat-button type="button" (click)="importSettings()">
               <mat-icon>upload</mat-icon>
-              Import Settings
+              <span i18n="@@settings.importSettings">Import Settings</span>
             </button>
           </div>
         </mat-card-content>

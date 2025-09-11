@@ -25,6 +25,12 @@ export class AuthService {
 
   constructor() {
     this.checkAuthStatus();
+    console.log('🔐 AuthService initialized');
+    console.log('🔐 Current auth state:', {
+      isAuthenticated: this.isAuthenticated(),
+      currentUser: this.currentUser(),
+      token: this.getToken() ? 'present' : 'missing'
+    });
   }
 
   login(credentials: AuthLoginDto): Observable<AuthLoginResponse> {
@@ -79,17 +85,30 @@ export class AuthService {
   }
 
   private checkAuthStatus(): void {
+    console.log('🔐 Checking auth status...');
     const token = localStorage.getItem('access_token');
     const user = localStorage.getItem('user');
+
+    console.log('🔐 Stored data:', {
+      hasToken: !!token,
+      hasUser: !!user,
+      tokenLength: token?.length,
+      userData: user
+    });
 
     if (token && user) {
       try {
         const userData = JSON.parse(user);
+        console.log('🔐 Parsed user data:', userData);
         this.currentUserSignal.set(userData);
         this.isAuthenticatedSignal.set(true);
+        console.log('🔐 Auth status set to authenticated');
       } catch (error) {
+        console.error('🔐 Failed to parse user data:', error);
         this.clearSession();
       }
+    } else {
+      console.log('🔐 No stored auth data found');
     }
   }
 

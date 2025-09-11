@@ -57,4 +57,7 @@ export class CreateUserDto {
 
   @IsOptional()
   engineerIsActive?: boolean;
+
+  @IsOptional()
+  isActive?: boolean;
 }

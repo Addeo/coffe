@@ -66,6 +66,12 @@ export class AppComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
+  constructor() {
+    console.log('🏠 AppComponent initialized');
+    console.log('🏠 Initial auth state:', this.isAuthenticated());
+    console.log('🏠 Current route:', this.router.url);
+  }
+
   title = 'coffee-admin';
 
   // Reactive computed values

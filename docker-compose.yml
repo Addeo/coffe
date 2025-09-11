@@ -9,6 +9,8 @@ services:
       MYSQL_DATABASE: coffee_admin
       MYSQL_USER: coffee_user
       MYSQL_PASSWORD: coffee_password
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
     ports:
       - "3307:3306"
     volumes:

@@ -17,12 +17,20 @@ export const getDatabaseConfig = (): TypeOrmModuleOptions => {
       },
     };
   } else {
-    // Use SQLite for local development
+    // Use MySQL for local development (Docker)
     return {
-      type: 'sqlite',
-      database: 'database.sqlite',
+      type: 'mysql',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '3306'),
+      username: process.env.DB_USERNAME || 'coffee_user',
+      password: process.env.DB_PASSWORD || 'coffee_password',
+      database: process.env.DB_DATABASE || 'coffee_admin',
       entities: [User, Organization],
       synchronize: true,
+      charset: 'utf8mb4',
+      extra: {
+        charset: 'utf8mb4_unicode_ci',
+      },
     };
   }
 };

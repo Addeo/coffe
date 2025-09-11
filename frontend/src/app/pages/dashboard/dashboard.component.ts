@@ -56,13 +56,13 @@ export class DashboardComponent implements OnInit {
     const role = this.userRole();
     switch (role) {
       case UserRole.ADMIN:
-        return 'Administrator Dashboard';
+        return 'Панель администратора';
       case UserRole.MANAGER:
-        return 'Manager Dashboard';
+        return 'Панель менеджера';
       case UserRole.USER:
-        return 'My Dashboard';
+        return 'Моя панель';
       default:
-        return 'Dashboard';
+        return 'Панель управления';
     }
   });
 

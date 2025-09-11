@@ -3,16 +3,16 @@
     <mat-card-header>
       <div class="header-content">
         <mat-icon class="error-icon">block</mat-icon>
-        <h1>Access Denied</h1>
+        <h1 i18n="@@unauthorized.accessDenied">Access Denied</h1>
       </div>
     </mat-card-header>
 
     <mat-card-content>
       <div class="message-section">
-        <p class="main-message">You don't have permission to access this page.</p>
+        <p class="main-message" i18n="@@unauthorized.noPermission">You don't have permission to access this page.</p>
 
         <div class="details-section" *ngIf="requiredRoles.length > 0">
-          <h3>Required Permissions:</h3>
+          <h3 i18n="@@unauthorized.requiredPermissions">Required Permissions:</h3>
           <div class="roles-list">
             <mat-chip *ngFor="let role of requiredRoles" color="warn" selected>
               {{ getRoleDisplay(role) }}
@@ -21,14 +21,14 @@
         </div>
 
         <div class="current-role-section">
-          <h3>Your Current Role:</h3>
+          <h3 i18n="@@unauthorized.yourCurrentRole">Your Current Role:</h3>
           <mat-chip [color]="currentUserRole ? 'primary' : 'accent'" selected>
             {{ getCurrentRoleDisplay() }}
           </mat-chip>
         </div>
 
         <div class="attempted-url-section" *ngIf="attemptedUrl">
-          <p class="attempted-url"><strong>Attempted URL:</strong> {{ attemptedUrl }}</p>
+          <p class="attempted-url"><strong i18n="@@unauthorized.attemptedUrl">Attempted URL:</strong> {{ attemptedUrl }}</p>
         </div>
       </div>
     </mat-card-content>
@@ -36,12 +36,12 @@
     <mat-card-actions class="actions-section">
       <button mat-raised-button color="primary" (click)="goBack()">
         <mat-icon>home</mat-icon>
-        Go to Dashboard
+        <span i18n="@@unauthorized.goToDashboard">Go to Dashboard</span>
       </button>
 
       <button mat-button (click)="goToLogin()" *ngIf="canRequestAccess()">
         <mat-icon>login</mat-icon>
-        Request Access
+        <span i18n="@@unauthorized.requestAccess">Request Access</span>
       </button>
     </mat-card-actions>
   </mat-card>

@@ -1,0 +1,744 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file source-language="en-US" datatype="plaintext" original="ng2.template">
+    <body>
+      <!-- Navigation -->
+      <trans-unit id="navigation.brand" datatype="html">
+        <source>Coffee Admin</source>
+        <target>Админка Кофе</target>
+      </trans-unit>
+      <trans-unit id="navigation.logout" datatype="html">
+        <source>Logout</source>
+        <target>Выйти</target>
+      </trans-unit>
+      <trans-unit id="navigation.dashboard" datatype="html">
+        <source>Dashboard</source>
+        <target>Главная</target>
+      </trans-unit>
+      <trans-unit id="navigation.users" datatype="html">
+        <source>Users</source>
+        <target>Пользователи</target>
+      </trans-unit>
+      <trans-unit id="navigation.organizations" datatype="html">
+        <source>Organizations</source>
+        <target>Организации</target>
+      </trans-unit>
+      <trans-unit id="navigation.orders" datatype="html">
+        <source>Orders</source>
+        <target>Заказы</target>
+      </trans-unit>
+      <trans-unit id="navigation.notifications" datatype="html">
+        <source>Notifications</source>
+        <target>Уведомления</target>
+      </trans-unit>
+
+      <!-- Login -->
+      <trans-unit id="login.title" datatype="html">
+        <source>Coffee Admin Panel</source>
+        <target>Панель администратора Кофе</target>
+      </trans-unit>
+      <trans-unit id="login.subtitle" datatype="html">
+        <source>Please sign in to continue</source>
+        <target>Пожалуйста, войдите для продолжения</target>
+      </trans-unit>
+      <trans-unit id="login.email" datatype="html">
+        <source>Email</source>
+        <target>Электронная почта</target>
+      </trans-unit>
+      <trans-unit id="login.password" datatype="html">
+        <source>Password</source>
+        <target>Пароль</target>
+      </trans-unit>
+      <trans-unit id="login.signIn" datatype="html">
+        <source>Sign In</source>
+        <target>Войти</target>
+      </trans-unit>
+      <trans-unit id="login.signingIn" datatype="html">
+        <source>Signing in...</source>
+        <target>Вход в систему...</target>
+      </trans-unit>
+
+      <!-- Notifications -->
+      <trans-unit id="notifications.markAllAsRead" datatype="html">
+        <source>Mark all as read</source>
+        <target>Отметить все как прочитанные</target>
+      </trans-unit>
+      <trans-unit id="notifications.noNewNotifications" datatype="html">
+        <source>No new notifications</source>
+        <target>Нет новых уведомлений</target>
+      </trans-unit>
+      <trans-unit id="notifications.viewAllNotifications" datatype="html">
+        <source>View all notifications</source>
+        <target>Просмотреть все уведомления</target>
+      </trans-unit>
+
+      <!-- Form validation messages -->
+      <trans-unit id="form.errorsAppearInstantly" datatype="html">
+        <source>Errors appear instantly!</source>
+        <target>Ошибки появляются мгновенно!</target>
+      </trans-unit>
+      <trans-unit id="form.emailInvalid" datatype="html">
+        <source>Please enter a valid email address</source>
+        <target>Пожалуйста, введите корректный адрес электронной почты</target>
+      </trans-unit>
+      <trans-unit id="form.emailRequired" datatype="html">
+        <source>Email is <strong>required</strong></source>
+        <target>Электронная почта <strong>обязательна</strong></target>
+      </trans-unit>
+      <trans-unit id="form.passwordMinLength" datatype="html">
+        <source>At least 6 characters required</source>
+        <target>Требуется минимум 6 символов</target>
+      </trans-unit>
+      <trans-unit id="form.passwordTooShort" datatype="html">
+        <source>Password must be at least 6 characters long</source>
+        <target>Пароль должен содержать минимум 6 символов</target>
+      </trans-unit>
+      <trans-unit id="form.passwordRequired" datatype="html">
+        <source>Password is <strong>required</strong></source>
+        <target>Пароль <strong>обязателен</strong></target>
+      </trans-unit>
+
+      <!-- Dashboard -->
+      <trans-unit id="dashboard.loadingData" datatype="html">
+        <source>Loading dashboard data...</source>
+        <target>Загрузка данных панели управления...</target>
+      </trans-unit>
+      <trans-unit id="dashboard.ordersOverview" datatype="html">
+        <source>Orders Overview</source>
+        <target>Обзор заказов</target>
+      </trans-unit>
+      <trans-unit id="dashboard.totalOrders" datatype="html">
+        <source>Total Orders</source>
+        <target>Всего заказов</target>
+      </trans-unit>
+      <trans-unit id="dashboard.userManagement" datatype="html">
+        <source>User Management</source>
+        <target>Управление пользователями</target>
+      </trans-unit>
+      <trans-unit id="dashboard.totalUsers" datatype="html">
+        <source>Total Users</source>
+        <target>Всего пользователей</target>
+      </trans-unit>
+      <trans-unit id="dashboard.activeUsers" datatype="html">
+        <source>Active Users</source>
+        <target>Активные пользователи</target>
+      </trans-unit>
+      <trans-unit id="dashboard.newThisMonth" datatype="html">
+        <source>New This Month</source>
+        <target>Новых в этом месяце</target>
+      </trans-unit>
+      <trans-unit id="dashboard.earningsOverview" datatype="html">
+        <source>Earnings Overview</source>
+        <target>Обзор доходов</target>
+      </trans-unit>
+      <trans-unit id="dashboard.currentMonth" datatype="html">
+        <source>Current Month</source>
+        <target>Текущий месяц</target>
+      </trans-unit>
+      <trans-unit id="dashboard.vsLastMonth" datatype="html">
+        <source>vs last month</source>
+        <target>по сравнению с прошлым месяцем</target>
+      </trans-unit>
+      <trans-unit id="dashboard.noDataAvailable" datatype="html">
+        <source>No data available</source>
+        <target>Данные недоступны</target>
+      </trans-unit>
+      <trans-unit id="dashboard.quickActions" datatype="html">
+        <source>Quick Actions</source>
+        <target>Быстрые действия</target>
+      </trans-unit>
+      <trans-unit id="dashboard.viewOrders" datatype="html">
+        <source>View Orders</source>
+        <target>Просмотр заказов</target>
+      </trans-unit>
+      <trans-unit id="dashboard.manageOrders" datatype="html">
+        <source>Manage and track all orders</source>
+        <target>Управление и отслеживание всех заказов</target>
+      </trans-unit>
+      <trans-unit id="dashboard.manageUsers" datatype="html">
+        <source>Manage Users</source>
+        <target>Управление пользователями</target>
+      </trans-unit>
+      <trans-unit id="dashboard.manageUserAccounts" datatype="html">
+        <source>View and manage user accounts</source>
+        <target>Просмотр и управление учетными записями пользователей</target>
+      </trans-unit>
+      <trans-unit id="dashboard.products" datatype="html">
+        <source>Products</source>
+        <target>Продукты</target>
+      </trans-unit>
+      <trans-unit id="dashboard.manageProducts" datatype="html">
+        <source>Manage product catalog</source>
+        <target>Управление каталогом продуктов</target>
+      </trans-unit>
+      <trans-unit id="dashboard.reports" datatype="html">
+        <source>Reports</source>
+        <target>Отчеты</target>
+      </trans-unit>
+      <trans-unit id="dashboard.viewReports" datatype="html">
+        <source>View detailed reports</source>
+        <target>Просмотр подробных отчетов</target>
+      </trans-unit>
+
+      <!-- User Dialog -->
+      <trans-unit id="user.firstName" datatype="html">
+        <source>First Name</source>
+        <target>Имя</target>
+      </trans-unit>
+      <trans-unit id="user.firstNameRequired" datatype="html">
+        <source>First name is required</source>
+        <target>Имя обязательно</target>
+      </trans-unit>
+      <trans-unit id="user.lastName" datatype="html">
+        <source>Last Name</source>
+        <target>Фамилия</target>
+      </trans-unit>
+
+      <!-- Users Page -->
+      <trans-unit id="users.management" datatype="html">
+        <source>Users Management</source>
+        <target>Управление пользователями</target>
+      </trans-unit>
+      <trans-unit id="users.search" datatype="html">
+        <source>Search users</source>
+        <target>Поиск пользователей</target>
+      </trans-unit>
+      <trans-unit id="users.addUser" datatype="html">
+        <source>Add User</source>
+        <target>Добавить пользователя</target>
+      </trans-unit>
+      <trans-unit id="users.accessDenied" datatype="html">
+        <source>Access Denied</source>
+        <target>Доступ запрещен</target>
+      </trans-unit>
+      <trans-unit id="users.noPermission" datatype="html">
+        <source>You don't have permission to view users.</source>
+        <target>У вас нет прав для просмотра пользователей.</target>
+      </trans-unit>
+      <trans-unit id="users.loading" datatype="html">
+        <source>Loading users...</source>
+        <target>Загрузка пользователей...</target>
+      </trans-unit>
+      <trans-unit id="users.id" datatype="html">
+        <source>ID</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="users.firstName" datatype="html">
+        <source>First Name</source>
+        <target>Имя</target>
+      </trans-unit>
+      <trans-unit id="users.lastName" datatype="html">
+        <source>Last Name</source>
+        <target>Фамилия</target>
+      </trans-unit>
+      <trans-unit id="users.email" datatype="html">
+        <source>Email</source>
+        <target>Электронная почта</target>
+      </trans-unit>
+      <trans-unit id="users.role" datatype="html">
+        <source>Role</source>
+        <target>Роль</target>
+      </trans-unit>
+      <trans-unit id="users.status" datatype="html">
+        <source>Status</source>
+        <target>Статус</target>
+      </trans-unit>
+      <trans-unit id="users.created" datatype="html">
+        <source>Created</source>
+        <target>Создан</target>
+      </trans-unit>
+      <trans-unit id="users.actions" datatype="html">
+        <source>Actions</source>
+        <target>Действия</target>
+      </trans-unit>
+      <trans-unit id="users.noUsersFound" datatype="html">
+        <source>No users found</source>
+        <target>Пользователи не найдены</target>
+      </trans-unit>
+      <trans-unit id="users.noUsersMessage" datatype="html">
+        <source>No users match your search criteria or no users have been created yet.</source>
+        <target>Нет пользователей, соответствующих критериям поиска, или пользователи еще не созданы.</target>
+      </trans-unit>
+
+      <!-- Orders Page -->
+      <trans-unit id="orders.totalOrders" datatype="html">
+        <source>Total Orders</source>
+        <target>Всего заказов</target>
+      </trans-unit>
+      <trans-unit id="orders.waiting" datatype="html">
+        <source>Waiting</source>
+        <target>Ожидание</target>
+      </trans-unit>
+      <trans-unit id="orders.processing" datatype="html">
+        <source>Processing</source>
+        <target>В обработке</target>
+      </trans-unit>
+      <trans-unit id="orders.inProgress" datatype="html">
+        <source>In Progress</source>
+        <target>В работе</target>
+      </trans-unit>
+      <trans-unit id="orders.underReview" datatype="html">
+        <source>Under Review</source>
+        <target>На проверке</target>
+      </trans-unit>
+      <trans-unit id="orders.completed" datatype="html">
+        <source>Completed</source>
+        <target>Завершено</target>
+      </trans-unit>
+      <trans-unit id="orders.management" datatype="html">
+        <source>Orders Management</source>
+        <target>Управление заказами</target>
+      </trans-unit>
+      <trans-unit id="orders.statusFilter" datatype="html">
+        <source>Status Filter</source>
+        <target>Фильтр по статусу</target>
+      </trans-unit>
+      <trans-unit id="orders.allStatuses" datatype="html">
+        <source>All Statuses</source>
+        <target>Все статусы</target>
+      </trans-unit>
+      <trans-unit id="orders.search" datatype="html">
+        <source>Search orders</source>
+        <target>Поиск заказов</target>
+      </trans-unit>
+      <trans-unit id="orders.addOrder" datatype="html">
+        <source>Add Order</source>
+        <target>Добавить заказ</target>
+      </trans-unit>
+      <trans-unit id="orders.loading" datatype="html">
+        <source>Loading orders...</source>
+        <target>Загрузка заказов...</target>
+      </trans-unit>
+      <trans-unit id="orders.id" datatype="html">
+        <source>ID</source>
+        <target>ID</target>
+      </trans-unit>
+      <trans-unit id="orders.title" datatype="html">
+        <source>Title</source>
+        <target>Название</target>
+      </trans-unit>
+      <trans-unit id="orders.organization" datatype="html">
+        <source>Organization</source>
+        <target>Организация</target>
+      </trans-unit>
+      <trans-unit id="orders.engineer" datatype="html">
+        <source>Engineer</source>
+        <target>Инженер</target>
+      </trans-unit>
+      <trans-unit id="orders.by" datatype="html">
+        <source>by</source>
+        <target>от</target>
+      </trans-unit>
+      <trans-unit id="orders.status" datatype="html">
+        <source>Status</source>
+        <target>Статус</target>
+      </trans-unit>
+      <trans-unit id="orders.created" datatype="html">
+        <source>Created</source>
+        <target>Создан</target>
+      </trans-unit>
+      <trans-unit id="orders.edit" datatype="html">
+        <source>Edit</source>
+        <target>Редактировать</target>
+      </trans-unit>
+      <trans-unit id="orders.actions" datatype="html">
+        <source>Actions</source>
+        <target>Действия</target>
+      </trans-unit>
+      <trans-unit id="orders.noOrdersFound" datatype="html">
+        <source>No orders found</source>
+        <target>Заказы не найдены</target>
+      </trans-unit>
+      <trans-unit id="orders.noOrdersMessage" datatype="html">
+        <source>No orders match your search criteria or no orders have been created yet.</source>
+        <target>Нет заказов, соответствующих критериям поиска, или заказы еще не созданы.</target>
+      </trans-unit>
+
+      <!-- Organizations Page -->
+      <trans-unit id="organizations.management" datatype="html">
+        <source>Organizations Management</source>
+        <target>Управление организациями</target>
+      </trans-unit>
+      <trans-unit id="organizations.subtitle" datatype="html">
+        <source>Manage company organizations and their settings</source>
+        <target>Управление организациями компании и их настройками</target>
+      </trans-unit>
+      <trans-unit id="organizations.search" datatype="html">
+        <source>Search organizations</source>
+        <target>Поиск организаций</target>
+      </trans-unit>
+      <trans-unit id="organizations.addOrganization" datatype="html">
+        <source>Add Organization</source>
+        <target>Добавить организацию</target>
+      </trans-unit>
+      <trans-unit id="organizations.name" datatype="html">
+        <source>Name</source>
+        <target>Название</target>
+      </trans-unit>
+      <trans-unit id="organizations.baseRate" datatype="html">
+        <source>Base Rate</source>
+        <target>Базовая ставка</target>
+      </trans-unit>
+      <trans-unit id="organizations.overtimeRate" datatype="html">
+        <source>Overtime Rate</source>
+        <target>Ставка за переработку</target>
+      </trans-unit>
+      <trans-unit id="organizations.overtime" datatype="html">
+        <source>Overtime</source>
+        <target>Переработка</target>
+      </trans-unit>
+      <trans-unit id="organizations.status" datatype="html">
+        <source>Status</source>
+        <target>Статус</target>
+      </trans-unit>
+      <trans-unit id="organizations.created" datatype="html">
+        <source>Created</source>
+        <target>Создан</target>
+      </trans-unit>
+      <trans-unit id="organizations.actions" datatype="html">
+        <source>Actions</source>
+        <target>Действия</target>
+      </trans-unit>
+      <trans-unit id="organizations.edit" datatype="html">
+        <source>Edit</source>
+        <target>Редактировать</target>
+      </trans-unit>
+      <trans-unit id="organizations.delete" datatype="html">
+        <source>Delete</source>
+        <target>Удалить</target>
+      </trans-unit>
+      <trans-unit id="organizations.loading" datatype="html">
+        <source>Loading organizations...</source>
+        <target>Загрузка организаций...</target>
+      </trans-unit>
+      <trans-unit id="organizations.noOrganizationsFound" datatype="html">
+        <source>No organizations found</source>
+        <target>Организации не найдены</target>
+      </trans-unit>
+      <trans-unit id="organizations.noOrganizationsMatch" datatype="html">
+        <source>No organizations match your search criteria.</source>
+        <target>Нет организаций, соответствующих критериям поиска.</target>
+      </trans-unit>
+      <trans-unit id="organizations.getStarted" datatype="html">
+        <source>Get started by creating your first organization.</source>
+        <target>Начните с создания первой организации.</target>
+      </trans-unit>
+
+      <!-- Notifications Page -->
+      <trans-unit id="notifications.title" datatype="html">
+        <source>Notifications</source>
+        <target>Уведомления</target>
+      </trans-unit>
+      <trans-unit id="notifications.subtitle" datatype="html">
+        <source>View and manage your notifications</source>
+        <target>Просмотр и управление уведомлениями</target>
+      </trans-unit>
+      <trans-unit id="notifications.total" datatype="html">
+        <source>Total</source>
+        <target>Всего</target>
+      </trans-unit>
+      <trans-unit id="notifications.unread" datatype="html">
+        <source>Unread</source>
+        <target>Непрочитанные</target>
+      </trans-unit>
+      <trans-unit id="notifications.read" datatype="html">
+        <source>Read</source>
+        <target>Прочитанные</target>
+      </trans-unit>
+      <trans-unit id="notifications.refresh" datatype="html">
+        <source>Refresh</source>
+        <target>Обновить</target>
+      </trans-unit>
+      <trans-unit id="notifications.markAllAsRead" datatype="html">
+        <source>Mark All as Read</source>
+        <target>Отметить все как прочитанные</target>
+      </trans-unit>
+      <trans-unit id="notifications.type" datatype="html">
+        <source>Type</source>
+        <target>Тип</target>
+      </trans-unit>
+      <trans-unit id="notifications.message" datatype="html">
+        <source>Message</source>
+        <target>Сообщение</target>
+      </trans-unit>
+      <trans-unit id="notifications.priority" datatype="html">
+        <source>Priority</source>
+        <target>Приоритет</target>
+      </trans-unit>
+      <trans-unit id="notifications.created" datatype="html">
+        <source>Created</source>
+        <target>Создано</target>
+      </trans-unit>
+      <trans-unit id="notifications.actions" datatype="html">
+        <source>Actions</source>
+        <target>Действия</target>
+      </trans-unit>
+      <trans-unit id="notifications.markAsRead" datatype="html">
+        <source>Mark as Read</source>
+        <target>Отметить как прочитанное</target>
+      </trans-unit>
+      <trans-unit id="notifications.markAsUnread" datatype="html">
+        <source>Mark as Unread</source>
+        <target>Отметить как непрочитанное</target>
+      </trans-unit>
+      <trans-unit id="notifications.delete" datatype="html">
+        <source>Delete</source>
+        <target>Удалить</target>
+      </trans-unit>
+      <trans-unit id="notifications.loading" datatype="html">
+        <source>Loading notifications...</source>
+        <target>Загрузка уведомлений...</target>
+      </trans-unit>
+      <trans-unit id="notifications.noNotificationsFound" datatype="html">
+        <source>No notifications found</source>
+        <target>Уведомления не найдены</target>
+      </trans-unit>
+      <trans-unit id="notifications.noNotificationsInCategory" datatype="html">
+        <source>You don't have any notifications in this category.</source>
+        <target>У вас нет уведомлений в этой категории.</target>
+      </trans-unit>
+
+      <!-- Reports Page -->
+      <trans-unit id="reports.title" datatype="html">
+        <source>Reports & Analytics</source>
+        <target>Отчеты и аналитика</target>
+      </trans-unit>
+      <trans-unit id="reports.subtitle" datatype="html">
+        <source>Generate and view various system reports</source>
+        <target>Создание и просмотр различных системных отчетов</target>
+      </trans-unit>
+      <trans-unit id="reports.generate" datatype="html">
+        <source>Generate</source>
+        <target>Создать</target>
+      </trans-unit>
+      <trans-unit id="reports.export" datatype="html">
+        <source>Export</source>
+        <target>Экспорт</target>
+      </trans-unit>
+      <trans-unit id="reports.generating" datatype="html">
+        <source>Generating report...</source>
+        <target>Создание отчета...</target>
+      </trans-unit>
+
+      <!-- Settings Page -->
+      <trans-unit id="settings.title" datatype="html">
+        <source>System Settings</source>
+        <target>Системные настройки</target>
+      </trans-unit>
+      <trans-unit id="settings.subtitle" datatype="html">
+        <source>Configure system-wide settings and preferences</source>
+        <target>Настройка системных параметров и предпочтений</target>
+      </trans-unit>
+      <trans-unit id="settings.generalSettings" datatype="html">
+        <source>General Settings</source>
+        <target>Общие настройки</target>
+      </trans-unit>
+      <trans-unit id="settings.siteName" datatype="html">
+        <source>Site Name</source>
+        <target>Название сайта</target>
+      </trans-unit>
+      <trans-unit id="settings.theme" datatype="html">
+        <source>Theme</source>
+        <target>Тема</target>
+      </trans-unit>
+      <trans-unit id="settings.language" datatype="html">
+        <source>Language</source>
+        <target>Язык</target>
+      </trans-unit>
+      <trans-unit id="settings.itemsPerPage" datatype="html">
+        <source>Items Per Page</source>
+        <target>Элементов на странице</target>
+      </trans-unit>
+      <trans-unit id="settings.notifications" datatype="html">
+        <source>Notifications</source>
+        <target>Уведомления</target>
+      </trans-unit>
+      <trans-unit id="settings.emailNotifications" datatype="html">
+        <source>Email Notifications</source>
+        <target>Email уведомления</target>
+      </trans-unit>
+      <trans-unit id="settings.pushNotifications" datatype="html">
+        <source>Push Notifications</source>
+        <target>Push уведомления</target>
+      </trans-unit>
+      <trans-unit id="settings.systemPreferences" datatype="html">
+        <source>System Preferences</source>
+        <target>Системные предпочтения</target>
+      </trans-unit>
+      <trans-unit id="settings.autoSave" datatype="html">
+        <source>Auto Save</source>
+        <target>Автосохранение</target>
+      </trans-unit>
+      <trans-unit id="settings.timezone" datatype="html">
+        <source>Timezone</source>
+        <target>Часовой пояс</target>
+      </trans-unit>
+      <trans-unit id="settings.actions" datatype="html">
+        <source>Actions</source>
+        <target>Действия</target>
+      </trans-unit>
+      <trans-unit id="settings.resetToDefaults" datatype="html">
+        <source>Reset to Defaults</source>
+        <target>Сбросить к настройкам по умолчанию</target>
+      </trans-unit>
+      <trans-unit id="settings.exportSettings" datatype="html">
+        <source>Export Settings</source>
+        <target>Экспорт настроек</target>
+      </trans-unit>
+      <trans-unit id="settings.importSettings" datatype="html">
+        <source>Import Settings</source>
+        <target>Импорт настроек</target>
+      </trans-unit>
+
+      <!-- Profile Page -->
+      <trans-unit id="profile.myProfile" datatype="html">
+        <source>My Profile</source>
+        <target>Мой профиль</target>
+      </trans-unit>
+      <trans-unit id="profile.changeAvatar" datatype="html">
+        <source>Change Avatar</source>
+        <target>Изменить аватар</target>
+      </trans-unit>
+      <trans-unit id="profile.profileInformation" datatype="html">
+        <source>Profile Information</source>
+        <target>Информация о профиле</target>
+      </trans-unit>
+      <trans-unit id="profile.updatePersonalInfo" datatype="html">
+        <source>Update your personal information</source>
+        <target>Обновите личную информацию</target>
+      </trans-unit>
+      <trans-unit id="profile.firstName" datatype="html">
+        <source>First Name</source>
+        <target>Имя</target>
+      </trans-unit>
+      <trans-unit id="profile.firstNameRequired" datatype="html">
+        <source>First name is required and must be at least 2 characters</source>
+        <target>Имя обязательно и должно содержать минимум 2 символа</target>
+      </trans-unit>
+      <trans-unit id="profile.lastName" datatype="html">
+        <source>Last Name</source>
+        <target>Фамилия</target>
+      </trans-unit>
+      <trans-unit id="profile.lastNameRequired" datatype="html">
+        <source>Last name is required and must be at least 2 characters</source>
+        <target>Фамилия обязательна и должна содержать минимум 2 символа</target>
+      </trans-unit>
+      <trans-unit id="profile.email" datatype="html">
+        <source>Email</source>
+        <target>Электронная почта</target>
+      </trans-unit>
+      <trans-unit id="profile.emailRequired" datatype="html">
+        <source>Please enter a valid email address</source>
+        <target>Пожалуйста, введите корректный адрес электронной почты</target>
+      </trans-unit>
+      <trans-unit id="profile.role" datatype="html">
+        <source>Role</source>
+        <target>Роль</target>
+      </trans-unit>
+      <trans-unit id="profile.cancel" datatype="html">
+        <source>Cancel</source>
+        <target>Отмена</target>
+      </trans-unit>
+      <trans-unit id="profile.security" datatype="html">
+        <source>Security</source>
+        <target>Безопасность</target>
+      </trans-unit>
+      <trans-unit id="profile.manageSecurity" datatype="html">
+        <source>Manage your account security</source>
+        <target>Управление безопасностью учетной записи</target>
+      </trans-unit>
+      <trans-unit id="profile.password" datatype="html">
+        <source>Password</source>
+        <target>Пароль</target>
+      </trans-unit>
+      <trans-unit id="profile.lastChanged" datatype="html">
+        <source>Last changed: Recently</source>
+        <target>Последнее изменение: Недавно</target>
+      </trans-unit>
+      <trans-unit id="profile.changePassword" datatype="html">
+        <source>Change Password</source>
+        <target>Изменить пароль</target>
+      </trans-unit>
+
+      <!-- Files Page -->
+      <trans-unit id="files.management" datatype="html">
+        <source>File Management</source>
+        <target>Управление файлами</target>
+      </trans-unit>
+      <trans-unit id="files.uploadFile" datatype="html">
+        <source>Upload File</source>
+        <target>Загрузить файл</target>
+      </trans-unit>
+      <trans-unit id="files.loading" datatype="html">
+        <source>Loading files...</source>
+        <target>Загрузка файлов...</target>
+      </trans-unit>
+      <trans-unit id="files.filename" datatype="html">
+        <source>Filename</source>
+        <target>Имя файла</target>
+      </trans-unit>
+      <trans-unit id="files.originalName" datatype="html">
+        <source>Original Name</source>
+        <target>Оригинальное имя</target>
+      </trans-unit>
+      <trans-unit id="files.type" datatype="html">
+        <source>Type</source>
+        <target>Тип</target>
+      </trans-unit>
+      <trans-unit id="files.size" datatype="html">
+        <source>Size</source>
+        <target>Размер</target>
+      </trans-unit>
+      <trans-unit id="files.category" datatype="html">
+        <source>Category</source>
+        <target>Категория</target>
+      </trans-unit>
+      <trans-unit id="files.uploaded" datatype="html">
+        <source>Uploaded</source>
+        <target>Загружен</target>
+      </trans-unit>
+      <trans-unit id="files.actions" datatype="html">
+        <source>Actions</source>
+        <target>Действия</target>
+      </trans-unit>
+      <trans-unit id="files.noFilesFound" datatype="html">
+        <source>No files found</source>
+        <target>Файлы не найдены</target>
+      </trans-unit>
+      <trans-unit id="files.noFilesUploaded" datatype="html">
+        <source>No files have been uploaded yet.</source>
+        <target>Файлы еще не загружены.</target>
+      </trans-unit>
+
+      <!-- Unauthorized Page -->
+      <trans-unit id="unauthorized.accessDenied" datatype="html">
+        <source>Access Denied</source>
+        <target>Доступ запрещен</target>
+      </trans-unit>
+      <trans-unit id="unauthorized.noPermission" datatype="html">
+        <source>You don't have permission to access this page.</source>
+        <target>У вас нет прав для доступа к этой странице.</target>
+      </trans-unit>
+      <trans-unit id="unauthorized.requiredPermissions" datatype="html">
+        <source>Required Permissions:</source>
+        <target>Необходимые права:</target>
+      </trans-unit>
+      <trans-unit id="unauthorized.yourCurrentRole" datatype="html">
+        <source>Your Current Role:</source>
+        <target>Ваша текущая роль:</target>
+      </trans-unit>
+      <trans-unit id="unauthorized.attemptedUrl" datatype="html">
+        <source>Attempted URL:</source>
+        <target>Запрашиваемый URL:</target>
+      </trans-unit>
+      <trans-unit id="unauthorized.goToDashboard" datatype="html">
+        <source>Go to Dashboard</source>
+        <target>Перейти к панели управления</target>
+      </trans-unit>
+      <trans-unit id="unauthorized.requestAccess" datatype="html">
+        <source>Request Access</source>
+        <target>Запросить доступ</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

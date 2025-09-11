@@ -1,9 +1,9 @@
 <div class="files-container">
   <div class="header">
-    <h1>File Management</h1>
+    <h1 i18n="@@files.management">File Management</h1>
     <button mat-raised-button color="primary" (click)="onUploadFile()">
       <mat-icon>cloud_upload</mat-icon>
-      Upload File
+      <span i18n="@@files.uploadFile">Upload File</span>
     </button>
   </div>
 
@@ -11,33 +11,33 @@
     <mat-card-content>
       <div class="loading-container" *ngIf="isLoading()">
         <mat-spinner diameter="40"></mat-spinner>
-        <p>Loading files...</p>
+        <p i18n="@@files.loading">Loading files...</p>
       </div>
 
       <div class="table-container" *ngIf="!isLoading()">
         <table mat-table [dataSource]="dataSource" matSort class="files-table">
           <ng-container matColumnDef="filename">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Filename</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@files.filename">Filename</th>
             <td mat-cell *matCellDef="let file">{{ file.filename }}</td>
           </ng-container>
 
           <ng-container matColumnDef="originalName">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Original Name</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@files.originalName">Original Name</th>
             <td mat-cell *matCellDef="let file">{{ file.originalName }}</td>
           </ng-container>
 
           <ng-container matColumnDef="mimetype">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@files.type">Type</th>
             <td mat-cell *matCellDef="let file">{{ file.mimetype }}</td>
           </ng-container>
 
           <ng-container matColumnDef="size">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Size</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@files.size">Size</th>
             <td mat-cell *matCellDef="let file">{{ getFileSizeDisplay(file.size) }}</td>
           </ng-container>
 
           <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Category</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@files.category">Category</th>
             <td mat-cell *matCellDef="let file">
               <mat-chip [color]="getTypeColor(file.type)" selected>
                 {{ file.type }}
@@ -46,22 +46,22 @@
           </ng-container>
 
           <ng-container matColumnDef="uploadedAt">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Uploaded</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@files.uploaded">Uploaded</th>
             <td mat-cell *matCellDef="let file">{{ file.uploadedAt | date: 'short' }}</td>
           </ng-container>
 
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <th mat-header-cell *matHeaderCellDef i18n="@@files.actions">Actions</th>
             <td mat-cell *matCellDef="let file">
               <button
                 mat-icon-button
                 (click)="onDownloadFile(file)"
                 color="primary"
-                matTooltip="Download"
+                matTooltip="Скачать"
               >
                 <mat-icon>download</mat-icon>
               </button>
-              <button mat-icon-button (click)="onDeleteFile(file)" color="warn" matTooltip="Delete">
+              <button mat-icon-button (click)="onDeleteFile(file)" color="warn" matTooltip="Удалить">
                 <mat-icon>delete</mat-icon>
               </button>
             </td>
@@ -73,15 +73,15 @@
 
         <div class="no-data" *ngIf="dataSource.data.length === 0">
           <mat-icon>folder</mat-icon>
-          <h3>No files found</h3>
-          <p>No files have been uploaded yet.</p>
+          <h3 i18n="@@files.noFilesFound">No files found</h3>
+          <p i18n="@@files.noFilesUploaded">No files have been uploaded yet.</p>
         </div>
       </div>
 
       <mat-paginator
         [pageSizeOptions]="[5, 10, 20, 50]"
         showFirstLastButtons
-        aria-label="Select page of files"
+        aria-label="Выберите страницу файлов"
       >
       </mat-paginator>
     </mat-card-content>

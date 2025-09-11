@@ -21,6 +21,7 @@ interface NavigationItem {
   route: string;
   icon: string;
   badge?: number;
+  i18nKey: string;
 }
 
 @Component({
@@ -67,25 +68,34 @@ export class NavigationComponent implements OnInit, OnDestroy {
   navigationItems = computed<NavigationItem[]>(() => {
     const role = this.userRole();
     const items: NavigationItem[] = [
-      { label: 'Dashboard', route: '/dashboard', icon: 'dashboard' },
+      { label: 'Dashboard', route: '/dashboard', icon: 'dashboard', i18nKey: '@@navigation.dashboard' },
     ];
 
     if (role === UserRole.ADMIN || role === UserRole.MANAGER) {
       items.push(
-        { label: 'Users', route: '/users', icon: 'people' },
-        { label: 'Organizations', route: '/organizations', icon: 'business' }
+        { label: 'Users', route: '/users', icon: 'people', i18nKey: '@@navigation.users' },
+        { label: 'Organizations', route: '/organizations', icon: 'business', i18nKey: '@@navigation.organizations' }
       );
     }
 
     items.push(
-      { label: 'Orders', route: '/orders', icon: 'shopping_cart' },
+      { label: 'Orders', route: '/orders', icon: 'shopping_cart', i18nKey: '@@navigation.orders' },
+      { label: 'Profile', route: '/profile', icon: 'person', i18nKey: '@@navigation.profile' },
       {
         label: 'Notifications',
         route: '/notifications',
         icon: 'notifications',
         badge: this.unreadCount(),
+        i18nKey: '@@navigation.notifications',
       }
     );
+
+    // Add Settings for admin only
+    if (role === UserRole.ADMIN) {
+      items.push(
+        { label: 'Settings', route: '/settings', icon: 'settings', i18nKey: '@@navigation.settings' }
+      );
+    }
 
     return items;
   });
@@ -184,13 +194,13 @@ export class NavigationComponent implements OnInit, OnDestroy {
   getRoleDisplayName(role: UserRole): string {
     switch (role) {
       case UserRole.ADMIN:
-        return 'Administrator';
+        return 'Администратор';
       case UserRole.MANAGER:
-        return 'Manager';
+        return 'Менеджер';
       case UserRole.USER:
-        return 'User';
+        return 'Пользователь';
       default:
-        return 'User';
+        return 'Пользователь';
     }
   }
 

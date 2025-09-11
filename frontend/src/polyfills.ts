@@ -3,6 +3,8 @@
  * To add polyfills, install individual packages and import them here.
  */
 
+import '@angular/localize/init';
+
 /***************************************************************************************************
  * BROWSER POLYFILLS
  */

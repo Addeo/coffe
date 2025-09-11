@@ -36,22 +36,22 @@ export interface UserDialogData {
   template: `
     <div class="user-dialog">
       <h2 mat-dialog-title>
-        {{ data.isEdit ? 'Edit User' : 'Create New User' }}
+        {{ data.isEdit ? 'Редактировать пользователя' : 'Создать нового пользователя' }}
       </h2>
 
       <mat-dialog-content>
         <form [formGroup]="userForm" class="user-form">
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>First Name</mat-label>
+              <mat-label i18n="@@user.firstName">First Name</mat-label>
               <input matInput formControlName="firstName" placeholder="Enter first name" />
-              <mat-error *ngIf="userForm.get('firstName')?.hasError('required')">
+              <mat-error *ngIf="userForm.get('firstName')?.hasError('required')" i18n="@@user.firstNameRequired">
                 First name is required
               </mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Last Name</mat-label>
+              <mat-label i18n="@@user.lastName">Last Name</mat-label>
               <input matInput formControlName="lastName" placeholder="Enter last name" />
               <mat-error *ngIf="userForm.get('lastName')?.hasError('required')">
                 Last name is required
@@ -477,10 +477,24 @@ export class UserDialogComponent {
     // Engineer-specific fields (only if role is USER)
     if (formValue.role === UserRole.USER) {
       userData.engineerType = formValue.engineerType;
-      userData.baseRate = formValue.baseRate;
-      userData.overtimeRate = formValue.overtimeRate;
-      userData.planHoursMonth = formValue.planHoursMonth;
-      userData.homeTerritoryFixedAmount = formValue.homeTerritoryFixedAmount;
+
+      // Only include numeric fields if they have valid values
+      if (formValue.baseRate !== null && formValue.baseRate !== undefined && formValue.baseRate !== '') {
+        userData.baseRate = Number(formValue.baseRate);
+      }
+
+      if (formValue.overtimeRate !== null && formValue.overtimeRate !== undefined && formValue.overtimeRate !== '') {
+        userData.overtimeRate = Number(formValue.overtimeRate);
+      }
+
+      if (formValue.planHoursMonth !== null && formValue.planHoursMonth !== undefined && formValue.planHoursMonth !== '') {
+        userData.planHoursMonth = Number(formValue.planHoursMonth);
+      }
+
+      if (formValue.homeTerritoryFixedAmount !== null && formValue.homeTerritoryFixedAmount !== undefined && formValue.homeTerritoryFixedAmount !== '') {
+        userData.homeTerritoryFixedAmount = Number(formValue.homeTerritoryFixedAmount);
+      }
+
       userData.engineerIsActive = formValue.engineerIsActive;
     }
 

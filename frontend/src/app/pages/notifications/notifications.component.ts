@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, signal, OnInit, AfterViewInit, ViewChild, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -44,7 +44,7 @@ import { ToastService } from '../../services/toast.service';
   templateUrl: './notifications.component.html',
   styleUrls: ['./notifications.component.scss'],
 })
-export class NotificationsComponent implements OnInit {
+export class NotificationsComponent implements OnInit, AfterViewInit {
   private notificationsService = inject(NotificationsService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
@@ -57,6 +57,7 @@ export class NotificationsComponent implements OnInit {
   // UI state
   isLoading = signal(false);
   selectedTabIndex = signal(0);
+  searchQuery = signal('');
 
   // Table columns
   displayedColumns = ['type', 'title', 'message', 'priority', 'createdAt', 'actions'];
@@ -64,13 +65,38 @@ export class NotificationsComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
+  constructor() {
+    // Setup data source filter predicates
+    const filterPredicate = (data: NotificationDto, filter: string) => {
+      if (!filter) return true;
+      const searchStr = filter.toLowerCase();
+      return data.title.toLowerCase().includes(searchStr) ||
+             data.message.toLowerCase().includes(searchStr) ||
+             data.type.toLowerCase().includes(searchStr);
+    };
+
+    this.allDataSource.filterPredicate = filterPredicate;
+    this.unreadDataSource.filterPredicate = filterPredicate;
+    this.readDataSource.filterPredicate = filterPredicate;
+
+    // Watch for search query changes
+    effect(() => {
+      const query = this.searchQuery();
+      const currentDataSource = this.getCurrentDataSource();
+      currentDataSource.filter = query.trim().toLowerCase();
+
+      if (currentDataSource.paginator) {
+        currentDataSource.paginator.firstPage();
+      }
+    });
+  }
+
   ngOnInit(): void {
     this.loadNotifications();
   }
 
   ngAfterViewInit(): void {
-    this.allDataSource.paginator = this.paginator;
-    this.allDataSource.sort = this.sort;
+    this.onTabChange(this.selectedTabIndex());
   }
 
   loadNotifications(): void {
@@ -102,7 +128,7 @@ export class NotificationsComponent implements OnInit {
 
   onTabChange(index: number): void {
     this.selectedTabIndex.set(index);
-    // Update paginator for current tab
+    // Update paginator and sort for current tab
     const currentDataSource = this.getCurrentDataSource();
     if (this.paginator) {
       currentDataSource.paginator = this.paginator;
@@ -110,6 +136,10 @@ export class NotificationsComponent implements OnInit {
     if (this.sort) {
       currentDataSource.sort = this.sort;
     }
+  }
+
+  onSearchChange(query: string): void {
+    this.searchQuery.set(query);
   }
 
   getCurrentDataSource(): MatTableDataSource<NotificationDto> {

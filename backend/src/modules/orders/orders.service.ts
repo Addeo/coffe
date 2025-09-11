@@ -32,7 +32,19 @@ import { OrderStatus, TerritoryType } from '../../../shared/interfaces/order.int
 
 // Extended OrdersQueryDto with additional filters
 interface ExtendedOrdersQueryDto extends OrdersQueryDto {
-  // All properties from OrdersQueryDto plus any additional ones if needed
+  source?: OrderSource;
+  createdById?: number;
+  search?: string;
+  territoryType?: TerritoryType;
+  minDistanceKm?: number;
+  maxDistanceKm?: number;
+  plannedStartDateFrom?: Date;
+  plannedStartDateTo?: Date;
+  actualStartDateFrom?: Date;
+  actualStartDateTo?: Date;
+  completionDateFrom?: Date;
+  completionDateTo?: Date;
+  assignedById?: number;
 }
 import { WorkResult } from '../../entities/work-report.entity';
 import { UserRole } from '../../entities/user.entity';

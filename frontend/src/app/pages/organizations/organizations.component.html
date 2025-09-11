@@ -1,14 +1,14 @@
 <div class="organizations-container">
   <mat-card class="header-card">
     <mat-card-header>
-      <mat-card-title>Organizations Management</mat-card-title>
-      <mat-card-subtitle>Manage company organizations and their settings</mat-card-subtitle>
+      <mat-card-title i18n="@@organizations.management">Organizations Management</mat-card-title>
+      <mat-card-subtitle i18n="@@organizations.subtitle">Manage company organizations and their settings</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
       <div class="actions-row">
         <mat-form-field class="search-field" appearance="outline">
-          <mat-label>Search organizations</mat-label>
+          <mat-label i18n="@@organizations.search">Search organizations</mat-label>
           <input
             matInput
             (input)="onSearchChange($any($event.target).value)"
@@ -25,7 +25,7 @@
           *ngIf="canEdit()"
         >
           <mat-icon>add</mat-icon>
-          Add Organization
+          <span i18n="@@organizations.addOrganization">Add Organization</span>
         </button>
       </div>
     </mat-card-content>
@@ -37,7 +37,7 @@
         <table mat-table [dataSource]="dataSource" matSort class="organizations-table">
           <!-- Name Column -->
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.name">Name</th>
             <td mat-cell *matCellDef="let organization">
               <div class="name-cell">
                 <strong>{{ organization.name }}</strong>
@@ -47,7 +47,7 @@
 
           <!-- Base Rate Column -->
           <ng-container matColumnDef="baseRate">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Base Rate</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.baseRate">Base Rate</th>
             <td mat-cell *matCellDef="let organization">
               {{ formatCurrency(organization.baseRate) }}/hour
             </td>
@@ -55,7 +55,7 @@
 
           <!-- Overtime Multiplier Column -->
           <ng-container matColumnDef="overtimeMultiplier">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Overtime Rate</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.overtimeRate">Overtime Rate</th>
             <td mat-cell *matCellDef="let organization">
               <span *ngIf="organization.overtimeMultiplier; else noOvertime">
                 {{ organization.overtimeMultiplier }}x
@@ -68,17 +68,17 @@
 
           <!-- Has Overtime Column -->
           <ng-container matColumnDef="hasOvertime">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Overtime</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.overtime">Overtime</th>
             <td mat-cell *matCellDef="let organization">
               <mat-chip [color]="organization.hasOvertime ? 'primary' : 'warn'" selected>
-                {{ organization.hasOvertime ? 'Yes' : 'No' }}
+                {{ organization.hasOvertime ? 'Да' : 'Нет' }}
               </mat-chip>
             </td>
           </ng-container>
 
           <!-- Status Column -->
           <ng-container matColumnDef="isActive">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.status">Status</th>
             <td mat-cell *matCellDef="let organization">
               <mat-chip [color]="getStatusColor(organization.isActive)" selected>
                 {{ getStatusText(organization.isActive) }}
@@ -88,7 +88,7 @@
 
           <!-- Created Date Column -->
           <ng-container matColumnDef="createdAt">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.created">Created</th>
             <td mat-cell *matCellDef="let organization">
               {{ formatDate(organization.createdAt) }}
             </td>
@@ -96,7 +96,7 @@
 
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <th mat-header-cell *matHeaderCellDef i18n="@@organizations.actions">Actions</th>
             <td mat-cell *matCellDef="let organization">
               <button
                 mat-icon-button
@@ -110,12 +110,12 @@
               <mat-menu #menu="matMenu">
                 <button mat-menu-item (click)="onEditOrganization(organization)">
                   <mat-icon>edit</mat-icon>
-                  <span>Edit</span>
+                  <span i18n="@@organizations.edit">Edit</span>
                 </button>
 
                 <button mat-menu-item (click)="onToggleStatus(organization)">
                   <mat-icon>{{ organization.isActive ? 'block' : 'check_circle' }}</mat-icon>
-                  <span>{{ organization.isActive ? 'Deactivate' : 'Activate' }}</span>
+                  <span>{{ organization.isActive ? 'Деактивировать' : 'Активировать' }}</span>
                 </button>
 
                 <mat-divider></mat-divider>
@@ -126,7 +126,7 @@
                   class="delete-action"
                 >
                   <mat-icon>delete</mat-icon>
-                  <span>Delete</span>
+                  <span i18n="@@organizations.delete">Delete</span>
                 </button>
               </mat-menu>
             </td>
@@ -139,15 +139,15 @@
         <!-- Loading spinner -->
         <div *ngIf="isLoading()" class="loading-container">
           <mat-spinner diameter="40"></mat-spinner>
-          <p>Loading organizations...</p>
+          <p i18n="@@organizations.loading">Loading organizations...</p>
         </div>
 
         <!-- No data message -->
         <div *ngIf="!isLoading() && organizations().length === 0" class="no-data-container">
           <mat-icon class="no-data-icon">business</mat-icon>
-          <h3>No organizations found</h3>
-          <p *ngIf="searchQuery()">No organizations match your search criteria.</p>
-          <p *ngIf="!searchQuery()">Get started by creating your first organization.</p>
+          <h3 i18n="@@organizations.noOrganizationsFound">No organizations found</h3>
+          <p *ngIf="searchQuery()" i18n="@@organizations.noOrganizationsMatch">No organizations match your search criteria.</p>
+          <p *ngIf="!searchQuery()" i18n="@@organizations.getStarted">Get started by creating your first organization.</p>
           <button
             *ngIf="canEdit() && !searchQuery()"
             mat-raised-button
@@ -155,7 +155,7 @@
             (click)="onCreateOrganization()"
           >
             <mat-icon>add</mat-icon>
-            Add Organization
+            <span i18n="@@organizations.addOrganization">Add Organization</span>
           </button>
         </div>
       </div>

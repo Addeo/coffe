@@ -35,6 +35,9 @@ export interface ProductsQueryDto {
   isActive?: boolean;
   minPrice?: number;
   maxPrice?: number;
+  search?: string;
+  minStockQuantity?: number;
+  maxStockQuantity?: number;
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
 }

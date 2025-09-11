@@ -7,6 +7,7 @@ export * from './dtos/user.dto';
 export * from './dtos/order.dto';
 export * from './dtos/product.dto';
 export * from './dtos/file.dto';
+export * from './dtos/organization.dto';
 
 // Types
 export * from './types/api.types';

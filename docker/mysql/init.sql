@@ -1,31 +1,31 @@
 -- Initial database setup for Coffee Admin Panel
-CREATE DATABASE IF NOT EXISTS coffee_admin;
+CREATE DATABASE IF NOT EXISTS coffee_admin CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE coffee_admin;
 
 -- Users table structure (matching User entity)
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password VARCHAR(255) NOT NULL,
-  first_name VARCHAR(100),
-  last_name VARCHAR(100),
+  email VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci UNIQUE NOT NULL,
+  password VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  first_name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  last_name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   role ENUM('admin', 'manager', 'user') DEFAULT 'user',
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Organizations table structure (matching Organization entity)
 CREATE TABLE IF NOT EXISTS organizations (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(255) UNIQUE NOT NULL,
+  name VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci UNIQUE NOT NULL,
   base_rate DECIMAL(10,2) NOT NULL,
   overtime_multiplier DECIMAL(3,1) NULL,
   has_overtime BOOLEAN DEFAULT FALSE,
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Insert default admin user
 INSERT INTO users (email, password, first_name, last_name, role) VALUES
@@ -48,3 +48,7 @@ ON DUPLICATE KEY UPDATE
   overtime_multiplier = VALUES(overtime_multiplier),
   has_overtime = VALUES(has_overtime),
   is_active = VALUES(is_active);
+
+-- Set database and connection charset
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;

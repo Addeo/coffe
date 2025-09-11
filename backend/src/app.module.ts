@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ScheduleModule } from '@nestjs/schedule';
+// import { ScheduleModule } from '@nestjs/schedule';
 import { TestModule } from './modules/test/test.module';
 import { User } from './entities/user.entity';
 import { Order } from './entities/order.entity';
@@ -22,7 +22,7 @@ import { EmailModule } from './modules/email/email.module';
 import { ExportModule } from './modules/export/export.module';
 import { BackupModule } from './modules/backup/backup.module';
 import { LoggerModule } from './modules/logger/logger.module';
-import { SchedulerModule } from './modules/scheduler/scheduler.module';
+// import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { UsersModule } from './modules/users/users.module';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
@@ -33,7 +33,7 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
       isGlobal: true,
       envFilePath: '.env',
     }),
-    ScheduleModule.forRoot(),
+    // ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST || 'localhost',
@@ -66,7 +66,7 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
     BackupModule,
     LoggerModule,
     OrdersModule,
-    SchedulerModule,
+    // SchedulerModule,
     UsersModule,
     OrganizationsModule,
     // ProductsModule,

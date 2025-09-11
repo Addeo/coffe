@@ -17,4 +17,8 @@ export class CreateOrganizationDto {
   @IsOptional()
   @IsBoolean()
   hasOvertime?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
 }

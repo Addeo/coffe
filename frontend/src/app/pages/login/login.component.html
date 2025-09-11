@@ -1,15 +1,15 @@
 <div class="login-container">
   <mat-card class="login-card">
     <mat-card-header>
-      <mat-card-title class="login-title">Coffee Admin Panel</mat-card-title>
-      <mat-card-subtitle class="login-subtitle">Please sign in to continue</mat-card-subtitle>
+      <mat-card-title class="login-title" i18n="@@login.title">Coffee Admin Panel</mat-card-title>
+      <mat-card-subtitle class="login-subtitle" i18n="@@login.subtitle">Please sign in to continue</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
       <form class="login-form">
         <!-- Email Field -->
         <mat-form-field class="full-width">
-          <mat-label>Email</mat-label>
+          <mat-label i18n="@@login.email">Email</mat-label>
           <input
             type="email"
             matInput
@@ -17,18 +17,18 @@
             [errorStateMatcher]="matcher"
             placeholder="Ex. admin@coffee.com"
           />
-          <mat-hint>Errors appear instantly!</mat-hint>
+          <mat-hint i18n="@@form.errorsAppearInstantly">Errors appear instantly!</mat-hint>
           @if (emailFormControl.hasError('email') && !emailFormControl.hasError('required')) {
-            <mat-error>Please enter a valid email address</mat-error>
+            <mat-error i18n="@@form.emailInvalid">Please enter a valid email address</mat-error>
           }
           @if (emailFormControl.hasError('required')) {
-            <mat-error>Email is <strong>required</strong></mat-error>
+            <mat-error i18n="@@form.emailRequired">Email is <strong>required</strong></mat-error>
           }
         </mat-form-field>
 
         <!-- Password Field -->
         <mat-form-field class="full-width">
-          <mat-label>Password</mat-label>
+          <mat-label i18n="@@login.password">Password</mat-label>
           <input
             [type]="hidePassword() ? 'password' : 'text'"
             matInput
@@ -41,19 +41,19 @@
             matSuffix
             type="button"
             (click)="togglePasswordVisibility()"
-            [attr.aria-label]="hidePassword() ? 'Show password' : 'Hide password'"
+            [attr.aria-label]="hidePassword() ? 'Показать пароль' : 'Скрыть пароль'"
             [attr.aria-pressed]="!hidePassword()"
           >
             <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
-          <mat-hint>At least 6 characters required</mat-hint>
+          <mat-hint i18n="@@form.passwordMinLength">At least 6 characters required</mat-hint>
           @if (
             passwordFormControl.hasError('minlength') && !passwordFormControl.hasError('required')
           ) {
-            <mat-error>Password must be at least 6 characters long</mat-error>
+            <mat-error i18n="@@form.passwordTooShort">Password must be at least 6 characters long</mat-error>
           }
           @if (passwordFormControl.hasError('required')) {
-            <mat-error>Password is <strong>required</strong></mat-error>
+            <mat-error i18n="@@form.passwordRequired">Password is <strong>required</strong></mat-error>
           }
         </mat-form-field>
 
@@ -67,11 +67,11 @@
           [disabled]="isLoading() || emailFormControl.invalid || passwordFormControl.invalid"
         >
           @if (!isLoading()) {
-            <span>Sign In</span>
+            <span i18n="@@login.signIn">Sign In</span>
           } @else {
             <span>
               <mat-spinner diameter="20" class="spinner"></mat-spinner>
-              Signing in...
+              <span i18n="@@login.signingIn">Signing in...</span>
             </span>
           }
         </button>

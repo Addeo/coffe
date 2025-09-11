@@ -1,6 +1,6 @@
 <div class="profile-container">
   <div class="header">
-    <h1>My Profile</h1>
+    <h1 i18n="@@profile.myProfile">My Profile</h1>
   </div>
 
   <div class="profile-content">
@@ -16,7 +16,7 @@
             <p>{{ currentUser()?.email }}</p>
             <button mat-raised-button color="primary" (click)="uploadAvatar()">
               <mat-icon>photo_camera</mat-icon>
-              Change Avatar
+              <span i18n="@@profile.changeAvatar">Change Avatar</span>
             </button>
           </div>
         </div>
@@ -26,8 +26,8 @@
     <!-- Profile Information -->
     <mat-card class="info-card">
       <mat-card-header>
-        <mat-card-title>Profile Information</mat-card-title>
-        <mat-card-subtitle>Update your personal information</mat-card-subtitle>
+        <mat-card-title i18n="@@profile.profileInformation">Profile Information</mat-card-title>
+        <mat-card-subtitle i18n="@@profile.updatePersonalInfo">Update your personal information</mat-card-subtitle>
         <div class="card-actions">
           <button mat-icon-button (click)="toggleEditMode()" [disabled]="isLoading()">
             <mat-icon>{{ isEditing() ? 'close' : 'edit' }}</mat-icon>
@@ -39,22 +39,24 @@
         <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>First Name</mat-label>
+              <mat-label i18n="@@profile.firstName">First Name</mat-label>
               <input matInput formControlName="firstName" [readonly]="!isEditing()" />
               <mat-error
                 *ngIf="
                   profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched
                 "
+                i18n="@@profile.firstNameRequired"
               >
                 First name is required and must be at least 2 characters
               </mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Last Name</mat-label>
+              <mat-label i18n="@@profile.lastName">Last Name</mat-label>
               <input matInput formControlName="lastName" [readonly]="!isEditing()" />
               <mat-error
                 *ngIf="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched"
+                i18n="@@profile.lastNameRequired"
               >
                 Last name is required and must be at least 2 characters
               </mat-error>
@@ -62,10 +64,11 @@
           </div>
 
           <mat-form-field appearance="outline" class="form-field full-width">
-            <mat-label>Email</mat-label>
+            <mat-label i18n="@@profile.email">Email</mat-label>
             <input matInput formControlName="email" type="email" [readonly]="!isEditing()" />
             <mat-error
               *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched"
+              i18n="@@profile.emailRequired"
             >
               Please enter a valid email address
             </mat-error>
@@ -73,14 +76,14 @@
 
           <div class="role-info" *ngIf="currentUser()?.role">
             <mat-form-field appearance="outline" class="form-field full-width">
-              <mat-label>Role</mat-label>
+              <mat-label i18n="@@profile.role">Role</mat-label>
               <input matInput [value]="getRoleDisplay(currentUser()!.role)" readonly />
             </mat-form-field>
           </div>
 
           <div class="form-actions" *ngIf="isEditing()">
             <button mat-button type="button" (click)="cancelEdit()" [disabled]="isLoading()">
-              Cancel
+              <span i18n="@@profile.cancel">Cancel</span>
             </button>
             <button
               mat-raised-button
@@ -90,7 +93,7 @@
             >
               <mat-icon *ngIf="isLoading()">refresh</mat-icon>
               <mat-icon *ngIf="!isLoading()">save</mat-icon>
-              {{ isLoading() ? 'Saving...' : 'Save Changes' }}
+              {{ isLoading() ? 'Сохранение...' : 'Сохранить изменения' }}
             </button>
           </div>
         </form>
@@ -100,8 +103,8 @@
     <!-- Security Section -->
     <mat-card class="security-card">
       <mat-card-header>
-        <mat-card-title>Security</mat-card-title>
-        <mat-card-subtitle>Manage your account security</mat-card-subtitle>
+        <mat-card-title i18n="@@profile.security">Security</mat-card-title>
+        <mat-card-subtitle i18n="@@profile.manageSecurity">Manage your account security</mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
@@ -109,11 +112,13 @@
           <div class="security-info">
             <mat-icon>lock</mat-icon>
             <div>
-              <h4>Password</h4>
-              <p>Last changed: Recently</p>
+              <h4 i18n="@@profile.password">Password</h4>
+              <p i18n="@@profile.lastChanged">Last changed: Recently</p>
             </div>
           </div>
-          <button mat-raised-button (click)="changePassword()">Change Password</button>
+          <button mat-raised-button (click)="changePassword()">
+            <span i18n="@@profile.changePassword">Change Password</span>
+          </button>
         </div>
       </mat-card-content>
     </mat-card>
