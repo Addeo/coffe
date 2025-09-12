@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://705dfed3f074.ngrok-free.app/api', // Замените на ваш ngrok URL
-  authUrl: 'https://abc123.ngrok.io/api/auth/login', // Замените на ваш ngrok URL
+  apiUrl: 'https://coffee-demo.loca.lt/api', // Замените на ваш ngrok URL
+  authUrl: 'https://xxxxx.loca.lt/api/auth/login', // Замените на ваш ngrok URL
   appName: 'Coffee Admin Panel Demo',
   demo: true,
 };
