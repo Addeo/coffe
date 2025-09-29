@@ -77,7 +77,7 @@
           </div>
           <button mat-stroked-button (click)="logout()" class="logout-mobile">
             <mat-icon>logout</mat-icon>
-            <span i18n="@@navigation.logout">Logout</span>
+            <span i18n="@@navigation.logout">Выход</span>
           </button>
         </div>
       </div>
@@ -97,9 +97,9 @@
 
       <mat-menu #notificationsMenu="matMenu" class="notifications-dropdown">
         <div class="notifications-header" mat-menu-item disabled>
-          <h4 i18n="@@navigation.notifications">Notifications</h4>
+          <h4 i18n="@@navigation.notifications">Уведомления</h4>
           <button mat-button *ngIf="unreadCount() > 0" (click)="onMarkAllAsRead()" i18n="@@notifications.markAllAsRead">
-            Mark all as read
+            Отметить все как прочитанные
           </button>
         </div>
 
@@ -107,7 +107,7 @@
 
         <div *ngIf="recentNotifications().length === 0" mat-menu-item disabled>
           <mat-icon>notifications_none</mat-icon>
-          <span i18n="@@notifications.noNewNotifications">No new notifications</span>
+          <span i18n="@@notifications.noNewNotifications">Нет новых уведомлений</span>
         </div>
 
         <div
@@ -135,7 +135,7 @@
 
         <button mat-menu-item (click)="onViewAllNotifications()">
           <mat-icon>visibility</mat-icon>
-          <span i18n="@@notifications.viewAllNotifications">View all notifications</span>
+          <span i18n="@@notifications.viewAllNotifications">Показать все уведомления</span>
         </button>
       </mat-menu>
     </div>
@@ -161,12 +161,12 @@
 
         <button mat-menu-item [routerLink]="'/profile'">
           <mat-icon>person</mat-icon>
-          <span i18n="@@navigation.profile">My Profile</span>
+          <span i18n="@@navigation.profile">Мой профиль</span>
         </button>
 
         <button mat-menu-item (click)="logout()">
           <mat-icon>logout</mat-icon>
-          <span i18n="@@navigation.logout">Logout</span>
+          <span i18n="@@navigation.logout">Выход</span>
         </button>
       </mat-menu>
     </div>

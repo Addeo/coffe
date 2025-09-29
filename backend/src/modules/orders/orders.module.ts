@@ -11,7 +11,7 @@ import { Setting } from '../../entities/settings.entity';
 import { UserActivityLog } from '../../entities/user-activity-log.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { StatisticsModule } from '../statistics/statistics.module';
-import { CalculationsModule } from '../calculations/calculations.module';
+import { CalculationsModule } from '../расчеты/calculations.module';
 
 @Module({
   imports: [

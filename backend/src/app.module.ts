@@ -16,18 +16,19 @@ import { EarningsStatistic } from './entities/earnings-statistic.entity';
 import { WorkReport } from './entities/work-report.entity';
 import { SalaryCalculation } from './entities/salary-calculation.entity';
 import { EngineerOrganizationRate } from './entities/engineer-organization-rate.entity';
-import { AuthModule } from './modules/auth/auth.module';
+import { AuthModule } from './modules/аутентификация/auth.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { StatisticsModule } from './modules/statistics/statistics.module';
 import { EmailModule } from './modules/email/email.module';
 import { ExportModule } from './modules/export/export.module';
-import { BackupModule } from './modules/backup/backup.module';
+import { BackupModule } from './modules/резервное-копирование/backup.module';
+import { FilesModule } from './modules/files/files.module';
 import { LoggerModule } from './modules/logger/logger.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { UsersModule } from './modules/users/users.module';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
-import { CalculationsModule } from './modules/calculations/calculations.module';
+import { CalculationsModule } from './modules/расчеты/calculations.module';
 import { EngineerOrganizationRatesModule } from './modules/engineer-organization-rates/engineer-organization-rates.module';
 import { ReportsModule } from './modules/reports/reports.module';
 
@@ -83,7 +84,7 @@ import { ReportsModule } from './modules/reports/reports.module';
     EngineerOrganizationRatesModule,
     ReportsModule,
     // ProductsModule,
-    // FilesModule,
+    FilesModule,
     TestModule,
   ],
   controllers: [],

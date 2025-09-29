@@ -10,6 +10,7 @@ export interface CreateOrderDto {
   territoryType?: TerritoryType;
   source?: OrderSource;
   plannedStartDate?: Date;
+  files?: string[]; // Array of file IDs to attach
 }
 
 export interface UpdateOrderDto {
@@ -26,6 +27,7 @@ export interface UpdateOrderDto {
   completionDate?: Date;
   assignedEngineerId?: number;
   assignedById?: number;
+  files?: string[]; // Array of file IDs to attach
 }
 
 export interface AssignEngineerDto {

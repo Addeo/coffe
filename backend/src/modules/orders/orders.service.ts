@@ -51,7 +51,7 @@ import { UserRole } from '../../entities/user.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { StatisticsService } from '../statistics/statistics.service';
 import { NotificationPriority } from '../../entities/notification.entity';
-import { CalculationService } from '../calculations/calculation.service';
+import { CalculationService } from '../расчеты/calculation.service';
 
 export interface OrdersResponse {
   data: Order[];

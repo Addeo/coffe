@@ -14,9 +14,9 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersQueryDto } from '../../../shared/dtos/user.dto';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
+import { JwtAuthGuard } from '../аутентификация/jwt-auth.guard';
+import { RolesGuard } from '../аутентификация/roles.guard';
+import { Roles } from '../аутентификация/roles.decorator';
 import { UserRole } from '../../entities/user.entity';
 
 @Controller('users')

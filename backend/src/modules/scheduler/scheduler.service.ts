@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 // import { GmailService } from '../gmail/gmail.service';
-import { BackupService } from '../backup/backup.service';
+import { BackupService } from '../резервное-копирование/backup.service';
 import { StatisticsService } from '../statistics/statistics.service';
 import { LoggerService } from '../logger/logger.service';
 

@@ -53,21 +53,21 @@ export class NavigationComponent implements OnInit, OnDestroy {
   navigationItems = computed<NavigationItem[]>(() => {
     const role = this.userRole();
     const items: NavigationItem[] = [
-      { label: 'Dashboard', route: '/dashboard', icon: 'dashboard', i18nKey: '@@navigation.dashboard' },
+      { label: 'Главная', route: '/dashboard', icon: 'dashboard', i18nKey: '@@navigation.dashboard' },
     ];
 
     if (role === UserRole.ADMIN || role === UserRole.MANAGER) {
       items.push(
-        { label: 'Users', route: '/users', icon: 'people', i18nKey: '@@navigation.users' },
-        { label: 'Organizations', route: '/organizations', icon: 'business', i18nKey: '@@navigation.organizations' }
+        { label: 'Пользователи', route: '/users', icon: 'people', i18nKey: '@@navigation.users' },
+        { label: 'Организации', route: '/organizations', icon: 'business', i18nKey: '@@navigation.organizations' }
       );
     }
 
     items.push(
-      { label: 'Orders', route: '/orders', icon: 'shopping_cart', i18nKey: '@@navigation.orders' },
-      { label: 'Profile', route: '/profile', icon: 'person', i18nKey: '@@navigation.profile' },
+      { label: 'Заказы', route: '/orders', icon: 'shopping_cart', i18nKey: '@@navigation.orders' },
+      { label: 'Профиль', route: '/profile', icon: 'person', i18nKey: '@@navigation.profile' },
       {
-        label: 'Notifications',
+        label: 'Уведомления',
         route: '/notifications',
         icon: 'notifications',
         badge: this.unreadCount(),
@@ -78,7 +78,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     // Add Settings for admin only
     if (role === UserRole.ADMIN) {
       items.push(
-        { label: 'Settings', route: '/settings', icon: 'settings', i18nKey: '@@navigation.settings' }
+        { label: 'Настройки', route: '/settings', icon: 'settings', i18nKey: '@@navigation.settings' }
       );
     }
 

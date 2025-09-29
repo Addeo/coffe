@@ -6,9 +6,9 @@ import {
   Request,
 } from '@nestjs/common';
 import { ReportsService } from './reports.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/roles.guard';
-import { Roles } from '../auth/roles.decorator';
+import { JwtAuthGuard } from '../аутентификация/jwt-auth.guard';
+import { RolesGuard } from '../аутентификация/roles.guard';
+import { Roles } from '../аутентификация/roles.decorator';
 import { UserRole } from '../../entities/user.entity';
 
 @Controller('reports')

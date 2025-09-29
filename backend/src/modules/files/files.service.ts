@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { File } from '../../entities/file.entity';
 import { User } from '../../entities/user.entity';
+import { Order } from '../../entities/order.entity';
 import { FileQueryDto, FileType } from '../../../shared/dtos/file.dto';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -21,7 +22,9 @@ export class FilesService {
     @InjectRepository(File)
     private readonly filesRepository: Repository<File>,
     @InjectRepository(User)
-    private readonly usersRepository: Repository<User>
+    private readonly usersRepository: Repository<User>,
+    @InjectRepository(Order)
+    private readonly ordersRepository: Repository<Order>
   ) {}
 
   async uploadFile(
@@ -217,6 +220,43 @@ export class FilesService {
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
+  }
+
+  // Attach file to order
+  async attachFileToOrder(fileId: string, orderId: number): Promise<File> {
+    const file = await this.filesRepository.findOne({
+      where: { id: fileId },
+      relations: ['order']
+    });
+
+    if (!file) {
+      throw new NotFoundException('File not found');
+    }
+
+    const order = await this.ordersRepository.findOne({ where: { id: orderId } });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    file.order = order;
+    file.orderId = orderId;
+    return this.filesRepository.save(file);
+  }
+
+  // Detach file from order
+  async detachFileFromOrder(fileId: string): Promise<File> {
+    const file = await this.filesRepository.findOne({
+      where: { id: fileId },
+      relations: ['order']
+    });
+
+    if (!file) {
+      throw new NotFoundException('File not found');
+    }
+
+    file.order = null;
+    file.orderId = null;
+    return this.filesRepository.save(file);
   }
 
   // Validate file type based on FileType enum
