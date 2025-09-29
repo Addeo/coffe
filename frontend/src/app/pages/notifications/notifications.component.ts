@@ -1,21 +1,11 @@
 import { Component, inject, signal, OnInit, AfterViewInit, ViewChild, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
-import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatBadgeModule } from '@angular/material/badge';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+
+import { MaterialModule } from '../../shared/material/material.module';
 
 import { NotificationsService, NotificationDto } from '../../services/notifications.service';
 import { AuthService } from '../../services/auth.service';
@@ -26,20 +16,7 @@ import { ToastService } from '../../services/toast.service';
   standalone: true,
   imports: [
     CommonModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatPaginatorModule,
-    MatCardModule,
-    MatSortModule,
-    MatChipsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatTooltipModule,
-    MatProgressSpinnerModule,
-    MatTabsModule,
-    MatMenuModule,
-    MatBadgeModule,
+    MaterialModule,
   ],
   templateUrl: './notifications.component.html',
   styleUrls: ['./notifications.component.scss'],

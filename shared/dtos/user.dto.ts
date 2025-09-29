@@ -19,6 +19,8 @@ export interface CreateUserDto {
   overtimeRate?: number;
   planHoursMonth?: number;
   homeTerritoryFixedAmount?: number;
+  fixedSalary?: number;
+  fixedCarAmount?: number;
 }
 
 export interface UpdateUserDto {
@@ -34,6 +36,8 @@ export interface UpdateUserDto {
   overtimeRate?: number;
   planHoursMonth?: number;
   homeTerritoryFixedAmount?: number;
+  fixedSalary?: number;
+  fixedCarAmount?: number;
   engineerIsActive?: boolean;
 }
 
@@ -45,6 +49,8 @@ export interface EngineerDto {
   overtimeRate?: number;
   planHoursMonth: number;
   homeTerritoryFixedAmount: number;
+  fixedSalary: number;
+  fixedCarAmount: number;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;

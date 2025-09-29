@@ -12,7 +12,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px; // Increased max-width for more space
   margin: 0 auto;
   padding: 0 24px;
   min-height: 64px; // Material toolbar height
@@ -56,7 +56,7 @@
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px; // Reduced gap
   flex: 1; // Take available space
   justify-content: center; // Center navigation links
   min-width: 0; // Allow shrinking
@@ -64,22 +64,22 @@
   a {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
+    gap: 6px; // Reduced gap between icon and text
+    padding: 6px 12px; // Reduced padding
     border-radius: 8px;
     transition: all 0.2s ease;
     white-space: nowrap;
     flex-shrink: 0;
 
     .nav-icon {
-      font-size: 18px;
-      height: 18px;
-      width: 18px;
+      font-size: 16px; // Smaller icons
+      height: 16px;
+      width: 16px;
       flex-shrink: 0;
     }
 
     span {
-      font-size: 14px;
+      font-size: 13px; // Smaller text
     }
 
     &:hover {
@@ -449,6 +449,16 @@
 }
 
 // Responsive design
+@media (max-width: 1300px) {
+  .mobile-menu-button {
+    display: flex; // Show hamburger menu button on smaller desktop screens
+  }
+
+  .nav-links {
+    display: none; // Hide navigation links, use mobile menu instead
+  }
+}
+
 @media (max-width: 768px) {
   .navbar-content {
     padding: 0 16px;

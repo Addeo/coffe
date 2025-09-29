@@ -40,6 +40,12 @@ export class Engineer {
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
   homeTerritoryFixedAmount: number; // фиксированная сумма за домашнюю территорию
 
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  fixedSalary: number; // фиксированная зарплата (оклад)
+
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  fixedCarAmount: number; // фиксированная оплата за эксплуатацию автомобиля
+
   @Column({ default: true })
   isActive: boolean;
 

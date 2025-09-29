@@ -1,16 +1,9 @@
 import { Component, inject, computed, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatListModule } from '@angular/material/list';
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
 import { Subscription } from 'rxjs';
+
+import { MaterialModule } from '../../shared/material/material.module';
 
 import { AuthService } from '../../services/auth.service';
 import { NotificationsService, NotificationDto } from '../../services/notifications.service';
@@ -31,15 +24,7 @@ interface NavigationItem {
     CommonModule,
     RouterLink,
     RouterLinkActive,
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule,
-    MatMenuModule,
-    MatDividerModule,
-    MatBadgeModule,
-    MatListModule,
-    MatCardModule,
-    MatChipsModule,
+    MaterialModule,
   ],
   templateUrl: './navigation.component.html',
   styleUrls: ['./navigation.component.scss'],

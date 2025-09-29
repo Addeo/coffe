@@ -15,6 +15,7 @@ import { Notification } from './entities/notification.entity';
 import { EarningsStatistic } from './entities/earnings-statistic.entity';
 import { WorkReport } from './entities/work-report.entity';
 import { SalaryCalculation } from './entities/salary-calculation.entity';
+import { EngineerOrganizationRate } from './entities/engineer-organization-rate.entity';
 import { AuthModule } from './modules/auth/auth.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -27,6 +28,8 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { UsersModule } from './modules/users/users.module';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
 import { CalculationsModule } from './modules/calculations/calculations.module';
+import { EngineerOrganizationRatesModule } from './modules/engineer-organization-rates/engineer-organization-rates.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -55,6 +58,7 @@ import { CalculationsModule } from './modules/calculations/calculations.module';
         EarningsStatistic,
         WorkReport,
         SalaryCalculation,
+        EngineerOrganizationRate,
       ],
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV === 'development',
@@ -76,6 +80,8 @@ import { CalculationsModule } from './modules/calculations/calculations.module';
     UsersModule,
     OrganizationsModule,
     CalculationsModule,
+    EngineerOrganizationRatesModule,
+    ReportsModule,
     // ProductsModule,
     // FilesModule,
     TestModule,

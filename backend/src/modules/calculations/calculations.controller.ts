@@ -140,16 +140,21 @@ export class CalculationsController {
   @Post('test-calculation')
   @Roles(UserRole.ADMIN)
   async testCalculation(@Body() body: any) {
-    const { engineer, organization, hours, isOvertime, distanceKm } = body;
+    const { engineer, organization, hours, isOvertime, distanceKm, territoryType } = body;
 
-    const payment = this.calculationService.calculateEngineerPayment(
+    const payment = await this.calculationService.calculateEngineerPayment(
       engineer,
       organization,
       hours,
       isOvertime,
     );
 
-    const carUsage = this.calculationService.calculateCarUsage(engineer, distanceKm);
+    const carUsage = await this.calculationService.calculateCarUsage(
+      engineer,
+      organization,
+      distanceKm || 0,
+      territoryType || 'HOME'
+    );
 
     return {
       payment,
@@ -162,6 +167,7 @@ export class CalculationsController {
         hours,
         isOvertime,
         distanceKm,
+        territoryType,
       },
     };
   }

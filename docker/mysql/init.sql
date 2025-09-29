@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS organizations (
 
 -- Insert default admin user
 INSERT INTO users (email, password, first_name, last_name, role) VALUES
-('admin@coffee.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'User', 'admin')
+('admin@coffee.com', '$2b$10$sLBzpTHEx6GiLNIYaqJ/.Oh2BvarSaGQSJJasnrAhXuzc/ZqAQ.Yi', 'Admin', 'User', 'admin')
 ON DUPLICATE KEY UPDATE
   first_name = VALUES(first_name),
   last_name = VALUES(last_name),

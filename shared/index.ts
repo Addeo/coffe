@@ -8,6 +8,8 @@ export * from './dtos/order.dto';
 export * from './dtos/product.dto';
 export * from './dtos/file.dto';
 export * from './dtos/organization.dto';
+export * from './dtos/engineer-organization-rate.dto';
+export * from './dtos/reports.dto';
 
 // Types
 export * from './types/api.types';

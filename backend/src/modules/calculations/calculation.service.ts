@@ -1,11 +1,72 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Engineer } from '../../entities/engineer.entity';
 import { Organization } from '../../entities/organization.entity';
 import { WorkReport } from '../../entities/work-report.entity';
+import { EngineerOrganizationRate } from '../../entities/engineer-organization-rate.entity';
 import { EngineerType, TerritoryType } from '../../../shared/interfaces/order.interface';
+
+export interface EngineerRates {
+  baseRate: number;
+  overtimeRate?: number;
+  overtimeMultiplier?: number;
+  fixedSalary: number;
+  fixedCarAmount: number;
+  carKmRate?: number;
+  zone1Extra?: number;
+  zone2Extra?: number;
+  zone3Extra?: number;
+}
 
 @Injectable()
 export class CalculationService {
+  constructor(
+    @InjectRepository(EngineerOrganizationRate)
+    private engineerOrganizationRateRepository: Repository<EngineerOrganizationRate>,
+  ) {}
+
+  /**
+   * Получить ставки инженера для конкретной организации
+   * ОБЯЗАТЕЛЬНО должны быть установлены индивидуальные ставки администратором
+   * Без индивидуальных ставок расчет невозможен
+   */
+  async getEngineerRatesForOrganization(engineer: Engineer, organization: Organization): Promise<EngineerRates> {
+    // Ищем индивидуальные ставки для этой пары инженер-организация
+    const customRate = await this.engineerOrganizationRateRepository.findOne({
+      where: {
+        engineerId: engineer.id,
+        organizationId: organization.id,
+        isActive: true,
+      },
+    });
+
+    // Если индивидуальные ставки не установлены - выбрасываем ошибку
+    // Расчет невозможен без явного указания ставок администратором
+    if (!customRate) {
+      throw new Error(
+        `Individual rates not set for engineer ${engineer.user?.firstName} ${engineer.user?.lastName} ` +
+        `and organization ${organization.name}. Please contact administrator to set rates.`
+      );
+    }
+
+    // Формируем итоговые ставки на основе индивидуальных настроек
+    // Некоторые поля могут быть не заполнены (null), что нормально
+    const rates: EngineerRates = {
+      baseRate: customRate.customBaseRate ?? engineer.baseRate,
+      overtimeRate: customRate.customOvertimeRate ?? engineer.overtimeRate,
+      overtimeMultiplier: customRate.customOvertimeMultiplier ?? undefined,
+      fixedSalary: customRate.customFixedSalary ?? engineer.fixedSalary,
+      fixedCarAmount: customRate.customFixedCarAmount ?? engineer.fixedCarAmount,
+      carKmRate: customRate.customCarKmRate ?? (engineer.type === EngineerType.CONTRACT ? 14 : undefined),
+      zone1Extra: customRate.customZone1Extra ?? undefined,
+      zone2Extra: customRate.customZone2Extra ?? undefined,
+      zone3Extra: customRate.customZone3Extra ?? undefined,
+    };
+
+    return rates;
+  }
+
   /**
    * Calculate work hours with rounding up to 0.25 hours
    */
@@ -16,27 +77,37 @@ export class CalculationService {
   }
 
   /**
-   * Расчет оплаты инженера за работу
+   * Расчет оплаты инженера за работу с учетом индивидуальных ставок
    */
-  calculateEngineerPayment(
+  async calculateEngineerPayment(
     engineer: Engineer,
     organization: Organization,
     hours: number,
     isOvertime: boolean
-  ): number {
-    let rate = engineer.baseRate;
+  ): Promise<number> {
+    const rates = await this.getEngineerRatesForOrganization(engineer, organization);
+    let rate = rates.baseRate;
 
     if (isOvertime) {
-      switch (engineer.type) {
-        case EngineerType.STAFF:
-          rate = this.applyStaffOvertimeMultiplier(rate, organization);
-          break;
-        case EngineerType.REMOTE:
-          rate = this.applyRemoteOvertimeMultiplier(rate, organization);
-          break;
-        case EngineerType.CONTRACT:
-          rate = this.getContractOvertimeRate(organization);
-          break;
+      if (rates.overtimeRate) {
+        // Используем индивидуальную ставку переработки
+        rate = rates.overtimeRate;
+      } else if (rates.overtimeMultiplier) {
+        // Используем коэффициент переработки
+        rate = rates.baseRate * rates.overtimeMultiplier;
+      } else {
+        // Используем стандартные коэффициенты по типу инженера
+        switch (engineer.type) {
+          case EngineerType.STAFF:
+            rate = this.applyStaffOvertimeMultiplier(rate, organization);
+            break;
+          case EngineerType.REMOTE:
+            rate = this.applyRemoteOvertimeMultiplier(rate, organization);
+            break;
+          case EngineerType.CONTRACT:
+            rate = this.getContractOvertimeRate(organization);
+            break;
+        }
       }
     }
 
@@ -80,37 +151,53 @@ export class CalculationService {
   }
 
   /**
-   * Расчет эксплуатации автомобиля
+   * Расчет эксплуатации автомобиля с учетом индивидуальных ставок
    */
-  calculateCarUsage(engineer: Engineer, distanceKm: number): number {
+  async calculateCarUsage(
+    engineer: Engineer,
+    organization: Organization,
+    distanceKm: number,
+    territoryType: TerritoryType
+  ): Promise<number> {
+    const rates = await this.getEngineerRatesForOrganization(engineer, organization);
+
     if (engineer.type === EngineerType.CONTRACT) {
-      // 14 руб/км для наемных инженеров
-      return distanceKm * 14;
+      // Для наемных инженеров - оплата по километражу
+      const kmRate = rates.carKmRate ?? 14;
+      return distanceKm * kmRate;
     }
 
     // Для штатного и удаленного инженеров
-    let amount = engineer.homeTerritoryFixedAmount;
+    let amount = rates.fixedCarAmount;
 
-    if (distanceKm <= 60) {
-      // Домашняя территория - только фиксированная сумма
-      return amount;
-    }
-
-    // Дополнительные суммы за зоны
-    if (engineer.type === EngineerType.REMOTE) {
-      if (distanceKm <= 199) {
-        amount += 1000; // Территория 1
-      } else if (distanceKm <= 250) {
-        amount += 1500; // Территория 2
-      } else {
-        amount += 2000; // Территория 3
-      }
-    } else {
-      // Штатный инженер
-      if (distanceKm <= 250) {
-        amount += 1500; // Территория 2
-      } else {
-        amount += 2000; // Территория 3
+    // Добавочная стоимость за зоны (если расстояние > 60 км)
+    if (distanceKm > 60) {
+      switch (territoryType) {
+        case TerritoryType.ZONE_1:
+          if (rates.zone1Extra) {
+            amount += rates.zone1Extra;
+          } else if (engineer.type === EngineerType.REMOTE) {
+            amount += 1000; // Значение по умолчанию
+          }
+          break;
+        case TerritoryType.ZONE_2:
+          if (rates.zone2Extra) {
+            amount += rates.zone2Extra;
+          } else {
+            amount += 1500; // Значение по умолчанию
+          }
+          break;
+        case TerritoryType.ZONE_3:
+          if (rates.zone3Extra) {
+            amount += rates.zone3Extra;
+          } else {
+            amount += 2000; // Значение по умолчанию
+          }
+          break;
+        case TerritoryType.HOME:
+        default:
+          // Только фиксированная сумма
+          break;
       }
     }
 
@@ -118,28 +205,36 @@ export class CalculationService {
   }
 
   /**
-   * Расчет месячной зарплаты инженера
+   * Расчет месячной зарплаты инженера с новой логикой
    */
-  calculateMonthlySalary(
+  async calculateMonthlySalary(
     engineer: Engineer,
     workReports: WorkReport[],
     plannedHours: number
-  ): {
+  ): Promise<{
     actualHours: number;
     overtimeHours: number;
     baseAmount: number;
     overtimeAmount: number;
     bonusAmount: number;
     carUsageAmount: number;
+    fixedSalary: number;
+    fixedCarAmount: number;
+    earnedAmount: number;
+    baseSalary: number;
+    totalCarAmount: number;
     totalAmount: number;
-  } {
+  }> {
     let actualHours = 0;
     let overtimeHours = 0;
     let baseAmount = 0;
     let overtimeAmount = 0;
     let carUsageAmount = 0;
+    let fixedCarAmount = 0;
 
-    // Расчет по каждому отчету
+    // Группируем отчеты по организациям для получения индивидуальных ставок
+    const organizationReports = new Map<number, WorkReport[]>();
+
     for (const report of workReports) {
       actualHours += report.totalHours;
 
@@ -151,6 +246,42 @@ export class CalculationService {
       }
 
       carUsageAmount += report.carUsageAmount;
+
+      // Группируем по организациям
+      if (report.order?.organization?.id) {
+        if (!organizationReports.has(report.order.organization.id)) {
+          organizationReports.set(report.order.organization.id, []);
+        }
+        organizationReports.get(report.order.organization.id)!.push(report);
+      }
+    }
+
+    // Получаем фиксированную оплату за автомобиль (максимальная из индивидуальных ставок)
+    // и рассчитываем добавочные платежи за каждый выезд в зоны
+    let zoneExtraAmount = 0;
+    for (const [organizationId, reports] of organizationReports) {
+      if (reports.length > 0) {
+        const organization = reports[0].order!.organization!;
+        const rates = await this.getEngineerRatesForOrganization(engineer, organization);
+        fixedCarAmount = Math.max(fixedCarAmount, rates.fixedCarAmount);
+
+        // Для каждого отчета считаем добавочную стоимость за выезд в зону
+        for (const report of reports) {
+          if (report.territoryType && report.territoryType !== TerritoryType.HOME) {
+            switch (report.territoryType) {
+              case TerritoryType.ZONE_1:
+                zoneExtraAmount += rates.zone1Extra || 1000;
+                break;
+              case TerritoryType.ZONE_2:
+                zoneExtraAmount += rates.zone2Extra || 1500;
+                break;
+              case TerritoryType.ZONE_3:
+                zoneExtraAmount += rates.zone3Extra || 2000;
+                break;
+            }
+          }
+        }
+      }
     }
 
     // Расчет премии за переработку (только для штатного и удаленного)
@@ -161,7 +292,19 @@ export class CalculationService {
       bonusAmount = bonusHours * bonusRate;
     }
 
-    const totalAmount = baseAmount + overtimeAmount + bonusAmount + carUsageAmount;
+    // Новая логика по требованиям:
+    // 1. Логика = max(фиксированная зарплата, заработанная сумма)
+    // 2. Заработанная сумма = обычные часы + внеурочные часы + премии
+    // 3. Оплата за автомобиль = фиксированная + добавочная за каждый выезд в зоны
+    const fixedSalary = engineer.fixedSalary;
+    const earnedAmount = baseAmount + overtimeAmount + bonusAmount;
+    const totalCarAmount = fixedCarAmount + zoneExtraAmount;
+
+    // Основная зарплата = max(фиксированная зарплата, заработанная сумма)
+    const baseSalary = Math.max(fixedSalary, earnedAmount);
+
+    // Итоговая сумма = основная зарплата + оплата за автомобиль
+    const totalAmount = baseSalary + totalCarAmount;
 
     return {
       actualHours,
@@ -170,6 +313,11 @@ export class CalculationService {
       overtimeAmount,
       bonusAmount,
       carUsageAmount,
+      fixedSalary,
+      fixedCarAmount,
+      earnedAmount,
+      baseSalary,
+      totalCarAmount,
       totalAmount,
     };
   }
@@ -264,18 +412,18 @@ export class CalculationService {
   }
 
   /**
-   * Расчет полной стоимости работы (включая транспорт)
+   * Расчет полной стоимости работы (включая транспорт) с учетом индивидуальных ставок
    */
-  calculateWorkReportTotals(
+  async calculateWorkReportTotals(
     engineer: Engineer,
     organization: Organization,
     workReport: WorkReport
-  ): { calculatedAmount: number; carUsageAmount: number; isOvertime: boolean } {
+  ): Promise<{ calculatedAmount: number; carUsageAmount: number; isOvertime: boolean }> {
     // Определение сверхурочного времени
     const isOvertime = this.isOvertimeWork(workReport.startTime, workReport.endTime, engineer.type);
 
     // Расчет оплаты за работу
-    const calculatedAmount = this.calculateEngineerPayment(
+    const calculatedAmount = await this.calculateEngineerPayment(
       engineer,
       organization,
       workReport.totalHours,
@@ -285,13 +433,12 @@ export class CalculationService {
     // Расчет транспорта
     let carUsageAmount = 0;
     if (workReport.distanceKm && workReport.territoryType) {
-      if (engineer.type === EngineerType.CONTRACT) {
-        // Для наемных - по километражу
-        carUsageAmount = workReport.distanceKm * 14;
-      } else {
-        // Для штатных и удаленных - по зонам
-        carUsageAmount = this.calculateTransportByTerritory(engineer, workReport.territoryType);
-      }
+      carUsageAmount = await this.calculateCarUsage(
+        engineer,
+        organization,
+        workReport.distanceKm,
+        workReport.territoryType
+      );
     }
 
     return {

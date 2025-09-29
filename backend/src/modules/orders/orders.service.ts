@@ -800,7 +800,7 @@ export class OrdersService {
     });
 
     // Рассчитываем стоимость
-    const calculations = this.calculationService.calculateWorkReportTotals(
+    const calculations = await this.calculationService.calculateWorkReportTotals(
       engineer,
       order.organization,
       workReport

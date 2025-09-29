@@ -1,9 +1,7 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { MaterialModule } from '../../shared/material/material.module';
 
 import { AuthService } from '../../services/auth.service';
 import { OrdersService } from '../../services/orders.service';
@@ -14,7 +12,7 @@ import { UserRole } from '@shared/interfaces/user.interface';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
+  imports: [CommonModule, MaterialModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })

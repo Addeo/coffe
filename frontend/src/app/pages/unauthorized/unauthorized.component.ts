@@ -1,17 +1,16 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
+
+import { MaterialModule } from '../../shared/material/material.module';
+
 import { AuthService } from '../../services/auth.service';
 import { UserRole } from '@shared/interfaces/user.interface';
 
 @Component({
   selector: 'app-unauthorized',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatChipsModule],
+  imports: [CommonModule, MaterialModule],
   templateUrl: './unauthorized.component.html',
   styleUrls: ['./unauthorized.component.scss'],
 })

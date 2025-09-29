@@ -67,7 +67,12 @@ export class SalaryCalculationService {
           createdAt: calculation.createdAt,
         });
       } catch (error) {
-        this.logger.error(`Failed to calculate salary for engineer ${engineer.id}:`, error);
+        // Если индивидуальные ставки не установлены - логируем, но не прерываем процесс
+        // для других инженеров
+        this.logger.warn(`Skipped salary calculation for engineer ${engineer.id}: ${error.message}`);
+
+        // Можно создать запись о том, что расчет пропущен из-за отсутствия ставок
+        // Но пока просто логируем
       }
     }
 
@@ -96,56 +101,40 @@ export class SalaryCalculationService {
       .andWhere('workReport.startTime < :endDate', { endDate })
       .getMany();
 
-    // Расчет часов и сумм
-    let actualHours = 0;
-    let overtimeHours = 0;
-    let baseAmount = 0;
-    let overtimeAmount = 0;
-    let carUsageAmount = 0;
+    // Используем новый метод расчета месячной зарплаты
+    const monthlyCalculation = await this.calculationService.calculateMonthlySalary(
+      engineer,
+      workReports,
+      engineer.planHoursMonth
+    );
+
+    // Расчет выручки от заказчика (для аналитики)
     let clientRevenue = 0;
-
     for (const report of workReports) {
-      actualHours += report.totalHours;
-
-      if (report.isOvertime) {
-        overtimeHours += report.totalHours;
-        overtimeAmount += report.calculatedAmount;
-      } else {
-        baseAmount += report.calculatedAmount;
+      if (report.order?.organization) {
+        clientRevenue += report.totalHours * report.order.organization.baseRate;
       }
-
-      carUsageAmount += report.carUsageAmount;
-
-      // Расчет выручки от заказчика
-    //   if (report.organization) {
-    //     clientRevenue += report.totalHours * report.organization.baseRate;
-    //   }
     }
 
-    // Расчет премии (только для штатного и удаленного)
-    let bonusAmount = 0;
-    if (engineer.type !== 'contract' && actualHours > engineer.planHoursMonth) {
-      const bonusHours = actualHours - engineer.planHoursMonth;
-      const bonusRate = engineer.type === 'staff' ? 700 : 650;
-      bonusAmount = bonusHours * bonusRate;
-    }
+    const profitMargin = clientRevenue - monthlyCalculation.totalAmount;
 
-    const totalAmount = baseAmount + overtimeAmount + bonusAmount + carUsageAmount;
-    const profitMargin = clientRevenue - totalAmount;
-
-    // Сохраняем расчет
+    // Сохраняем расчет с новой структурой по требованиям:
+    // Фиксированная зарплата всегда выплачивается + дополнительная оплата + оплата за автомобиль
     const calculation = this.salaryCalculationRepository.create({
       engineerId: engineer.id,
       month,
       year,
       plannedHours: engineer.planHoursMonth,
-      actualHours,
-      overtimeHours,
-      baseAmount,
-      overtimeAmount,
-      bonusAmount,
-      carUsageAmount,
-      totalAmount,
+      actualHours: monthlyCalculation.actualHours,
+      overtimeHours: monthlyCalculation.overtimeHours,
+      baseAmount: monthlyCalculation.baseAmount,
+      overtimeAmount: monthlyCalculation.overtimeAmount,
+      bonusAmount: monthlyCalculation.bonusAmount,
+      carUsageAmount: monthlyCalculation.totalCarAmount, // Теперь храним общую сумму за автомобиль
+      fixedSalary: monthlyCalculation.fixedSalary,
+      fixedCarAmount: monthlyCalculation.fixedCarAmount,
+      additionalEarnings: monthlyCalculation.earnedAmount, // Теперь это заработанная сумма
+      totalAmount: monthlyCalculation.totalAmount,
       clientRevenue,
       profitMargin,
       status: CalculationStatus.CALCULATED,

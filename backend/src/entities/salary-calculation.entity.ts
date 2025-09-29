@@ -57,6 +57,15 @@ export class SalaryCalculation {
   carUsageAmount: number; // эксплуатация автомобиля
 
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  fixedSalary: number; // фиксированная зарплата (оклад)
+
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  fixedCarAmount: number; // фиксированная оплата за автомобиль
+
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  additionalEarnings: number; // дополнительный заработок сверх фиксированной зарплаты
+
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
   totalAmount: number; // итого к выплате
 
   @Column('decimal', { precision: 12, scale: 2, default: 0 })
