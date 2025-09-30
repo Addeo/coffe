@@ -13,6 +13,7 @@ import { Organization } from './organization.entity';
 import { Engineer } from './engineer.entity';
 import { User } from './user.entity';
 import { File } from './file.entity';
+import { WorkReport } from './work-report.entity';
 // Temporarily define OrderSource locally until shared package is fixed
 export enum OrderSource {
   MANUAL = 'manual', // создан вручную
@@ -102,8 +103,11 @@ export class Order {
   @Column({ type: 'datetime', nullable: true })
   completionDate: Date;
 
-  @OneToMany(() => File, file => file.order)
+  @OneToMany(() => File, file => file.order, { cascade: true })
   files: File[];
+
+  @OneToMany(() => WorkReport, workReport => workReport.order, { cascade: true })
+  workReports: WorkReport[];
 
   @CreateDateColumn()
   createdAt: Date;

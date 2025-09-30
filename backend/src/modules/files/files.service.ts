@@ -38,12 +38,16 @@ export class FilesService {
       throw new NotFoundException('User not found');
     }
 
+    // File content is already in buffer from memory storage
+    const fileBuffer: Buffer = file.buffer;
+
     const fileEntity = this.filesRepository.create({
-      filename: file.filename,
+      filename: file.filename || file.originalname,
       originalName: file.originalname,
       mimetype: file.mimetype,
       size: file.size,
-      path: file.path,
+      path: null, // No longer storing on disk
+      fileData: fileBuffer,
       type,
       description,
       uploadedBy: user,
@@ -51,6 +55,14 @@ export class FilesService {
     });
 
     return this.filesRepository.save(fileEntity);
+  }
+
+  async findFilesByOrderId(orderId: number): Promise<File[]> {
+    return this.filesRepository.find({
+      where: { orderId },
+      relations: ['uploadedBy'],
+      order: { uploadedAt: 'DESC' },
+    });
   }
 
   async findAll(query: FileQueryDto = {}): Promise<FilesResponse> {
@@ -104,14 +116,19 @@ export class FilesService {
     return file;
   }
 
-  async getFilePath(id: string): Promise<string> {
+  async getFileData(id: string): Promise<Buffer> {
     const file = await this.findOne(id);
 
-    if (!fs.existsSync(file.path)) {
-      throw new NotFoundException('File not found on disk');
+    if (!file.fileData) {
+      throw new NotFoundException('File data not found');
     }
 
-    return file.path;
+    return file.fileData;
+  }
+
+  // Legacy method for backward compatibility
+  async getFilePath(id: string): Promise<string> {
+    throw new Error('File storage has been moved to database. Use getFileData instead.');
   }
 
   async updateFile(id: string, description?: string, type?: FileType): Promise<File> {

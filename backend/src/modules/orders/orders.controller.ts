@@ -159,4 +159,15 @@ export class OrdersController {
       endDate ? new Date(endDate) : undefined
     );
   }
+
+  // Temporary test endpoint
+  @Get('test')
+  test() {
+    return { message: 'Orders API is working', timestamp: new Date() };
+  }
+
+  @Get('test/files')
+  testFiles() {
+    return { message: 'Files test from OrdersController', timestamp: new Date() };
+  }
 }

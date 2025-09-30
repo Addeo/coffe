@@ -1,9 +1,10 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { AuthService } from './services/auth.service';
 import { NavigationComponent } from './components/navigation/navigation.component';
+import { OrderSidebarComponent } from './components/sidebars/order-sidebar.component';
 
 @Component({
   selector: 'app-root',

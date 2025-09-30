@@ -27,8 +27,11 @@ export class File {
   @Column()
   size: number;
 
-  @Column()
+  @Column({ nullable: true })
   path: string;
+
+  @Column('longblob', { nullable: true })
+  fileData: Buffer;
 
   @Column({
     type: 'enum',

@@ -1,25 +1,18 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { memoryStorage } from 'multer';
 import { FilesService } from './files.service';
 import { FilesController } from './files.controller';
 import { File } from '../../entities/file.entity';
+import { User } from '../../entities/user.entity';
+import { Order } from '../../entities/order.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([File]),
+    TypeOrmModule.forFeature([File, User, Order]),
     MulterModule.register({
-      storage: diskStorage({
-        destination: './uploads',
-        filename: (req, file, callback) => {
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const extension = extname(file.originalname);
-          const filename = `${file.fieldname}-${uniqueSuffix}${extension}`;
-          callback(null, filename);
-        },
-      }),
+      storage: memoryStorage(), // Store files in memory instead of disk
       fileFilter: (req, file, callback) => {
         // Allow common file types
         const allowedMimes = [

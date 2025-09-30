@@ -287,6 +287,7 @@ export class OrdersService {
       .leftJoinAndSelect('order.assignedEngineer', 'engineer')
       .leftJoinAndSelect('order.createdBy', 'createdBy')
       .leftJoinAndSelect('order.assignedBy', 'assignedBy')
+      .leftJoinAndSelect('order.files', 'files')
       .where('order.id = :id', { id });
 
     // Apply role-based access control

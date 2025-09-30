@@ -81,19 +81,23 @@ export class FilesService {
     }>(`${environment.apiUrl}/files/stats`);
   }
 
+  getFilesByOrderId(orderId: number): Observable<FileResponseDto[]> {
+    return this.http.get<FileResponseDto[]>(`${environment.apiUrl}/files/get-order-files/${orderId}`);
+  }
+
   getFile(fileId: string): Observable<FileResponseDto> {
-    return this.http.get<FileResponseDto>(`${environment.apiUrl}/files/${fileId}`);
+    return this.http.get<FileResponseDto>(`${environment.apiUrl}/files/file/${fileId}`);
   }
 
   updateFile(fileId: string, description?: string, type?: FileType): Observable<FileResponseDto> {
-    return this.http.post<FileResponseDto>(`${environment.apiUrl}/files/${fileId}`, {
+    return this.http.post<FileResponseDto>(`${environment.apiUrl}/files/file/${fileId}`, {
       description,
       type,
     });
   }
 
   deleteFile(fileId: string): Observable<void> {
-    return this.http.delete<void>(`${environment.apiUrl}/files/${fileId}`);
+    return this.http.delete<void>(`${environment.apiUrl}/files/file/${fileId}`);
   }
 
   downloadFile(fileId: string): Observable<Blob> {
@@ -126,13 +130,13 @@ export class FilesService {
 
   // Метод для прикрепления файла к заказу
   attachFileToOrder(orderId: number, fileId: string): Observable<FileResponseDto> {
-    return this.http.post<FileResponseDto>(`${environment.apiUrl}/files/${fileId}/attach-to-order`, {
+    return this.http.post<FileResponseDto>(`${environment.apiUrl}/files/file/${fileId}/attach-to-order`, {
       orderId,
     });
   }
 
   // Метод для открепления файла от заказа
   detachFileFromOrder(fileId: string): Observable<FileResponseDto> {
-    return this.http.post<FileResponseDto>(`${environment.apiUrl}/files/${fileId}/detach-from-order`, {});
+    return this.http.post<FileResponseDto>(`${environment.apiUrl}/files/file/${fileId}/detach-from-order`, {});
   }
 }

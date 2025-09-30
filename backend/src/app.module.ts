@@ -31,6 +31,7 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
 import { CalculationsModule } from './modules/расчеты/calculations.module';
 import { EngineerOrganizationRatesModule } from './modules/engineer-organization-rates/engineer-organization-rates.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { TestController } from './test.controller';
 
 @Module({
   imports: [
@@ -87,7 +88,7 @@ import { ReportsModule } from './modules/reports/reports.module';
     FilesModule,
     TestModule,
   ],
-  controllers: [],
+  controllers: [TestController],
   providers: [],
 })
 export class AppModule {}
