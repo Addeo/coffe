@@ -103,10 +103,10 @@ export class Order {
   @Column({ type: 'datetime', nullable: true })
   completionDate: Date;
 
-  @OneToMany(() => File, file => file.order, { cascade: true })
+  @OneToMany(() => File, file => file.order)
   files: File[];
 
-  @OneToMany(() => WorkReport, workReport => workReport.order, { cascade: true })
+  @OneToMany(() => WorkReport, workReport => workReport.order)
   workReports: WorkReport[];
 
   @CreateDateColumn()

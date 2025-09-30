@@ -6,6 +6,7 @@ import { User } from '../../entities/user.entity';
 import { Engineer } from '../../entities/engineer.entity';
 import { Organization } from '../../entities/organization.entity';
 import { WorkReport } from '../../entities/work-report.entity';
+import { File } from '../../entities/file.entity';
 import { Setting, SettingKey } from '../../entities/settings.entity';
 import { UserActivityLog, ActivityType } from '../../entities/user-activity-log.entity';
 import {
@@ -74,6 +75,8 @@ export class OrdersService {
     private readonly organizationsRepository: Repository<Organization>,
     @InjectRepository(WorkReport)
     private readonly workReportsRepository: Repository<WorkReport>,
+    @InjectRepository(File)
+    private readonly filesRepository: Repository<File>,
     @InjectRepository(Setting)
     private readonly settingsRepository: Repository<Setting>,
     @InjectRepository(UserActivityLog)
@@ -188,7 +191,9 @@ export class OrdersService {
       .leftJoinAndSelect('order.organization', 'organization')
       .leftJoinAndSelect('order.assignedEngineer', 'engineer')
       .leftJoinAndSelect('order.createdBy', 'createdBy')
-      .leftJoinAndSelect('order.assignedBy', 'assignedBy');
+      .leftJoinAndSelect('order.assignedBy', 'assignedBy')
+      .leftJoinAndSelect('order.files', 'files')
+      .leftJoinAndSelect('files.uploadedBy', 'uploadedBy');
 
     // Apply filters based on user role
     if (user.role === UserRole.USER) {
@@ -281,27 +286,28 @@ export class OrdersService {
   }
 
   async findOne(id: number, user: User): Promise<Order> {
-    const queryBuilder = this.ordersRepository
-      .createQueryBuilder('order')
-      .leftJoinAndSelect('order.organization', 'organization')
-      .leftJoinAndSelect('order.assignedEngineer', 'engineer')
-      .leftJoinAndSelect('order.createdBy', 'createdBy')
-      .leftJoinAndSelect('order.assignedBy', 'assignedBy')
-      .leftJoinAndSelect('order.files', 'files')
-      .where('order.id = :id', { id });
-
-    // Apply role-based access control
-    if (user.role === UserRole.USER) {
-      // Regular users can only see orders assigned to them
-      queryBuilder.andWhere('order.assignedEngineerId = :userId', { userId: user.id });
-    }
-    // Admins and managers can see all orders
-
-    const order = await queryBuilder.getOne();
+    const order = await this.ordersRepository.findOne({
+      where: { id },
+      relations: [
+        'organization',
+        'assignedEngineer',
+        'createdBy',
+        'assignedBy',
+        'files',
+        'files.uploadedBy',
+        'workReports',
+      ],
+    });
 
     if (!order) {
       throw new NotFoundException('Order not found');
     }
+
+    // Apply role-based access control
+    if (user.role === UserRole.USER && order.assignedEngineerId !== user.id) {
+      throw new NotFoundException('Order not found');
+    }
+    // Admins and managers can see all orders
 
     return order;
   }
@@ -424,19 +430,50 @@ export class OrdersService {
   }
 
   async remove(id: number, user: User): Promise<void> {
-    const order = await this.findOne(id, user);
+    console.log(`Attempting to delete order ${id} by user ${user.id} (${user.role})`);
 
-    // Only allow deletion of waiting orders
-    if (order.status !== OrderStatus.WAITING) {
-      throw new BadRequestException('Can only delete waiting orders');
+    try {
+      const order = await this.findOne(id, user);
+      console.log(`Order found: ${order.id}, status: ${order.status}, createdBy: ${order.createdById}`);
+
+      // Only allow deletion of waiting orders
+      if (order.status !== OrderStatus.WAITING) {
+        console.log(`Cannot delete order: status is ${order.status}, not WAITING`);
+        throw new BadRequestException('Can only delete waiting orders');
+      }
+
+      // Only creator or admin can delete
+      if (user.role !== UserRole.ADMIN && order.createdById !== user.id) {
+        console.log(`User ${user.id} cannot delete order created by ${order.createdById}`);
+        throw new BadRequestException('Insufficient permissions to delete this order');
+      }
+
+      console.log(`Deleting order ${id} with ${order.files?.length || 0} files and ${order.workReports?.length || 0} work reports`);
+
+      // First, check for any other relations that might prevent deletion
+      // Check for work reports
+      const workReportsCount = await this.workReportsRepository.count({ where: { orderId: id } });
+      console.log(`Found ${workReportsCount} work reports for order ${id}`);
+
+      // Check for files
+      const filesCount = await this.filesRepository.count({ where: { orderId: id } });
+      console.log(`Found ${filesCount} files for order ${id}`);
+
+      // Manually delete related entities first
+      console.log('Deleting related files...');
+      await this.filesRepository.delete({ orderId: id });
+
+      console.log('Deleting related work reports...');
+      await this.workReportsRepository.delete({ orderId: id });
+
+      // Now delete the order
+      console.log('Deleting order...');
+      await this.ordersRepository.delete(id);
+      console.log(`Order ${id} successfully deleted`);
+    } catch (error) {
+      console.error(`Error deleting order ${id}:`, error);
+      throw error;
     }
-
-    // Only creator or admin can delete
-    if (user.role !== UserRole.ADMIN && order.createdById !== user.id) {
-      throw new BadRequestException('Insufficient permissions to delete this order');
-    }
-
-    await this.ordersRepository.remove(order);
   }
 
   async getOrderStats(user: User): Promise<{

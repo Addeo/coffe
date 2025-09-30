@@ -256,9 +256,9 @@ export interface OrderDialogData {
                 <div class="file-item" *ngFor="let file of attachedFiles()">
                   <span class="file-name">{{ file.originalName }}</span>
                   <span class="file-size">({{ (file.size / 1024 / 1024).toFixed(2) }} MB)</span>
-                  <a mat-icon-button [href]="file.url" target="_blank" type="button">
+                  <button mat-icon-button (click)="viewFile(file)" type="button">
                     <mat-icon>visibility</mat-icon>
-                  </a>
+                  </button>
                   <button mat-icon-button (click)="removeAttachedFile(file.id)" type="button">
                     <mat-icon>delete</mat-icon>
                   </button>
@@ -980,6 +980,11 @@ export class OrderDialogComponent implements OnInit {
     this.selectedFiles = [];
     this.uploadProgress.set([]);
     this.isUploadingFiles.set(false);
+  }
+
+  viewFile(file: FileResponseDto) {
+    // Open file in new tab for viewing
+    window.open(`/api/files/view/${file.id}`, '_blank');
   }
 
   onCancel() {

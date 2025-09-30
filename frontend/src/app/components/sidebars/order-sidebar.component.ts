@@ -837,7 +837,7 @@ export class OrderSidebarComponent implements OnInit {
 
   viewFile(file: FileResponseDto) {
     // Open file in new tab for viewing
-    window.open(`/api/files/${file.id}/view`, '_blank');
+    window.open(`/api/files/view/${file.id}`, '_blank');
   }
 
   removeAttachedFile(fileId: string) {

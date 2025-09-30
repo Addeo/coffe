@@ -88,6 +88,16 @@ export class FilesController {
     return { message: 'Test route works', timestamp: new Date() };
   }
 
+  @Get('view/:id')
+  async viewFile(@Param('id', ParseUUIDPipe) id: string, @Res() res: Response) {
+    const file = await this.filesService.findOne(id);
+    const fileData = await this.filesService.getFileData(id);
+
+    res.setHeader('Content-Type', file.mimetype);
+    res.setHeader('Content-Length', fileData.length.toString());
+    res.send(fileData);
+  }
+
   @Get('get-order-files/:orderId')
   getFilesByOrderId(@Param('orderId') orderId: string) {
     console.log('getFilesByOrderId called with orderId:', orderId);
@@ -116,16 +126,6 @@ export class FilesController {
     res.setHeader('Content-Disposition', `attachment; filename="${file.originalName}"`);
     res.setHeader('Content-Length', fileData.length.toString());
 
-    res.send(fileData);
-  }
-
-  @Get(':id/view')
-  async viewFile(@Param('id', ParseUUIDPipe) id: string, @Res() res: Response) {
-    const file = await this.filesService.findOne(id);
-    const fileData = await this.filesService.getFileData(id);
-
-    res.setHeader('Content-Type', file.mimetype);
-    res.setHeader('Content-Length', fileData.length.toString());
     res.send(fileData);
   }
 
@@ -164,7 +164,7 @@ export class FilesController {
     return { message: 'Files API is working', timestamp: new Date() };
   }
 
-  @Get('file/:id')
+  @Get('metadata/:id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.filesService.findOne(id);
   }

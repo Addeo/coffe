@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Param, Body } from '@nestjs/common';
 
-@Controller('testfiles')
+@Controller()
 export class TestController {
   @Get('test')
   getTest() {
@@ -32,6 +32,11 @@ export class TestController {
   @Get('images/test')
   testImages() {
     return { message: 'Images API test', timestamp: new Date() };
+  }
+
+  @Get('test-view')
+  testView() {
+    return { message: 'Test view works', timestamp: new Date() };
   }
 
   @Post('files/upload')
