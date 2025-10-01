@@ -17,8 +17,8 @@ export class Setting {
   id: number;
 
   @Column({
-    type: 'enum',
-    enum: SettingKey,
+    type: 'varchar',
+    length: 50,
     unique: true,
   })
   key: SettingKey;

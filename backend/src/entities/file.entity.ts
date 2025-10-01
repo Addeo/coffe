@@ -30,12 +30,12 @@ export class File {
   @Column({ nullable: true })
   path: string;
 
-  @Column('longblob', { nullable: true })
+  @Column('blob', { nullable: true })
   fileData: Buffer;
 
   @Column({
-    type: 'enum',
-    enum: FileType,
+    type: 'varchar',
+    length: 20,
     default: FileType.OTHER,
   })
   type: FileType;

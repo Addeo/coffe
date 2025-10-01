@@ -121,9 +121,7 @@ export class TestController {
   @Get('organizations-fixed')
   async getOrganizationsFixed() {
     try {
-      // Set UTF-8 encoding for the connection
-      await this.organizationRepository.query('SET NAMES utf8mb4');
-      await this.organizationRepository.query('SET CHARACTER SET utf8mb4');
+      // SQLite doesn't need charset settings
 
       const organizations = await this.organizationRepository.find({
         select: ['id', 'name', 'baseRate'],

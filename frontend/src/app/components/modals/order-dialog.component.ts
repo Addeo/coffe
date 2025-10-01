@@ -688,7 +688,10 @@ export class OrderDialogComponent implements OnInit {
 
       // Load attached files
       if (this.data.order.files) {
+        console.log('Loading existing order files:', this.data.order.files.map(f => ({ id: f.id, name: f.originalName })));
         this.attachedFiles.set(this.data.order.files);
+      } else {
+        console.log('No existing files found for order');
       }
     }
   }
@@ -869,7 +872,15 @@ export class OrderDialogComponent implements OnInit {
   private async createOrder() {
     const formValue = this.orderForm.value;
 
-    // First create the order
+    // Get IDs of successfully uploaded files
+    const completedUploads = this.getCompletedUploads();
+    const fileIds = completedUploads
+      .filter(upload => upload.uploadedFileId)
+      .map(upload => upload.uploadedFileId!);
+
+    console.log('Creating order with file IDs:', fileIds);
+
+    // Create the order with attached files
     const orderData: CreateOrderDto = {
       title: formValue.title,
       description: formValue.description || undefined,
@@ -879,23 +890,14 @@ export class OrderDialogComponent implements OnInit {
       territoryType: formValue.territoryType || undefined,
       plannedStartDate: formValue.plannedStartDate || undefined,
       source: formValue.source,
+      files: fileIds.length > 0 ? fileIds : undefined,
     };
 
     this.ordersService.createOrder(orderData).subscribe({
-      next: async (order) => {
-        try {
-          // Attach uploaded files to the created order
-          await this.attachUploadedFilesToOrder(order.id);
-
-          this.toastService.success('Заказ создан успешно');
-          this.clearFileData();
-          this.dialogRef.close(order);
-        } catch (error) {
-          console.error('Error attaching files:', error);
-          this.toastService.success('Заказ создан, но некоторые файлы не удалось прикрепить');
-          this.clearFileData();
-          this.dialogRef.close(order);
-        }
+      next: (order) => {
+        this.toastService.success('Заказ создан успешно');
+        this.clearFileData();
+        this.dialogRef.close(order);
       },
       error: error => {
         console.error('Error creating order:', error);
@@ -910,6 +912,19 @@ export class OrderDialogComponent implements OnInit {
     if (!this.data.order) return;
 
     const formValue = this.orderForm.value;
+
+    // Get IDs of successfully uploaded files
+    const completedUploads = this.getCompletedUploads();
+    const newFileIds = completedUploads
+      .filter(upload => upload.uploadedFileId)
+      .map(upload => upload.uploadedFileId!);
+
+    // Combine existing attached file IDs with new uploaded file IDs
+    const existingFileIds = this.attachedFiles().map(file => file.id);
+    const allFileIds = [...existingFileIds, ...newFileIds];
+
+    console.log('Updating order with file IDs:', allFileIds, '(existing:', existingFileIds, ', new:', newFileIds, ')');
+
     const orderData: UpdateOrderDto = {
       title: formValue.title,
       description: formValue.description || undefined,
@@ -922,23 +937,14 @@ export class OrderDialogComponent implements OnInit {
       status: formValue.status,
       actualStartDate: formValue.actualStartDate || undefined,
       completionDate: formValue.completionDate || undefined,
+      files: allFileIds.length > 0 ? allFileIds : undefined,
     };
 
     this.ordersService.updateOrder(this.data.order.id, orderData).subscribe({
-      next: async (order) => {
-        try {
-          // Attach uploaded files to the updated order
-          await this.attachUploadedFilesToOrder(order.id);
-
-          this.toastService.success('Заказ обновлен успешно');
-          this.clearFileData();
-          this.dialogRef.close(order);
-        } catch (error) {
-          console.error('Error attaching files:', error);
-          this.toastService.success('Заказ обновлен, но некоторые файлы не удалось прикрепить');
-          this.clearFileData();
-          this.dialogRef.close(order);
-        }
+      next: (order) => {
+        this.toastService.success('Заказ обновлен успешно');
+        this.clearFileData();
+        this.dialogRef.close(order);
       },
       error: error => {
         console.error('Error updating order:', error);
@@ -961,20 +967,6 @@ export class OrderDialogComponent implements OnInit {
     return this.uploadProgress().some(p => p.status === 'uploading');
   }
 
-  private async attachUploadedFilesToOrder(orderId: number): Promise<void> {
-    const completedUploads = this.getCompletedUploads();
-
-    for (const upload of completedUploads) {
-      if (upload.uploadedFileId) {
-        try {
-          await this.filesService.attachFileToOrder(orderId, upload.uploadedFileId).toPromise();
-        } catch (error) {
-          console.error('Error attaching file to order:', error);
-          this.toastService.warning(`Не удалось прикрепить файл "${upload.file.name}" к заказу`);
-        }
-      }
-    }
-  }
 
   private clearFileData() {
     this.selectedFiles = [];

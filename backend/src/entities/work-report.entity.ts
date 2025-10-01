@@ -48,8 +48,8 @@ export class WorkReport {
   isOvertime: boolean;
 
   @Column({
-    type: 'enum',
-    enum: WorkResult,
+    type: 'varchar',
+    length: 20,
     default: WorkResult.COMPLETED,
   })
   workResult: WorkResult;
@@ -58,8 +58,8 @@ export class WorkReport {
   distanceKm: number;
 
   @Column({
-    type: 'enum',
-    enum: TerritoryType,
+    type: 'varchar',
+    length: 20,
     nullable: true,
   })
   territoryType: TerritoryType;

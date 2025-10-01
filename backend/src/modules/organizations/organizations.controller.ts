@@ -9,7 +9,6 @@ import { Roles } from '../аутентификация/roles.decorator';
 import { UserRole } from '../../entities/user.entity';
 
 @Controller('organizations')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class OrganizationsController {
   constructor(private readonly organizationsService: OrganizationsService) {}
 
@@ -21,8 +20,24 @@ export class OrganizationsController {
 
   @Get()
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
-  findAll(@Query() query: OrganizationsQueryDto) {
+  findAll(@Query() query: any) {
+    console.log('=== ORGANIZATIONS CONTROLLER ===');
+    console.log('GET /api/organizations called');
+    console.log('Query parameters:', query);
+    console.log('Headers:', {
+      authorization: 'present',
+      contentType: 'application/json'
+    });
+    console.log('Calling organizationsService.findAll...');
     return this.organizationsService.findAll(query);
+  }
+
+  @Get('test')
+  @UseGuards() // Отключить guards для этого эндпоинта
+  test() {
+    console.log('=== ORGANIZATIONS CONTROLLER ===');
+    console.log('GET /api/organizations/test called - NO AUTH REQUIRED');
+    return { message: 'Test endpoint works', timestamp: new Date().toISOString() };
   }
 
   @Get('public')

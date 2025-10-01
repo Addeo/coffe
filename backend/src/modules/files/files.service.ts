@@ -33,28 +33,43 @@ export class FilesService {
     type: FileType = FileType.OTHER,
     description?: string
   ): Promise<File> {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new NotFoundException('User not found');
+    console.log('uploadFile called with:', { userId, type, description, fileKeys: Object.keys(file) });
+
+    try {
+      const user = await this.usersRepository.findOne({ where: { id: userId } });
+      console.log('User found:', user ? user.id : 'null');
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      // File content is already in buffer from memory storage
+      const fileBuffer: Buffer = file.buffer;
+      console.log('File buffer size:', fileBuffer?.length || 0);
+
+      const fileEntity = this.filesRepository.create({
+        filename: file.filename || file.originalname,
+        originalName: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+        path: null, // No longer storing on disk
+        fileData: fileBuffer,
+        type,
+        description,
+        uploadedBy: user,
+        uploadedById: userId,
+      });
+
+      console.log('File entity created:', { filename: fileEntity.filename, size: fileEntity.size });
+
+      const savedFile = await this.filesRepository.save(fileEntity);
+      console.log('File saved with ID:', savedFile.id);
+
+      return savedFile;
+    } catch (error) {
+      console.error('Error in uploadFile:', error);
+      throw error;
     }
-
-    // File content is already in buffer from memory storage
-    const fileBuffer: Buffer = file.buffer;
-
-    const fileEntity = this.filesRepository.create({
-      filename: file.filename || file.originalname,
-      originalName: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size,
-      path: null, // No longer storing on disk
-      fileData: fileBuffer,
-      type,
-      description,
-      uploadedBy: user,
-      uploadedById: userId,
-    });
-
-    return this.filesRepository.save(fileEntity);
   }
 
   async findFilesByOrderId(orderId: number): Promise<File[]> {

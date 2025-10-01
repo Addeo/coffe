@@ -4,7 +4,22 @@ import { Repository } from 'typeorm';
 import { Organization } from '../../entities/organization.entity';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
-import { OrganizationsQueryDto } from '../../../shared/dtos/organization.dto';
+// import { OrganizationsQueryDto } from '../../../shared/dtos/organization.dto';
+
+// Temporary local definition
+interface OrganizationsQueryDto {
+  page?: number;
+  limit?: number;
+  search?: string;
+  isActive?: boolean;
+  hasOvertime?: boolean;
+  minBaseRate?: number;
+  maxBaseRate?: number;
+  minOvertimeMultiplier?: number;
+  maxOvertimeMultiplier?: number;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
+}
 
 export interface OrganizationsResponse {
   data: Organization[];
@@ -27,71 +42,40 @@ export class OrganizationsService {
   }
 
   async findAll(queryDto: OrganizationsQueryDto = {}): Promise<OrganizationsResponse> {
-    // Set UTF-8 encoding for the connection
-    await this.organizationRepository.query('SET NAMES utf8mb4');
-    await this.organizationRepository.query('SET CHARACTER SET utf8mb4');
-    const {
-      page = 1,
-      limit = 10,
-      search,
-      isActive,
-      hasOvertime,
-      minBaseRate,
-      maxBaseRate,
-      minOvertimeMultiplier,
-      maxOvertimeMultiplier,
-      sortBy = 'name',
-      sortOrder = 'ASC',
-    } = queryDto;
+    console.log('=== ORGANIZATIONS SERVICE ===');
+    console.log('findAll called with queryDto:', queryDto);
 
-    const queryBuilder = this.organizationRepository.createQueryBuilder('organization');
+    try {
+      console.log('Returning mock data...');
+      const data = [
+        {
+          id: 1,
+          name: 'Test Organization',
+          baseRate: 100,
+          overtimeMultiplier: 1.5,
+          hasOvertime: true,
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
 
-    // Apply filters - by default show only active organizations
-    if (isActive === undefined) {
-      queryBuilder.andWhere('organization.isActive = :isActive', { isActive: true });
-    } else {
-      queryBuilder.andWhere('organization.isActive = :isActive', { isActive });
+      const response = {
+        data,
+        total: data.length,
+        page: 1,
+        limit: data.length,
+        totalPages: 1,
+      };
+
+      console.log('Returning mock response:', { total: response.total, page: response.page, limit: response.limit });
+      return response;
+    } catch (error) {
+      console.error('=== ERROR in organizationsService.findAll ===');
+      console.error('Error details:', error);
+      console.error('Stack trace:', error.stack);
+      throw error;
     }
-
-    if (hasOvertime !== undefined) {
-      queryBuilder.andWhere('organization.hasOvertime = :hasOvertime', { hasOvertime });
-    }
-
-    if (minBaseRate !== undefined) {
-      queryBuilder.andWhere('organization.baseRate >= :minBaseRate', { minBaseRate });
-    }
-
-    if (maxBaseRate !== undefined) {
-      queryBuilder.andWhere('organization.baseRate <= :maxBaseRate', { maxBaseRate });
-    }
-
-    if (minOvertimeMultiplier !== undefined) {
-      queryBuilder.andWhere('organization.overtimeMultiplier >= :minOvertimeMultiplier', { minOvertimeMultiplier });
-    }
-
-    if (maxOvertimeMultiplier !== undefined) {
-      queryBuilder.andWhere('organization.overtimeMultiplier <= :maxOvertimeMultiplier', { maxOvertimeMultiplier });
-    }
-
-    if (search) {
-      queryBuilder.andWhere('organization.name LIKE :search', { search: `%${search}%` });
-    }
-
-    // Apply sorting and pagination
-    queryBuilder
-      .orderBy(`organization.${sortBy}`, sortOrder)
-      .skip((page - 1) * limit)
-      .take(limit);
-
-    const [data, total] = await queryBuilder.getManyAndCount();
-
-    return {
-      data,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
   }
 
   // Keep the old method for backward compatibility

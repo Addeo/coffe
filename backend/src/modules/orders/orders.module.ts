@@ -9,9 +9,12 @@ import { Organization } from '../../entities/organization.entity';
 import { WorkReport } from '../../entities/work-report.entity';
 import { Setting } from '../../entities/settings.entity';
 import { UserActivityLog } from '../../entities/user-activity-log.entity';
+import { File } from '../../entities/file.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { StatisticsModule } from '../statistics/statistics.module';
 import { CalculationsModule } from '../расчеты/calculations.module';
+// import { StatisticsModule } from '../statistics/statistics.module';
+// import { CalculationsModule } from '../расчеты/calculations.module';
 
 @Module({
   imports: [
@@ -21,6 +24,7 @@ import { CalculationsModule } from '../расчеты/calculations.module';
       Engineer,
       Organization,
       WorkReport,
+      File,
       Setting,
       UserActivityLog,
     ]),

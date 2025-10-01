@@ -75,8 +75,8 @@ export class SalaryCalculation {
   profitMargin: number; // прибыль (client_revenue - total_amount)
 
   @Column({
-    type: 'enum',
-    enum: CalculationStatus,
+    type: 'varchar',
+    length: 20,
     default: CalculationStatus.DRAFT,
   })
   status: CalculationStatus;

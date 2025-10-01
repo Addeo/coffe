@@ -20,10 +20,10 @@ export class Organization {
   @Column('decimal', { precision: 3, scale: 1, nullable: true })
   overtimeMultiplier: number; // коэффициент внеурочного времени
 
-  @Column({ default: false })
+  @Column({ type: 'boolean', default: false })
   hasOvertime: boolean; // предусмотрено ли внеурочное время
 
-  @Column({ default: true })
+  @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
   @CreateDateColumn()

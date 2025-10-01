@@ -74,22 +74,22 @@ export class Order {
   distanceKm: number; // расстояние до объекта
 
   @Column({
-    type: 'enum',
-    enum: TerritoryType,
+    type: 'varchar',
+    length: 20,
     nullable: true,
   })
   territoryType: TerritoryType;
 
   @Column({
-    type: 'enum',
-    enum: OrderStatus,
+    type: 'varchar',
+    length: 20,
     default: OrderStatus.WAITING,
   })
   status: OrderStatus;
 
   @Column({
-    type: 'enum',
-    enum: OrderSource,
+    type: 'varchar',
+    length: 20,
     default: OrderSource.MANUAL,
   })
   source: OrderSource;

@@ -44,8 +44,8 @@ export class Notification {
   userId: number;
 
   @Column({
-    type: 'enum',
-    enum: NotificationType,
+    type: 'varchar',
+    length: 50,
   })
   type: NotificationType;
 
@@ -56,15 +56,15 @@ export class Notification {
   message: string;
 
   @Column({
-    type: 'enum',
-    enum: NotificationStatus,
+    type: 'varchar',
+    length: 20,
     default: NotificationStatus.UNREAD,
   })
   status: NotificationStatus;
 
   @Column({
-    type: 'enum',
-    enum: NotificationPriority,
+    type: 'varchar',
+    length: 20,
     default: NotificationPriority.MEDIUM,
   })
   priority: NotificationPriority;

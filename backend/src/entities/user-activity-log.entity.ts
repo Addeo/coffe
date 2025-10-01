@@ -38,8 +38,8 @@ export class UserActivityLog {
   userId: number;
 
   @Column({
-    type: 'enum',
-    enum: ActivityType,
+    type: 'varchar',
+    length: 50,
   })
   activityType: ActivityType;
 

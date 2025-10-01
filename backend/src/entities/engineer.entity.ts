@@ -23,8 +23,8 @@ export class Engineer {
   userId: number;
 
   @Column({
-    type: 'enum',
-    enum: EngineerType,
+    type: 'varchar',
+    length: 20,
   })
   type: EngineerType;
 
