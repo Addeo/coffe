@@ -7,7 +7,8 @@ import {
   FileResponseDto,
   FileQueryDto,
   FileType,
-  UploadFileDto
+  UploadFileDto,
+  FileMetadataResponse
 } from '@shared/dtos/file.dto';
 import { PaginatedResponse } from '@shared/types/api.types';
 
@@ -87,6 +88,10 @@ export class FilesService {
 
   getFile(fileId: string): Observable<FileResponseDto> {
     return this.http.get<FileResponseDto>(`${environment.apiUrl}/files/metadata/${fileId}`);
+  }
+
+  getFileMetadata(fileId: string): Observable<FileMetadataResponse> {
+    return this.http.get<FileMetadataResponse>(`${environment.apiUrl}/files/metadata/${fileId}`);
   }
 
   updateFile(fileId: string, description?: string, type?: FileType): Observable<FileResponseDto> {

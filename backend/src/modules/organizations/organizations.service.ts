@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { Organization } from '../../entities/organization.entity';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
+import { EngineerOrganizationRate } from '../../entities/engineer-organization-rate.entity';
+import { Engineer } from '../../entities/engineer.entity';
 // import { OrganizationsQueryDto } from '../../../shared/dtos/organization.dto';
 
 // Temporary local definition
@@ -33,12 +35,21 @@ export interface OrganizationsResponse {
 export class OrganizationsService {
   constructor(
     @InjectRepository(Organization)
-    private organizationRepository: Repository<Organization>
+    private organizationRepository: Repository<Organization>,
+    @InjectRepository(Engineer)
+    private engineerRepository: Repository<Engineer>,
+    @InjectRepository(EngineerOrganizationRate)
+    private engineerOrganizationRateRepository: Repository<EngineerOrganizationRate>
   ) {}
 
   async create(createOrganizationDto: CreateOrganizationDto): Promise<Organization> {
     const organization = this.organizationRepository.create(createOrganizationDto);
-    return this.organizationRepository.save(organization);
+    const savedOrganization = await this.organizationRepository.save(organization);
+
+    // Автоматически создаем базовые ставки для всех существующих инженеров
+    await this.createDefaultRatesForAllEngineers(savedOrganization);
+
+    return savedOrganization;
   }
 
   async findAll(queryDto: OrganizationsQueryDto = {}): Promise<OrganizationsResponse> {
@@ -115,5 +126,36 @@ export class OrganizationsService {
     return this.organizationRepository.findOne({
       where: { name, isActive: true },
     });
+  }
+
+  /**
+   * Создает базовые ставки для всех активных инженеров при добавлении новой организации
+   */
+  private async createDefaultRatesForAllEngineers(organization: Organization): Promise<void> {
+    try {
+      // Получаем всех активных инженеров
+      const engineers = await this.engineerRepository.find({
+        where: { isActive: true },
+      });
+
+      const ratePromises = engineers.map(engineer =>
+        this.engineerOrganizationRateRepository.create({
+          engineerId: engineer.id,
+          organizationId: organization.id,
+          // Ставки будут наследоваться от базовых ставок инженера
+          // Администратор может позже переопределить их индивидуально
+          isActive: true,
+        })
+      );
+
+      if (ratePromises.length > 0) {
+        await this.engineerOrganizationRateRepository.save(ratePromises);
+        console.log(`Created default rates for ${ratePromises.length} engineers for organization ${organization.name}`);
+      }
+    } catch (error) {
+      console.error('Error creating default rates for new organization:', error);
+      // Не прерываем создание организации из-за ошибки в создании ставок
+      // Ставки можно будет создать позже вручную
+    }
   }
 }

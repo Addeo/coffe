@@ -212,7 +212,9 @@ export class OrdersService {
       .leftJoinAndSelect('order.organization', 'organization')
       .leftJoinAndSelect('order.assignedEngineer', 'engineer')
       .leftJoinAndSelect('order.createdBy', 'createdBy')
-      .leftJoinAndSelect('order.assignedBy', 'assignedBy');
+      .leftJoinAndSelect('order.assignedBy', 'assignedBy')
+      .leftJoinAndSelect('order.files', 'files')
+      .leftJoinAndSelect('files.uploadedBy', 'fileUploadedBy');
 
     // Apply filters based on user role
     if (user.role === UserRole.USER) {
@@ -330,11 +332,6 @@ export class OrdersService {
       }
     }
     // Admins and managers can see all orders
-
-    console.log('Order result:', order.id, 'files count:', order.files?.length || 0);
-    if (order.files && order.files.length > 0) {
-      console.log('Files:', order.files.map(f => ({ id: f.id, name: f.originalName })));
-    }
 
     return order;
   }

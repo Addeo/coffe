@@ -256,12 +256,17 @@ export interface OrderDialogData {
                 <div class="file-item" *ngFor="let file of attachedFiles()">
                   <span class="file-name">{{ file.originalName }}</span>
                   <span class="file-size">({{ (file.size / 1024 / 1024).toFixed(2) }} MB)</span>
-                  <button mat-icon-button (click)="viewFile(file)" type="button">
-                    <mat-icon>visibility</mat-icon>
-                  </button>
-                  <button mat-icon-button (click)="removeAttachedFile(file.id)" type="button">
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                  <div class="file-actions">
+                    <button mat-icon-button (click)="viewFile(file.id)" type="button" title="Просмотреть">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="downloadFile(file.id)" type="button" title="Скачать">
+                      <mat-icon>download</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="removeAttachedFile(file.id)" type="button" title="Удалить">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -281,6 +286,36 @@ export interface OrderDialogData {
           <span *ngIf="!isLoading()">{{ data.isEdit ? 'Обновить' : 'Создать' }}</span>
         </button>
       </mat-dialog-actions>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div *ngIf="imageModalVisible" class="image-modal-overlay" (click)="closeImageModal()">
+      <div class="image-modal-content" (click)="$event.stopPropagation()">
+        <div class="image-modal-header">
+          <h3>{{ currentImageMetadata?.originalName }}</h3>
+          <button mat-icon-button (click)="closeImageModal()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <div class="image-modal-body">
+          <img
+            *ngIf="currentImageMetadata?.viewUrl"
+            [src]="currentImageMetadata.viewUrl"
+            [alt]="currentImageMetadata?.originalName"
+            class="image-viewer"
+          />
+        </div>
+        <div class="image-modal-footer">
+          <span class="file-info">
+            {{ currentImageMetadata?.sizeFormatted }}
+            • {{ currentImageMetadata?.type }}
+          </span>
+          <button mat-raised-button color="primary" (click)="downloadCurrentImage()">
+            <mat-icon>download</mat-icon>
+            Скачать
+          </button>
+        </div>
+      </div>
     </div>
   `,
   styles: [
@@ -627,6 +662,117 @@ export interface OrderDialogData {
           min-width: unset;
         }
       }
+
+      /* Image Viewer Modal Styles */
+      .image-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+      }
+
+      .image-modal-content {
+        background: white;
+        border-radius: 8px;
+        max-width: 90vw;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .image-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid #e0e0e0;
+
+        h3 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 500;
+          color: #333;
+          max-width: calc(100% - 40px);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        button {
+          color: #666;
+        }
+      }
+
+      .image-modal-body {
+        flex: 1;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        max-height: 70vh;
+        overflow: auto;
+      }
+
+      .image-viewer {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 4px;
+      }
+
+      .image-modal-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-top: 1px solid #e0e0e0;
+        background: #f8f9fa;
+
+        .file-info {
+          color: #666;
+          font-size: 14px;
+        }
+
+        button {
+          min-width: 120px;
+        }
+      }
+
+      .file-actions {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+      }
+
+      .file-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        margin-bottom: 8px;
+        background: #f8f9fa;
+
+        .file-name {
+          flex: 1;
+          font-weight: 500;
+          color: #333;
+        }
+
+        .file-size {
+          color: #666;
+          margin-right: 12px;
+        }
+      }
     `,
   ],
 })
@@ -846,6 +992,61 @@ export class OrderDialogComponent implements OnInit {
     this.attachedFiles.set(currentAttachedFiles.filter(f => f.id !== fileId));
   }
 
+  // Enhanced file viewing methods
+  async viewFile(fileId: string) {
+    try {
+      const fileMetadata = await this.filesService.getFileMetadata(fileId).toPromise();
+      if (fileMetadata?.isImage) {
+        this.openImageModal(fileMetadata);
+      } else {
+        // For non-image files, trigger download
+        this.downloadFile(fileId);
+      }
+    } catch (error) {
+      console.error('Error viewing file:', error);
+      this.toastService.error('Ошибка при просмотре файла');
+    }
+  }
+
+  async downloadFile(fileId: string) {
+    try {
+      const fileMetadata = await this.filesService.getFileMetadata(fileId).toPromise();
+      if (fileMetadata?.downloadUrl) {
+        // Create a temporary link and trigger download
+        const link = document.createElement('a');
+        link.href = fileMetadata.downloadUrl;
+        link.download = fileMetadata.originalName;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      this.toastService.error('Ошибка при скачивании файла');
+    }
+  }
+
+  // Modal for image viewing
+  imageModalVisible = false;
+  currentImageMetadata: any = null;
+
+  openImageModal(fileMetadata: any) {
+    this.currentImageMetadata = fileMetadata;
+    this.imageModalVisible = true;
+  }
+
+  closeImageModal() {
+    this.imageModalVisible = false;
+    this.currentImageMetadata = null;
+  }
+
+  downloadCurrentImage() {
+    if (this.currentImageMetadata) {
+      this.downloadFile(this.currentImageMetadata.id);
+    }
+  }
+
 
   async onSave() {
     if (this.orderForm.invalid) {
@@ -972,11 +1173,6 @@ export class OrderDialogComponent implements OnInit {
     this.selectedFiles = [];
     this.uploadProgress.set([]);
     this.isUploadingFiles.set(false);
-  }
-
-  viewFile(file: FileResponseDto) {
-    // Open file in new tab for viewing
-    window.open(`/api/files/view/${file.id}`, '_blank');
   }
 
   onCancel() {

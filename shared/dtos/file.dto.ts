@@ -42,3 +42,21 @@ export interface UploadFileDto {
   type?: FileType;
   description?: string;
 }
+
+export interface FileMetadataResponse {
+  id: string;
+  filename: string;
+  originalName: string;
+  mimetype: string;
+  size: number;
+  type: FileType;
+  description?: string;
+  uploadedById: number;
+  orderId?: number;
+  uploadedAt: Date;
+  viewUrl: string;
+  downloadUrl: string;
+  isImage: boolean;
+  sizeFormatted: string;
+  thumbnailUrl?: string;
+}
