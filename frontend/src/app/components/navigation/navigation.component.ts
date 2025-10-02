@@ -59,7 +59,8 @@ export class NavigationComponent implements OnInit, OnDestroy {
     if (role === UserRole.ADMIN || role === UserRole.MANAGER) {
       items.push(
         { label: 'Пользователи', route: '/users', icon: 'people', i18nKey: '@@navigation.users' },
-        { label: 'Организации', route: '/organizations', icon: 'business', i18nKey: '@@navigation.organizations' }
+        { label: 'Организации', route: '/organizations', icon: 'business', i18nKey: '@@navigation.organizations' },
+        { label: 'Ставки инженеров', route: '/engineer-rates', icon: 'account_balance_wallet', i18nKey: '@@navigation.engineerRates' }
       );
     }
 

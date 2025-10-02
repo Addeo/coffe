@@ -57,6 +57,13 @@ export const routes: Routes = [
     data: { roles: ['admin', 'manager'], title: 'Edit Organization' },
   },
   {
+    path: 'engineer-rates',
+    loadComponent: () =>
+      import('./pages/engineer-rates/engineer-rates.component').then(m => m.EngineerRatesComponent),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin', 'manager'], title: 'Engineer Rates Management' },
+  },
+  {
     path: 'orders',
     loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent),
     canActivate: [AuthGuard],

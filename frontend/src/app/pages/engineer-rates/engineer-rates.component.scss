@@ -1,0 +1,216 @@
+.engineer-rates-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 16px;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    margin-bottom: 8px;
+    color: #1976d2;
+  }
+
+  p {
+    font-size: 1.1rem;
+    color: #666;
+    margin: 0;
+  }
+}
+
+.filters-card {
+  .filters-form {
+    .filter-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+
+      mat-form-field {
+        min-width: 200px;
+        flex: 1;
+      }
+
+      .filter-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 16px;
+
+        button {
+          min-width: 120px;
+        }
+      }
+    }
+  }
+}
+
+.table-card {
+  .header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .table-container {
+    position: relative;
+    min-height: 400px;
+  }
+
+  .rates-table {
+    width: 100%;
+
+    th {
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #666;
+    }
+
+    td {
+      padding: 12px 16px;
+
+      .default-value {
+        color: #999;
+        font-style: italic;
+      }
+    }
+
+    mat-chip {
+      font-size: 0.75rem;
+      min-height: 24px;
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+  }
+
+  .no-data-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    text-align: center;
+    color: #666;
+
+    .no-data-icon {
+      font-size: 48px;
+      height: 48px;
+      width: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    h3 {
+      margin: 0 0 8px 0;
+      font-weight: 500;
+    }
+
+    p {
+      margin: 0 0 24px 0;
+      max-width: 400px;
+    }
+
+    button {
+      min-width: 200px;
+    }
+  }
+
+  mat-paginator {
+    margin-top: 16px;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .engineer-rates-container {
+    padding: 16px;
+  }
+
+  .header {
+    h1 {
+      font-size: 2rem;
+    }
+
+    p {
+      font-size: 1rem;
+    }
+  }
+
+  .filters-card {
+    .filter-row {
+      flex-direction: column;
+
+      mat-form-field {
+        min-width: unset;
+        width: 100%;
+      }
+
+      .filter-actions {
+        width: 100%;
+        justify-content: stretch;
+
+        button {
+          flex: 1;
+        }
+      }
+    }
+  }
+
+  .table-card {
+    .rates-table {
+      font-size: 0.875rem;
+
+      th, td {
+        padding: 8px 12px;
+      }
+    }
+
+    .header-actions {
+      flex-direction: column;
+      align-items: stretch;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .rates-table {
+    th, td {
+      padding: 6px 8px;
+      font-size: 0.8rem;
+    }
+  }
+
+  .no-data-container {
+    .no-data-icon {
+      font-size: 36px;
+      height: 36px;
+      width: 36px;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+    }
+
+    p {
+      font-size: 0.9rem;
+    }
+  }
+}

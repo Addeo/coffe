@@ -53,40 +53,88 @@ export class OrganizationsService {
   }
 
   async findAll(queryDto: OrganizationsQueryDto = {}): Promise<OrganizationsResponse> {
-    console.log('=== ORGANIZATIONS SERVICE ===');
-    console.log('findAll called with queryDto:', queryDto);
+    console.log('=== ORGANIZATIONS SERVICE findAll ===');
+    console.log('queryDto:', queryDto);
 
-    try {
-      console.log('Returning mock data...');
-      const data = [
-        {
-          id: 1,
-          name: 'Test Organization',
-          baseRate: 100,
-          overtimeMultiplier: 1.5,
-          hasOvertime: true,
-          isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ];
+    const {
+      page = 1,
+      limit = 10,
+      search,
+      isActive,
+      hasOvertime,
+      minBaseRate,
+      maxBaseRate,
+      minOvertimeMultiplier,
+      maxOvertimeMultiplier,
+      sortBy = 'name',
+      sortOrder = 'ASC',
+    } = queryDto;
 
-      const response = {
-        data,
-        total: data.length,
-        page: 1,
-        limit: data.length,
-        totalPages: 1,
-      };
+    console.log('Parsed params:', { page, limit, search, isActive });
 
-      console.log('Returning mock response:', { total: response.total, page: response.page, limit: response.limit });
-      return response;
-    } catch (error) {
-      console.error('=== ERROR in organizationsService.findAll ===');
-      console.error('Error details:', error);
-      console.error('Stack trace:', error.stack);
-      throw error;
+    const query = this.organizationRepository
+      .createQueryBuilder('organization')
+      .select([
+        'organization.id',
+        'organization.name',
+        'organization.baseRate',
+        'organization.overtimeMultiplier',
+        'organization.hasOvertime',
+        'organization.isActive',
+        'organization.createdAt',
+        'organization.updatedAt',
+      ]);
+
+    // Apply filters
+    if (isActive !== undefined) {
+      query.andWhere('organization.isActive = :isActive', { isActive });
     }
+
+    if (hasOvertime !== undefined) {
+      query.andWhere('organization.hasOvertime = :hasOvertime', { hasOvertime });
+    }
+
+    if (search) {
+      query.andWhere('organization.name LIKE :search', { search: `%${search}%` });
+    }
+
+    if (minBaseRate !== undefined) {
+      query.andWhere('organization.baseRate >= :minBaseRate', { minBaseRate });
+    }
+
+    if (maxBaseRate !== undefined) {
+      query.andWhere('organization.baseRate <= :maxBaseRate', { maxBaseRate });
+    }
+
+    if (minOvertimeMultiplier !== undefined) {
+      query.andWhere('organization.overtimeMultiplier >= :minOvertimeMultiplier', { minOvertimeMultiplier });
+    }
+
+    if (maxOvertimeMultiplier !== undefined) {
+      query.andWhere('organization.overtimeMultiplier <= :maxOvertimeMultiplier', { maxOvertimeMultiplier });
+    }
+
+    // Apply sorting
+    query.orderBy(`organization.${sortBy}`, sortOrder);
+
+    // Apply pagination
+    query.skip((page - 1) * limit).take(limit);
+
+    const sql = query.getSql();
+    console.log('Generated SQL:', sql);
+
+    const [data, total] = await query.getManyAndCount();
+
+    console.log('Query result:', { data: data.length, total, page, limit });
+    console.log('Data items:', data.map(d => ({ id: d.id, name: d.name })));
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   // Keep the old method for backward compatibility

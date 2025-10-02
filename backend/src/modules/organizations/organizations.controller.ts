@@ -43,7 +43,8 @@ export class OrganizationsController {
   @Get('public')
   @UseGuards() // Отключить guards для этого эндпоинта
   findAllPublic() {
-    return this.organizationsService.findAll({});
+    console.log('=== CONTROLLER findAllPublic called ===');
+    return this.organizationsService.findAll({ limit: 100 });
   }
 
   @Patch('public/:id')
