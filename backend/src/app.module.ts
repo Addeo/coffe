@@ -39,26 +39,68 @@ import { TestController } from './test.controller';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'database.sqlite',
-      entities: [
-        User,
-        Order,
-        Organization,
-        Engineer,
-        Product,
-        File,
-        Setting,
-        UserActivityLog,
-        Notification,
-        EarningsStatistic,
-        WorkReport,
-        SalaryCalculation,
-        EngineerOrganizationRate,
-      ],
-      synchronize: true,
-      logging: true,
+    TypeOrmModule.forRootAsync({
+      useFactory: () => {
+        const isProduction = process.env.NODE_ENV === 'production';
+
+        if (isProduction) {
+          // MySQL for Yandex Cloud production
+          return {
+            type: 'mysql',
+            host: process.env.DB_HOST || 'localhost',
+            port: parseInt(process.env.DB_PORT || '3306'),
+            username: process.env.DB_USERNAME || 'user',
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_DATABASE || 'coffee_admin',
+            entities: [
+              User,
+              Order,
+              Organization,
+              Engineer,
+              Product,
+              File,
+              Setting,
+              UserActivityLog,
+              Notification,
+              EarningsStatistic,
+              WorkReport,
+              SalaryCalculation,
+              EngineerOrganizationRate,
+            ],
+            synchronize: false, // NEVER use in production!
+            ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+            charset: 'utf8mb4',
+            extra: {
+              connectionLimit: 10,
+              acquireTimeout: 60000,
+              timeout: 60000,
+            },
+          };
+        } else {
+          // SQLite for local development
+          return {
+            type: 'sqlite',
+            database: 'database.sqlite',
+            entities: [
+              User,
+              Order,
+              Organization,
+              Engineer,
+              Product,
+              File,
+              Setting,
+              UserActivityLog,
+              Notification,
+              EarningsStatistic,
+              WorkReport,
+              SalaryCalculation,
+              EngineerOrganizationRate,
+            ],
+            synchronize: true,
+            logging: false,
+          };
+        }
+      },
     }),
     TestModule,
     AuthModule,
