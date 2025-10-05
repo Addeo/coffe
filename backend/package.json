@@ -33,7 +33,6 @@
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
-    "coffee-shared": "file:../shared",
     "exceljs": "^4.4.0",
     "googleapis": "^159.0.0",
     "multer": "^1.4.5-lts.1",

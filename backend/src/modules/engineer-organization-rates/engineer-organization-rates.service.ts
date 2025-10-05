@@ -9,7 +9,7 @@ import {
   UpdateEngineerOrganizationRateDto,
   EngineerOrganizationRateDto,
   EngineerOrganizationRatesQueryDto,
-} from 'coffee-shared';
+} from '../../dtos/engineer-organization-rate.dto';
 
 @Injectable()
 export class EngineerOrganizationRatesService {
@@ -55,9 +55,12 @@ export class EngineerOrganizationRatesService {
     const rate = this.engineerOrganizationRateRepository.create(createDto);
     const savedRate = await this.engineerOrganizationRateRepository.save(rate);
 
+    // Ensure savedRate is a single entity, not an array
+    const savedEntity = Array.isArray(savedRate) ? savedRate[0] : savedRate;
+
     // Reload with relations
     const rateWithRelations = await this.engineerOrganizationRateRepository.findOne({
-      where: { id: savedRate.id },
+      where: { id: savedEntity.id },
       relations: ['organization'],
     });
 
