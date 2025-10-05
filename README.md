@@ -246,6 +246,43 @@ npm run build:backend
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
+## 📚 Documentation
+
+Detailed documentation is available in the [`docs/`](./docs/) directory:
+
+### 📋 Project Documentation
+- **[Quick Start Guide](./docs/QUICKSTART.md)** - Getting started instructions
+- **[System Analysis](./docs/SERVICE_APP_ANALYSIS.md)** - Detailed requirements and business logic
+- **[Salary Calculation System](./docs/SALARY_CALCULATION_COMPLETE_SYSTEM.md)** - Complete salary calculation documentation
+
+### 🛠️ Development & Deployment
+- **[UI/UX Design](./docs/UI_UX_DESIGN.md)** - Interface design specifications
+- **[User Roles & Permissions](./docs/USER_ROLES_PERMISSIONS.md)** - Access control documentation
+- **[Reports & Analytics](./docs/REPORTS_ANALYTICS_SPEC.md)** - Reporting system specifications
+- **[Demo Deployment](./docs/DEMO_DEPLOY_PLAN.md)** - Demo setup instructions
+
+### 🚀 Deployment Guides
+- **[Frontend Deployment](./docs/FRONTEND_DEPLOY_README.md)** - Frontend deployment instructions
+- **[Backend Deployment](./docs/deploy-backend.sh)** - Backend deployment script
+- **[SberCloud Deployment](./docs/SBERCLOUD_DEPLOY_README.md)** - SberCloud specific deployment
+- **[Yandex Cloud Deployment](./docs/YANDEX_CLOUD_DEPLOY_README.md)** - Yandex Cloud deployment
+- **[ngrok Deployment](./docs/NGROK_DEPLOY.md)** - ngrok tunneling setup
+
+### 💰 Business Logic
+- **[Calculation Examples](./docs/CALCULATION_EXAMPLES.md)** - Salary calculation examples
+- **[Salary Requirements](./docs/SALARY_CALCULATION_REQUIREMENTS.md)** - Salary calculation requirements
+- **[Calculation System](./docs/SALARY_CALCULATION_SYSTEM.md)** - Salary calculation system overview
+
+### ⚙️ Configuration
+- **[Gmail Setup](./docs/GMAIL_SETUP.md)** - Email integration setup
+- **[Demo README](./docs/DEMO_README.md)** - Demo-specific instructions
+
+### 📋 Scripts
+- **[Add Admin](./add_admin.sh)** - Script to add admin user
+- **[Deploy Backend](./deploy-backend.sh)** - Backend deployment script
+- **[Start Demo](./start-demo.sh)** - Demo startup script
+- **[Update ngrok URL](./update-ngrok-url.sh)** - Update ngrok URL script
+
 ## 🤝 Contributing
 
 1. Follow the established code style
