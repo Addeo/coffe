@@ -131,7 +131,7 @@ export interface EngineerRateDialogData {
                     type="number"
                     step="0.1"
                     min="0"
-                    placeholder="e.g., 1.5"
+                    placeholder="например, 1.5"
                   />
                   <mat-hint>Множитель для расчета переработки (если не указана фиксированная ставка)</mat-hint>
                 </mat-form-field>

@@ -8,9 +8,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatTableModule } from '@angular/material/table';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { EngineerOrganizationRatesService } from '../../services/engineer-organization-rates.service';
+import { OrganizationsService } from '../../services/organizations.service';
 import { UsersService } from '../../services/users.service';
 import { ToastService } from '../../services/toast.service';
 import { CreateUserDto, UpdateUserDto, UserDto, EngineerDto } from '../../../../../shared/dtos/user.dto';
+import { EngineerOrganizationRateDto, UpdateEngineerOrganizationRateDto } from '../../../../../shared/dtos/engineer-organization-rate.dto';
+import { OrganizationDto } from '../../../../../shared/dtos/organization.dto';
 import { UserRole } from '../../../../../shared/interfaces/user.interface';
 import { EngineerType } from '../../../../../shared/interfaces/order.interface';
 
@@ -32,6 +41,11 @@ export interface UserDialogData {
     MatSelectModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatCardModule,
+    MatTabsModule,
+    MatTableModule,
+    MatChipsModule,
+    MatTooltipModule,
   ],
   template: `
     <div class="user-dialog">
@@ -43,67 +57,67 @@ export interface UserDialogData {
         <form [formGroup]="userForm" class="user-form">
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label i18n="@@user.firstName">First Name</mat-label>
-              <input matInput formControlName="firstName" placeholder="Enter first name" />
+              <mat-label i18n="@@user.firstName">Имя</mat-label>
+              <input matInput formControlName="firstName" placeholder="Введите имя" />
               <mat-error *ngIf="userForm.get('firstName')?.hasError('required')" i18n="@@user.firstNameRequired">
-                First name is required
+                Имя обязательно
               </mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label i18n="@@user.lastName">Last Name</mat-label>
-              <input matInput formControlName="lastName" placeholder="Enter last name" />
+              <mat-label i18n="@@user.lastName">Фамилия</mat-label>
+              <input matInput formControlName="lastName" placeholder="Введите фамилию" />
               <mat-error *ngIf="userForm.get('lastName')?.hasError('required')">
-                Last name is required
+                Фамилия обязательна
               </mat-error>
             </mat-form-field>
           </div>
 
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Email</mat-label>
+            <mat-label>Электронная почта</mat-label>
             <input
               matInput
               formControlName="email"
               type="email"
-              placeholder="Enter email address"
+              placeholder="Введите адрес электронной почты"
             />
             <mat-error *ngIf="userForm.get('email')?.hasError('required')">
-              Email is required
+              Электронная почта обязательна
             </mat-error>
             <mat-error *ngIf="userForm.get('email')?.hasError('email')">
-              Please enter a valid email
+              Пожалуйста, введите корректный email
             </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Role</mat-label>
+            <mat-label>Роль</mat-label>
             <mat-select formControlName="role" (selectionChange)="onRoleChange()">
-              <mat-option [value]="UserRole.USER">User</mat-option>
-              <mat-option [value]="UserRole.MANAGER">Manager</mat-option>
-              <mat-option [value]="UserRole.ADMIN">Administrator</mat-option>
+              <mat-option [value]="UserRole.USER">Пользователь</mat-option>
+              <mat-option [value]="UserRole.MANAGER">Менеджер</mat-option>
+              <mat-option [value]="UserRole.ADMIN">Администратор</mat-option>
             </mat-select>
             <mat-error *ngIf="userForm.get('role')?.hasError('required')">
-              Role is required
+              Роль обязательна
             </mat-error>
           </mat-form-field>
 
           <!-- Engineer-specific fields (only show if role is USER) -->
           <div *ngIf="userForm.get('role')?.value === UserRole.USER">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>Engineer Type</mat-label>
+              <mat-label>Тип инженера</mat-label>
               <mat-select formControlName="engineerType">
-                <mat-option [value]="EngineerType.STAFF">Staff Engineer</mat-option>
-                <mat-option [value]="EngineerType.REMOTE">Remote Engineer</mat-option>
-                <mat-option [value]="EngineerType.CONTRACT">Contract Engineer</mat-option>
+                <mat-option [value]="EngineerType.STAFF">Штатный инженер</mat-option>
+                <mat-option [value]="EngineerType.REMOTE">Удаленный инженер</mat-option>
+                <mat-option [value]="EngineerType.CONTRACT">Контрактный инженер</mat-option>
               </mat-select>
               <mat-error *ngIf="userForm.get('engineerType')?.hasError('required')">
-                Engineer type is required
+                Тип инженера обязателен
               </mat-error>
             </mat-form-field>
 
             <div class="form-row">
               <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Base Rate (₽/hour)</mat-label>
+                <mat-label>Базовая ставка (₽/час)</mat-label>
                 <input
                   matInput
                   formControlName="baseRate"
@@ -112,12 +126,12 @@ export interface UserDialogData {
                   placeholder="700"
                 />
                 <mat-error *ngIf="userForm.get('baseRate')?.hasError('min')">
-                  Base rate must be positive
+                  Базовая ставка должна быть положительной
                 </mat-error>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Overtime Rate (₽/hour)</mat-label>
+                <mat-label>Ставка за переработку (₽/час)</mat-label>
                 <input
                   matInput
                   formControlName="overtimeRate"
@@ -126,14 +140,14 @@ export interface UserDialogData {
                   placeholder="700"
                 />
                 <mat-error *ngIf="userForm.get('overtimeRate')?.hasError('min')">
-                  Overtime rate must be positive
+                  Ставка за переработку должна быть положительной
                 </mat-error>
               </mat-form-field>
             </div>
 
             <div class="form-row">
               <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Plan Hours/Month</mat-label>
+                <mat-label>Плановые часы/месяц</mat-label>
                 <input
                   matInput
                   formControlName="planHoursMonth"
@@ -141,12 +155,12 @@ export interface UserDialogData {
                   placeholder="160"
                 />
                 <mat-error *ngIf="userForm.get('planHoursMonth')?.hasError('min')">
-                  Plan hours must be at least 1
+                  Плановые часы должны быть не менее 1
                 </mat-error>
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Home Territory Fixed Amount (₽)</mat-label>
+                <mat-label>Фиксированная сумма домашней территории (₽)</mat-label>
                 <input
                   matInput
                   formControlName="homeTerritoryFixedAmount"
@@ -155,7 +169,7 @@ export interface UserDialogData {
                   placeholder="0"
                 />
                 <mat-error *ngIf="userForm.get('homeTerritoryFixedAmount')?.hasError('min')">
-                  Amount must be positive
+                  Сумма должна быть положительной
                 </mat-error>
               </mat-form-field>
             </div>
@@ -163,49 +177,63 @@ export interface UserDialogData {
 
           <!-- Active status field -->
           <mat-form-field appearance="outline" class="form-field" *ngIf="data.isEdit">
-            <mat-label>Status</mat-label>
+            <mat-label>Статус</mat-label>
             <mat-select formControlName="isActive">
-              <mat-option [value]="true">Active</mat-option>
-              <mat-option [value]="false">Inactive</mat-option>
+              <mat-option [value]="true">Активный</mat-option>
+              <mat-option [value]="false">Неактивный</mat-option>
             </mat-select>
           </mat-form-field>
 
           <!-- Engineer active status field (only for USER role) -->
           <mat-form-field appearance="outline" class="form-field" *ngIf="data.isEdit && userForm.get('role')?.value === UserRole.USER">
-            <mat-label>Engineer Status</mat-label>
+            <mat-label>Статус инженера</mat-label>
             <mat-select formControlName="engineerIsActive">
-              <mat-option [value]="true">Active Engineer</mat-option>
-              <mat-option [value]="false">Inactive Engineer</mat-option>
+              <mat-option [value]="true">Активный инженер</mat-option>
+              <mat-option [value]="false">Неактивный инженер</mat-option>
             </mat-select>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field" *ngIf="!data.isEdit">
-            <mat-label>Password</mat-label>
+            <mat-label>Пароль</mat-label>
             <input
               matInput
               formControlName="password"
               type="password"
-              placeholder="Enter password"
+              placeholder="Введите пароль"
             />
             <mat-error *ngIf="userForm.get('password')?.hasError('required')">
-              Password is required
+              Пароль обязателен
             </mat-error>
             <mat-error *ngIf="userForm.get('password')?.hasError('minlength')">
-              Password must be at least 6 characters
+              Пароль должен содержать минимум 6 символов
             </mat-error>
           </mat-form-field>
 
+          <!-- Info about organization rates (only for USER role and create mode) -->
+          <mat-card *ngIf="!data.isEdit && userForm.get('role')?.value === UserRole.USER" class="info-card">
+            <mat-card-content>
+              <div class="info-content">
+                <mat-icon class="info-icon">info</mat-icon>
+                <div class="info-text">
+                  <h4>Настройка ставок по организациям</h4>
+                  <p>После создания инженера автоматически будут созданы базовые ставки для всех существующих организаций.
+                     Вы сможете индивидуально настроить ставки для каждой организации в разделе "Ставки инженеров".</p>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
           <div class="form-row" *ngIf="data.isEdit">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label>New Password (optional)</mat-label>
+              <mat-label>Новый пароль (необязательно)</mat-label>
               <input
                 matInput
                 formControlName="password"
                 type="password"
-                placeholder="Leave empty to keep current password"
+                placeholder="Оставьте пустым, чтобы сохранить текущий пароль"
               />
               <mat-error *ngIf="userForm.get('password')?.hasError('minlength')">
-                Password must be at least 6 characters
+                Пароль должен содержать минимум 6 символов
               </mat-error>
             </mat-form-field>
           </div>
@@ -213,7 +241,7 @@ export interface UserDialogData {
       </mat-dialog-content>
 
       <mat-dialog-actions align="end">
-        <button mat-button (click)="onCancel()">Cancel</button>
+        <button mat-button (click)="onCancel()">Отмена</button>
         <button
           mat-raised-button
           color="primary"
@@ -221,7 +249,7 @@ export interface UserDialogData {
           [disabled]="userForm.invalid || isLoading()"
         >
           <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
-          <span *ngIf="!isLoading()">{{ data.isEdit ? 'Update' : 'Create' }}</span>
+          <span *ngIf="!isLoading()">{{ data.isEdit ? 'Обновить' : 'Создать' }}</span>
         </button>
       </mat-dialog-actions>
     </div>
@@ -229,8 +257,8 @@ export interface UserDialogData {
   styles: [
     `
       .user-dialog {
-        min-width: 500px;
-        max-width: 90vw;
+        min-width: 600px;
+        max-width: 95vw;
         border-radius: 12px;
         overflow: hidden;
       }
@@ -354,6 +382,149 @@ export interface UserDialogData {
           min-width: unset;
         }
       }
+
+      /* Info card styles */
+      .info-card {
+        margin: 20px 0;
+        background-color: #e3f2fd !important;
+        border: 1px solid #bbdefb !important;
+      }
+
+      .info-card mat-card-content {
+        padding: 16px !important;
+      }
+
+      .info-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .info-icon {
+        color: #1976d2;
+        font-size: 24px;
+        margin-top: 2px;
+      }
+
+      .info-text h4 {
+        margin: 0 0 8px 0;
+        color: #1976d2;
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .info-text p {
+        margin: 0;
+        color: #424242;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+
+      /* Responsive info card */
+      @media (max-width: 600px) {
+        .info-content {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+
+        .info-icon {
+          align-self: flex-start;
+        }
+      }
+
+      /* Organization Rates Tab Styles */
+      .rates-tab-content {
+        padding: 24px;
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+
+      .rates-info {
+        margin-bottom: 20px;
+        padding: 16px;
+        background-color: #f5f5f5;
+        border-radius: 8px;
+        border-left: 4px solid #1976d2;
+
+        p {
+          margin: 0 0 8px 0;
+          color: #424242;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+
+      .rates-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        color: #666;
+
+        p {
+          margin-top: 16px;
+        }
+      }
+
+      .rates-table-container {
+        overflow-x: auto;
+      }
+
+      .rates-table {
+        width: 100%;
+        margin-top: 16px;
+        font-size: 0.875rem;
+
+        th {
+          font-weight: 600;
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          color: #666;
+          padding: 8px 6px;
+        }
+
+        td {
+          padding: 8px 6px;
+
+          .rate-value {
+            margin-right: 4px;
+            font-weight: 500;
+            font-size: 0.8rem;
+          }
+
+          button[mat-icon-button] {
+            width: 24px;
+            height: 24px;
+          }
+
+          button[mat-button] {
+            font-size: 0.75rem;
+            line-height: 1;
+            padding: 4px 8px;
+            min-height: 28px;
+          }
+        }
+      }
+
+      /* Responsive rates table */
+      @media (max-width: 768px) {
+        .rates-tab-content {
+          padding: 16px;
+        }
+
+        .rates-table {
+          font-size: 0.875rem;
+
+          th, td {
+            padding: 8px 12px;
+          }
+        }
+      }
     `,
   ],
 })
@@ -362,11 +533,18 @@ export class UserDialogComponent {
   private dialogRef = inject(MatDialogRef<UserDialogComponent>);
   private usersService = inject(UsersService);
   private toastService = inject(ToastService);
+  private engineerRatesService = inject(EngineerOrganizationRatesService);
+  private organizationsService = inject(OrganizationsService);
 
   data: UserDialogData = inject(MAT_DIALOG_DATA);
   isLoading = signal(false);
   UserRole = UserRole;
   EngineerType = EngineerType;
+
+  // Organization rates data
+  organizations = signal<OrganizationDto[]>([]);
+  engineerRates = signal<EngineerOrganizationRateDto[]>([]);
+  ratesLoading = signal(false);
 
   userForm: FormGroup = this.fb.group({
     firstName: ['', [Validators.required]],
@@ -385,6 +563,9 @@ export class UserDialogComponent {
   });
 
   ngOnInit() {
+    // Load organizations for rates management
+    this.loadOrganizations();
+
     if (this.data.isEdit && this.data.user) {
       this.userForm.patchValue({
         firstName: this.data.user.firstName,
@@ -404,6 +585,9 @@ export class UserDialogComponent {
           homeTerritoryFixedAmount: this.data.user.engineer.homeTerritoryFixedAmount,
           engineerIsActive: this.data.user.engineer.isActive,
         });
+
+        // Load engineer rates for editing
+        this.loadEngineerRates(this.data.user.id);
       }
 
       // Password is optional for editing
@@ -446,12 +630,16 @@ export class UserDialogComponent {
 
     this.usersService.createUser(userData).subscribe({
       next: user => {
-        this.toastService.success('User created successfully');
+        const isEngineer = user.role === UserRole.USER;
+        const message = isEngineer
+          ? 'Инженер создан успешно. Ставки по организациям настроены автоматически.'
+          : 'Пользователь создан успешно';
+        this.toastService.success(message);
         this.dialogRef.close(user);
       },
       error: error => {
         console.error('Error creating user:', error);
-        this.toastService.error('Error creating user. Please try again.');
+        this.toastService.error('Ошибка при создании пользователя. Попробуйте еще раз.');
         this.isLoading.set(false);
       },
     });
@@ -500,12 +688,12 @@ export class UserDialogComponent {
 
     this.usersService.updateUser(this.data.user.id, userData).subscribe({
       next: user => {
-        this.toastService.success('User updated successfully');
+        this.toastService.success('Пользователь обновлен успешно');
         this.dialogRef.close(user);
       },
       error: error => {
         console.error('Error updating user:', error);
-        this.toastService.error('Error updating user. Please try again.');
+        this.toastService.error('Ошибка при обновлении пользователя. Попробуйте еще раз.');
         this.isLoading.set(false);
       },
     });
@@ -524,6 +712,161 @@ export class UserDialogComponent {
         engineerIsActive: true,
       });
     }
+  }
+
+  private loadOrganizations(): void {
+    this.organizationsService.getOrganizations().subscribe({
+      next: (response: any) => {
+        this.organizations.set(response.data || []);
+      },
+      error: (error: any) => {
+        console.error('Error loading organizations:', error);
+      },
+    });
+  }
+
+  private loadEngineerRates(engineerId: number): void {
+    this.ratesLoading.set(true);
+    this.engineerRatesService.getActiveRatesForEngineer(engineerId).subscribe({
+      next: (rates: EngineerOrganizationRateDto[]) => {
+        this.engineerRates.set(rates);
+        this.ratesLoading.set(false);
+      },
+      error: (error: any) => {
+        console.error('Error loading engineer rates:', error);
+        this.ratesLoading.set(false);
+      },
+    });
+  }
+
+  onUpdateRate(rate: EngineerOrganizationRateDto, updates: Partial<EngineerOrganizationRateDto>): void {
+    const updateData: UpdateEngineerOrganizationRateDto = {
+      customBaseRate: updates.customBaseRate,
+      customOvertimeRate: updates.customOvertimeRate,
+      customOvertimeMultiplier: updates.customOvertimeMultiplier,
+      customFixedSalary: updates.customFixedSalary,
+      customFixedCarAmount: updates.customFixedCarAmount,
+      customCarKmRate: updates.customCarKmRate,
+      customZone1Extra: updates.customZone1Extra,
+      customZone2Extra: updates.customZone2Extra,
+      customZone3Extra: updates.customZone3Extra,
+    };
+
+    this.engineerRatesService.updateRate(rate.id, updateData).subscribe({
+      next: (updatedRate: EngineerOrganizationRateDto) => {
+        // Update local state
+        const currentRates = this.engineerRates();
+        const updatedRates = currentRates.map(r => r.id === rate.id ? updatedRate : r);
+        this.engineerRates.set(updatedRates);
+        this.toastService.success('Ставка обновлена успешно');
+      },
+      error: (error: any) => {
+        console.error('Error updating rate:', error);
+        this.toastService.error('Ошибка при обновлении ставки');
+      },
+    });
+  }
+
+  getRateForOrganization(organizationId: number): EngineerOrganizationRateDto | undefined {
+    return this.engineerRates().find(rate => rate.organizationId === organizationId);
+  }
+
+  getRateDisplayValue(rate: EngineerOrganizationRateDto | undefined, field: string): string {
+    if (!rate) return 'По умолчанию';
+
+    switch (field) {
+      case 'baseRate':
+        return rate.customBaseRate ? `${rate.customBaseRate} ₽` : 'По умолчанию';
+      case 'overtimeRate':
+        return rate.customOvertimeRate ? `${rate.customOvertimeRate} ₽` : 'По умолчанию';
+      case 'overtimeMultiplier':
+        return rate.customOvertimeMultiplier ? `${rate.customOvertimeMultiplier}x` : 'По умолчанию';
+      case 'fixedSalary':
+        return rate.customFixedSalary ? `${rate.customFixedSalary} ₽` : 'По умолчанию';
+      case 'fixedCarAmount':
+        return rate.customFixedCarAmount ? `${rate.customFixedCarAmount} ₽` : 'По умолчанию';
+      case 'carKmRate':
+        return rate.customCarKmRate ? `${rate.customCarKmRate} ₽/км` : 'По умолчанию';
+      case 'zone1Extra':
+        return rate.customZone1Extra ? `${rate.customZone1Extra} ₽` : 'По умолчанию';
+      case 'zone2Extra':
+        return rate.customZone2Extra ? `${rate.customZone2Extra} ₽` : 'По умолчанию';
+      case 'zone3Extra':
+        return rate.customZone3Extra ? `${rate.customZone3Extra} ₽` : 'По умолчанию';
+      default:
+        return 'По умолчанию';
+    }
+  }
+
+  editRateInline(org: OrganizationDto, field: string): void {
+    const currentRate = this.getRateForOrganization(org.id);
+    let currentValue: number | null = null;
+
+    // Safely get current value based on field
+    if (currentRate) {
+      switch (field) {
+        case 'baseRate':
+          currentValue = currentRate.customBaseRate || null;
+          break;
+        case 'overtimeRate':
+          currentValue = currentRate.customOvertimeRate || null;
+          break;
+        default:
+          currentValue = null;
+      }
+    }
+
+    const newValue = prompt(`Введите новую ${field === 'baseRate' ? 'базовую ставку' : 'ставку переработки'} для ${org.name}:`, currentValue?.toString() || '');
+
+    if (newValue !== null && newValue !== '') {
+      const updates: Partial<EngineerOrganizationRateDto> = {};
+
+      // Safely set the update value
+      switch (field) {
+        case 'baseRate':
+          updates.customBaseRate = Number(newValue);
+          break;
+        case 'overtimeRate':
+          updates.customOvertimeRate = Number(newValue);
+          break;
+      }
+
+      if (currentRate) {
+        this.onUpdateRate(currentRate, updates);
+      } else {
+        // Create new rate if doesn't exist
+        this.createNewRate(org.id, updates);
+      }
+    }
+  }
+
+  openRateDialog(org: OrganizationDto): void {
+    // This would open the full rate configuration dialog
+    // For now, just show a message
+    this.toastService.info(`Полная настройка ставок для ${org.name} будет доступна в отдельном диалоге`);
+  }
+
+  private createNewRate(organizationId: number, updates: Partial<EngineerOrganizationRateDto>): void {
+    if (!this.data.user?.id) return;
+
+    const rateData = {
+      engineerId: this.data.user.id,
+      organizationId,
+      ...updates,
+    };
+
+    this.engineerRatesService.createRate(rateData as any).subscribe({
+      next: (newRate: EngineerOrganizationRateDto) => {
+        // Add to local state
+        const currentRates = this.engineerRates();
+        this.engineerRates.set([...currentRates, newRate]);
+        this.toastService.success('Ставка создана успешно');
+      },
+      error: (error: any) => {
+        console.error('Error creating rate:', error);
+        this.toastService.error('Ошибка при создании ставки');
+      },
+    });
   }
 
   onCancel() {

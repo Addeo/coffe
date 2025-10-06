@@ -83,7 +83,8 @@ export class EngineerOrganizationRatesService {
     }
 
     if (query.isActive !== undefined) {
-      qb.andWhere('rate.isActive = :isActive', { isActive: query.isActive });
+      const isActiveValue = typeof query.isActive === 'string' ? query.isActive === 'true' : query.isActive;
+      qb.andWhere('rate.isActive = :isActive', { isActive: isActiveValue });
     }
 
     // Пагинация
@@ -94,7 +95,7 @@ export class EngineerOrganizationRatesService {
     qb.orderBy('rate.createdAt', 'DESC');
 
     const rates = await qb.getMany();
-    return rates.map(rate => this.mapToDto(rate, rate.organization.name));
+    return rates.map(rate => this.mapToDto(rate, rate.organization?.name || 'Unknown Organization'));
   }
 
   async findOne(id: number): Promise<EngineerOrganizationRateDto> {
@@ -143,7 +144,7 @@ export class EngineerOrganizationRatesService {
     Object.assign(rate, updateDto);
     const updatedRate = await this.engineerOrganizationRateRepository.save(rate);
 
-    return this.mapToDto(updatedRate, updatedRate.organization.name);
+    return this.mapToDto(updatedRate, updatedRate.organization?.name || 'Unknown Organization');
   }
 
   async remove(id: number): Promise<void> {

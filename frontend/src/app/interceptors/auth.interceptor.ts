@@ -11,12 +11,20 @@ export const authInterceptor: HttpInterceptorFn = (
   // Add authorization header with jwt token if available
   const token = authService.getToken();
 
+  console.log('🚀 HTTP Request:', {
+    method: req.method,
+    url: req.url,
+    hasToken: !!token,
+    shouldAddToken: shouldAddToken(req.url),
+  });
+
   if (token && shouldAddToken(req.url)) {
     req = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log('🔐 Added Authorization header to request');
   }
 
   return next(req);

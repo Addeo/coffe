@@ -55,6 +55,7 @@ export class EngineerOrganizationRatesService {
   }
 
   createRate(rate: CreateEngineerOrganizationRateDto): Observable<EngineerOrganizationRateDto> {
+    console.log('📤 Creating engineer-organization rate:', rate);
     return this.http.post<EngineerOrganizationRateDto>(this.apiUrl, rate);
   }
 
@@ -73,7 +74,7 @@ export class EngineerOrganizationRatesService {
 
   // Helper methods
   getActiveRatesForEngineer(engineerId: number): Observable<EngineerOrganizationRateDto[]> {
-    return this.getRates({ engineerId, isActive: true });
+    return this.getRates({ engineerId }); // Remove isActive filter for now
   }
 
   getActiveRatesForOrganization(organizationId: number): Observable<EngineerOrganizationRateDto[]> {

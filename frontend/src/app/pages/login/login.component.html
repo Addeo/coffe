@@ -67,11 +67,11 @@
           [disabled]="isLoading() || emailFormControl.invalid || passwordFormControl.invalid"
         >
           @if (!isLoading()) {
-            <span i18n="@@login.signIn">Sign In</span>
+            <span i18n="@@login.signIn">Войти</span>
           } @else {
             <span>
               <mat-spinner diameter="20" class="spinner"></mat-spinner>
-              <span i18n="@@login.signingIn">Signing in...</span>
+              <span i18n="@@login.signingIn">Вход в систему...</span>
             </span>
           }
         </button>

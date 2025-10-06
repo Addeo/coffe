@@ -8,6 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSortModule, MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
+import { Router } from '@angular/router';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -48,6 +49,7 @@ export class UsersComponent implements OnInit {
   private dialog = inject(MatDialog);
   private modalService = inject(ModalService);
   private toastService = inject(ToastService);
+  private router = inject(Router);
 
   displayedColumns: string[] = [
     'id',
@@ -123,16 +125,7 @@ export class UsersComponent implements OnInit {
   }
 
   onEditUser(user: UserDto) {
-    const dialogRef = this.modalService.openDialog(UserDialogComponent, {
-      user,
-      isEdit: true,
-    });
-
-    dialogRef.subscribe(result => {
-      if (result) {
-        this.loadUsers();
-      }
-    });
+    this.router.navigate(['/users', user.id, 'edit']);
   }
 
   onDeleteUser(user: UserDto) {
@@ -150,15 +143,7 @@ export class UsersComponent implements OnInit {
   }
 
   onCreateUser() {
-    const dialogRef = this.modalService.openDialog(UserDialogComponent, {
-      isEdit: false,
-    });
-
-    dialogRef.subscribe(result => {
-      if (result) {
-        this.loadUsers();
-      }
-    });
+    this.router.navigate(['/users/create']);
   }
 
   onToggleUserStatus(user: UserDto) {

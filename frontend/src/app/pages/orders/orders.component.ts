@@ -24,6 +24,7 @@ import { OrderStatus, OrderStatusLabel } from '@shared/interfaces/order.interfac
 import { UserRole } from '@shared/interfaces/user.interface';
 import { OrderDialogComponent } from '../../components/modals/order-dialog.component';
 import { OrderDeleteConfirmationDialogComponent } from '../../components/modals/order-delete-confirmation-dialog.component';
+import { AssignEngineerDialogComponent } from '../../components/modals/assign-engineer-dialog.component';
 
 @Component({
   selector: 'app-orders',
@@ -202,9 +203,22 @@ export class OrdersComponent implements OnInit {
   }
 
   onAssignEngineer(order: OrderDto) {
-    // TODO: Open engineer assignment dialog
-    console.log('Assign engineer to order:', order);
-    this.toastService.info('Engineer assignment coming soon');
+    const dialogRef = this.modalService.openDialog(AssignEngineerDialogComponent, {
+      order,
+      title: 'Назначить инженера',
+    });
+
+    dialogRef.subscribe((result: OrderDto | null) => {
+      if (result) {
+        // Update the order in the dataSource
+        const index = this.dataSource.data.findIndex(o => o.id === result.id);
+        if (index !== -1) {
+          this.dataSource.data[index] = result;
+          this.dataSource._updateChangeSubscription();
+        }
+        this.toastService.success('Инженер назначен на заказ');
+      }
+    });
   }
 
   onDeleteOrder(order: OrderDto) {
