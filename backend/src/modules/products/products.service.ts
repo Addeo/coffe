@@ -70,10 +70,9 @@ export class ProductsService {
     }
 
     if (search) {
-      queryBuilder.andWhere(
-        '(product.name LIKE :search OR product.description LIKE :search)',
-        { search: `%${search}%` }
-      );
+      queryBuilder.andWhere('(product.name LIKE :search OR product.description LIKE :search)', {
+        search: `%${search}%`,
+      });
     }
 
     queryBuilder

@@ -106,7 +106,9 @@ export interface EngineerRateDialogData {
                       min="0"
                       placeholder="Оставьте пустым для использования ставки по умолчанию"
                     />
-                    <mat-hint>Индивидуальная базовая ставка для этого инженера в этой организации</mat-hint>
+                    <mat-hint
+                      >Индивидуальная базовая ставка для этого инженера в этой организации</mat-hint
+                    >
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" class="form-field">
@@ -133,7 +135,10 @@ export interface EngineerRateDialogData {
                     min="0"
                     placeholder="например, 1.5"
                   />
-                  <mat-hint>Множитель для расчета переработки (если не указана фиксированная ставка)</mat-hint>
+                  <mat-hint
+                    >Множитель для расчета переработки (если не указана фиксированная
+                    ставка)</mat-hint
+                  >
                 </mat-form-field>
               </div>
             </mat-tab>

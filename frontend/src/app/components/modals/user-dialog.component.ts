@@ -17,8 +17,16 @@ import { EngineerOrganizationRatesService } from '../../services/engineer-organi
 import { OrganizationsService } from '../../services/organizations.service';
 import { UsersService } from '../../services/users.service';
 import { ToastService } from '../../services/toast.service';
-import { CreateUserDto, UpdateUserDto, UserDto, EngineerDto } from '../../../../../shared/dtos/user.dto';
-import { EngineerOrganizationRateDto, UpdateEngineerOrganizationRateDto } from '../../../../../shared/dtos/engineer-organization-rate.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UserDto,
+  EngineerDto,
+} from '../../../../../shared/dtos/user.dto';
+import {
+  EngineerOrganizationRateDto,
+  UpdateEngineerOrganizationRateDto,
+} from '../../../../../shared/dtos/engineer-organization-rate.dto';
 import { OrganizationDto } from '../../../../../shared/dtos/organization.dto';
 import { UserRole } from '../../../../../shared/interfaces/user.interface';
 import { EngineerType } from '../../../../../shared/interfaces/order.interface';
@@ -59,7 +67,10 @@ export interface UserDialogData {
             <mat-form-field appearance="outline" class="form-field">
               <mat-label i18n="@@user.firstName">Имя</mat-label>
               <input matInput formControlName="firstName" placeholder="Введите имя" />
-              <mat-error *ngIf="userForm.get('firstName')?.hasError('required')" i18n="@@user.firstNameRequired">
+              <mat-error
+                *ngIf="userForm.get('firstName')?.hasError('required')"
+                i18n="@@user.firstNameRequired"
+              >
                 Имя обязательно
               </mat-error>
             </mat-form-field>
@@ -148,12 +159,7 @@ export interface UserDialogData {
             <div class="form-row">
               <mat-form-field appearance="outline" class="form-field">
                 <mat-label>Плановые часы/месяц</mat-label>
-                <input
-                  matInput
-                  formControlName="planHoursMonth"
-                  type="number"
-                  placeholder="160"
-                />
+                <input matInput formControlName="planHoursMonth" type="number" placeholder="160" />
                 <mat-error *ngIf="userForm.get('planHoursMonth')?.hasError('min')">
                   Плановые часы должны быть не менее 1
                 </mat-error>
@@ -185,7 +191,11 @@ export interface UserDialogData {
           </mat-form-field>
 
           <!-- Engineer active status field (only for USER role) -->
-          <mat-form-field appearance="outline" class="form-field" *ngIf="data.isEdit && userForm.get('role')?.value === UserRole.USER">
+          <mat-form-field
+            appearance="outline"
+            class="form-field"
+            *ngIf="data.isEdit && userForm.get('role')?.value === UserRole.USER"
+          >
             <mat-label>Статус инженера</mat-label>
             <mat-select formControlName="engineerIsActive">
               <mat-option [value]="true">Активный инженер</mat-option>
@@ -210,14 +220,20 @@ export interface UserDialogData {
           </mat-form-field>
 
           <!-- Info about organization rates (only for USER role and create mode) -->
-          <mat-card *ngIf="!data.isEdit && userForm.get('role')?.value === UserRole.USER" class="info-card">
+          <mat-card
+            *ngIf="!data.isEdit && userForm.get('role')?.value === UserRole.USER"
+            class="info-card"
+          >
             <mat-card-content>
               <div class="info-content">
                 <mat-icon class="info-icon">info</mat-icon>
                 <div class="info-text">
                   <h4>Настройка ставок по организациям</h4>
-                  <p>После создания инженера автоматически будут созданы базовые ставки для всех существующих организаций.
-                     Вы сможете индивидуально настроить ставки для каждой организации в разделе "Ставки инженеров".</p>
+                  <p>
+                    После создания инженера автоматически будут созданы базовые ставки для всех
+                    существующих организаций. Вы сможете индивидуально настроить ставки для каждой
+                    организации в разделе "Ставки инженеров".
+                  </p>
                 </div>
               </div>
             </mat-card-content>
@@ -520,7 +536,8 @@ export interface UserDialogData {
         .rates-table {
           font-size: 0.875rem;
 
-          th, td {
+          th,
+          td {
             padding: 8px 12px;
           }
         }
@@ -625,7 +642,8 @@ export class UserDialogComponent {
       baseRate: formValue.role === UserRole.USER ? formValue.baseRate : undefined,
       overtimeRate: formValue.role === UserRole.USER ? formValue.overtimeRate : undefined,
       planHoursMonth: formValue.role === UserRole.USER ? formValue.planHoursMonth : undefined,
-      homeTerritoryFixedAmount: formValue.role === UserRole.USER ? formValue.homeTerritoryFixedAmount : undefined,
+      homeTerritoryFixedAmount:
+        formValue.role === UserRole.USER ? formValue.homeTerritoryFixedAmount : undefined,
     };
 
     this.usersService.createUser(userData).subscribe({
@@ -667,19 +685,35 @@ export class UserDialogComponent {
       userData.engineerType = formValue.engineerType;
 
       // Only include numeric fields if they have valid values
-      if (formValue.baseRate !== null && formValue.baseRate !== undefined && formValue.baseRate !== '') {
+      if (
+        formValue.baseRate !== null &&
+        formValue.baseRate !== undefined &&
+        formValue.baseRate !== ''
+      ) {
         userData.baseRate = Number(formValue.baseRate);
       }
 
-      if (formValue.overtimeRate !== null && formValue.overtimeRate !== undefined && formValue.overtimeRate !== '') {
+      if (
+        formValue.overtimeRate !== null &&
+        formValue.overtimeRate !== undefined &&
+        formValue.overtimeRate !== ''
+      ) {
         userData.overtimeRate = Number(formValue.overtimeRate);
       }
 
-      if (formValue.planHoursMonth !== null && formValue.planHoursMonth !== undefined && formValue.planHoursMonth !== '') {
+      if (
+        formValue.planHoursMonth !== null &&
+        formValue.planHoursMonth !== undefined &&
+        formValue.planHoursMonth !== ''
+      ) {
         userData.planHoursMonth = Number(formValue.planHoursMonth);
       }
 
-      if (formValue.homeTerritoryFixedAmount !== null && formValue.homeTerritoryFixedAmount !== undefined && formValue.homeTerritoryFixedAmount !== '') {
+      if (
+        formValue.homeTerritoryFixedAmount !== null &&
+        formValue.homeTerritoryFixedAmount !== undefined &&
+        formValue.homeTerritoryFixedAmount !== ''
+      ) {
         userData.homeTerritoryFixedAmount = Number(formValue.homeTerritoryFixedAmount);
       }
 
@@ -739,7 +773,10 @@ export class UserDialogComponent {
     });
   }
 
-  onUpdateRate(rate: EngineerOrganizationRateDto, updates: Partial<EngineerOrganizationRateDto>): void {
+  onUpdateRate(
+    rate: EngineerOrganizationRateDto,
+    updates: Partial<EngineerOrganizationRateDto>
+  ): void {
     const updateData: UpdateEngineerOrganizationRateDto = {
       customBaseRate: updates.customBaseRate,
       customOvertimeRate: updates.customOvertimeRate,
@@ -756,7 +793,7 @@ export class UserDialogComponent {
       next: (updatedRate: EngineerOrganizationRateDto) => {
         // Update local state
         const currentRates = this.engineerRates();
-        const updatedRates = currentRates.map(r => r.id === rate.id ? updatedRate : r);
+        const updatedRates = currentRates.map(r => (r.id === rate.id ? updatedRate : r));
         this.engineerRates.set(updatedRates);
         this.toastService.success('Ставка обновлена успешно');
       },
@@ -816,7 +853,10 @@ export class UserDialogComponent {
       }
     }
 
-    const newValue = prompt(`Введите новую ${field === 'baseRate' ? 'базовую ставку' : 'ставку переработки'} для ${org.name}:`, currentValue?.toString() || '');
+    const newValue = prompt(
+      `Введите новую ${field === 'baseRate' ? 'базовую ставку' : 'ставку переработки'} для ${org.name}:`,
+      currentValue?.toString() || ''
+    );
 
     if (newValue !== null && newValue !== '') {
       const updates: Partial<EngineerOrganizationRateDto> = {};
@@ -843,10 +883,15 @@ export class UserDialogComponent {
   openRateDialog(org: OrganizationDto): void {
     // This would open the full rate configuration dialog
     // For now, just show a message
-    this.toastService.info(`Полная настройка ставок для ${org.name} будет доступна в отдельном диалоге`);
+    this.toastService.info(
+      `Полная настройка ставок для ${org.name} будет доступна в отдельном диалоге`
+    );
   }
 
-  private createNewRate(organizationId: number, updates: Partial<EngineerOrganizationRateDto>): void {
+  private createNewRate(
+    organizationId: number,
+    updates: Partial<EngineerOrganizationRateDto>
+  ): void {
     if (!this.data.user?.id) return;
 
     const rateData = {

@@ -58,6 +58,7 @@
 ### Получение данных для подключения
 
 После создания кластера:
+
 - **Хост:** `c-xxx.ru-central1.internal` (или внешний хост)
 - **Порт:** `3306`
 - **База данных:** `coffee_admin`
@@ -93,6 +94,7 @@
 ### SSH ключи
 
 6. **SSH ключи:**
+
    ```bash
    # Сгенерируйте ключ (если нет)
    ssh-keygen -t ed25519 -C "yandex-cloud"
@@ -108,6 +110,7 @@
 ### Подключение к VM
 
 После создания:
+
 ```bash
 ssh -i ~/.ssh/id_ed25519 yc-user@VM_EXTERNAL_IP
 ```
@@ -169,6 +172,7 @@ chmod +x deploy-yandex-cloud.sh
 ### Ручной деплой (если скрипт не работает)
 
 1. **Соберите приложение:**
+
    ```bash
    cd backend
    npm run build
@@ -176,6 +180,7 @@ chmod +x deploy-yandex-cloud.sh
    ```
 
 2. **Загрузите файлы на VM:**
+
    ```bash
    scp -i ~/.ssh/id_ed25519 docker-compose.prod.yml yc-user@VM_IP:~/
    scp -i ~/.ssh/id_ed25519 backend/.env.prod yc-user@VM_IP:~/
@@ -184,6 +189,7 @@ chmod +x deploy-yandex-cloud.sh
    ```
 
 3. **На VM установите Docker:**
+
    ```bash
    ssh -i ~/.ssh/id_ed25519 yc-user@VM_IP
 
@@ -209,6 +215,7 @@ chmod +x deploy-yandex-cloud.sh
 ### Настройка DNS
 
 1. **В панели регистратора** укажите NS сервера Yandex Cloud:
+
    ```
    ns1.yandexcloud.net
    ns2.yandexcloud.net
@@ -222,11 +229,13 @@ chmod +x deploy-yandex-cloud.sh
 ### SSL сертификат
 
 1. **Установите Nginx:**
+
    ```bash
    sudo apt install nginx
    ```
 
 2. **Создайте конфиг Nginx** (`/etc/nginx/sites-available/coffee-admin`):
+
    ```nginx
    server {
        listen 80;
@@ -242,6 +251,7 @@ chmod +x deploy-yandex-cloud.sh
    ```
 
 3. **Включите сайт:**
+
    ```bash
    sudo ln -s /etc/nginx/sites-available/coffee-admin /etc/nginx/sites-enabled/
    sudo nginx -t
@@ -284,6 +294,7 @@ docker-compose -f docker-compose.prod.yml restart backend
 ## 💰 Стоимость владения
 
 ### Ежемесячные расходы:
+
 - **VM (2 vCPU, 4 GB RAM):** ~300₽
 - **MySQL (s3.small):** ~500₽
 - **Внешний IP:** ~150₽
@@ -291,6 +302,7 @@ docker-compose -f docker-compose.prod.yml restart backend
 - **Итого:** ~1050₽/месяц
 
 ### Бесплатно:
+
 - **SSL сертификат** (Let's Encrypt)
 - **Yandex Cloud monitoring**
 

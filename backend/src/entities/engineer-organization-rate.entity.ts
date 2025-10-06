@@ -69,4 +69,3 @@ export class EngineerOrganizationRate {
   @UpdateDateColumn()
   updatedAt: Date;
 }
-

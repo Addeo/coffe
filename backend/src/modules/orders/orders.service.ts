@@ -94,7 +94,7 @@ export class OrdersService {
     private readonly settingsRepository: Repository<Setting>,
     @InjectRepository(UserActivityLog)
     private readonly activityLogRepository: Repository<UserActivityLog>,
-    private readonly notificationsService: NotificationsService,
+    private readonly notificationsService: NotificationsService
     // private readonly statisticsService: StatisticsService,
     // private readonly calculationService: CalculationService
   ) {}
@@ -267,15 +267,21 @@ export class OrdersService {
     }
 
     if (plannedStartDateFrom) {
-      queryBuilder.andWhere('order.plannedStartDate >= :plannedStartDateFrom', { plannedStartDateFrom });
+      queryBuilder.andWhere('order.plannedStartDate >= :plannedStartDateFrom', {
+        plannedStartDateFrom,
+      });
     }
 
     if (plannedStartDateTo) {
-      queryBuilder.andWhere('order.plannedStartDate <= :plannedStartDateTo', { plannedStartDateTo });
+      queryBuilder.andWhere('order.plannedStartDate <= :plannedStartDateTo', {
+        plannedStartDateTo,
+      });
     }
 
     if (actualStartDateFrom) {
-      queryBuilder.andWhere('order.actualStartDate >= :actualStartDateFrom', { actualStartDateFrom });
+      queryBuilder.andWhere('order.actualStartDate >= :actualStartDateFrom', {
+        actualStartDateFrom,
+      });
     }
 
     if (actualStartDateTo) {
@@ -316,8 +322,8 @@ export class OrdersService {
         'assignedBy',
         'files',
         'files.uploadedBy',
-        'workReports'
-      ]
+        'workReports',
+      ],
     });
 
     if (!order) {
@@ -464,7 +470,9 @@ export class OrdersService {
 
     try {
       const order = await this.findOne(id, user);
-      console.log(`Order found: ${order.id}, status: ${order.status}, createdBy: ${order.createdById}`);
+      console.log(
+        `Order found: ${order.id}, status: ${order.status}, createdBy: ${order.createdById}`
+      );
 
       // Only allow deletion of waiting orders
       if (order.status !== OrderStatus.WAITING) {
@@ -478,7 +486,9 @@ export class OrdersService {
         throw new BadRequestException('Insufficient permissions to delete this order');
       }
 
-      console.log(`Deleting order ${id} with ${order.files?.length || 0} files and ${order.workReports?.length || 0} work reports`);
+      console.log(
+        `Deleting order ${id} with ${order.files?.length || 0} files and ${order.workReports?.length || 0} work reports`
+      );
 
       // First, check for any other relations that might prevent deletion
       // Check for work reports

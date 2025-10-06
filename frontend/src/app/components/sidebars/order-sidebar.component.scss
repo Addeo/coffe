@@ -232,7 +232,8 @@
       }
 
       // File lists
-      .uploaded-files, .attached-files {
+      .uploaded-files,
+      .attached-files {
         h4 {
           margin: 16px 0 8px 0;
           font-size: 14px;
@@ -300,7 +301,7 @@
       letter-spacing: 0.5px;
     }
 
-    button[color="primary"] {
+    button[color='primary'] {
       background-color: #1976d2;
       color: white;
     }

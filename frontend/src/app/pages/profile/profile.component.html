@@ -27,7 +27,9 @@
     <mat-card class="info-card">
       <mat-card-header>
         <mat-card-title i18n="@@profile.profileInformation">Информация о профиле</mat-card-title>
-        <mat-card-subtitle i18n="@@profile.updatePersonalInfo">Обновите свою личную информацию</mat-card-subtitle>
+        <mat-card-subtitle i18n="@@profile.updatePersonalInfo"
+          >Обновите свою личную информацию</mat-card-subtitle
+        >
         <div class="card-actions">
           <button mat-icon-button (click)="toggleEditMode()" [disabled]="isLoading()">
             <mat-icon>{{ isEditing() ? 'close' : 'edit' }}</mat-icon>
@@ -104,7 +106,9 @@
     <mat-card class="security-card">
       <mat-card-header>
         <mat-card-title i18n="@@profile.security">Безопасность</mat-card-title>
-        <mat-card-subtitle i18n="@@profile.manageSecurity">Управление безопасностью учетной записи</mat-card-subtitle>
+        <mat-card-subtitle i18n="@@profile.manageSecurity"
+          >Управление безопасностью учетной записи</mat-card-subtitle
+        >
       </mat-card-header>
 
       <mat-card-content>

@@ -11,7 +11,7 @@ import { CalculationService } from './calculation.service';
 export class CalculationsController {
   constructor(
     private salaryCalculationService: SalaryCalculationService,
-    private calculationService: CalculationService,
+    private calculationService: CalculationService
   ) {}
 
   /**
@@ -21,7 +21,7 @@ export class CalculationsController {
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   async calculateMonthlySalary(
     @Param('month') month: number,
-    @Param('year') year: number,
+    @Param('year') year: number
   ): Promise<{ message: string; results: SalaryCalculationResult[] }> {
     const results = await this.salaryCalculationService.calculateSalaryForMonthManual(month, year);
 
@@ -40,13 +40,13 @@ export class CalculationsController {
     @Query('engineerId') engineerId?: number,
     @Query('month') month?: number,
     @Query('year') year?: number,
-    @Query('status') status?: string,
+    @Query('status') status?: string
   ) {
     return this.salaryCalculationService.getSalaryCalculations(
       engineerId ? Number(engineerId) : undefined,
       month ? Number(month) : undefined,
       year ? Number(year) : undefined,
-      status as any,
+      status as any
     );
   }
 
@@ -67,12 +67,12 @@ export class CalculationsController {
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   async updateCalculationStatus(
     @Param('id') calculationId: number,
-    @Body() body: { status: string; userId?: number },
+    @Body() body: { status: string; userId?: number }
   ) {
     return this.salaryCalculationService.updateCalculationStatus(
       calculationId,
       body.status as any,
-      body.userId,
+      body.userId
     );
   }
 
@@ -85,11 +85,7 @@ export class CalculationsController {
     // Этот endpoint для тестирования расчетов
     const { engineer, organization, workReport } = body;
 
-    return this.calculationService.calculateWorkReportTotals(
-      engineer,
-      organization,
-      workReport,
-    );
+    return this.calculationService.calculateWorkReportTotals(engineer, organization, workReport);
   }
 
   /**
@@ -97,17 +93,14 @@ export class CalculationsController {
    */
   @Get('statistics')
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
-  async getCalculationStatistics(
-    @Query('month') month?: number,
-    @Query('year') year?: number,
-  ) {
+  async getCalculationStatistics(@Query('month') month?: number, @Query('year') year?: number) {
     const currentMonth = month ? Number(month) : new Date().getMonth() + 1;
     const currentYear = year ? Number(year) : new Date().getFullYear();
 
     const calculations = await this.salaryCalculationService.getSalaryCalculations(
       undefined,
       currentMonth,
-      currentYear,
+      currentYear
     );
 
     const stats = {
@@ -119,7 +112,8 @@ export class CalculationsController {
     };
 
     if (stats.totalClientRevenue > 0) {
-      stats.averageProfitMargin = ((stats.totalClientRevenue - stats.totalSalaryAmount) / stats.totalClientRevenue) * 100;
+      stats.averageProfitMargin =
+        ((stats.totalClientRevenue - stats.totalSalaryAmount) / stats.totalClientRevenue) * 100;
     }
 
     // Топ-5 инженеров
@@ -127,7 +121,9 @@ export class CalculationsController {
       .sort((a, b) => b.totalAmount - a.totalAmount)
       .slice(0, 5)
       .map(calc => ({
-        name: calc.engineer.user ? `${calc.engineer.user.firstName} ${calc.engineer.user.lastName}` : 'Unknown',
+        name: calc.engineer.user
+          ? `${calc.engineer.user.firstName} ${calc.engineer.user.lastName}`
+          : 'Unknown',
         amount: calc.totalAmount,
       }));
 
@@ -146,7 +142,7 @@ export class CalculationsController {
       engineer,
       organization,
       hours,
-      isOvertime,
+      isOvertime
     );
 
     const carUsage = await this.calculationService.calculateCarUsage(

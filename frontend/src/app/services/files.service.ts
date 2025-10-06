@@ -8,7 +8,7 @@ import {
   FileQueryDto,
   FileType,
   UploadFileDto,
-  FileMetadataResponse
+  FileMetadataResponse,
 } from '@shared/dtos/file.dto';
 import { PaginatedResponse } from '@shared/types/api.types';
 
@@ -51,7 +51,9 @@ export class FilesService {
       }
     });
 
-    return this.http.get<PaginatedResponse<FileResponseDto>>(`${environment.apiUrl}/files`, { params });
+    return this.http.get<PaginatedResponse<FileResponseDto>>(`${environment.apiUrl}/files`, {
+      params,
+    });
   }
 
   getMyFiles(query: FileQueryDto = {}): Observable<PaginatedResponse<FileResponseDto>> {
@@ -67,7 +69,10 @@ export class FilesService {
       }
     });
 
-    return this.http.get<PaginatedResponse<FileResponseDto>>(`${environment.apiUrl}/files/my-files`, { params });
+    return this.http.get<PaginatedResponse<FileResponseDto>>(
+      `${environment.apiUrl}/files/my-files`,
+      { params }
+    );
   }
 
   getFileStats(): Observable<{
@@ -83,7 +88,9 @@ export class FilesService {
   }
 
   getFilesByOrderId(orderId: number): Observable<FileResponseDto[]> {
-    return this.http.get<FileResponseDto[]>(`${environment.apiUrl}/files/get-order-files/${orderId}`);
+    return this.http.get<FileResponseDto[]>(
+      `${environment.apiUrl}/files/get-order-files/${orderId}`
+    );
   }
 
   getFile(fileId: string): Observable<FileResponseDto> {
@@ -117,7 +124,10 @@ export class FilesService {
     });
   }
 
-  getFilesByType(type: FileType, query: FileQueryDto = {}): Observable<PaginatedResponse<FileResponseDto>> {
+  getFilesByType(
+    type: FileType,
+    query: FileQueryDto = {}
+  ): Observable<PaginatedResponse<FileResponseDto>> {
     let params = new HttpParams();
 
     Object.entries(query).forEach(([key, value]) => {
@@ -130,18 +140,27 @@ export class FilesService {
       }
     });
 
-    return this.http.get<PaginatedResponse<FileResponseDto>>(`${environment.apiUrl}/files/type/${type}`, { params });
+    return this.http.get<PaginatedResponse<FileResponseDto>>(
+      `${environment.apiUrl}/files/type/${type}`,
+      { params }
+    );
   }
 
   // Метод для прикрепления файла к заказу
   attachFileToOrder(orderId: number, fileId: string): Observable<FileResponseDto> {
-    return this.http.post<FileResponseDto>(`${environment.apiUrl}/files/${fileId}/attach-to-order`, {
-      orderId,
-    });
+    return this.http.post<FileResponseDto>(
+      `${environment.apiUrl}/files/${fileId}/attach-to-order`,
+      {
+        orderId,
+      }
+    );
   }
 
   // Метод для открепления файла от заказа
   detachFileFromOrder(fileId: string): Observable<FileResponseDto> {
-    return this.http.post<FileResponseDto>(`${environment.apiUrl}/files/${fileId}/detach-from-order`, {});
+    return this.http.post<FileResponseDto>(
+      `${environment.apiUrl}/files/${fileId}/detach-from-order`,
+      {}
+    );
   }
 }

@@ -222,7 +222,8 @@
     .rates-table {
       font-size: 0.875rem;
 
-      th, td {
+      th,
+      td {
         padding: 8px 12px;
       }
     }
@@ -240,7 +241,8 @@
 
 @media (max-width: 600px) {
   .rates-table {
-    th, td {
+    th,
+    td {
       padding: 6px 8px;
       font-size: 0.8rem;
     }

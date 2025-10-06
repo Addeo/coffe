@@ -18,12 +18,23 @@ import { UsersService } from '../../services/users.service';
 import { ToastService } from '../../services/toast.service';
 import { EngineerOrganizationRatesService } from '../../services/engineer-organization-rates.service';
 import { OrganizationsService } from '../../services/organizations.service';
-import { CreateUserDto, UpdateUserDto, UserDto, EngineerDto } from '../../../../../shared/dtos/user.dto';
-import { EngineerOrganizationRateDto, UpdateEngineerOrganizationRateDto } from '../../../../../shared/dtos/engineer-organization-rate.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UserDto,
+  EngineerDto,
+} from '../../../../../shared/dtos/user.dto';
+import {
+  EngineerOrganizationRateDto,
+  UpdateEngineerOrganizationRateDto,
+} from '../../../../../shared/dtos/engineer-organization-rate.dto';
 import { OrganizationDto } from '../../../../../shared/dtos/organization.dto';
 import { UserRole } from '../../../../../shared/interfaces/user.interface';
 import { EngineerType } from '../../../../../shared/interfaces/order.interface';
-import { RateEditDialogComponent, RateEditDialogData } from '../../components/modals/rate-edit-dialog.component';
+import {
+  RateEditDialogComponent,
+  RateEditDialogData,
+} from '../../components/modals/rate-edit-dialog.component';
 
 @Component({
   selector: 'app-user-edit',
@@ -62,7 +73,10 @@ import { RateEditDialogComponent, RateEditDialogData } from '../../components/mo
                 <mat-form-field appearance="outline" class="form-field">
                   <mat-label i18n="@@user.firstName">Имя</mat-label>
                   <input matInput formControlName="firstName" placeholder="Введите имя" />
-                  <mat-error *ngIf="userForm.get('firstName')?.hasError('required')" i18n="@@user.firstNameRequired">
+                  <mat-error
+                    *ngIf="userForm.get('firstName')?.hasError('required')"
+                    i18n="@@user.firstNameRequired"
+                  >
                     Имя обязательно
                   </mat-error>
                 </mat-form-field>
@@ -188,7 +202,11 @@ import { RateEditDialogComponent, RateEditDialogData } from '../../components/mo
               </mat-form-field>
 
               <!-- Engineer active status field (only for USER role) -->
-              <mat-form-field appearance="outline" class="form-field" *ngIf="isEdit && userForm.get('role')?.value === UserRole.USER">
+              <mat-form-field
+                appearance="outline"
+                class="form-field"
+                *ngIf="isEdit && userForm.get('role')?.value === UserRole.USER"
+              >
                 <mat-label>Статус инженера</mat-label>
                 <mat-select formControlName="engineerIsActive">
                   <mat-option [value]="true">Активный инженер</mat-option>
@@ -228,14 +246,20 @@ import { RateEditDialogComponent, RateEditDialogData } from '../../components/mo
               </div>
 
               <!-- Info about organization rates (only for USER role and create mode) -->
-              <mat-card *ngIf="!isEdit && userForm.get('role')?.value === UserRole.USER" class="info-card">
+              <mat-card
+                *ngIf="!isEdit && userForm.get('role')?.value === UserRole.USER"
+                class="info-card"
+              >
                 <mat-card-content>
                   <div class="info-content">
                     <mat-icon class="info-icon">info</mat-icon>
                     <div class="info-text">
                       <h4>Настройка ставок по организациям</h4>
-                      <p>После создания инженера автоматически будут созданы базовые ставки для всех существующих организаций.
-                         Вы сможете индивидуально настроить ставки для каждой организации на вкладке "Ставки".</p>
+                      <p>
+                        После создания инженера автоматически будут созданы базовые ставки для всех
+                        существующих организаций. Вы сможете индивидуально настроить ставки для
+                        каждой организации на вкладке "Ставки".
+                      </p>
                     </div>
                   </div>
                 </mat-card-content>
@@ -258,11 +282,17 @@ import { RateEditDialogComponent, RateEditDialogData } from '../../components/mo
         </mat-tab>
 
         <!-- Organization Rates Tab (only for engineers) -->
-        <mat-tab label="Ставки" *ngIf="isEdit && getUser()?.role === UserRole.USER && getUser()?.engineer">
+        <mat-tab
+          label="Ставки"
+          *ngIf="isEdit && getUser()?.role === UserRole.USER && getUser()?.engineer"
+        >
           <div class="tab-content">
             <div class="rates-info">
               <p>Настройка индивидуальных ставок инженера по организациям.</p>
-              <p><strong>Базовые:</strong> {{ getUser()?.engineer?.baseRate }} ₽/ч, <strong>Переработка:</strong> {{ getUser()?.engineer?.overtimeRate }} ₽/ч</p>
+              <p>
+                <strong>Базовые:</strong> {{ getUser()?.engineer?.baseRate }} ₽/ч,
+                <strong>Переработка:</strong> {{ getUser()?.engineer?.overtimeRate }} ₽/ч
+              </p>
             </div>
 
             <div class="rates-loading" *ngIf="ratesLoading()">
@@ -284,8 +314,14 @@ import { RateEditDialogComponent, RateEditDialogData } from '../../components/mo
                 <ng-container matColumnDef="baseRate">
                   <th mat-header-cell *matHeaderCellDef>Базовая ставка</th>
                   <td mat-cell *matCellDef="let org">
-                    <span class="rate-value">{{ getRateDisplayValue(getRateForOrganization(org.id), 'baseRate') }}</span>
-                    <button mat-icon-button (click)="editRateInline(org, 'baseRate')" matTooltip="Редактировать">
+                    <span class="rate-value">{{
+                      getRateDisplayValue(getRateForOrganization(org.id), 'baseRate')
+                    }}</span>
+                    <button
+                      mat-icon-button
+                      (click)="editRateInline(org, 'baseRate')"
+                      matTooltip="Редактировать"
+                    >
                       <mat-icon>edit</mat-icon>
                     </button>
                   </td>
@@ -295,15 +331,27 @@ import { RateEditDialogComponent, RateEditDialogData } from '../../components/mo
                 <ng-container matColumnDef="overtimeRate">
                   <th mat-header-cell *matHeaderCellDef>Ставка переработки</th>
                   <td mat-cell *matCellDef="let org">
-                    <span class="rate-value">{{ getRateDisplayValue(getRateForOrganization(org.id), 'overtimeRate') }}</span>
-                    <button mat-icon-button (click)="editRateInline(org, 'overtimeRate')" matTooltip="Редактировать">
+                    <span class="rate-value">{{
+                      getRateDisplayValue(getRateForOrganization(org.id), 'overtimeRate')
+                    }}</span>
+                    <button
+                      mat-icon-button
+                      (click)="editRateInline(org, 'overtimeRate')"
+                      matTooltip="Редактировать"
+                    >
                       <mat-icon>edit</mat-icon>
                     </button>
                   </td>
                 </ng-container>
 
-                <tr mat-header-row *matHeaderRowDef="['organization', 'baseRate', 'overtimeRate']"></tr>
-                <tr mat-row *matRowDef="let row; columns: ['organization', 'baseRate', 'overtimeRate'];"></tr>
+                <tr
+                  mat-header-row
+                  *matHeaderRowDef="['organization', 'baseRate', 'overtimeRate']"
+                ></tr>
+                <tr
+                  mat-row
+                  *matRowDef="let row; columns: ['organization', 'baseRate', 'overtimeRate']"
+                ></tr>
               </table>
             </div>
           </div>
@@ -518,7 +566,8 @@ import { RateEditDialogComponent, RateEditDialogData } from '../../components/mo
         .rates-table {
           font-size: 0.875rem;
 
-          th, td {
+          th,
+          td {
             padding: 8px 12px;
           }
         }
@@ -698,7 +747,8 @@ export class UserEditComponent implements OnInit {
       baseRate: formValue.role === UserRole.USER ? formValue.baseRate : undefined,
       overtimeRate: formValue.role === UserRole.USER ? formValue.overtimeRate : undefined,
       planHoursMonth: formValue.role === UserRole.USER ? formValue.planHoursMonth : undefined,
-      homeTerritoryFixedAmount: formValue.role === UserRole.USER ? formValue.homeTerritoryFixedAmount : undefined,
+      homeTerritoryFixedAmount:
+        formValue.role === UserRole.USER ? formValue.homeTerritoryFixedAmount : undefined,
     };
 
     this.usersService.createUser(userData).subscribe({
@@ -813,15 +863,18 @@ export class UserEditComponent implements OnInit {
     });
   }
 
-  private createNewRate(organizationId: number, updates: Partial<EngineerOrganizationRateDto>): void {
+  private createNewRate(
+    organizationId: number,
+    updates: Partial<EngineerOrganizationRateDto>
+  ): void {
     const user = this.user();
     if (!user || !user.engineer) return;
 
     const engineerId = user.engineer.id;
 
     // First check if rate already exists
-    const existingRate = this.engineerRates().find(rate =>
-      rate.engineerId === engineerId && rate.organizationId === organizationId
+    const existingRate = this.engineerRates().find(
+      rate => rate.engineerId === engineerId && rate.organizationId === organizationId
     );
 
     if (existingRate) {
@@ -853,8 +906,8 @@ export class UserEditComponent implements OnInit {
           if (error.status === 409) {
             // Rate already exists, try to update instead
             console.log('🔄 Rate already exists, trying to update...');
-            const existingRate = this.engineerRates().find(r =>
-              r.engineerId === engineerId && r.organizationId === organizationId
+            const existingRate = this.engineerRates().find(
+              r => r.engineerId === engineerId && r.organizationId === organizationId
             );
             if (existingRate) {
               this.onUpdateRate(existingRate, updates);
@@ -869,7 +922,10 @@ export class UserEditComponent implements OnInit {
     }
   }
 
-  onUpdateRate(rate: EngineerOrganizationRateDto, updates: Partial<EngineerOrganizationRateDto>): void {
+  onUpdateRate(
+    rate: EngineerOrganizationRateDto,
+    updates: Partial<EngineerOrganizationRateDto>
+  ): void {
     const updateData: UpdateEngineerOrganizationRateDto = {
       customBaseRate: updates.customBaseRate,
       customOvertimeRate: updates.customOvertimeRate,
@@ -889,7 +945,7 @@ export class UserEditComponent implements OnInit {
         console.log('✅ Rate updated successfully:', updatedRate);
         // Update local state
         const currentRates = this.engineerRates();
-        const updatedRates = currentRates.map(r => r.id === rate.id ? updatedRate : r);
+        const updatedRates = currentRates.map(r => (r.id === rate.id ? updatedRate : r));
         this.engineerRates.set(updatedRates);
         this.toastService.success('Ставка обновлена успешно');
       },

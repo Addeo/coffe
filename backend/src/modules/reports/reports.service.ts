@@ -25,7 +25,7 @@ export class ReportsService {
     @InjectRepository(WorkReport)
     private workReportRepository: Repository<WorkReport>,
     @InjectRepository(Engineer)
-    private engineerRepository: Repository<Engineer>,
+    private engineerRepository: Repository<Engineer>
   ) {}
 
   /**
@@ -41,7 +41,8 @@ export class ReportsService {
     const targetYear = year || now.getFullYear();
 
     // Получить всех активных инженеров или только выбранных
-    const engineersQuery = this.engineerRepository.createQueryBuilder('engineer')
+    const engineersQuery = this.engineerRepository
+      .createQueryBuilder('engineer')
       .leftJoinAndSelect('engineer.user', 'user')
       .where('engineer.isActive = :isActive', { isActive: true });
 
@@ -76,7 +77,8 @@ export class ReportsService {
     const targetYear = year || now.getFullYear();
 
     // Получить всех активных инженеров или только выбранных
-    const engineersQuery = this.engineerRepository.createQueryBuilder('engineer')
+    const engineersQuery = this.engineerRepository
+      .createQueryBuilder('engineer')
       .leftJoinAndSelect('engineer.user', 'user')
       .where('engineer.isActive = :isActive', { isActive: true });
 
@@ -154,7 +156,9 @@ export class ReportsService {
 
     return {
       engineerId: engineer.id,
-      engineerName: engineer.user ? `${engineer.user.firstName} ${engineer.user.lastName}` : 'Unknown',
+      engineerName: engineer.user
+        ? `${engineer.user.firstName} ${engineer.user.lastName}`
+        : 'Unknown',
       data,
     };
   }
@@ -214,9 +218,10 @@ export class ReportsService {
 
     return {
       engineerId: engineer.id,
-      engineerName: engineer.user ? `${engineer.user.firstName} ${engineer.user.lastName}` : 'Unknown',
+      engineerName: engineer.user
+        ? `${engineer.user.firstName} ${engineer.user.lastName}`
+        : 'Unknown',
       data,
     };
   }
 }
-

@@ -15,7 +15,9 @@ export class EngineerOrganizationRatesService {
   private http = inject(HttpClient);
   private readonly apiUrl = '/api/engineer-organization-rates';
 
-  getRates(query: EngineerOrganizationRatesQueryDto = {}): Observable<EngineerOrganizationRateDto[]> {
+  getRates(
+    query: EngineerOrganizationRatesQueryDto = {}
+  ): Observable<EngineerOrganizationRateDto[]> {
     let params = new HttpParams();
 
     if (query.engineerId) {
@@ -49,9 +51,7 @@ export class EngineerOrganizationRatesService {
       .get<EngineerOrganizationRateDto>(
         `${this.apiUrl}/engineer/${engineerId}/organization/${organizationId}`
       )
-      .pipe(
-        map(rate => rate || null)
-      );
+      .pipe(map(rate => rate || null));
   }
 
   createRate(rate: CreateEngineerOrganizationRateDto): Observable<EngineerOrganizationRateDto> {
@@ -59,7 +59,10 @@ export class EngineerOrganizationRatesService {
     return this.http.post<EngineerOrganizationRateDto>(this.apiUrl, rate);
   }
 
-  updateRate(id: number, rate: UpdateEngineerOrganizationRateDto): Observable<EngineerOrganizationRateDto> {
+  updateRate(
+    id: number,
+    rate: UpdateEngineerOrganizationRateDto
+  ): Observable<EngineerOrganizationRateDto> {
     return this.http.patch<EngineerOrganizationRateDto>(`${this.apiUrl}/${id}`, rate);
   }
 
@@ -68,7 +71,9 @@ export class EngineerOrganizationRatesService {
   }
 
   // Bulk operations
-  bulkUpdateRates(updates: { id: number; data: UpdateEngineerOrganizationRateDto }[]): Observable<EngineerOrganizationRateDto[]> {
+  bulkUpdateRates(
+    updates: { id: number; data: UpdateEngineerOrganizationRateDto }[]
+  ): Observable<EngineerOrganizationRateDto[]> {
     return this.http.patch<EngineerOrganizationRateDto[]>(`${this.apiUrl}/bulk`, { updates });
   }
 

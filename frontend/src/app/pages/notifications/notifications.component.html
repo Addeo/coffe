@@ -5,7 +5,9 @@
         <mat-icon>notifications</mat-icon>
         <span i18n="@@notifications.title">Notifications</span>
       </mat-card-title>
-      <mat-card-subtitle i18n="@@notifications.subtitle">View and manage your notifications</mat-card-subtitle>
+      <mat-card-subtitle i18n="@@notifications.subtitle"
+        >View and manage your notifications</mat-card-subtitle
+      >
     </mat-card-header>
 
     <mat-card-content>
@@ -314,13 +316,12 @@
 
       <!-- No data message -->
       <!-- *ngIf="!isLoading() && getCurrentDataSource().data.length === 0" -->
-      <div
-
-        class="no-data-container"
-      >
+      <div class="no-data-container">
         <mat-icon class="no-data-icon">notifications_off</mat-icon>
         <h3 i18n="@@notifications.noNotificationsFound">No notifications found</h3>
-        <p i18n="@@notifications.noNotificationsInCategory">You have no notifications in this category.</p>
+        <p i18n="@@notifications.noNotificationsInCategory">
+          You have no notifications in this category.
+        </p>
       </div>
 
       <!-- Paginator -->

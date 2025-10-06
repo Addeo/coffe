@@ -2,7 +2,11 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { EngineerSalaryChartData, EngineerHoursChartData, ReportsApiResponse } from '@shared/dtos/reports.dto';
+import {
+  EngineerSalaryChartData,
+  EngineerHoursChartData,
+  ReportsApiResponse,
+} from '@shared/dtos/reports.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -128,16 +132,16 @@ export class ReportsService {
    */
   private getChartColor(index: number, alpha: number = 1): string {
     const colors = [
-      `rgba(255, 99, 132, ${alpha})`,    // Красный
-      `rgba(54, 162, 235, ${alpha})`,    // Синий
-      `rgba(255, 205, 86, ${alpha})`,    // Желтый
-      `rgba(75, 192, 192, ${alpha})`,    // Зеленый
-      `rgba(153, 102, 255, ${alpha})`,   // Фиолетовый
-      `rgba(255, 159, 64, ${alpha})`,    // Оранжевый
-      `rgba(199, 199, 199, ${alpha})`,   // Серый
-      `rgba(83, 102, 255, ${alpha})`,    // Синий темный
-      `rgba(255, 99, 255, ${alpha})`,    // Розовый
-      `rgba(99, 255, 132, ${alpha})`,    // Зеленый светлый
+      `rgba(255, 99, 132, ${alpha})`, // Красный
+      `rgba(54, 162, 235, ${alpha})`, // Синий
+      `rgba(255, 205, 86, ${alpha})`, // Желтый
+      `rgba(75, 192, 192, ${alpha})`, // Зеленый
+      `rgba(153, 102, 255, ${alpha})`, // Фиолетовый
+      `rgba(255, 159, 64, ${alpha})`, // Оранжевый
+      `rgba(199, 199, 199, ${alpha})`, // Серый
+      `rgba(83, 102, 255, ${alpha})`, // Синий темный
+      `rgba(255, 99, 255, ${alpha})`, // Розовый
+      `rgba(99, 255, 132, ${alpha})`, // Зеленый светлый
     ];
 
     return colors[index % colors.length];

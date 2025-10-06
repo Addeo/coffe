@@ -47,10 +47,7 @@ export class FilesController {
 
   @Post('upload/test')
   @UseInterceptors(FileInterceptor('file'))
-  uploadFileTest(
-    @UploadedFile() file,
-    @Body() body: { type?: FileType; description?: string }
-  ) {
+  uploadFileTest(@UploadedFile() file, @Body() body: { type?: FileType; description?: string }) {
     // Temporarily use fixed user ID for testing
     const userId = 1;
     return this.filesService.uploadFile(file, userId, body.type, body.description);
@@ -260,7 +257,7 @@ export class FilesController {
     // In a real implementation, you'd use a ZIP library like 'archiver'
     return res.status(501).json({
       error: 'Batch download not implemented yet',
-      message: 'Use individual download endpoints for now'
+      message: 'Use individual download endpoints for now',
     });
   }
 

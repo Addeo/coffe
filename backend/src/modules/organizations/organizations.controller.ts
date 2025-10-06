@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { OrganizationsService } from './organizations.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
@@ -26,7 +36,7 @@ export class OrganizationsController {
     console.log('Query parameters:', query);
     console.log('Headers:', {
       authorization: 'present',
-      contentType: 'application/json'
+      contentType: 'application/json',
     });
     console.log('Calling organizationsService.findAll...');
     return this.organizationsService.findAll(query);

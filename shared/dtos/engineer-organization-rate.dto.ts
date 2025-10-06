@@ -51,4 +51,3 @@ export interface EngineerOrganizationRatesQueryDto {
   page?: number;
   limit?: number;
 }
-

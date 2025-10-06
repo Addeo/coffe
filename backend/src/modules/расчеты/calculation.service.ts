@@ -23,7 +23,7 @@ export interface EngineerRates {
 export class CalculationService {
   constructor(
     @InjectRepository(EngineerOrganizationRate)
-    private engineerOrganizationRateRepository: Repository<EngineerOrganizationRate>,
+    private engineerOrganizationRateRepository: Repository<EngineerOrganizationRate>
   ) {}
 
   /**
@@ -31,7 +31,10 @@ export class CalculationService {
    * ОБЯЗАТЕЛЬНО должны быть установлены индивидуальные ставки администратором
    * Без индивидуальных ставок расчет невозможен
    */
-  async getEngineerRatesForOrganization(engineer: Engineer, organization: Organization): Promise<EngineerRates> {
+  async getEngineerRatesForOrganization(
+    engineer: Engineer,
+    organization: Organization
+  ): Promise<EngineerRates> {
     // Ищем индивидуальные ставки для этой пары инженер-организация
     const customRate = await this.engineerOrganizationRateRepository.findOne({
       where: {
@@ -46,7 +49,7 @@ export class CalculationService {
     if (!customRate) {
       throw new Error(
         `Individual rates not set for engineer ${engineer.user?.firstName} ${engineer.user?.lastName} ` +
-        `and organization ${organization.name}. Please contact administrator to set rates.`
+          `and organization ${organization.name}. Please contact administrator to set rates.`
       );
     }
 
@@ -58,7 +61,8 @@ export class CalculationService {
       overtimeMultiplier: customRate.customOvertimeMultiplier ?? undefined,
       fixedSalary: customRate.customFixedSalary ?? engineer.fixedSalary,
       fixedCarAmount: customRate.customFixedCarAmount ?? engineer.fixedCarAmount,
-      carKmRate: customRate.customCarKmRate ?? (engineer.type === EngineerType.CONTRACT ? 14 : undefined),
+      carKmRate:
+        customRate.customCarKmRate ?? (engineer.type === EngineerType.CONTRACT ? 14 : undefined),
       zone1Extra: customRate.customZone1Extra ?? undefined,
       zone2Extra: customRate.customZone2Extra ?? undefined,
       zone3Extra: customRate.customZone3Extra ?? undefined,

@@ -21,7 +21,10 @@ import { OrganizationsService } from '../../services/organizations.service';
 import { AuthService } from '../../services/auth.service';
 import { ModalService } from '../../services/modal.service';
 import { ToastService } from '../../services/toast.service';
-import { EngineerOrganizationRateDto, UpdateEngineerOrganizationRateDto } from '@shared/dtos/engineer-organization-rate.dto';
+import {
+  EngineerOrganizationRateDto,
+  UpdateEngineerOrganizationRateDto,
+} from '@shared/dtos/engineer-organization-rate.dto';
 import { UserDto } from '@shared/dtos/user.dto';
 import { OrganizationDto } from '@shared/dtos/organization.dto';
 import { UserRole } from '@shared/interfaces/user.interface';

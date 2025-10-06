@@ -19,7 +19,7 @@ export class EngineerOrganizationRatesService {
     @InjectRepository(Engineer)
     private engineerRepository: Repository<Engineer>,
     @InjectRepository(Organization)
-    private organizationRepository: Repository<Organization>,
+    private organizationRepository: Repository<Organization>
   ) {}
 
   async create(createDto: CreateEngineerOrganizationRateDto): Promise<EngineerOrganizationRateDto> {
@@ -67,7 +67,9 @@ export class EngineerOrganizationRatesService {
     return this.mapToDto(rateWithRelations!, rateWithRelations!.organization.name);
   }
 
-  async findAll(query: EngineerOrganizationRatesQueryDto = {}): Promise<EngineerOrganizationRateDto[]> {
+  async findAll(
+    query: EngineerOrganizationRatesQueryDto = {}
+  ): Promise<EngineerOrganizationRateDto[]> {
     const qb = this.engineerOrganizationRateRepository
       .createQueryBuilder('rate')
       .leftJoinAndSelect('rate.organization', 'organization')
@@ -79,11 +81,14 @@ export class EngineerOrganizationRatesService {
     }
 
     if (query.organizationId) {
-      qb.andWhere('rate.organizationId = :organizationId', { organizationId: query.organizationId });
+      qb.andWhere('rate.organizationId = :organizationId', {
+        organizationId: query.organizationId,
+      });
     }
 
     if (query.isActive !== undefined) {
-      const isActiveValue = typeof query.isActive === 'string' ? query.isActive === 'true' : query.isActive;
+      const isActiveValue =
+        typeof query.isActive === 'string' ? query.isActive === 'true' : query.isActive;
       qb.andWhere('rate.isActive = :isActive', { isActive: isActiveValue });
     }
 
@@ -95,7 +100,9 @@ export class EngineerOrganizationRatesService {
     qb.orderBy('rate.createdAt', 'DESC');
 
     const rates = await qb.getMany();
-    return rates.map(rate => this.mapToDto(rate, rate.organization?.name || 'Unknown Organization'));
+    return rates.map(rate =>
+      this.mapToDto(rate, rate.organization?.name || 'Unknown Organization')
+    );
   }
 
   async findOne(id: number): Promise<EngineerOrganizationRateDto> {
@@ -131,7 +138,10 @@ export class EngineerOrganizationRatesService {
     return this.mapToDto(rate, rate.organization.name);
   }
 
-  async update(id: number, updateDto: UpdateEngineerOrganizationRateDto): Promise<EngineerOrganizationRateDto> {
+  async update(
+    id: number,
+    updateDto: UpdateEngineerOrganizationRateDto
+  ): Promise<EngineerOrganizationRateDto> {
     const rate = await this.engineerOrganizationRateRepository.findOne({
       where: { id },
       relations: ['organization'],
@@ -159,7 +169,10 @@ export class EngineerOrganizationRatesService {
     await this.engineerOrganizationRateRepository.remove(rate);
   }
 
-  private mapToDto(rate: EngineerOrganizationRate, organizationName: string): EngineerOrganizationRateDto {
+  private mapToDto(
+    rate: EngineerOrganizationRate,
+    organizationName: string
+  ): EngineerOrganizationRateDto {
     return {
       id: rate.id,
       engineerId: rate.engineerId,

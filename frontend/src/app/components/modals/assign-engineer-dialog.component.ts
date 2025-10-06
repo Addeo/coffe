@@ -45,7 +45,9 @@ export interface AssignEngineerDialogData {
             <h3>{{ data.order.title }}</h3>
             <p><strong>Организация:</strong> {{ getOrganizationName(data.order) }}</p>
             <p><strong>Статус:</strong> {{ getStatusText(data.order.status) }}</p>
-            <p *ngIf="data.order.assignedEngineerId"><strong>Текущий инженер:</strong> {{ getCurrentEngineerName() }}</p>
+            <p *ngIf="data.order.assignedEngineerId">
+              <strong>Текущий инженер:</strong> {{ getCurrentEngineerName() }}
+            </p>
           </mat-card-content>
         </mat-card>
 

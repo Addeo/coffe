@@ -155,7 +155,10 @@
           (drop)="onDrop($event)"
         >
           <mat-icon>cloud_upload</mat-icon>
-          <p>Перетащите файлы сюда или <button mat-button type="button" (click)="fileInput.click()">выберите</button></p>
+          <p>
+            Перетащите файлы сюда или
+            <button mat-button type="button" (click)="fileInput.click()">выберите</button>
+          </p>
           <small>Поддерживаемые форматы: изображения, PDF, документы (макс. 10MB)</small>
         </div>
 
@@ -167,9 +170,15 @@
               <div class="progress-header">
                 <span class="file-name">{{ progress.file.name }}</span>
                 <span class="progress-status" [class]="progress.status">
-                  {{ progress.status === 'uploading' ? progress.progress + '%' :
-                     progress.status === 'completed' ? 'Готово' :
-                     progress.status === 'error' ? 'Ошибка' : 'Ожидание' }}
+                  {{
+                    progress.status === 'uploading'
+                      ? progress.progress + '%'
+                      : progress.status === 'completed'
+                        ? 'Готово'
+                        : progress.status === 'error'
+                          ? 'Ошибка'
+                          : 'Ожидание'
+                  }}
                 </span>
               </div>
               <mat-progress-bar
@@ -190,8 +199,14 @@
           <div class="file-list">
             <div class="file-item" *ngFor="let progress of getCompletedUploads(); let i = index">
               <span class="file-name">{{ progress.file.name }}</span>
-              <span class="file-size">({{ (progress.file.size / 1024 / 1024).toFixed(2) }} MB)</span>
-              <button mat-icon-button (click)="removeUploadedFile(getUploadIndex(progress))" type="button">
+              <span class="file-size"
+                >({{ (progress.file.size / 1024 / 1024).toFixed(2) }} MB)</span
+              >
+              <button
+                mat-icon-button
+                (click)="removeUploadedFile(getUploadIndex(progress))"
+                type="button"
+              >
                 <mat-icon>delete</mat-icon>
               </button>
             </div>

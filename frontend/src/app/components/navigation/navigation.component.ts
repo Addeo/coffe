@@ -20,12 +20,7 @@ interface NavigationItem {
 @Component({
   selector: 'app-navigation',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    RouterLinkActive,
-    MaterialModule,
-  ],
+  imports: [CommonModule, RouterLink, RouterLinkActive, MaterialModule],
   templateUrl: './navigation.component.html',
   styleUrls: ['./navigation.component.scss'],
 })
@@ -53,14 +48,29 @@ export class NavigationComponent implements OnInit, OnDestroy {
   navigationItems = computed<NavigationItem[]>(() => {
     const role = this.userRole();
     const items: NavigationItem[] = [
-      { label: 'Главная', route: '/dashboard', icon: 'dashboard', i18nKey: '@@navigation.dashboard' },
+      {
+        label: 'Главная',
+        route: '/dashboard',
+        icon: 'dashboard',
+        i18nKey: '@@navigation.dashboard',
+      },
     ];
 
     if (role === UserRole.ADMIN || role === UserRole.MANAGER) {
       items.push(
         { label: 'Пользователи', route: '/users', icon: 'people', i18nKey: '@@navigation.users' },
-        { label: 'Организации', route: '/organizations', icon: 'business', i18nKey: '@@navigation.organizations' },
-        { label: 'Ставки инженеров', route: '/engineer-rates', icon: 'account_balance_wallet', i18nKey: '@@navigation.engineerRates' }
+        {
+          label: 'Организации',
+          route: '/organizations',
+          icon: 'business',
+          i18nKey: '@@navigation.organizations',
+        },
+        {
+          label: 'Ставки инженеров',
+          route: '/engineer-rates',
+          icon: 'account_balance_wallet',
+          i18nKey: '@@navigation.engineerRates',
+        }
       );
     }
 
@@ -78,9 +88,12 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
     // Add Settings for admin only
     if (role === UserRole.ADMIN) {
-      items.push(
-        { label: 'Настройки', route: '/settings', icon: 'settings', i18nKey: '@@navigation.settings' }
-      );
+      items.push({
+        label: 'Настройки',
+        route: '/settings',
+        icon: 'settings',
+        i18nKey: '@@navigation.settings',
+      });
     }
 
     return items;

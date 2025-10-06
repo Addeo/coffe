@@ -32,22 +32,14 @@
     </nav>
 
     <!-- Mobile Navigation Menu -->
-    <div
-      class="mobile-menu-overlay"
-      *ngIf="isMobileMenuOpen()"
-      (click)="closeMobileMenu()"
-    >
+    <div class="mobile-menu-overlay" *ngIf="isMobileMenuOpen()" (click)="closeMobileMenu()">
       <div class="mobile-menu-content" (click)="$event.stopPropagation()">
         <div class="mobile-menu-header">
           <div class="brand">
             <mat-icon class="brand-icon">local_cafe</mat-icon>
             <span class="brand-text" i18n="@@navigation.brand">Coffee Admin</span>
           </div>
-          <button
-            mat-icon-button
-            (click)="closeMobileMenu()"
-            aria-label="Close menu"
-          >
+          <button mat-icon-button (click)="closeMobileMenu()" aria-label="Close menu">
             <mat-icon>close</mat-icon>
           </button>
         </div>
@@ -63,7 +55,12 @@
           >
             <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
             <span [attr.i18n]="item.i18nKey">{{ item.label }}</span>
-            <span *ngIf="item.badge" class="mobile-badge" matBadge="{{ item.badge }}" matBadgeColor="warn"></span>
+            <span
+              *ngIf="item.badge"
+              class="mobile-badge"
+              matBadge="{{ item.badge }}"
+              matBadgeColor="warn"
+            ></span>
           </a>
         </nav>
 
@@ -98,7 +95,12 @@
       <mat-menu #notificationsMenu="matMenu" class="notifications-dropdown">
         <div class="notifications-header" mat-menu-item disabled>
           <h4 i18n="@@navigation.notifications">Уведомления</h4>
-          <button mat-button *ngIf="unreadCount() > 0" (click)="onMarkAllAsRead()" i18n="@@notifications.markAllAsRead">
+          <button
+            mat-button
+            *ngIf="unreadCount() > 0"
+            (click)="onMarkAllAsRead()"
+            i18n="@@notifications.markAllAsRead"
+          >
             Отметить все как прочитанные
           </button>
         </div>

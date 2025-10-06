@@ -20,7 +20,7 @@ export class TestController {
         { id: '1', name: 'test1.txt', size: 1024, originalName: 'test1.txt' },
         { id: '2', name: 'test2.pdf', size: 2048, originalName: 'test2.pdf' },
       ],
-      message: 'Mock files response'
+      message: 'Mock files response',
     };
   }
 
@@ -47,7 +47,7 @@ export class TestController {
       originalName: 'uploaded-file.txt',
       mimetype: 'text/plain',
       size: 1024,
-      message: 'File uploaded successfully'
+      message: 'File uploaded successfully',
     };
   }
 }

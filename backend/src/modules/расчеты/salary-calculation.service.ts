@@ -37,13 +37,17 @@ export class SalaryCalculationService {
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
     private calculationService: CalculationService,
-    private emailService: EmailService,
+    private emailService: EmailService
   ) {}
 
   /**
    * Ручной расчет зарплаты за месяц для всех инженеров
    */
-  async calculateSalaryForMonthManual(month: number, year: number, calculatedById?: number): Promise<SalaryCalculationResult[]> {
+  async calculateSalaryForMonthManual(
+    month: number,
+    year: number,
+    calculatedById?: number
+  ): Promise<SalaryCalculationResult[]> {
     this.logger.log(`Starting manual salary calculation for ${month}/${year}`);
 
     const engineers = await this.engineerRepository.find({
@@ -55,11 +59,18 @@ export class SalaryCalculationService {
 
     for (const engineer of engineers) {
       try {
-        const calculation = await this.calculateEngineerSalary(engineer, month, year, calculatedById);
+        const calculation = await this.calculateEngineerSalary(
+          engineer,
+          month,
+          year,
+          calculatedById
+        );
         results.push({
           id: calculation.id,
           engineerId: engineer.id,
-          engineerName: engineer.user ? `${engineer.user.firstName} ${engineer.user.lastName}` : 'Unknown',
+          engineerName: engineer.user
+            ? `${engineer.user.firstName} ${engineer.user.lastName}`
+            : 'Unknown',
           month,
           year,
           totalAmount: calculation.totalAmount,
@@ -69,7 +80,9 @@ export class SalaryCalculationService {
       } catch (error) {
         // Если индивидуальные ставки не установлены - логируем, но не прерываем процесс
         // для других инженеров
-        this.logger.warn(`Skipped salary calculation for engineer ${engineer.id}: ${error.message}`);
+        this.logger.warn(
+          `Skipped salary calculation for engineer ${engineer.id}: ${error.message}`
+        );
 
         // Можно создать запись о том, что расчет пропущен из-за отсутствия ставок
         // Но пока просто логируем
@@ -153,7 +166,8 @@ export class SalaryCalculationService {
     year?: number,
     status?: CalculationStatus
   ): Promise<SalaryCalculation[]> {
-    const query = this.salaryCalculationRepository.createQueryBuilder('calculation')
+    const query = this.salaryCalculationRepository
+      .createQueryBuilder('calculation')
       .leftJoinAndSelect('calculation.engineer', 'engineer')
       .leftJoinAndSelect('engineer.user', 'user')
       .leftJoinAndSelect('calculation.calculatedBy', 'calculatedBy');
@@ -174,9 +188,10 @@ export class SalaryCalculationService {
       query.andWhere('calculation.status = :status', { status });
     }
 
-    query.orderBy('calculation.year', 'DESC')
-         .addOrderBy('calculation.month', 'DESC')
-         .addOrderBy('calculation.createdAt', 'DESC');
+    query
+      .orderBy('calculation.year', 'DESC')
+      .addOrderBy('calculation.month', 'DESC')
+      .addOrderBy('calculation.createdAt', 'DESC');
 
     return await query.getMany();
   }
@@ -220,7 +235,9 @@ export class SalaryCalculationService {
     if (!calculation.engineer?.user?.email) return;
 
     const userName = `${calculation.engineer.user.firstName} ${calculation.engineer.user.lastName}`;
-    const monthName = new Date(calculation.year, calculation.month - 1).toLocaleString('ru-RU', { month: 'long' });
+    const monthName = new Date(calculation.year, calculation.month - 1).toLocaleString('ru-RU', {
+      month: 'long',
+    });
 
     try {
       await this.emailService.sendSalaryCalculationReady(
@@ -248,7 +265,9 @@ export class SalaryCalculationService {
     const calculationMonth = currentMonth === 1 ? 12 : currentMonth - 1;
     const calculationYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
-    this.logger.log(`Starting monthly salary calculations for ${calculationMonth}/${calculationYear}`);
+    this.logger.log(
+      `Starting monthly salary calculations for ${calculationMonth}/${calculationYear}`
+    );
 
     try {
       const results = await this.calculateSalaryForMonthManual(calculationMonth, calculationYear);
@@ -283,7 +302,7 @@ export class SalaryCalculationService {
     const totalSalaryAmount = results.reduce((sum, result) => sum + result.totalAmount, 0);
     const totalClientRevenue = results.reduce((sum, result) => {
       // Здесь нужно получить данные о выручке - упрощенная версия
-      return sum + (result.totalAmount * 1.5); // Предполагаем маржу 50%
+      return sum + result.totalAmount * 1.5; // Предполагаем маржу 50%
     }, 0);
 
     const topEarners = results

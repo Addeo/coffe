@@ -14,10 +14,7 @@ import { ToastService } from '../../services/toast.service';
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [
-    CommonModule,
-    MaterialModule,
-  ],
+  imports: [CommonModule, MaterialModule],
   templateUrl: './notifications.component.html',
   styleUrls: ['./notifications.component.scss'],
 })
@@ -47,9 +44,11 @@ export class NotificationsComponent implements OnInit, AfterViewInit {
     const filterPredicate = (data: NotificationDto, filter: string) => {
       if (!filter) return true;
       const searchStr = filter.toLowerCase();
-      return data.title.toLowerCase().includes(searchStr) ||
-             data.message.toLowerCase().includes(searchStr) ||
-             data.type.toLowerCase().includes(searchStr);
+      return (
+        data.title.toLowerCase().includes(searchStr) ||
+        data.message.toLowerCase().includes(searchStr) ||
+        data.type.toLowerCase().includes(searchStr)
+      );
     };
 
     this.allDataSource.filterPredicate = filterPredicate;

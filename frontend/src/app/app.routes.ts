@@ -25,13 +25,15 @@ export const routes: Routes = [
   },
   {
     path: 'users/create',
-    loadComponent: () => import('./pages/user-edit/user-edit.component').then(m => m.UserEditComponent),
+    loadComponent: () =>
+      import('./pages/user-edit/user-edit.component').then(m => m.UserEditComponent),
     canActivate: [AuthGuard],
     data: { roles: ['admin'], title: 'Create User' },
   },
   {
     path: 'users/:id/edit',
-    loadComponent: () => import('./pages/user-edit/user-edit.component').then(m => m.UserEditComponent),
+    loadComponent: () =>
+      import('./pages/user-edit/user-edit.component').then(m => m.UserEditComponent),
     canActivate: [AuthGuard],
     data: { roles: ['admin', 'manager'], title: 'Edit User' },
   },

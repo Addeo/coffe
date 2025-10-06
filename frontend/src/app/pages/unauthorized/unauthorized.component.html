@@ -9,7 +9,9 @@
 
     <mat-card-content>
       <div class="message-section">
-        <p class="main-message" i18n="@@unauthorized.noPermission">You don't have permission to access this page.</p>
+        <p class="main-message" i18n="@@unauthorized.noPermission">
+          You don't have permission to access this page.
+        </p>
 
         <div class="details-section" *ngIf="requiredRoles.length > 0">
           <h3 i18n="@@unauthorized.requiredPermissions">Required Permissions:</h3>
@@ -28,7 +30,9 @@
         </div>
 
         <div class="attempted-url-section" *ngIf="attemptedUrl">
-          <p class="attempted-url"><strong i18n="@@unauthorized.attemptedUrl">Attempted URL:</strong> {{ attemptedUrl }}</p>
+          <p class="attempted-url">
+            <strong i18n="@@unauthorized.attemptedUrl">Attempted URL:</strong> {{ attemptedUrl }}
+          </p>
         </div>
       </div>
     </mat-card-content>

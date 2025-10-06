@@ -29,7 +29,7 @@ export class AuthService {
     console.log('🔐 Current auth state:', {
       isAuthenticated: this.isAuthenticated(),
       currentUser: this.currentUser(),
-      token: this.getToken() ? 'present' : 'missing'
+      token: this.getToken() ? 'present' : 'missing',
     });
   }
 
@@ -93,7 +93,7 @@ export class AuthService {
       hasToken: !!token,
       hasUser: !!user,
       tokenLength: token?.length,
-      userData: user
+      userData: user,
     });
 
     if (token && user) {

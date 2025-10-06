@@ -2,7 +2,9 @@
   <mat-card class="header-card">
     <mat-card-header>
       <mat-card-title i18n="@@organizations.management">Управление организациями</mat-card-title>
-      <mat-card-subtitle i18n="@@organizations.subtitle">Управление организациями компании и их настройками</mat-card-subtitle>
+      <mat-card-subtitle i18n="@@organizations.subtitle"
+        >Управление организациями компании и их настройками</mat-card-subtitle
+      >
     </mat-card-header>
 
     <mat-card-content>
@@ -37,7 +39,9 @@
         <table mat-table [dataSource]="dataSource" matSort class="organizations-table">
           <!-- Name Column -->
           <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.name">Название</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.name">
+              Название
+            </th>
             <td mat-cell *matCellDef="let organization">
               <div class="name-cell">
                 <strong>{{ organization.name }}</strong>
@@ -47,7 +51,9 @@
 
           <!-- Base Rate Column -->
           <ng-container matColumnDef="baseRate">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.baseRate">Базовая ставка</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.baseRate">
+              Базовая ставка
+            </th>
             <td mat-cell *matCellDef="let organization">
               {{ formatCurrency(organization.baseRate) }}/час
             </td>
@@ -55,7 +61,14 @@
 
           <!-- Overtime Multiplier Column -->
           <ng-container matColumnDef="overtimeMultiplier">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.overtimeRate">Ставка переработки</th>
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              mat-sort-header
+              i18n="@@organizations.overtimeRate"
+            >
+              Ставка переработки
+            </th>
             <td mat-cell *matCellDef="let organization">
               <span *ngIf="organization.overtimeMultiplier; else noOvertime">
                 {{ organization.overtimeMultiplier }}x
@@ -68,7 +81,9 @@
 
           <!-- Has Overtime Column -->
           <ng-container matColumnDef="hasOvertime">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.overtime">Переработка</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.overtime">
+              Переработка
+            </th>
             <td mat-cell *matCellDef="let organization">
               <mat-chip [color]="organization.hasOvertime ? 'primary' : 'warn'" selected>
                 {{ organization.hasOvertime ? 'Да' : 'Нет' }}
@@ -78,7 +93,9 @@
 
           <!-- Status Column -->
           <ng-container matColumnDef="isActive">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.status">Статус</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.status">
+              Статус
+            </th>
             <td mat-cell *matCellDef="let organization">
               <mat-chip [color]="getStatusColor(organization.isActive)" selected>
                 {{ getStatusText(organization.isActive) }}
@@ -88,7 +105,9 @@
 
           <!-- Created Date Column -->
           <ng-container matColumnDef="createdAt">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.created">Создано</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@organizations.created">
+              Создано
+            </th>
             <td mat-cell *matCellDef="let organization">
               {{ formatDate(organization.createdAt) }}
             </td>
@@ -147,8 +166,12 @@
         <div *ngIf="!isLoading() && organizations().length === 0" class="no-data-container">
           <mat-icon class="no-data-icon">business</mat-icon>
           <h3 i18n="@@organizations.noOrganizationsFound">Организации не найдены</h3>
-          <p *ngIf="searchQuery()" i18n="@@organizations.noOrganizationsMatch">Нет организаций, соответствующих критериям поиска.</p>
-          <p *ngIf="!searchQuery()" i18n="@@organizations.getStarted">Начните с создания первой организации.</p>
+          <p *ngIf="searchQuery()" i18n="@@organizations.noOrganizationsMatch">
+            Нет организаций, соответствующих критериям поиска.
+          </p>
+          <p *ngIf="!searchQuery()" i18n="@@organizations.getStarted">
+            Начните с создания первой организации.
+          </p>
           <button
             *ngIf="canEdit() && !searchQuery()"
             mat-raised-button

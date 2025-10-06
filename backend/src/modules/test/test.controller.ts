@@ -10,7 +10,7 @@ export class TestController {
     @InjectRepository(Organization)
     private readonly organizationRepository: Repository<Organization>,
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private readonly userRepository: Repository<User>
   ) {}
 
   @Get()
@@ -59,8 +59,8 @@ export class TestController {
       message: 'Simple test works!',
       organizations: [
         { id: 1, name: 'Тестовая организация' },
-        { id: 2, name: 'РусХолтс' }
-      ]
+        { id: 2, name: 'РусХолтс' },
+      ],
     };
   }
 
@@ -74,10 +74,10 @@ export class TestController {
         { id: 3, name: 'ТО Франко', baseRate: '1100.00' },
         { id: 4, name: 'Холод Вистекс', baseRate: '1200.00' },
         { id: 5, name: 'Франко', baseRate: '1210.00' },
-        { id: 6, name: 'Локальный Сервис', baseRate: '1200.00' }
+        { id: 6, name: 'Локальный Сервис', baseRate: '1200.00' },
       ],
       count: 6,
-      note: 'Static data with proper encoding'
+      note: 'Static data with proper encoding',
     };
   }
 
@@ -104,7 +104,7 @@ export class TestController {
       await this.userRepository.update(id, data);
       const updated = await this.userRepository.findOne({
         where: { id: parseInt(id) },
-        select: ['id', 'email', 'firstName', 'lastName', 'role', 'isActive']
+        select: ['id', 'email', 'firstName', 'lastName', 'role', 'isActive'],
       });
       return {
         success: true,

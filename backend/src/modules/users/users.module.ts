@@ -9,7 +9,15 @@ import { EngineerOrganizationRate } from '../../entities/engineer-organization-r
 import { Organization } from '../../entities/organization.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Engineer, UserActivityLog, EngineerOrganizationRate, Organization])],
+  imports: [
+    TypeOrmModule.forFeature([
+      User,
+      Engineer,
+      UserActivityLog,
+      EngineerOrganizationRate,
+      Organization,
+    ]),
+  ],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],

@@ -46,7 +46,10 @@ export interface OrganizationDialogData {
           <mat-form-field appearance="outline" class="form-field">
             <mat-label i18n="@@organization.name">Organization Name</mat-label>
             <input matInput formControlName="name" placeholder="Введите название организации" />
-            <mat-error *ngIf="organizationForm.get('name')?.hasError('required')" i18n="@@organization.nameRequired">
+            <mat-error
+              *ngIf="organizationForm.get('name')?.hasError('required')"
+              i18n="@@organization.nameRequired"
+            >
               Название организации обязательно
             </mat-error>
           </mat-form-field>
@@ -62,10 +65,16 @@ export interface OrganizationDialogData {
                 min="0"
                 placeholder="Введите базовую ставку"
               />
-              <mat-error *ngIf="organizationForm.get('baseRate')?.hasError('required')" i18n="@@organization.baseRateRequired">
+              <mat-error
+                *ngIf="organizationForm.get('baseRate')?.hasError('required')"
+                i18n="@@organization.baseRateRequired"
+              >
                 Базовая ставка обязательна
               </mat-error>
-              <mat-error *ngIf="organizationForm.get('baseRate')?.hasError('min')" i18n="@@organization.baseRateMin">
+              <mat-error
+                *ngIf="organizationForm.get('baseRate')?.hasError('min')"
+                i18n="@@organization.baseRateMin"
+              >
                 Базовая ставка должна быть больше 0
               </mat-error>
             </mat-form-field>

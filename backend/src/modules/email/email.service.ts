@@ -39,14 +39,12 @@ export class EmailService {
       const clientId = this.configService.get<string>('GMAIL_CLIENT_ID');
       const clientSecret = this.configService.get<string>('GMAIL_CLIENT_SECRET');
       const refreshToken = this.configService.get<string>('GMAIL_REFRESH_TOKEN');
-      const redirectUri = this.configService.get<string>('GMAIL_REDIRECT_URI') || 'https://developers.google.com/oauthplayground';
+      const redirectUri =
+        this.configService.get<string>('GMAIL_REDIRECT_URI') ||
+        'https://developers.google.com/oauthplayground';
 
       if (clientId && clientSecret && refreshToken) {
-        const oauth2Client = new google.auth.OAuth2(
-          clientId,
-          clientSecret,
-          redirectUri
-        );
+        const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
 
         oauth2Client.setCredentials({
           refresh_token: refreshToken,
@@ -98,7 +96,10 @@ export class EmailService {
   async sendEmail(options: EmailOptions): Promise<void> {
     try {
       const mailOptions = {
-        from: this.configService.get<string>('SMTP_FROM') || this.configService.get<string>('GMAIL_USER') || 'noreply@coffee-admin.com',
+        from:
+          this.configService.get<string>('SMTP_FROM') ||
+          this.configService.get<string>('GMAIL_USER') ||
+          'noreply@coffee-admin.com',
         ...options,
       };
 
@@ -114,7 +115,10 @@ export class EmailService {
           await this.gmailAuth.refreshAccessToken();
           await this.initializeGmailTransporter();
           const mailOptions = {
-            from: this.configService.get<string>('SMTP_FROM') || this.configService.get<string>('GMAIL_USER') || 'noreply@coffee-admin.com',
+            from:
+              this.configService.get<string>('SMTP_FROM') ||
+              this.configService.get<string>('GMAIL_USER') ||
+              'noreply@coffee-admin.com',
             ...options,
           };
           await this.transporter.sendMail(mailOptions);
@@ -327,7 +331,10 @@ export class EmailService {
     const subject = `Ежемесячный отчет по зарплате: ${monthName} ${year}`;
 
     const topEarnersHtml = reportData.topEarners
-      .map((earner, index) => `<li>${index + 1}. ${earner.name}: ${earner.amount.toLocaleString('ru-RU')} ${currency}</li>`)
+      .map(
+        (earner, index) =>
+          `<li>${index + 1}. ${earner.name}: ${earner.amount.toLocaleString('ru-RU')} ${currency}</li>`
+      )
       .join('');
 
     const html = `

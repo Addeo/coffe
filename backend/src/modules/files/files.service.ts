@@ -243,7 +243,7 @@ export class FilesService {
   async attachFileToOrder(fileId: string, orderId: number): Promise<File> {
     const file = await this.filesRepository.findOne({
       where: { id: fileId },
-      relations: ['order']
+      relations: ['order'],
     });
 
     if (!file) {
@@ -264,7 +264,7 @@ export class FilesService {
   async detachFileFromOrder(fileId: string): Promise<File> {
     const file = await this.filesRepository.findOne({
       where: { id: fileId },
-      relations: ['order']
+      relations: ['order'],
     });
 
     if (!file) {

@@ -74,14 +74,13 @@ export class BackupController {
       const fileStream = fs.createReadStream(fullPath);
       fileStream.pipe(res);
 
-      fileStream.on('error', (error) => {
+      fileStream.on('error', error => {
         console.error('Error reading backup file:', error);
         res.status(500).json({
           success: false,
           message: 'Error reading backup file',
         });
       });
-
     } catch (error) {
       console.error('Error downloading backup:', error);
       res.status(500).json({

@@ -7,16 +7,9 @@ import { Engineer } from '../../entities/engineer.entity';
 import { Organization } from '../../entities/organization.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      EngineerOrganizationRate,
-      Engineer,
-      Organization,
-    ]),
-  ],
+  imports: [TypeOrmModule.forFeature([EngineerOrganizationRate, Engineer, Organization])],
   controllers: [EngineerOrganizationRatesController],
   providers: [EngineerOrganizationRatesService],
   exports: [EngineerOrganizationRatesService],
 })
 export class EngineerOrganizationRatesModule {}
-

@@ -107,11 +107,15 @@ export class OrganizationsService {
     }
 
     if (minOvertimeMultiplier !== undefined) {
-      query.andWhere('organization.overtimeMultiplier >= :minOvertimeMultiplier', { minOvertimeMultiplier });
+      query.andWhere('organization.overtimeMultiplier >= :minOvertimeMultiplier', {
+        minOvertimeMultiplier,
+      });
     }
 
     if (maxOvertimeMultiplier !== undefined) {
-      query.andWhere('organization.overtimeMultiplier <= :maxOvertimeMultiplier', { maxOvertimeMultiplier });
+      query.andWhere('organization.overtimeMultiplier <= :maxOvertimeMultiplier', {
+        maxOvertimeMultiplier,
+      });
     }
 
     // Apply sorting
@@ -126,7 +130,10 @@ export class OrganizationsService {
     const [data, total] = await query.getManyAndCount();
 
     console.log('Query result:', { data: data.length, total, page, limit });
-    console.log('Data items:', data.map(d => ({ id: d.id, name: d.name })));
+    console.log(
+      'Data items:',
+      data.map(d => ({ id: d.id, name: d.name }))
+    );
 
     return {
       data,
@@ -198,7 +205,9 @@ export class OrganizationsService {
 
       if (ratePromises.length > 0) {
         await this.engineerOrganizationRateRepository.save(ratePromises);
-        console.log(`Created default rates for ${ratePromises.length} engineers for organization ${organization.name}`);
+        console.log(
+          `Created default rates for ${ratePromises.length} engineers for organization ${organization.name}`
+        );
       }
     } catch (error) {
       console.error('Error creating default rates for new organization:', error);

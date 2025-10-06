@@ -1,8 +1,12 @@
 <div class="login-container">
   <mat-card class="login-card">
     <mat-card-header>
-      <mat-card-title class="login-title" i18n="@@login.title">Панель администратора Coffee</mat-card-title>
-      <mat-card-subtitle class="login-subtitle" i18n="@@login.subtitle">Пожалуйста, войдите для продолжения</mat-card-subtitle>
+      <mat-card-title class="login-title" i18n="@@login.title"
+        >Панель администратора Coffee</mat-card-title
+      >
+      <mat-card-subtitle class="login-subtitle" i18n="@@login.subtitle"
+        >Пожалуйста, войдите для продолжения</mat-card-subtitle
+      >
     </mat-card-header>
 
     <mat-card-content>
@@ -19,10 +23,14 @@
           />
           <mat-hint i18n="@@form.errorsAppearInstantly">Ошибки появляются мгновенно!</mat-hint>
           @if (emailFormControl.hasError('email') && !emailFormControl.hasError('required')) {
-            <mat-error i18n="@@form.emailInvalid">Пожалуйста, введите корректный email адрес</mat-error>
+            <mat-error i18n="@@form.emailInvalid"
+              >Пожалуйста, введите корректный email адрес</mat-error
+            >
           }
           @if (emailFormControl.hasError('required')) {
-            <mat-error i18n="@@form.emailRequired">Электронная почта <strong>обязательна</strong></mat-error>
+            <mat-error i18n="@@form.emailRequired"
+              >Электронная почта <strong>обязательна</strong></mat-error
+            >
           }
         </mat-form-field>
 
@@ -50,7 +58,9 @@
           @if (
             passwordFormControl.hasError('minlength') && !passwordFormControl.hasError('required')
           ) {
-            <mat-error i18n="@@form.passwordTooShort">Пароль должен содержать минимум 6 символов</mat-error>
+            <mat-error i18n="@@form.passwordTooShort"
+              >Пароль должен содержать минимум 6 символов</mat-error
+            >
           }
           @if (passwordFormControl.hasError('required')) {
             <mat-error i18n="@@form.passwordRequired">Пароль <strong>обязателен</strong></mat-error>

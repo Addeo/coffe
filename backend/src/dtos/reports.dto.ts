@@ -20,4 +20,3 @@ export interface ReportsApiResponse<T> {
   success: boolean;
   data: T;
 }
-

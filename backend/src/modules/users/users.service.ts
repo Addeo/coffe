@@ -259,8 +259,12 @@ export class UsersService {
           baseRate: updateUserDto.baseRate || engineer.baseRate,
           overtimeRate: updateUserDto.overtimeRate || engineer.overtimeRate,
           planHoursMonth: updateUserDto.planHoursMonth || engineer.planHoursMonth,
-          homeTerritoryFixedAmount: updateUserDto.homeTerritoryFixedAmount || engineer.homeTerritoryFixedAmount,
-          isActive: updateUserDto.engineerIsActive !== undefined ? updateUserDto.engineerIsActive : engineer.isActive,
+          homeTerritoryFixedAmount:
+            updateUserDto.homeTerritoryFixedAmount || engineer.homeTerritoryFixedAmount,
+          isActive:
+            updateUserDto.engineerIsActive !== undefined
+              ? updateUserDto.engineerIsActive
+              : engineer.isActive,
         });
       } else {
         // Create new engineer record if it doesn't exist
@@ -268,10 +272,13 @@ export class UsersService {
           userId: id,
           type: updateUserDto.engineerType,
           baseRate: updateUserDto.baseRate || 700,
-          overtimeRate: updateUserDto.overtimeRate || (updateUserDto.engineerType === EngineerType.CONTRACT ? 1200 : 700),
+          overtimeRate:
+            updateUserDto.overtimeRate ||
+            (updateUserDto.engineerType === EngineerType.CONTRACT ? 1200 : 700),
           planHoursMonth: updateUserDto.planHoursMonth || 160,
           homeTerritoryFixedAmount: updateUserDto.homeTerritoryFixedAmount || 0,
-          isActive: updateUserDto.engineerIsActive !== undefined ? updateUserDto.engineerIsActive : true,
+          isActive:
+            updateUserDto.engineerIsActive !== undefined ? updateUserDto.engineerIsActive : true,
         });
         await this.engineerRepository.save(engineer);
       }
@@ -367,7 +374,9 @@ export class UsersService {
 
       if (ratePromises.length > 0) {
         await this.engineerOrganizationRateRepository.save(ratePromises);
-        console.log(`Created default rates for engineer ${engineer.id} for ${ratePromises.length} organizations`);
+        console.log(
+          `Created default rates for engineer ${engineer.id} for ${ratePromises.length} organizations`
+        );
       }
     } catch (error) {
       console.error('Error creating default rates for new engineer:', error);

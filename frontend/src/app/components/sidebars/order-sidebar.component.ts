@@ -17,7 +17,11 @@ import { OrganizationsService } from '../../services/organizations.service';
 import { FilesService } from '../../services/files.service';
 import { ToastService } from '../../services/toast.service';
 import { CreateOrderDto, UpdateOrderDto, OrderDto } from '../../../../../shared/dtos/order.dto';
-import { TerritoryType, OrderStatus, OrderSource } from '../../../../../shared/interfaces/order.interface';
+import {
+  TerritoryType,
+  OrderStatus,
+  OrderSource,
+} from '../../../../../shared/interfaces/order.interface';
 import { OrganizationDto } from '../../../../../shared/dtos/organization.dto';
 import { FileResponseDto, FileType } from '../../../../../shared/dtos/file.dto';
 
@@ -206,7 +210,10 @@ export interface OrderSidebarData {
               (drop)="onDrop($event)"
             >
               <mat-icon>cloud_upload</mat-icon>
-              <p>Перетащите файлы сюда или <button mat-button type="button" (click)="fileInput.click()">выберите</button></p>
+              <p>
+                Перетащите файлы сюда или
+                <button mat-button type="button" (click)="fileInput.click()">выберите</button>
+              </p>
               <small>Поддерживаемые форматы: изображения, PDF, документы (макс. 10MB)</small>
             </div>
 
@@ -218,9 +225,15 @@ export interface OrderSidebarData {
                   <div class="progress-header">
                     <span class="file-name">{{ progress.file.name }}</span>
                     <span class="progress-status" [class]="progress.status">
-                      {{ progress.status === 'uploading' ? progress.progress + '%' :
-                         progress.status === 'completed' ? 'Готово' :
-                         progress.status === 'error' ? 'Ошибка' : 'Ожидание' }}
+                      {{
+                        progress.status === 'uploading'
+                          ? progress.progress + '%'
+                          : progress.status === 'completed'
+                            ? 'Готово'
+                            : progress.status === 'error'
+                              ? 'Ошибка'
+                              : 'Ожидание'
+                      }}
                     </span>
                   </div>
                   <mat-progress-bar
@@ -239,10 +252,19 @@ export interface OrderSidebarData {
             <div class="uploaded-files" *ngIf="getCompletedUploads().length > 0">
               <h4>Загруженные файлы (будут прикреплены к заказу):</h4>
               <div class="file-list">
-                <div class="file-item" *ngFor="let progress of getCompletedUploads(); let i = index">
+                <div
+                  class="file-item"
+                  *ngFor="let progress of getCompletedUploads(); let i = index"
+                >
                   <span class="file-name">{{ progress.file.name }}</span>
-                  <span class="file-size">({{ (progress.file.size / 1024 / 1024).toFixed(2) }} MB)</span>
-                  <button mat-icon-button (click)="removeUploadedFile(getUploadIndex(progress))" type="button">
+                  <span class="file-size"
+                    >({{ (progress.file.size / 1024 / 1024).toFixed(2) }} MB)</span
+                  >
+                  <button
+                    mat-icon-button
+                    (click)="removeUploadedFile(getUploadIndex(progress))"
+                    type="button"
+                  >
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
@@ -740,13 +762,16 @@ export class OrderSidebarComponent implements OnInit {
   private async addFilesAndStartUpload(files: File[]) {
     const maxFileSize = 10 * 1024 * 1024; // 10MB
     const allowedTypes = [
-      'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
       'application/pdf',
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       'text/plain',
       'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     ];
 
     const validFiles: File[] = [];
@@ -763,7 +788,9 @@ export class OrderSidebarComponent implements OnInit {
       }
 
       // Check for duplicates in current upload progress
-      const isDuplicate = this.uploadProgress().some(p => p.file.name === file.name && p.file.size === file.size);
+      const isDuplicate = this.uploadProgress().some(
+        p => p.file.name === file.name && p.file.size === file.size
+      );
       if (isDuplicate) {
         this.toastService.warning(`Файл "${file.name}" уже добавлен`);
         continue;
@@ -782,7 +809,7 @@ export class OrderSidebarComponent implements OnInit {
     const progressItem: FileUploadProgress = {
       file,
       progress: 0,
-      status: 'uploading'
+      status: 'uploading',
     };
 
     // Add to progress tracking
@@ -790,7 +817,9 @@ export class OrderSidebarComponent implements OnInit {
     this.uploadProgress.set([...currentProgress, progressItem]);
 
     try {
-      const uploadedFile = await this.filesService.uploadFile(file, FileType.ORDER_PHOTO).toPromise();
+      const uploadedFile = await this.filesService
+        .uploadFile(file, FileType.ORDER_PHOTO)
+        .toPromise();
 
       if (uploadedFile) {
         progressItem.progress = 100;
@@ -849,7 +878,6 @@ export class OrderSidebarComponent implements OnInit {
     this.attachedFiles.set(currentAttachedFiles.filter(f => f.id !== fileId));
   }
 
-
   async onSave() {
     if (this.orderForm.invalid) {
       return;
@@ -888,7 +916,7 @@ export class OrderSidebarComponent implements OnInit {
     };
 
     this.ordersService.createOrder(orderData).subscribe({
-      next: async (order) => {
+      next: async order => {
         try {
           // Attach uploaded files to the created order
           await this.attachUploadedFilesToOrder(order.id);
@@ -931,7 +959,7 @@ export class OrderSidebarComponent implements OnInit {
     };
 
     this.ordersService.updateOrder(this.data.order.id, orderData).subscribe({
-      next: async (order) => {
+      next: async order => {
         try {
           // Attach uploaded files to the updated order
           await this.attachUploadedFilesToOrder(order.id);

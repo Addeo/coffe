@@ -1,4 +1,13 @@
-import { Component, inject, signal, computed, effect, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  effect,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
@@ -19,10 +28,7 @@ import { OrganizationDialogComponent } from '../../components/modals/organizatio
 @Component({
   selector: 'app-organizations',
   standalone: true,
-  imports: [
-    CommonModule,
-    MaterialModule,
-  ],
+  imports: [CommonModule, MaterialModule],
   templateUrl: './organizations.component.html',
   styleUrls: ['./organizations.component.scss'],
 })
@@ -174,12 +180,19 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
   }
 
   onDeleteOrganization(organization: OrganizationDto): void {
-    console.log('🗑️ onDeleteOrganization called for:', organization.name, 'User role:', this.currentUser()?.role);
+    console.log(
+      '🗑️ onDeleteOrganization called for:',
+      organization.name,
+      'User role:',
+      this.currentUser()?.role
+    );
 
     // Проверяем права пользователя
     if (!this.canDelete()) {
       console.log('🗑️ User does not have delete permissions');
-      this.toastService.showError('У вас нет прав на удаление организаций. Требуется роль администратора.');
+      this.toastService.showError(
+        'У вас нет прав на удаление организаций. Требуется роль администратора.'
+      );
       return;
     }
 
@@ -202,7 +215,7 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
           organizationName: organization.name,
           user: this.currentUser()?.email,
           userRole: this.currentUser()?.role,
-          hasToken: !!this.authService.getToken()
+          hasToken: !!this.authService.getToken(),
         });
 
         this.organizationsService.deleteOrganization(organization.id).subscribe({
@@ -229,7 +242,7 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
               status: error.status,
               statusText: error.statusText,
               url: error.url,
-              userRole: this.currentUser()?.role
+              userRole: this.currentUser()?.role,
             });
 
             let errorMessage = 'Failed to delete organization';
@@ -238,7 +251,8 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
               // Можно добавить редирект на страницу логина
               // this.router.navigate(['/login']);
             } else if (error.status === 403) {
-              errorMessage = 'Недостаточно прав для удаления организации. Требуется роль администратора.';
+              errorMessage =
+                'Недостаточно прав для удаления организации. Требуется роль администратора.';
             } else if (error.status === 404) {
               errorMessage = 'Организация не найдена.';
             } else if (error.error?.message) {

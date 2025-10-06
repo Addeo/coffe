@@ -56,12 +56,7 @@ export interface RateEditDialogData {
 
       <mat-dialog-actions align="end">
         <button mat-button (click)="onCancel()">Отмена</button>
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="onSave()"
-          [disabled]="rateForm.invalid"
-        >
+        <button mat-raised-button color="primary" (click)="onSave()" [disabled]="rateForm.invalid">
           <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
           <span *ngIf="!isLoading">Сохранить</span>
         </button>

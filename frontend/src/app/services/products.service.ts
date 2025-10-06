@@ -27,10 +27,9 @@ export class ProductsService {
       });
     }
 
-    return this.http.get<PaginatedResponse<ProductDto>>(
-      `${environment.apiUrl}/products`,
-      { params }
-    );
+    return this.http.get<PaginatedResponse<ProductDto>>(`${environment.apiUrl}/products`, {
+      params,
+    });
   }
 
   getProduct(id: number): Observable<ProductDto> {
@@ -42,10 +41,7 @@ export class ProductsService {
   }
 
   updateProduct(id: number, product: UpdateProductDto): Observable<ProductDto> {
-    return this.http.patch<ProductDto>(
-      `${environment.apiUrl}/products/${id}`,
-      product
-    );
+    return this.http.patch<ProductDto>(`${environment.apiUrl}/products/${id}`, product);
   }
 
   deleteProduct(id: number): Observable<void> {
@@ -73,10 +69,7 @@ export class ProductsService {
   }
 
   updateStock(id: number, quantity: number): Observable<ProductDto> {
-    return this.http.patch<ProductDto>(
-      `${environment.apiUrl}/products/${id}/stock`,
-      { quantity }
-    );
+    return this.http.patch<ProductDto>(`${environment.apiUrl}/products/${id}/stock`, { quantity });
   }
 
   bulkUpdateStatus(productIds: number[], isActive: boolean): Observable<void> {
@@ -86,4 +79,3 @@ export class ProductsService {
     });
   }
 }
-

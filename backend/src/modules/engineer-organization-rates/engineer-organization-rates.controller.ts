@@ -25,7 +25,7 @@ import { UserRole } from '../../entities/user.entity';
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class EngineerOrganizationRatesController {
   constructor(
-    private readonly engineerOrganizationRatesService: EngineerOrganizationRatesService,
+    private readonly engineerOrganizationRatesService: EngineerOrganizationRatesService
   ) {}
 
   @Post()
@@ -50,20 +50,17 @@ export class EngineerOrganizationRatesController {
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   findByEngineerAndOrganization(
     @Param('engineerId') engineerId: string,
-    @Param('organizationId') organizationId: string,
+    @Param('organizationId') organizationId: string
   ) {
     return this.engineerOrganizationRatesService.findByEngineerAndOrganization(
       +engineerId,
-      +organizationId,
+      +organizationId
     );
   }
 
   @Patch(':id')
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
-  update(
-    @Param('id') id: string,
-    @Body() updateDto: UpdateEngineerOrganizationRateDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateDto: UpdateEngineerOrganizationRateDto) {
     return this.engineerOrganizationRatesService.update(+id, updateDto);
   }
 

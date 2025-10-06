@@ -15,7 +15,15 @@ import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Engineer, Organization, WorkReport, SalaryCalculation, Order, User, EngineerOrganizationRate]),
+    TypeOrmModule.forFeature([
+      Engineer,
+      Organization,
+      WorkReport,
+      SalaryCalculation,
+      Order,
+      User,
+      EngineerOrganizationRate,
+    ]),
     // ScheduleModule.forRoot(),
     EmailModule,
   ],
