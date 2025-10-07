@@ -11,8 +11,11 @@ RUN npm install
 # Copy source code
 COPY . .
 
-# Expose ports for Angular dev server and Ionic
-EXPOSE 4200 8100
+# Build for production with SSR
+RUN npm run build
 
-# Start Angular dev server
-CMD ["npm", "start"]
+# Expose port for SSR server
+EXPOSE 4000
+
+# Start SSR server
+CMD ["npm", "run", "serve:ssr"]

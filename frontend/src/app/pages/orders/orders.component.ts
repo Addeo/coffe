@@ -44,6 +44,7 @@ import { AssignEngineerDialogComponent } from '../../components/modals/assign-en
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatMenuModule,
+    AssignEngineerDialogComponent,
   ],
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
@@ -62,7 +63,6 @@ export class OrdersComponent implements OnInit {
     'assignedEngineer',
     'status',
     'createdAt',
-    'edit',
     'actions',
   ];
   dataSource = new MatTableDataSource<OrderDto>([]);
@@ -78,10 +78,49 @@ export class OrdersComponent implements OnInit {
 
   // Role-based permissions
   readonly canCreateOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
-  readonly canAssignEngineers = this.authService.hasRole(UserRole.MANAGER);
+  readonly canAssignEngineers = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
   readonly canViewAllOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
   readonly canEditOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
   readonly canDeleteOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
+
+  // Engineers can update status of their assigned orders
+  canUpdateOrderStatus(order: OrderDto): boolean {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return false;
+
+    // Admins and managers can always update
+    if (this.canEditOrders) return true;
+
+    // Engineers can only update their own assigned orders
+    if (currentUser.role === UserRole.USER && order.assignedEngineerId === currentUser.id) {
+      // Engineers can change status from PROCESSING to WORKING, or WORKING to COMPLETED
+      return order.status === OrderStatus.PROCESSING || order.status === OrderStatus.WORKING;
+    }
+
+    return false;
+  }
+
+  // Get available status options for the current user and order
+  getAvailableStatuses(order: OrderDto): OrderStatus[] {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return [];
+
+    // Admins and managers can set any status
+    if (this.canEditOrders) {
+      return Object.values(OrderStatus);
+    }
+
+    // Engineers can only change specific statuses
+    if (currentUser.role === UserRole.USER && order.assignedEngineerId === currentUser.id) {
+      if (order.status === OrderStatus.PROCESSING) {
+        return [OrderStatus.WORKING];
+      } else if (order.status === OrderStatus.WORKING) {
+        return [OrderStatus.COMPLETED];
+      }
+    }
+
+    return [];
+  }
 
   statusOptions = Object.values(OrderStatus);
   selectedStatus = signal<OrderStatus | ''>('');
@@ -203,6 +242,7 @@ export class OrdersComponent implements OnInit {
   }
 
   onAssignEngineer(order: OrderDto) {
+    console.log('onAssignEngineer', order);
     const dialogRef = this.modalService.openDialog(AssignEngineerDialogComponent, {
       order,
       title: 'Назначить инженера',

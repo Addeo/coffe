@@ -37,24 +37,24 @@ import { OrderSidebarComponent } from './components/sidebars/order-sidebar.compo
         position: relative;
 
         &.with-nav {
-          margin-top: 64px; // Height of the toolbar
+          margin-top: 64px;
           min-height: calc(100vh - 64px);
         }
 
-        // Ensure smooth transitions for content
+        /* Ensure smooth transitions for content */
         ::ng-deep * {
           transition: inherit;
         }
       }
 
-      // Ensure login page takes full height
+      /* Ensure login page takes full height */
       ::ng-deep router-outlet + * {
         display: block;
         height: 100%;
         width: 100%;
       }
 
-      // Global loading state styling
+      /* Global loading state styling */
       ::ng-deep .mat-mdc-progress-spinner {
         circle {
           stroke: #1976d2;
@@ -75,10 +75,10 @@ export class AppComponent {
 
   title = 'coffee-admin';
 
-  // Reactive computed values
+  /* Reactive computed values */
   isAuthenticated = this.authService.isAuthenticated;
 
-  // Check if current route is login
+  /* Check if current route is login */
   isLoginRoute = computed(() => {
     return this.router.url === '/login';
   });

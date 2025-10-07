@@ -45,22 +45,30 @@ cd backend
 npm run build
 cd ..
 
-print_step "2. Creating deployment archive..."
+print_step "2. Building frontend with SSR..."
+cd frontend
+npm run build:ssr
+cd ..
+
+print_step "3. Creating deployment archive..."
 tar -czf sbercloud-deploy.tar.gz \
     docker-compose.prod.yml \
     backend/dist \
     backend/package*.json \
     backend/.env.prod \
+    frontend/dist \
+    frontend/package*.json \
+    docker/mysql/init.sql \
     --exclude='**/node_modules' \
     --exclude='**/.git'
 
-print_step "3. Uploading to SberCloud VM..."
+print_step "4. Uploading to SberCloud VM..."
 scp -i "$SSH_KEY" sbercloud-deploy.tar.gz "$REMOTE_USER@$VM_IP:~/" || {
     print_error "Failed to upload files to VM"
     exit 1
 }
 
-print_step "4. Deploying on SberCloud VM..."
+print_step "5. Deploying on SberCloud VM..."
 ssh -i "$SSH_KEY" "$REMOTE_USER@$VM_IP" << 'EOF'
     set -e
 
@@ -107,17 +115,21 @@ ssh -i "$SSH_KEY" "$REMOTE_USER@$VM_IP" << 'EOF'
 
     echo ""
     echo "🎉 Deployment completed!"
-    echo "🌐 Application should be available at: http://$VM_IP:3000"
+    echo "🌐 Backend API: http://$VM_IP:3000"
+    echo "🌐 Frontend SSR: http://$VM_IP:4000"
     echo ""
     echo "📋 Useful commands:"
-    echo "  docker-compose -f docker-compose.prod.yml logs -f backend    # View logs"
-    echo "  docker-compose -f docker-compose.prod.yml restart backend   # Restart app"
-    echo "  docker-compose -f docker-compose.prod.yml down              # Stop all"
+    echo "  docker-compose -f docker-compose.prod.yml logs -f backend     # View backend logs"
+    echo "  docker-compose -f docker-compose.prod.yml logs -f frontend   # View frontend logs"
+    echo "  docker-compose -f docker-compose.prod.yml restart backend    # Restart backend"
+    echo "  docker-compose -f docker-compose.prod.yml restart frontend  # Restart frontend"
+    echo "  docker-compose -f docker-compose.prod.yml down               # Stop all"
 EOF
 
 if [ $? -eq 0 ]; then
     print_status "✅ Deployment to SberCloud completed successfully!"
-    print_status "🌐 Your application is running at: http://$VM_IP:3000"
+    print_status "🌐 Backend API: http://$VM_IP:3000"
+    print_status "🌐 Frontend SSR: http://$VM_IP:4000"
     print_status ""
     print_status "📋 Next steps:"
     print_status "  1. Update your domain DNS to point to $VM_IP"

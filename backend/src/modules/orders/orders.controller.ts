@@ -109,6 +109,7 @@ export class OrdersController {
     @Body() assignEngineerDto: AssignEngineerDto,
     @Request() req
   ) {
+    console.log('🎯 Controller: assignEngineer called', { id, engineerId: assignEngineerDto.engineerId, userRole: req.user?.role });
     return this.ordersService.assignEngineer(id, assignEngineerDto, req.user);
   }
 

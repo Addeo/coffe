@@ -210,7 +210,8 @@ export class OrdersService {
     const queryBuilder = this.ordersRepository
       .createQueryBuilder('order')
       .leftJoinAndSelect('order.organization', 'organization')
-      .leftJoinAndSelect('order.assignedEngineer', 'engineer')
+      .leftJoinAndSelect('order.assignedEngineer', 'assignedEngineerEntity')
+      .leftJoinAndSelect('assignedEngineerEntity.user', 'assignedEngineerUser')
       .leftJoinAndSelect('order.createdBy', 'createdBy')
       .leftJoinAndSelect('order.assignedBy', 'assignedBy')
       .leftJoinAndSelect('order.files', 'files')
@@ -219,7 +220,17 @@ export class OrdersService {
     // Apply filters based on user role
     if (user.role === UserRole.USER) {
       // Regular users can only see orders assigned to them
-      queryBuilder.andWhere('order.assignedEngineerId = :userId', { userId: user.id });
+      // Find engineer profile for this user
+      const engineer = await this.engineersRepository.findOne({
+        where: { userId: user.id, isActive: true },
+      });
+
+      if (engineer) {
+        queryBuilder.andWhere('order.assignedEngineerId = :engineerId', { engineerId: engineer.id });
+      } else {
+        // If no engineer profile found, return no orders
+        queryBuilder.andWhere('1 = 0'); // Always false condition
+      }
     }
     // Admins and managers can see all orders
 
@@ -313,18 +324,18 @@ export class OrdersService {
   }
 
   async findOne(id: number, user: User): Promise<Order> {
-    const order = await this.ordersRepository.findOne({
-      where: { id },
-      relations: [
-        'organization',
-        'assignedEngineer',
-        'createdBy',
-        'assignedBy',
-        'files',
-        'files.uploadedBy',
-        'workReports',
-      ],
-    });
+    const order = await this.ordersRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.organization', 'organization')
+      .leftJoinAndSelect('order.assignedEngineer', 'assignedEngineerEntity')
+      .leftJoinAndSelect('assignedEngineerEntity.user', 'assignedEngineerUser')
+      .leftJoinAndSelect('order.createdBy', 'createdBy')
+      .leftJoinAndSelect('order.assignedBy', 'assignedBy')
+      .leftJoinAndSelect('order.files', 'files')
+      .leftJoinAndSelect('files.uploadedBy', 'fileUploadedBy')
+      .leftJoinAndSelect('order.workReports', 'workReports')
+      .where('order.id = :id', { id })
+      .getOne();
 
     if (!order) {
       throw new NotFoundException('Order not found');
@@ -347,12 +358,19 @@ export class OrdersService {
     const oldStatus = order.status;
 
     // Check permissions for status updates
-    if (
-      updateOrderDto.status &&
-      user.role === UserRole.USER &&
-      updateOrderDto.status !== OrderStatus.COMPLETED
-    ) {
-      throw new BadRequestException('Users can only mark orders as completed');
+    if (updateOrderDto.status && user.role === UserRole.USER) {
+      // Engineers can only update their own assigned orders
+      if (order.assignedEngineerId !== user.id) {
+        throw new BadRequestException('You can only update your assigned orders');
+      }
+
+      // Engineers can change status from PROCESSING to WORKING, or WORKING to COMPLETED
+      if (updateOrderDto.status === OrderStatus.WORKING && order.status !== OrderStatus.PROCESSING) {
+        throw new BadRequestException('You can only start working on orders in PROCESSING status');
+      }
+      if (updateOrderDto.status === OrderStatus.COMPLETED && order.status !== OrderStatus.WORKING) {
+        throw new BadRequestException('You can only complete orders that are in WORKING status');
+      }
     }
 
     // Set assignedBy if assigning engineer
@@ -412,10 +430,15 @@ export class OrdersService {
     assignEngineerDto: AssignEngineerDto,
     user: User
   ): Promise<Order> {
-    // Only managers can assign engineers
-    if (user.role !== UserRole.MANAGER) {
-      throw new BadRequestException('Only managers can assign engineers to orders');
+    console.log('🚀 assignEngineer called:', { id, engineerId: assignEngineerDto.engineerId, userRole: user.role, userId: user.id });
+
+    // Only admins and managers can assign engineers
+    if (user.role !== UserRole.ADMIN && user.role !== UserRole.MANAGER) {
+      console.log('❌ User role not allowed:', user.role);
+      throw new BadRequestException('Only admins and managers can assign engineers to orders');
     }
+
+    console.log('✅ User role allowed, proceeding...');
 
     const order = await this.findOne(id, user);
 
@@ -426,11 +449,12 @@ export class OrdersService {
     }
 
     // Check if engineer exists and is active
-    const engineer = await this.usersRepository.findOne({
-      where: { id: assignEngineerDto.engineerId, role: UserRole.USER, isActive: true },
+    const engineer = await this.engineersRepository.findOne({
+      where: { id: assignEngineerDto.engineerId, isActive: true },
+      relations: ['user'],
     });
 
-    if (!engineer) {
+    if (!engineer || !engineer.user || !engineer.user.isActive) {
       throw new NotFoundException('Engineer not found or inactive');
     }
 
@@ -445,7 +469,7 @@ export class OrdersService {
     await this.logActivity(
       id,
       ActivityType.ORDER_ASSIGNED,
-      `Order "${order.title}" was assigned to engineer ${engineer.firstName} ${engineer.lastName}`,
+      `Order "${order.title}" was assigned to engineer ${engineer.user.firstName} ${engineer.user.lastName}`,
       {
         orderId: id,
         assignedEngineerId: assignEngineerDto.engineerId,
@@ -462,7 +486,7 @@ export class OrdersService {
       user.id
     );
 
-    return updatedOrder;
+    return this.findOne(id, user);
   }
 
   async remove(id: number, user: User): Promise<void> {
