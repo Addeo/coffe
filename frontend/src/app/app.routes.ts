@@ -108,6 +108,12 @@ export const routes: Routes = [
     data: { roles: ['admin', 'manager'], title: 'Reports' },
   },
   {
+    path: 'statistics',
+    loadComponent: () => import('./pages/statistics/statistics.component').then(m => m.StatisticsComponent),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin', 'manager'], title: 'Statistics' },
+  },
+  {
     path: 'notifications',
     loadComponent: () =>
       import('./pages/notifications/notifications.component').then(m => m.NotificationsComponent),

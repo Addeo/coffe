@@ -32,7 +32,7 @@ docker-compose up --build
 ## 4. Access the Application
 
 - **Frontend**: http://localhost:4200
-- **Backend API**: http://localhost:3000
+- **Backend API**: http://localhost:3001
 - **MySQL**: localhost:3306
 
 ## 5. Default Admin Credentials

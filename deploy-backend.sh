@@ -94,14 +94,14 @@ ssh -i "$SSH_KEY" "$REMOTE_USER@$SERVER_IP" << 'EOF'
     sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u $USER --hp $HOME
 
     echo "✅ Backend deployed successfully!"
-    echo "🌐 App should be running on port 3000"
+    echo "🌐 App should be running on port 3001"
     echo "📊 Check status with: pm2 status"
     echo "📝 Check logs with: pm2 logs coffee-backend"
 EOF
 
 if [ $? -eq 0 ]; then
     print_status "✅ Deployment completed successfully!"
-    print_status "🌐 Backend should be available at: http://$SERVER_IP:3000"
+    print_status "🌐 Backend should be available at: http://$SERVER_IP:3001"
     print_status "📊 Check server status with: ssh -i $SSH_KEY $REMOTE_USER@$SERVER_IP 'pm2 status'"
 else
     print_error "❌ Deployment failed!"

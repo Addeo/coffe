@@ -107,15 +107,101 @@ ssh -i "$SSH_KEY" "$REMOTE_USER@$VM_IP" << 'EOF'
     docker-compose -f docker-compose.prod.yml ps
 
     echo "📊 Checking application health..."
-    if curl -f http://localhost:3000/api/test/health; then
+    if curl -f http://localhost:3001/api/test/health; then
         echo "✅ Application is healthy!"
     else
         echo "⚠️ Application health check failed, but containers are running"
     fi
 
+    echo "💾 Setting up automated backups..."
+    # Create backup setup script on VM
+    cat > ~/setup-backups.sh << 'BACKUP_EOF'
+#!/bin/bash
+# Automated backup setup script
+
+set -e
+
+echo "📁 Creating backup directories..."
+mkdir -p ~/backups
+mkdir -p ~/scripts
+
+echo "📝 Creating backup script..."
+cat > ~/scripts/create-backup.sh << 'SCRIPT_EOF'
+#!/bin/bash
+# Automated backup script for Coffee Admin
+
+set -e
+
+BACKUP_DIR="/home/ubuntu/backups"
+LOG_FILE="/home/ubuntu/backups/backup.log"
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+BACKUP_NAME="coffee_backup_$TIMESTAMP.sql"
+
+log() {
+    echo -e "[$(date +'%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+log "[START] Starting backup process..."
+
+if ! docker-compose -f docker-compose.prod.yml ps mysql | grep -q "Up"; then
+    log "[ERROR] MySQL container is not running"
+    exit 1
+fi
+
+log "[INFO] Creating database dump..."
+
+if docker-compose -f docker-compose.prod.yml exec -T mysql mysqldump \
+    -u coffee_user \
+    -pcoffee_password \
+    coffee_admin > "$BACKUP_DIR/$BACKUP_NAME"; then
+
+    FILE_SIZE=$(stat -f%z "$BACKUP_DIR/$BACKUP_NAME" 2>/dev/null || stat -c%s "$BACKUP_DIR/$BACKUP_NAME")
+    log "[SUCCESS] Backup created: $BACKUP_NAME (${FILE_SIZE} bytes)"
+else
+    log "[ERROR] Failed to create database dump"
+    exit 1
+fi
+
+log "[COMPLETE] Backup process finished"
+SCRIPT_EOF
+
+chmod +x ~/scripts/create-backup.sh
+
+echo "🧹 Creating cleanup script..."
+cat > ~/scripts/cleanup-backups.sh << 'CLEANUP_EOF'
+#!/bin/bash
+# Cleanup old backup files (keep last 30 days)
+
+BACKUP_DIR="/home/ubuntu/backups"
+KEEP_DAYS=30
+
+echo "Cleaning up backups older than $KEEP_DAYS days..."
+find "$BACKUP_DIR" -name "coffee_backup_*.sql" -mtime +$KEEP_DAYS -delete -print
+echo "Cleanup completed"
+CLEANUP_EOF
+
+chmod +x ~/scripts/cleanup-backups.sh
+
+echo "⏰ Setting up cron jobs..."
+# Daily backup at 2:00 AM
+(crontab -l 2>/dev/null || true; echo "0 2 * * * /home/ubuntu/scripts/create-backup.sh") | crontab -
+
+# Weekly cleanup on Sunday at 3:00 AM
+(crontab -l 2>/dev/null || true; echo "0 3 * * 0 /home/ubuntu/scripts/cleanup-backups.sh") | crontab -
+
+echo "🧪 Testing backup..."
+~/scripts/create-backup.sh
+
+echo "✅ Backup setup completed!"
+BACKUP_EOF
+
+    chmod +x ~/setup-backups.sh
+    ~/setup-backups.sh
+    rm ~/setup-backups.sh
+
     echo ""
     echo "🎉 Deployment completed!"
-    echo "🌐 Backend API: http://$VM_IP:3000"
+    echo "🌐 Backend API: http://$VM_IP:3001"
     echo "🌐 Frontend SSR: http://$VM_IP:4000"
     echo ""
     echo "📋 Useful commands:"
@@ -124,11 +210,16 @@ ssh -i "$SSH_KEY" "$REMOTE_USER@$VM_IP" << 'EOF'
     echo "  docker-compose -f docker-compose.prod.yml restart backend    # Restart backend"
     echo "  docker-compose -f docker-compose.prod.yml restart frontend  # Restart frontend"
     echo "  docker-compose -f docker-compose.prod.yml down               # Stop all"
+    echo ""
+    echo "💾 Backup commands:"
+    echo "  ~/scripts/create-backup.sh                                   # Create manual backup"
+    echo "  crontab -l                                                   # View scheduled backups"
+    echo "  ls -la ~/backups/                                            # List backup files"
 EOF
 
 if [ $? -eq 0 ]; then
     print_status "✅ Deployment to SberCloud completed successfully!"
-    print_status "🌐 Backend API: http://$VM_IP:3000"
+    print_status "🌐 Backend API: http://$VM_IP:3001"
     print_status "🌐 Frontend SSR: http://$VM_IP:4000"
     print_status ""
     print_status "📋 Next steps:"

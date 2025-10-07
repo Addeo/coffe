@@ -4,7 +4,15 @@ import { Repository, Between, LessThan } from 'typeorm';
 import { EarningsStatistic } from '../../entities/earnings-statistic.entity';
 import { Order } from '../../entities/order.entity';
 import { User, UserRole } from '../../entities/user.entity';
+import { WorkReport } from '../../entities/work-report.entity';
+import { Organization } from '../../entities/organization.entity';
 import { OrderStatus } from '../../../shared/interfaces/order.interface';
+import {
+  MonthlyStatisticsDto,
+  AgentEarningsData,
+  OrganizationEarningsData,
+  OvertimeStatisticsData
+} from '@dtos/reports.dto';
 
 @Injectable()
 export class StatisticsService {
@@ -14,7 +22,11 @@ export class StatisticsService {
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
     @InjectRepository(User)
-    private userRepository: Repository<User>
+    private userRepository: Repository<User>,
+    @InjectRepository(WorkReport)
+    private workReportRepository: Repository<WorkReport>,
+    @InjectRepository(Organization)
+    private organizationRepository: Repository<Organization>
   ) {}
 
   async calculateMonthlyEarnings(userId: number, month: number, year: number): Promise<void> {
@@ -192,5 +204,121 @@ export class StatisticsService {
     });
 
     await Promise.all(users.map(user => this.calculateMonthlyEarnings(user.id, month, year)));
+  }
+
+  async getMonthlyStatistics(year: number, month: number): Promise<MonthlyStatisticsDto> {
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 1);
+
+    // Get agent earnings data
+    const agentEarnings = await this.getAgentEarningsData(year, month);
+
+    // Get organization earnings data
+    const organizationEarnings = await this.getOrganizationEarningsData(startDate, endDate);
+
+    // Get overtime statistics
+    const overtimeStatistics = await this.getOvertimeStatisticsData(startDate, endDate);
+
+    // Calculate totals
+    const totalEarnings = agentEarnings.reduce((sum, agent) => sum + agent.totalEarnings, 0);
+    const totalOrders = agentEarnings.reduce((sum, agent) => sum + agent.completedOrders, 0);
+    const totalOvertimeHours = overtimeStatistics.reduce((sum, stat) => sum + stat.overtimeHours, 0);
+
+    return {
+      year,
+      month,
+      monthName: monthNames[month - 1],
+      agentEarnings,
+      organizationEarnings,
+      overtimeStatistics,
+      totalEarnings,
+      totalOrders,
+      totalOvertimeHours,
+    };
+  }
+
+  private async getAgentEarningsData(year: number, month: number): Promise<AgentEarningsData[]> {
+    const earningsStats = await this.earningsStatisticRepository
+      .createQueryBuilder('stat')
+      .leftJoinAndSelect('stat.user', 'user')
+      .where('stat.year = :year', { year })
+      .andWhere('stat.month = :month', { month })
+      .andWhere('user.role = :role', { role: UserRole.USER })
+      .orderBy('stat.totalEarnings', 'DESC')
+      .getMany();
+
+    return earningsStats.map(stat => ({
+      agentId: stat.userId,
+      agentName: stat.user ? `${stat.user.firstName} ${stat.user.lastName}` : 'Unknown',
+      totalEarnings: Number(stat.totalEarnings),
+      completedOrders: stat.completedOrders,
+      averageOrderValue: Number(stat.averageOrderValue),
+    }));
+  }
+
+  private async getOrganizationEarningsData(startDate: Date, endDate: Date): Promise<OrganizationEarningsData[]> {
+    // Get earnings data from work reports which contain the calculated amounts
+    const organizationStats = await this.workReportRepository
+      .createQueryBuilder('report')
+      .select('order.organizationId', 'organizationId')
+      .addSelect('organization.name', 'organizationName')
+      .addSelect('COUNT(DISTINCT order.id)', 'totalOrders')
+      .addSelect('SUM(report.calculatedAmount)', 'totalEarnings')
+      .addSelect('AVG(report.calculatedAmount)', 'averageOrderValue')
+      .leftJoin('report.order', 'order')
+      .leftJoin('order.organization', 'organization')
+      .where('order.status = :status', { status: OrderStatus.COMPLETED })
+      .andWhere('report.submittedAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .groupBy('order.organizationId')
+      .addGroupBy('organization.name')
+      .orderBy('totalEarnings', 'DESC')
+      .getRawMany();
+
+    return organizationStats.map(stat => ({
+      organizationId: stat.organizationId,
+      organizationName: stat.organizationName || 'Unknown',
+      totalEarnings: Number(stat.totalEarnings) || 0,
+      totalOrders: Number(stat.totalOrders) || 0,
+      averageOrderValue: Number(stat.averageOrderValue) || 0,
+    }));
+  }
+
+  private async getOvertimeStatisticsData(startDate: Date, endDate: Date): Promise<OvertimeStatisticsData[]> {
+    const overtimeStats = await this.workReportRepository
+      .createQueryBuilder('report')
+      .select('report.engineerId', 'engineerId')
+      .addSelect('engineer.firstName', 'firstName')
+      .addSelect('engineer.lastName', 'lastName')
+      .addSelect('SUM(CASE WHEN report.isOvertime = true THEN report.totalHours ELSE 0 END)', 'overtimeHours')
+      .addSelect('SUM(CASE WHEN report.isOvertime = false THEN report.totalHours ELSE 0 END)', 'regularHours')
+      .addSelect('SUM(report.totalHours)', 'totalHours')
+      .leftJoin('report.engineer', 'engineer')
+      .where('report.submittedAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .groupBy('report.engineerId')
+      .addGroupBy('engineer.firstName')
+      .addGroupBy('engineer.lastName')
+      .orderBy('overtimeHours', 'DESC')
+      .getRawMany();
+
+    return overtimeStats.map(stat => {
+      const overtimeHours = Number(stat.overtimeHours) || 0;
+      const regularHours = Number(stat.regularHours) || 0;
+      const totalHours = Number(stat.totalHours) || 0;
+      const overtimePercentage = totalHours > 0 ? (overtimeHours / totalHours) * 100 : 0;
+
+      return {
+        agentId: stat.engineerId,
+        agentName: stat.firstName && stat.lastName ? `${stat.firstName} ${stat.lastName}` : 'Unknown',
+        overtimeHours,
+        regularHours,
+        totalHours,
+        overtimePercentage: Math.round(overtimePercentage * 100) / 100,
+      };
+    });
   }
 }

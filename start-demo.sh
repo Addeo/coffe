@@ -23,7 +23,7 @@ sleep 5
 
 # Start localtunnel
 echo "🌐 Starting LocalTunnel..."
-npx localtunnel --port 3000 &
+npx localtunnel --port 3001 &
 LT_PID=$!
 echo "LocalTunnel started with PID: $LT_PID"
 

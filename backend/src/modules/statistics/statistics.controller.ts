@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../аутентификация/jwt-auth.guard';
 import { RolesGuard } from '../аутентификация/roles.guard';
 import { Roles } from '../аутентификация/roles.decorator';
 import { UserRole } from '../../entities/user.entity';
+import { MonthlyStatisticsDto, StatisticsQueryDto } from '@dtos/reports.dto';
 
 @Controller('statistics')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -54,5 +55,18 @@ export class StatisticsController {
     const end = new Date(endDate);
 
     return this.statisticsService.getTotalEarningsByPeriod(start, end, userId);
+  }
+
+  @Get('monthly')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  async getMonthlyStatistics(
+    @Query('year', ParseIntPipe) year?: number,
+    @Query('month', ParseIntPipe) month?: number
+  ): Promise<MonthlyStatisticsDto> {
+    const currentDate = new Date();
+    const targetYear = year || currentDate.getFullYear();
+    const targetMonth = month || (currentDate.getMonth() + 1);
+
+    return this.statisticsService.getMonthlyStatistics(targetYear, targetMonth);
   }
 }

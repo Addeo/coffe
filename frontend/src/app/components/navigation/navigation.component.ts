@@ -70,6 +70,12 @@ export class NavigationComponent implements OnInit, OnDestroy {
           route: '/engineer-rates',
           icon: 'account_balance_wallet',
           i18nKey: '@@navigation.engineerRates',
+        },
+        {
+          label: 'Статистика',
+          route: '/statistics',
+          icon: 'analytics',
+          i18nKey: '@@navigation.statistics',
         }
       );
     }

@@ -89,7 +89,7 @@ A modern admin panel built with Angular/Ionic frontend and NestJS backend, conta
 ### Access Points
 
 - **Frontend**: http://localhost:4200 (Angular dev server)
-- **Backend API**: http://localhost:3000
+- **Backend API**: http://localhost:3001
 - **MySQL**: localhost:3307
 
 ### Default Admin User
@@ -303,3 +303,18 @@ This project is licensed under the MIT License.
 
 admin@coffee.com
 password
+
+
+dante.ns.cloudflare.com
+
+mallory.ns.cloudflare.com
+
+Created tunnel my-tunnel with id d722d85b-87fc-46aa-af20-c48eddc78c76
+
+Tunnel credentials written to /Users/sergejkosilov/.cloudflared/d722d85b-87fc-46aa-af20-c48eddc78c76.json. cloudflared chose this file based on where your origin certificate was found. Keep this file secret. To revoke these credentials, delete the tunnel.
+
+Created tunnel my-tunnel with id d722d85b-87fc-46aa-af20-c48eddc78c76
+
+INF Added CNAME app.coffe-ug.ru which will route to this tunnel tunnelID=d722d85b-87fc-46aa-af20-c48eddc78c76
+
+cloudflared tunnel run my-tunnel

@@ -1,0 +1,224 @@
+<div class="statistics-container">
+  <div class="header">
+    <h1 i18n="@@statistics.title">Monthly Statistics</h1>
+    <p i18n="@@statistics.subtitle">View comprehensive statistics for agent performance and earnings</p>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@statistics.year">Year</mat-label>
+      <mat-select [value]="selectedYear()" (selectionChange)="onYearChange($event.value)">
+        <mat-option *ngFor="let year of availableYears" [value]="year">
+          {{ year }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label i18n="@@statistics.month">Month</mat-label>
+      <mat-select [value]="selectedMonth()" (selectionChange)="onMonthChange($event.value)">
+        <mat-option *ngFor="let month of availableMonths" [value]="month.value">
+          {{ month.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p i18n="@@statistics.loading">Loading statistics...</p>
+  </div>
+
+  <!-- Statistics Content -->
+  <div *ngIf="!isLoading() && statistics()" class="statistics-content">
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <mat-card class="summary-card">
+        <mat-card-header>
+          <div class="card-icon">
+            <mat-icon>attach_money</mat-icon>
+          </div>
+          <mat-card-title i18n="@@statistics.totalEarnings">Total Earnings</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="card-value">{{ formatCurrency(statistics()!.totalEarnings) }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card">
+        <mat-card-header>
+          <div class="card-icon">
+            <mat-icon>shopping_cart</mat-icon>
+          </div>
+          <mat-card-title i18n="@@statistics.totalOrders">Total Orders</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="card-value">{{ formatNumber(statistics()!.totalOrders) }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card">
+        <mat-card-header>
+          <div class="card-icon">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <mat-card-title i18n="@@statistics.totalOvertime">Total Overtime Hours</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="card-value">{{ formatNumber(statistics()!.totalOvertimeHours) }}</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Statistics Tabs -->
+    <mat-tab-group>
+      <!-- Agent Earnings Tab -->
+      <mat-tab label="Agent Earnings">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title i18n="@@statistics.agentEarnings">Agent Earnings for {{ statistics()?.monthName }} {{ statistics()?.year }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="table-container">
+                <table mat-table [dataSource]="statistics()?.agentEarnings || []" class="mat-elevation-z8">
+                  <!-- Agent Name Column -->
+                  <ng-container matColumnDef="agentName">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@statistics.agentName">Agent Name</th>
+                    <td mat-cell *matCellDef="let element">{{ element.agentName }}</td>
+                  </ng-container>
+
+                  <!-- Total Earnings Column -->
+                  <ng-container matColumnDef="totalEarnings">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@statistics.totalEarnings">Total Earnings</th>
+                    <td mat-cell *matCellDef="let element">{{ formatCurrency(element.totalEarnings) }}</td>
+                  </ng-container>
+
+                  <!-- Completed Orders Column -->
+                  <ng-container matColumnDef="completedOrders">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@statistics.completedOrders">Completed Orders</th>
+                    <td mat-cell *matCellDef="let element">{{ formatNumber(element.completedOrders) }}</td>
+                  </ng-container>
+
+                  <!-- Average Order Value Column -->
+                  <ng-container matColumnDef="averageOrderValue">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@statistics.avgOrderValue">Avg Order Value</th>
+                    <td mat-cell *matCellDef="let element">{{ formatCurrency(element.averageOrderValue) }}</td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="agentEarningsColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: agentEarningsColumns;"></tr>
+                </table>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Organization Earnings Tab -->
+      <mat-tab label="Organization Earnings">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title i18n="@@statistics.orgEarnings">Organization Earnings for {{ statistics()?.monthName }} {{ statistics()?.year }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="table-container">
+                <table mat-table [dataSource]="statistics()?.organizationEarnings || []" class="mat-elevation-z8">
+                  <!-- Organization Name Column -->
+                  <ng-container matColumnDef="organizationName">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@statistics.orgName">Organization Name</th>
+                    <td mat-cell *matCellDef="let element">{{ element.organizationName }}</td>
+                  </ng-container>
+
+                  <!-- Total Earnings Column -->
+                  <ng-container matColumnDef="totalEarnings">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@statistics.totalEarnings">Total Earnings</th>
+                    <td mat-cell *matCellDef="let element">{{ formatCurrency(element.totalEarnings) }}</td>
+                  </ng-container>
+
+                  <!-- Total Orders Column -->
+                  <ng-container matColumnDef="totalOrders">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@statistics.totalOrders">Total Orders</th>
+                    <td mat-cell *matCellDef="let element">{{ formatNumber(element.totalOrders) }}</td>
+                  </ng-container>
+
+                  <!-- Average Order Value Column -->
+                  <ng-container matColumnDef="averageOrderValue">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@statistics.avgOrderValue">Avg Order Value</th>
+                    <td mat-cell *matCellDef="let element">{{ formatCurrency(element.averageOrderValue) }}</td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="organizationEarningsColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: organizationEarningsColumns;"></tr>
+                </table>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Overtime Statistics Tab -->
+      <mat-tab label="Overtime Statistics">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title i18n="@@statistics.overtimeStats">Overtime Statistics for {{ statistics()?.monthName }} {{ statistics()?.year }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="table-container">
+                <table mat-table [dataSource]="statistics()?.overtimeStatistics || []" class="mat-elevation-z8">
+                  <!-- Agent Name Column -->
+                  <ng-container matColumnDef="agentName">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@statistics.agentName">Agent Name</th>
+                    <td mat-cell *matCellDef="let element">{{ element.agentName }}</td>
+                  </ng-container>
+
+                  <!-- Overtime Hours Column -->
+                  <ng-container matColumnDef="overtimeHours">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@statistics.overtimeHours">Overtime Hours</th>
+                    <td mat-cell *matCellDef="let element">
+                      {{ formatNumber(element.overtimeHours) }}
+                      <div class="progress-bar">
+                        <div class="progress-fill" [style.width]="getProgressBarWidth(element.overtimePercentage)"></div>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Regular Hours Column -->
+                  <ng-container matColumnDef="regularHours">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@statistics.regularHours">Regular Hours</th>
+                    <td mat-cell *matCellDef="let element">{{ formatNumber(element.regularHours) }}</td>
+                  </ng-container>
+
+                  <!-- Total Hours Column -->
+                  <ng-container matColumnDef="totalHours">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@statistics.totalHours">Total Hours</th>
+                    <td mat-cell *matCellDef="let element">{{ formatNumber(element.totalHours) }}</td>
+                  </ng-container>
+
+                  <!-- Overtime Percentage Column -->
+                  <ng-container matColumnDef="overtimePercentage">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@statistics.overtimePercent">Overtime %</th>
+                    <td mat-cell *matCellDef="let element">{{ element.overtimePercentage }}%</td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="overtimeColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: overtimeColumns;"></tr>
+                </table>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <!-- No Data Message -->
+  <div *ngIf="!isLoading() && !statistics()" class="no-data">
+    <mat-icon>info</mat-icon>
+    <p i18n="@@statistics.noData">No statistics available for the selected period</p>
+  </div>
+</div>

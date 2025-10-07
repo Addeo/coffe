@@ -31,10 +31,10 @@ services:
     container_name: coffee_backend_prod
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3001:3001"
     environment:
       NODE_ENV: production
-      PORT: 3000
+      PORT: 3001
       # Database settings (using local MySQL container)
       DB_HOST: mysql
       DB_PORT: 3306
@@ -58,7 +58,7 @@ services:
     networks:
       - coffee_prod_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/test/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/test/health"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -126,7 +126,7 @@ ssh -i ~/.ssh/id_ed25519 yc-user@VM_EXTERNAL_IP
 
 # Application Settings
 NODE_ENV=production
-PORT=3000
+PORT=3001
 
 # Database Settings (Yandex Cloud MySQL)
 DB_HOST=ваш-mysql-хост.db.yandex.net
