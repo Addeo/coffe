@@ -31,13 +31,20 @@
       </a>
     </nav>
 
+    <!-- Desktop Logout Button -->
+    <div class="desktop-logout" *ngIf="isAuthenticated()">
+      <button mat-icon-button (click)="logout()" matTooltip="Logout" aria-label="Logout">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+
     <!-- Mobile Navigation Menu -->
     <div class="mobile-menu-overlay" *ngIf="isMobileMenuOpen()" (click)="closeMobileMenu()">
       <div class="mobile-menu-content" (click)="$event.stopPropagation()">
         <div class="mobile-menu-header">
           <div class="brand">
             <mat-icon class="brand-icon">local_cafe</mat-icon>
-            <span class="brand-text" i18n="@@navigation.brand">Coffee Admin</span>
+            <span class="brand-text mobile-brand-text" i18n="@@navigation.brand">Coffee Admin</span>
           </div>
           <button mat-icon-button (click)="closeMobileMenu()" aria-label="Close menu">
             <mat-icon>close</mat-icon>
@@ -80,97 +87,100 @@
       </div>
     </div>
 
-    <!-- Notifications -->
-    <div class="notifications-menu" *ngIf="isAuthenticated()">
-      <button mat-icon-button [matMenuTriggerFor]="notificationsMenu" class="notifications-button">
-        <mat-icon class="notifications-icon">notifications</mat-icon>
-        <span
-          class="notifications-badge"
-          *ngIf="unreadCount() > 0"
-          matBadge="{{ unreadCount() }}"
-          matBadgeColor="warn"
-        ></span>
-      </button>
-
-      <mat-menu #notificationsMenu="matMenu" class="notifications-dropdown">
-        <div class="notifications-header" mat-menu-item disabled>
-          <h4 i18n="@@navigation.notifications">Уведомления</h4>
-          <button
-            mat-button
+    <!-- Right Section -->
+    <div class="right-section" *ngIf="isAuthenticated()">
+      <!-- Notifications -->
+      <div class="notifications-menu">
+        <button mat-icon-button [matMenuTriggerFor]="notificationsMenu" class="notifications-button">
+          <mat-icon class="notifications-icon">notifications</mat-icon>
+          <span
+            class="notifications-badge"
             *ngIf="unreadCount() > 0"
-            (click)="onMarkAllAsRead()"
-            i18n="@@notifications.markAllAsRead"
-          >
-            Отметить все как прочитанные
-          </button>
-        </div>
+            matBadge="{{ unreadCount() }}"
+            matBadgeColor="warn"
+          ></span>
+        </button>
 
-        <mat-divider></mat-divider>
-
-        <div *ngIf="recentNotifications().length === 0" mat-menu-item disabled>
-          <mat-icon>notifications_none</mat-icon>
-          <span i18n="@@notifications.noNewNotifications">Нет новых уведомлений</span>
-        </div>
-
-        <div
-          *ngFor="let notification of recentNotifications()"
-          mat-menu-item
-          [class.unread]="notification.status === 'unread'"
-          (click)="onNotificationClick(notification)"
-        >
-          <div class="notification-item">
-            <mat-icon [style.color]="getPriorityColor(notification.priority)">
-              {{ getPriorityIcon(notification.priority) }}
-            </mat-icon>
-            <div class="notification-content">
-              <div class="notification-title">{{ notification.title }}</div>
-              <div class="notification-message">{{ notification.message }}</div>
-              <div class="notification-time">{{ notification.createdAt | date: 'short' }}</div>
-            </div>
-            <mat-icon *ngIf="notification.status === 'unread'" class="unread-indicator"
-              >fiber_manual_record</mat-icon
+        <mat-menu #notificationsMenu="matMenu" class="notifications-dropdown">
+          <div class="notifications-header" mat-menu-item disabled>
+            <h4 i18n="@@navigation.notifications">Уведомления</h4>
+            <button
+              mat-button
+              *ngIf="unreadCount() > 0"
+              (click)="onMarkAllAsRead()"
+              i18n="@@notifications.markAllAsRead"
             >
+              Отметить все как прочитанные
+            </button>
           </div>
-        </div>
 
-        <mat-divider *ngIf="recentNotifications().length > 0"></mat-divider>
+          <mat-divider></mat-divider>
 
-        <button mat-menu-item (click)="onViewAllNotifications()">
-          <mat-icon>visibility</mat-icon>
-          <span i18n="@@notifications.viewAllNotifications">Показать все уведомления</span>
-        </button>
-      </mat-menu>
-    </div>
-
-    <!-- User Menu -->
-    <div class="user-menu" *ngIf="isAuthenticated()">
-      <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
-        <mat-icon class="user-icon">account_circle</mat-icon>
-        <span class="user-name">{{ userName() }}</span>
-        <mat-icon class="dropdown-icon">expand_more</mat-icon>
-      </button>
-
-      <mat-menu #userMenu="matMenu" class="user-dropdown">
-        <div class="user-info" mat-menu-item disabled>
-          <div class="user-details">
-            <div class="user-full-name">{{ userName() }}</div>
-            <div class="user-role">{{ getRoleDisplayName(userRole()!) }}</div>
-            <div class="user-email">{{ currentUser()?.email }}</div>
+          <div *ngIf="recentNotifications().length === 0" mat-menu-item disabled>
+            <mat-icon>notifications_none</mat-icon>
+            <span i18n="@@notifications.noNewNotifications">Нет новых уведомлений</span>
           </div>
-        </div>
 
-        <mat-divider></mat-divider>
+          <div
+            *ngFor="let notification of recentNotifications()"
+            mat-menu-item
+            [class.unread]="notification.status === 'unread'"
+            (click)="onNotificationClick(notification)"
+          >
+            <div class="notification-item">
+              <mat-icon [style.color]="getPriorityColor(notification.priority)">
+                {{ getPriorityIcon(notification.priority) }}
+              </mat-icon>
+              <div class="notification-content">
+                <div class="notification-title">{{ notification.title }}</div>
+                <div class="notification-message">{{ notification.message }}</div>
+                <div class="notification-time">{{ notification.createdAt | date: 'short' }}</div>
+              </div>
+              <mat-icon *ngIf="notification.status === 'unread'" class="unread-indicator"
+                >fiber_manual_record</mat-icon
+              >
+            </div>
+          </div>
 
-        <button mat-menu-item [routerLink]="'/profile'">
-          <mat-icon>person</mat-icon>
-          <span i18n="@@navigation.profile">Мой профиль</span>
+          <mat-divider *ngIf="recentNotifications().length > 0"></mat-divider>
+
+          <button mat-menu-item (click)="onViewAllNotifications()">
+            <mat-icon>visibility</mat-icon>
+            <span i18n="@@notifications.viewAllNotifications">Показать все уведомления</span>
+          </button>
+        </mat-menu>
+      </div>
+
+      <!-- User Menu -->
+      <div class="user-menu">
+        <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
+          <mat-icon class="user-icon">account_circle</mat-icon>
+          <span class="user-name">{{ userName() }}</span>
+          <mat-icon class="dropdown-icon">expand_more</mat-icon>
         </button>
 
-        <button mat-menu-item (click)="logout()">
-          <mat-icon>logout</mat-icon>
-          <span i18n="@@navigation.logout">Выход</span>
-        </button>
-      </mat-menu>
+        <mat-menu #userMenu="matMenu" class="user-dropdown">
+          <div class="user-info" mat-menu-item disabled>
+            <div class="user-details">
+              <div class="user-full-name">{{ userName() }}</div>
+              <div class="user-role">{{ getRoleDisplayName(userRole()!) }}</div>
+              <div class="user-email">{{ currentUser()?.email }}</div>
+            </div>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          <button mat-menu-item [routerLink]="'/profile'">
+            <mat-icon>person</mat-icon>
+            <span i18n="@@navigation.profile">Мой профиль</span>
+          </button>
+
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span i18n="@@navigation.logout">Выход</span>
+          </button>
+        </mat-menu>
+      </div>
     </div>
   </div>
 </mat-toolbar>

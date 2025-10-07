@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, LessThan } from 'typeorm';
+import { Repository } from 'typeorm';
 import { EarningsStatistic } from '../../entities/earnings-statistic.entity';
 import { Order } from '../../entities/order.entity';
 import { User, UserRole } from '../../entities/user.entity';
-import { WorkReport } from '../../entities/work-report.entity';
 import { Organization } from '../../entities/organization.entity';
+import { WorkReport } from '../../entities/work-report.entity';
 import { OrderStatus } from '../../../shared/interfaces/order.interface';
 import {
   MonthlyStatisticsDto,
@@ -23,10 +23,10 @@ export class StatisticsService {
     private orderRepository: Repository<Order>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
-    @InjectRepository(WorkReport)
-    private workReportRepository: Repository<WorkReport>,
     @InjectRepository(Organization)
-    private organizationRepository: Repository<Organization>
+    private organizationRepository: Repository<Organization>,
+    @InjectRepository(WorkReport)
+    private workReportRepository: Repository<WorkReport>
   ) {}
 
   async calculateMonthlyEarnings(userId: number, month: number, year: number): Promise<void> {
@@ -49,7 +49,7 @@ export class StatisticsService {
     }
 
     // Рассчитываем статистику
-    const totalEarnings = completedOrders.reduce((sum, order) => {
+    const totalEarnings = completedOrders.reduce((sum) => {
       // Здесь должна быть логика расчета стоимости заказа
       // Пока используем заглушку - можно будет доработать
       return sum + 100; // Примерная стоимость заказа
@@ -262,18 +262,17 @@ export class StatisticsService {
   }
 
   private async getOrganizationEarningsData(startDate: Date, endDate: Date): Promise<OrganizationEarningsData[]> {
-    // Get earnings data from work reports which contain the calculated amounts
-    const organizationStats = await this.workReportRepository
-      .createQueryBuilder('report')
+    // Get earnings data from completed orders
+    const organizationStats = await this.orderRepository
+      .createQueryBuilder('order')
       .select('order.organizationId', 'organizationId')
       .addSelect('organization.name', 'organizationName')
-      .addSelect('COUNT(DISTINCT order.id)', 'totalOrders')
-      .addSelect('SUM(report.calculatedAmount)', 'totalEarnings')
-      .addSelect('AVG(report.calculatedAmount)', 'averageOrderValue')
-      .leftJoin('report.order', 'order')
+      .addSelect('COUNT(order.id)', 'totalOrders')
+      .addSelect('SUM(order.totalAmount)', 'totalEarnings')
+      .addSelect('AVG(order.totalAmount)', 'averageOrderValue')
       .leftJoin('order.organization', 'organization')
       .where('order.status = :status', { status: OrderStatus.COMPLETED })
-      .andWhere('report.submittedAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
       .groupBy('order.organizationId')
       .addGroupBy('organization.name')
       .orderBy('totalEarnings', 'DESC')
@@ -289,7 +288,7 @@ export class StatisticsService {
   }
 
   private async getOvertimeStatisticsData(startDate: Date, endDate: Date): Promise<OvertimeStatisticsData[]> {
-    const overtimeStats = await this.workReportRepository
+    const engineerStats = await this.workReportRepository
       .createQueryBuilder('report')
       .select('report.engineerId', 'engineerId')
       .addSelect('engineer.firstName', 'firstName')
@@ -305,7 +304,7 @@ export class StatisticsService {
       .orderBy('overtimeHours', 'DESC')
       .getRawMany();
 
-    return overtimeStats.map(stat => {
+    return engineerStats.map(stat => {
       const overtimeHours = Number(stat.overtimeHours) || 0;
       const regularHours = Number(stat.regularHours) || 0;
       const totalHours = Number(stat.totalHours) || 0;
@@ -313,11 +312,11 @@ export class StatisticsService {
 
       return {
         agentId: stat.engineerId,
-        agentName: stat.firstName && stat.lastName ? `${stat.firstName} ${stat.lastName}` : 'Unknown',
+        agentName: `${stat.firstName || ''} ${stat.lastName || ''}`.trim() || 'Unknown',
         overtimeHours,
         regularHours,
         totalHours,
-        overtimePercentage: Math.round(overtimePercentage * 100) / 100,
+        overtimePercentage: Number(overtimePercentage.toFixed(2)),
       };
     });
   }

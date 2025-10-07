@@ -5,9 +5,11 @@ import { StatisticsController } from './statistics.controller';
 import { EarningsStatistic } from '../../entities/earnings-statistic.entity';
 import { Order } from '../../entities/order.entity';
 import { User } from '../../entities/user.entity';
+import { Organization } from '../../entities/organization.entity';
+import { WorkReport } from '../../entities/work-report.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([EarningsStatistic, Order, User])],
+  imports: [TypeOrmModule.forFeature([EarningsStatistic, Order, User, Organization, WorkReport])],
   controllers: [StatisticsController],
   providers: [StatisticsService],
   exports: [StatisticsService],

@@ -131,8 +131,8 @@ export class UsersComponent implements OnInit {
   onDeleteUser(user: UserDto) {
     const dialogRef = this.modalService.openDialog(DeleteConfirmationDialogComponent, {
       user,
-      title: 'Delete User',
-      message: `Are you sure you want to delete user ${user.firstName} ${user.lastName}?`,
+      title: 'Удалить пользователя',
+      message: `Вы уверены, что хотите удалить пользователя ${user.firstName} ${user.lastName}?`,
     });
 
     dialogRef.subscribe(result => {

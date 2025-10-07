@@ -56,6 +56,16 @@ export class CreateUserDto {
   homeTerritoryFixedAmount?: number;
 
   @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  fixedSalary?: number;
+
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Min(0)
+  fixedCarAmount?: number;
+
+  @IsOptional()
   engineerIsActive?: boolean;
 
   @IsOptional()

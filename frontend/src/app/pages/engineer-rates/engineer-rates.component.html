@@ -70,7 +70,7 @@
   <!-- Table Section -->
   <mat-card class="table-card">
     <mat-card-header>
-      <mat-card-title>Engineer Organization Rates</mat-card-title>
+      <mat-card-title>Ставки инженеров по организациям</mat-card-title>
       <div class="header-actions">
         <button
           mat-raised-button
@@ -88,97 +88,97 @@
         <table mat-table [dataSource]="dataSource" matSort class="rates-table">
           <!-- Engineer Name Column -->
           <ng-container matColumnDef="engineerName">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Engineer</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Инженер</th>
             <td mat-cell *matCellDef="let rate">{{ getEngineerName(rate) }}</td>
           </ng-container>
 
           <!-- Organization Name Column -->
           <ng-container matColumnDef="organizationName">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Organization</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Организация</th>
             <td mat-cell *matCellDef="let rate">{{ rate.organizationName }}</td>
           </ng-container>
 
           <!-- Base Rate Column -->
           <ng-container matColumnDef="customBaseRate">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Base Rate (₽/h)</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Базовая ставка (₽/ч)</th>
             <td mat-cell *matCellDef="let rate">
               <span *ngIf="rate.customBaseRate; else defaultBaseRate">
                 {{ rate.customBaseRate | number: '1.2-2' }}
               </span>
               <ng-template #defaultBaseRate>
-                <span class="default-value">Default</span>
+                <span class="default-value">По умолчанию</span>
               </ng-template>
             </td>
           </ng-container>
 
           <!-- Overtime Rate Column -->
           <ng-container matColumnDef="customOvertimeRate">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Overtime Rate (₽/h)</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Ставка переработки (₽/ч)</th>
             <td mat-cell *matCellDef="let rate">
               <span *ngIf="rate.customOvertimeRate; else defaultOvertimeRate">
                 {{ rate.customOvertimeRate | number: '1.2-2' }}
               </span>
               <ng-template #defaultOvertimeRate>
-                <span class="default-value">Default</span>
+                <span class="default-value">По умолчанию</span>
               </ng-template>
             </td>
           </ng-container>
 
           <!-- Overtime Multiplier Column -->
           <ng-container matColumnDef="customOvertimeMultiplier">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Overtime Multiplier</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Множитель переработки</th>
             <td mat-cell *matCellDef="let rate">
               <span *ngIf="rate.customOvertimeMultiplier; else defaultMultiplier">
                 {{ rate.customOvertimeMultiplier | number: '1.1-1' }}x
               </span>
               <ng-template #defaultMultiplier>
-                <span class="default-value">Default</span>
+                <span class="default-value">По умолчанию</span>
               </ng-template>
             </td>
           </ng-container>
 
           <!-- Fixed Salary Column -->
           <ng-container matColumnDef="customFixedSalary">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Fixed Salary (₽)</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Фиксированная зарплата (₽)</th>
             <td mat-cell *matCellDef="let rate">
               <span *ngIf="rate.customFixedSalary; else defaultFixedSalary">
                 {{ rate.customFixedSalary | number: '1.2-2' }}
               </span>
               <ng-template #defaultFixedSalary>
-                <span class="default-value">Default</span>
+                <span class="default-value">По умолчанию</span>
               </ng-template>
             </td>
           </ng-container>
 
           <!-- Fixed Car Amount Column -->
           <ng-container matColumnDef="customFixedCarAmount">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Fixed Car Amount (₽)</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Фиксированная сумма за авто (₽)</th>
             <td mat-cell *matCellDef="let rate">
               <span *ngIf="rate.customFixedCarAmount; else defaultCarAmount">
                 {{ rate.customFixedCarAmount | number: '1.2-2' }}
               </span>
               <ng-template #defaultCarAmount>
-                <span class="default-value">Default</span>
+                <span class="default-value">По умолчанию</span>
               </ng-template>
             </td>
           </ng-container>
 
           <!-- Car Km Rate Column -->
           <ng-container matColumnDef="customCarKmRate">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Car Km Rate (₽/km)</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Ставка за км (₽/км)</th>
             <td mat-cell *matCellDef="let rate">
               <span *ngIf="rate.customCarKmRate; else defaultKmRate">
                 {{ rate.customCarKmRate | number: '1.2-2' }}
               </span>
               <ng-template #defaultKmRate>
-                <span class="default-value">Default</span>
+                <span class="default-value">По умолчанию</span>
               </ng-template>
             </td>
           </ng-container>
 
           <!-- Status Column -->
           <ng-container matColumnDef="isActive">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Статус</th>
             <td mat-cell *matCellDef="let rate">
               <mat-chip [color]="getStatusColor(rate.isActive)" selected>
                 {{ getStatusDisplay(rate.isActive) }}
@@ -188,11 +188,11 @@
 
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <th mat-header-cell *matHeaderCellDef>Действия</th>
             <td mat-cell *matCellDef="let rate">
               <button
                 mat-icon-button
-                [matTooltip]="'Edit rate configuration'"
+                [matTooltip]="'Редактировать конфигурацию ставок'"
                 (click)="onEditRate(rate)"
                 [disabled]="!canEditRates"
               >
@@ -200,7 +200,7 @@
               </button>
               <button
                 mat-icon-button
-                [matTooltip]="rate.isActive ? 'Deactivate' : 'Activate'"
+                [matTooltip]="rate.isActive ? 'Деактивировать' : 'Активировать'"
                 (click)="onToggleRateStatus(rate)"
                 [disabled]="!canEditRates"
               >

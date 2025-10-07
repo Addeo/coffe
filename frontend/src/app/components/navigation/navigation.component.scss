@@ -37,6 +37,7 @@
     font-weight: 600;
     letter-spacing: 0.5px;
     white-space: nowrap;
+    display: none; // Hide brand text on desktop
   }
 }
 
@@ -93,9 +94,23 @@
   }
 }
 
+// Desktop logout button
+.desktop-logout {
+  margin-left: auto; // Push to the right
+  margin-right: 16px;
+
+  button {
+    color: inherit;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
+
 // Right section (notifications + user menu)
 .right-section {
-  display: flex;
+  display: none; // Hide on desktop by default
   align-items: center;
   gap: 8px;
   flex-shrink: 0; // Don't shrink right section
@@ -449,13 +464,66 @@
 }
 
 // Responsive design
-@media (max-width: 1300px) {
-  .mobile-menu-button {
-    display: flex; // Show hamburger menu button on smaller desktop screens
+@media (max-width: 1400px) {
+  .navbar-content {
+    padding: 0 16px;
   }
 
   .nav-links {
-    display: none; // Hide navigation links, use mobile menu instead
+    gap: 2px; // Reduce gap between navigation items
+
+    a {
+      padding: 4px 8px; // Reduce padding
+      font-size: 12px;
+
+      .nav-icon {
+        font-size: 14px;
+        height: 14px;
+        width: 14px;
+      }
+
+      span {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .right-section {
+    gap: 4px; // Reduce gap in right section
+  }
+
+  .notifications-menu .notifications-button {
+    margin-right: 8px;
+  }
+
+  .user-menu .user-button {
+    padding: 6px 10px;
+
+    .user-name {
+      max-width: 100px; // Reduce user name width
+    }
+
+    .dropdown-icon {
+      font-size: 16px;
+      height: 16px;
+      width: 16px;
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .nav-links a span {
+    display: none; // Hide text labels, show only icons
+  }
+
+  .nav-links a {
+    padding: 6px; // Reduce padding when only icons are shown
+    min-width: 40px;
+    justify-content: center;
+  }
+
+  .brand .brand-text {
+    font-size: 18px; // Reduce brand text size
   }
 }
 
@@ -464,16 +532,24 @@
     padding: 0 16px;
   }
 
-  .brand .brand-text {
-    display: none;
-  }
-
   .mobile-menu-button {
-    display: flex; // Show hamburger menu button on mobile
+    display: flex; // Show hamburger menu button only on mobile
   }
 
   .nav-links {
     display: none; // Hide navigation links on mobile
+  }
+
+  .right-section {
+    display: flex; // Show right section on mobile
+  }
+
+  .brand .mobile-brand-text {
+    display: block; // Show brand text in mobile menu
+  }
+
+  .desktop-logout {
+    display: none; // Hide desktop logout on mobile
   }
 
   .notifications-menu {

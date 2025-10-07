@@ -36,6 +36,16 @@ export class NotificationsComponent implements OnInit, AfterViewInit {
   // Table columns
   displayedColumns = ['type', 'title', 'message', 'priority', 'createdAt', 'actions'];
 
+  // Column headers
+  readonly columnHeaders = {
+    type: $localize`:@@notifications.type:Type`,
+    title: $localize`:@@notifications.titleColumn:Title`,
+    message: $localize`:@@notifications.message:Message`,
+    priority: $localize`:@@notifications.priority:Priority`,
+    created: $localize`:@@notifications.created:Created`,
+    actions: $localize`:@@notifications.actions:Actions`
+  };
+
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 

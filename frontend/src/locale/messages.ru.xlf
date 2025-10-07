@@ -457,6 +457,10 @@
         <source>Type</source>
         <target>Тип</target>
       </trans-unit>
+      <trans-unit id="notifications.titleColumn" datatype="html">
+        <source>Title</source>
+        <target>Заголовок</target>
+      </trans-unit>
       <trans-unit id="notifications.message" datatype="html">
         <source>Message</source>
         <target>Сообщение</target>

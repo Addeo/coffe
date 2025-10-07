@@ -7,10 +7,14 @@ import { UserActivityLog, ActivityType } from '../../entities/user-activity-log.
 import { Engineer } from '../../entities/engineer.entity';
 import { EngineerOrganizationRate } from '../../entities/engineer-organization-rate.entity';
 import { Organization } from '../../entities/organization.entity';
+import { Order } from '../../entities/order.entity';
+import { Notification } from '../../entities/notification.entity';
+import { EarningsStatistic } from '../../entities/earnings-statistic.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersQueryDto } from '../../../shared/dtos/user.dto';
 import { EngineerType } from '../../../shared/interfaces/order.interface';
+import { UserDeletionException, UserDeletionConflict } from './exceptions/user-deletion.exception';
 
 export interface UsersResponse {
   data: User[];
@@ -32,7 +36,13 @@ export class UsersService {
     @InjectRepository(EngineerOrganizationRate)
     private engineerOrganizationRateRepository: Repository<EngineerOrganizationRate>,
     @InjectRepository(Organization)
-    private organizationRepository: Repository<Organization>
+    private organizationRepository: Repository<Organization>,
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>,
+    @InjectRepository(Notification)
+    private notificationRepository: Repository<Notification>,
+    @InjectRepository(EarningsStatistic)
+    private earningsStatisticRepository: Repository<EarningsStatistic>
   ) {}
 
   async create(createUserDto: CreateUserDto, createdById: number): Promise<User> {
@@ -239,7 +249,21 @@ export class UsersService {
     }
 
     const oldUserData = { ...existingUser };
-    const updateData = { ...updateUserDto };
+
+    // Extract engineer-specific fields that should not be updated in User entity
+    const {
+      engineerType,
+      baseRate,
+      overtimeRate,
+      planHoursMonth,
+      homeTerritoryFixedAmount,
+      fixedSalary,
+      fixedCarAmount,
+      engineerIsActive,
+      ...userUpdateData
+    } = updateUserDto;
+
+    const updateData = { ...userUpdateData };
 
     if (updateData.password) {
       updateData.password = await bcrypt.hash(updateData.password, 10);
@@ -249,36 +273,38 @@ export class UsersService {
     const updatedUser = await this.findOne(id, currentUser);
 
     // Update engineer data if provided and user role is USER
-    if (updateUserDto.role === UserRole.USER && updateUserDto.engineerType) {
+    const hasEngineerData = updateUserDto.engineerType || updateUserDto.baseRate !== undefined ||
+      updateUserDto.overtimeRate !== undefined || updateUserDto.planHoursMonth !== undefined ||
+      updateUserDto.homeTerritoryFixedAmount !== undefined || updateUserDto.fixedSalary !== undefined ||
+      updateUserDto.fixedCarAmount !== undefined || updateUserDto.engineerIsActive !== undefined;
+
+    if ((updateUserDto.role === UserRole.USER || existingUser.role === UserRole.USER) && hasEngineerData) {
       let engineer = await this.engineerRepository.findOne({ where: { userId: id } });
 
       if (engineer) {
         // Update existing engineer
         await this.engineerRepository.update(engineer.id, {
-          type: updateUserDto.engineerType,
-          baseRate: updateUserDto.baseRate || engineer.baseRate,
-          overtimeRate: updateUserDto.overtimeRate || engineer.overtimeRate,
-          planHoursMonth: updateUserDto.planHoursMonth || engineer.planHoursMonth,
-          homeTerritoryFixedAmount:
-            updateUserDto.homeTerritoryFixedAmount || engineer.homeTerritoryFixedAmount,
-          isActive:
-            updateUserDto.engineerIsActive !== undefined
-              ? updateUserDto.engineerIsActive
-              : engineer.isActive,
+          ...(updateUserDto.engineerType && { type: updateUserDto.engineerType }),
+          ...(updateUserDto.baseRate !== undefined && { baseRate: updateUserDto.baseRate }),
+          ...(updateUserDto.overtimeRate !== undefined && { overtimeRate: updateUserDto.overtimeRate }),
+          ...(updateUserDto.planHoursMonth !== undefined && { planHoursMonth: updateUserDto.planHoursMonth }),
+          ...(updateUserDto.homeTerritoryFixedAmount !== undefined && { homeTerritoryFixedAmount: updateUserDto.homeTerritoryFixedAmount }),
+          ...(updateUserDto.fixedSalary !== undefined && { fixedSalary: updateUserDto.fixedSalary }),
+          ...(updateUserDto.fixedCarAmount !== undefined && { fixedCarAmount: updateUserDto.fixedCarAmount }),
+          ...(updateUserDto.engineerIsActive !== undefined && { isActive: updateUserDto.engineerIsActive }),
         });
       } else {
         // Create new engineer record if it doesn't exist
         engineer = this.engineerRepository.create({
           userId: id,
-          type: updateUserDto.engineerType,
-          baseRate: updateUserDto.baseRate || 700,
-          overtimeRate:
-            updateUserDto.overtimeRate ||
-            (updateUserDto.engineerType === EngineerType.CONTRACT ? 1200 : 700),
-          planHoursMonth: updateUserDto.planHoursMonth || 160,
-          homeTerritoryFixedAmount: updateUserDto.homeTerritoryFixedAmount || 0,
-          isActive:
-            updateUserDto.engineerIsActive !== undefined ? updateUserDto.engineerIsActive : true,
+          ...(updateUserDto.engineerType && { type: updateUserDto.engineerType }),
+          ...(updateUserDto.baseRate !== undefined && { baseRate: updateUserDto.baseRate }),
+          ...(updateUserDto.overtimeRate !== undefined && { overtimeRate: updateUserDto.overtimeRate }),
+          ...(updateUserDto.planHoursMonth !== undefined && { planHoursMonth: updateUserDto.planHoursMonth }),
+          ...(updateUserDto.homeTerritoryFixedAmount !== undefined && { homeTerritoryFixedAmount: updateUserDto.homeTerritoryFixedAmount }),
+          ...(updateUserDto.fixedSalary !== undefined && { fixedSalary: updateUserDto.fixedSalary }),
+          ...(updateUserDto.fixedCarAmount !== undefined && { fixedCarAmount: updateUserDto.fixedCarAmount }),
+          isActive: updateUserDto.engineerIsActive !== undefined ? updateUserDto.engineerIsActive : true,
         });
         await this.engineerRepository.save(engineer);
       }
@@ -304,6 +330,13 @@ export class UsersService {
     const existingUser = await this.findOne(id, currentUser);
     if (!existingUser) {
       return false;
+    }
+
+    // Check for dependencies before deletion
+    const conflicts = await this.checkDeletionConflicts(id);
+
+    if (conflicts.length > 0) {
+      throw new UserDeletionException(conflicts);
     }
 
     await this.userRepository.delete(id);
@@ -350,6 +383,99 @@ export class UsersService {
     }
 
     return changes;
+  }
+
+  /**
+   * Check for dependencies that would prevent user deletion
+   */
+  private async checkDeletionConflicts(userId: number): Promise<UserDeletionConflict[]> {
+    const conflicts: UserDeletionConflict[] = [];
+
+    // Check orders created by this user
+    const createdOrdersCount = await this.orderRepository.count({
+      where: { createdById: userId },
+    });
+    if (createdOrdersCount > 0) {
+      conflicts.push({
+        table: 'orders',
+        count: createdOrdersCount,
+        description: `User has created ${createdOrdersCount} order(s)`,
+      });
+    }
+
+    // Check orders assigned by this user
+    const assignedOrdersCount = await this.orderRepository.count({
+      where: { assignedById: userId },
+    });
+    if (assignedOrdersCount > 0) {
+      conflicts.push({
+        table: 'orders',
+        count: assignedOrdersCount,
+        description: `User has assigned ${assignedOrdersCount} order(s)`,
+      });
+    }
+
+    // Check if user has engineer record
+    const engineerCount = await this.engineerRepository.count({
+      where: { userId },
+    });
+    if (engineerCount > 0) {
+      conflicts.push({
+        table: 'engineers',
+        count: engineerCount,
+        description: 'User has associated engineer profile',
+      });
+    }
+
+    // Check user activity logs performed by this user
+    const activityLogsPerformedCount = await this.activityLogRepository.count({
+      where: { performedById: userId },
+    });
+    if (activityLogsPerformedCount > 0) {
+      conflicts.push({
+        table: 'user_activity_logs',
+        count: activityLogsPerformedCount,
+        description: `User has performed ${activityLogsPerformedCount} action(s)`,
+      });
+    }
+
+    // Check user activity logs about this user
+    const activityLogsAboutUserCount = await this.activityLogRepository.count({
+      where: { userId },
+    });
+    if (activityLogsAboutUserCount > 0) {
+      conflicts.push({
+        table: 'user_activity_logs',
+        count: activityLogsAboutUserCount,
+        description: `There are ${activityLogsAboutUserCount} activity log(s) about this user`,
+      });
+    }
+
+    // Check notifications for this user
+    const notificationsCount = await this.notificationRepository.count({
+      where: { userId },
+    });
+    if (notificationsCount > 0) {
+      conflicts.push({
+        table: 'notifications',
+        count: notificationsCount,
+        description: `User has ${notificationsCount} notification(s)`,
+      });
+    }
+
+    // Check earnings statistics for this user
+    const earningsStatsCount = await this.earningsStatisticRepository.count({
+      where: { userId },
+    });
+    if (earningsStatsCount > 0) {
+      conflicts.push({
+        table: 'earnings_statistics',
+        count: earningsStatsCount,
+        description: `User has ${earningsStatsCount} earnings statistic(s) record(s)`,
+      });
+    }
+
+    return conflicts;
   }
 
   /**
