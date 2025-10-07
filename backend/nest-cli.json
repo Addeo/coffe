@@ -5,7 +5,14 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": false,
-    "tsConfigPath": "tsconfig.json"
+    "tsConfigPath": "tsconfig.json",
+    "assets": ["**/*.json"],
+    "watchAssets": true,
+    "outDir": "dist"
+  },
+  "entryFile": "src/main",
+  "generateOptions": {
+    "spec": false
   }
 }
 

@@ -7,6 +7,9 @@ import { Engineer } from '../../entities/engineer.entity';
 import { UserActivityLog } from '../../entities/user-activity-log.entity';
 import { EngineerOrganizationRate } from '../../entities/engineer-organization-rate.entity';
 import { Organization } from '../../entities/organization.entity';
+import { Order } from '../../entities/order.entity';
+import { Notification } from '../../entities/notification.entity';
+import { EarningsStatistic } from '../../entities/earnings-statistic.entity';
 
 @Module({
   imports: [
@@ -16,6 +19,9 @@ import { Organization } from '../../entities/organization.entity';
       UserActivityLog,
       EngineerOrganizationRate,
       Organization,
+      Order,
+      Notification,
+      EarningsStatistic,
     ]),
   ],
   controllers: [UsersController],
