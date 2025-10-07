@@ -15,7 +15,7 @@ export class Engineer {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, { eager: false })
   @JoinColumn({ name: 'user_id' })
   user: User;
 

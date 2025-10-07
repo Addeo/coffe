@@ -3,6 +3,13 @@
 /* You can add global styles to this file, and also import other style files */
 @import './app/services/toast.styles.scss';
 
+// Image viewer dialog styles
+.image-viewer-dialog-container {
+  .mat-mdc-dialog-container {
+    padding: 0 !important;
+  }
+}
+
 // Global styles
 * {
   box-sizing: border-box;

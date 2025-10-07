@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpEventType } from '@angular/common/http';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -24,6 +24,7 @@ import {
 } from '../../../../../shared/interfaces/order.interface';
 import { OrganizationDto } from '../../../../../shared/dtos/organization.dto';
 import { FileResponseDto, FileType } from '../../../../../shared/dtos/file.dto';
+import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 
 interface FileUploadProgress {
   file: File;
@@ -815,6 +816,7 @@ export interface OrderDialogData {
 })
 export class OrderDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
+  private dialog = inject(MatDialog);
   private dialogRef = inject(MatDialogRef<OrderDialogComponent>);
   private ordersService = inject(OrdersService);
   private organizationsService = inject(OrganizationsService);
@@ -1019,24 +1021,64 @@ export class OrderDialogComponent implements OnInit {
   removeUploadedFile(index: number) {
     const currentProgress = this.uploadProgress();
     const fileToRemove = currentProgress[index];
+    const fileName = fileToRemove.file.name;
 
-    // If file was successfully uploaded, we might want to delete it from server
-    if (fileToRemove.uploadedFileId && fileToRemove.status === 'completed') {
-      // Optional: delete file from server if not attached to order yet
-      // this.filesService.deleteFile(fileToRemove.uploadedFileId).subscribe();
-    }
+    // Открываем модалку подтверждения
+    const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Удалить файл',
+        message: `Вы уверены, что хотите удалить файл "${fileName}" из очереди загрузки?`,
+        confirmText: 'Удалить',
+        cancelText: 'Отмена',
+      },
+    });
 
-    currentProgress.splice(index, 1);
-    this.uploadProgress.set([...currentProgress]);
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        // If file was successfully uploaded, we might want to delete it from server
+        if (fileToRemove.uploadedFileId && fileToRemove.status === 'completed') {
+          // Optional: delete file from server if not attached to order yet
+          // this.filesService.deleteFile(fileToRemove.uploadedFileId).subscribe();
+        }
+
+        currentProgress.splice(index, 1);
+        this.uploadProgress.set([...currentProgress]);
+        this.toastService.showSuccess('Файл удален из очереди загрузки');
+      }
+    });
   }
 
   removeAttachedFile(fileId: string) {
-    const currentFiles = this.orderForm.get('files')?.value || [];
-    const updatedFiles = currentFiles.filter((id: string) => id !== fileId);
-    this.orderForm.patchValue({ files: updatedFiles });
+    // Находим файл для отображения его имени в модалке
+    const file = this.attachedFiles().find(f => f.id === fileId);
+    const fileName = file?.originalName || 'этот файл';
 
-    const currentAttachedFiles = this.attachedFiles();
-    this.attachedFiles.set(currentAttachedFiles.filter(f => f.id !== fileId));
+    // Открываем модалку подтверждения
+    const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Удалить файл',
+        message: `Вы уверены, что хотите удалить файл "${fileName}"?`,
+        confirmText: 'Удалить',
+        cancelText: 'Отмена',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        // Удаляем файл из формы
+        const currentFiles = this.orderForm.get('files')?.value || [];
+        const updatedFiles = currentFiles.filter((id: string) => id !== fileId);
+        this.orderForm.patchValue({ files: updatedFiles });
+
+        // Удаляем файл из списка прикрепленных
+        const currentAttachedFiles = this.attachedFiles();
+        this.attachedFiles.set(currentAttachedFiles.filter(f => f.id !== fileId));
+
+        this.toastService.showSuccess('Файл успешно удален из заказа');
+      }
+    });
   }
 
   // Enhanced file viewing methods

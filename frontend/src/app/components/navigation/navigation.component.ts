@@ -82,7 +82,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
     items.push(
       { label: 'Заказы', route: '/orders', icon: 'shopping_cart', i18nKey: '@@navigation.orders' },
-      { label: 'Файлы', route: '/files', icon: 'folder', i18nKey: '@@navigation.files' },
       { label: 'Профиль', route: '/profile', icon: 'person', i18nKey: '@@navigation.profile' },
       {
         label: 'Уведомления',
@@ -93,22 +92,14 @@ export class NavigationComponent implements OnInit, OnDestroy {
       }
     );
 
-    // Add Settings and Backups for admin only
+    // Add Settings for admin only (Files and Backups hidden - for developers only)
     if (role === UserRole.ADMIN) {
-      items.push(
-        {
-          label: 'Настройки',
-          route: '/settings',
-          icon: 'settings',
-          i18nKey: '@@navigation.settings',
-        },
-        {
-          label: 'Бэкапы',
-          route: '/backups',
-          icon: 'backup',
-          i18nKey: '@@navigation.backups',
-        }
-      );
+      items.push({
+        label: 'Настройки',
+        route: '/settings',
+        icon: 'settings',
+        i18nKey: '@@navigation.settings',
+      });
     }
 
     return items;

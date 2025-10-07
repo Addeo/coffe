@@ -91,4 +91,26 @@ export class OrdersService {
       updates,
     });
   }
+
+  // Work Report Methods
+  createWorkReport(
+    orderId: number,
+    workReportData: {
+      regularHours: number;
+      overtimeHours: number;
+      carPayment: number;
+      distanceKm?: number;
+      territoryType?: string;
+      notes?: string;
+    }
+  ): Observable<any> {
+    return this.http.post(
+      `${environment.apiUrl}/orders/${orderId}/work-reports`,
+      workReportData
+    );
+  }
+
+  getWorkReports(orderId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/orders/${orderId}/work-reports`);
+  }
 }

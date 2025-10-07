@@ -195,7 +195,7 @@
                 (click)="onEditOrder(order)"
                 color="primary"
                 matTooltip="Редактировать заказ" aria-label="Редактировать"
-                *ngIf="canEditOrders"
+                *ngIf="canEditOrder(order)"
               >
                 <mat-icon>edit</mat-icon>
               </button>

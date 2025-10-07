@@ -125,8 +125,9 @@ export class OrdersController {
     @Param('id', ParseIntPipe) orderId: number,
     @Body()
     workReportData: {
-      startTime: string;
-      endTime: string;
+      regularHours: number;
+      overtimeHours: number;
+      carPayment: number;
       distanceKm?: number;
       territoryType?: TerritoryType;
       photoUrl?: string;
@@ -135,9 +136,13 @@ export class OrdersController {
     @Request() req
   ) {
     return this.ordersService.createWorkReport(orderId, req.user.id, {
-      ...workReportData,
-      startTime: new Date(workReportData.startTime),
-      endTime: new Date(workReportData.endTime),
+      regularHours: workReportData.regularHours,
+      overtimeHours: workReportData.overtimeHours,
+      carPayment: workReportData.carPayment,
+      distanceKm: workReportData.distanceKm,
+      territoryType: workReportData.territoryType,
+      photoUrl: workReportData.photoUrl,
+      notes: workReportData.notes,
     });
   }
 

@@ -1,5 +1,5 @@
-import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
+import { ClassSerializerInterceptor } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as express from 'express';
 
@@ -22,6 +22,10 @@ async function bootstrap() {
     });
 
     console.log('Middleware configured');
+
+    // Enable class-transformer serialization globally
+    app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+    console.log('ClassSerializerInterceptor enabled');
 
     // Global prefix for all routes
     app.setGlobalPrefix('api');

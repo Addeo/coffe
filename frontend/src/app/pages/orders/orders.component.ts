@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
+import { Router } from '@angular/router';
 import { OrdersService } from '../../services/orders.service';
 import { AuthService } from '../../services/auth.service';
 import { ModalService } from '../../services/modal.service';
@@ -55,6 +56,7 @@ export class OrdersComponent implements OnInit {
   private dialog = inject(MatDialog);
   private modalService = inject(ModalService);
   private toastService = inject(ToastService);
+  private router = inject(Router);
 
   displayedColumns: string[] = [
     'id',
@@ -82,6 +84,18 @@ export class OrdersComponent implements OnInit {
   readonly canViewAllOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
   readonly canEditOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
   readonly canDeleteOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
+
+  // Engineers can edit their assigned orders
+  canEditOrder(order: OrderDto): boolean {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return false;
+
+    // Admins and managers can always edit
+    if (this.canEditOrders) return true;
+
+    // Engineers can only edit their own assigned orders
+    return currentUser.role === UserRole.USER && order.assignedEngineerId === currentUser.id;
+  }
 
   // Engineers can update status of their assigned orders
   canUpdateOrderStatus(order: OrderDto): boolean {
@@ -175,17 +189,8 @@ export class OrdersComponent implements OnInit {
   }
 
   onEditOrder(order: OrderDto) {
-    const dialogRef = this.modalService.openDialog(OrderDialogComponent, {
-      order,
-      isEdit: true,
-    });
-
-    dialogRef.subscribe(result => {
-      if (result) {
-        this.loadOrders();
-        this.loadOrderStats();
-      }
-    });
+    // Перенаправляем на страницу редактирования заказа
+    this.router.navigate(['/orders', order.id, 'edit']);
   }
 
   onViewOrder(order: OrderDto) {

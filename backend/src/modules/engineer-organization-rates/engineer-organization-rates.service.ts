@@ -52,7 +52,18 @@ export class EngineerOrganizationRatesService {
       );
     }
 
-    const rate = this.engineerOrganizationRateRepository.create(createDto);
+    // Создаём запись с автоматическим заполнением базовых ставок из профиля инженера
+    const rate = this.engineerOrganizationRateRepository.create({
+      ...createDto,
+      // Если ставки не указаны в DTO, берём из профиля инженера
+      customBaseRate: createDto.customBaseRate ?? engineer.baseRate,
+      customOvertimeRate: createDto.customOvertimeRate ?? engineer.overtimeRate,
+      // Зональные доплаты остаются null если не указаны
+      customZone1Extra: createDto.customZone1Extra ?? null,
+      customZone2Extra: createDto.customZone2Extra ?? null,
+      customZone3Extra: createDto.customZone3Extra ?? null,
+    });
+    
     const savedRate = await this.engineerOrganizationRateRepository.save(rate);
 
     // Ensure savedRate is a single entity, not an array

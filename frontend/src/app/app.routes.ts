@@ -85,7 +85,7 @@ export const routes: Routes = [
   },
   {
     path: 'orders/:id/edit',
-    loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent),
+    loadComponent: () => import('./pages/order-edit/order-edit.component').then(m => m.OrderEditComponent),
     canActivate: [AuthGuard],
     data: { title: 'Edit Order' },
   },

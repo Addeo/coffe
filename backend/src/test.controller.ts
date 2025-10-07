@@ -39,15 +39,16 @@ export class TestController {
     return { message: 'Test view works', timestamp: new Date() };
   }
 
-  @Post('files/upload')
-  uploadFile(@Body() body: any) {
-    return {
-      id: 'test-file-id-' + Date.now(),
-      filename: 'uploaded-file.txt',
-      originalName: 'uploaded-file.txt',
-      mimetype: 'text/plain',
-      size: 1024,
-      message: 'File uploaded successfully',
-    };
-  }
+  // REMOVED: This was intercepting real file uploads!
+  // @Post('files/upload')
+  // uploadFile(@Body() body: any) {
+  //   return {
+  //     id: 'test-file-id-' + Date.now(),
+  //     filename: 'uploaded-file.txt',
+  //     originalName: 'uploaded-file.txt',
+  //     mimetype: 'text/plain',
+  //     size: 1024,
+  //     message: 'File uploaded successfully',
+  //   };
+  // }
 }

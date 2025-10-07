@@ -11,10 +11,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { FilesService } from '../../services/files.service';
 import { ToastService } from '../../services/toast.service';
 import { FileType, FileResponseDto } from '@shared/dtos/file.dto';
+import {
+  ImageViewerDialogComponent,
+  ImageViewerData,
+} from '../../components/modals/image-viewer-dialog.component';
+import { DeleteConfirmationDialogComponent } from '../../components/modals/delete-confirmation-dialog.component';
 
 interface FileUploadProgress {
   file: File;
@@ -515,6 +521,7 @@ interface FileUploadProgress {
 export class FilesComponent implements OnInit {
   private filesService = inject(FilesService);
   private toastService = inject(ToastService);
+  private dialog = inject(MatDialog);
 
   files = signal<FileResponseDto[]>([]);
   filteredFiles = signal<FileResponseDto[]>([]);
@@ -552,7 +559,7 @@ export class FilesComponent implements OnInit {
       error: error => {
         console.error('Error loading files:', error);
         this.toastService.error('Ошибка загрузки файлов');
-        this.isLoading.set(false);
+    this.isLoading.set(false);
       },
     });
   }
@@ -685,7 +692,24 @@ export class FilesComponent implements OnInit {
   }
 
   viewFile(file: FileResponseDto) {
-    window.open(this.getFileUrl(file.id), '_blank');
+    // Если это изображение - открываем в модальном окне
+    if (this.isImage(file.mimetype)) {
+      const dialogData: ImageViewerData = {
+        imageUrl: this.getFileUrl(file.id),
+        title: file.originalName,
+        fileName: file.originalName,
+      };
+
+      this.dialog.open(ImageViewerDialogComponent, {
+        data: dialogData,
+        maxWidth: '90vw',
+        maxHeight: '90vh',
+        panelClass: 'image-viewer-dialog-container',
+      });
+    } else {
+      // Для других файлов - открываем в новой вкладке
+      window.open(this.getFileUrl(file.id), '_blank');
+    }
   }
 
   downloadFile(file: FileResponseDto) {
@@ -707,19 +731,29 @@ export class FilesComponent implements OnInit {
   }
 
   deleteFile(file: FileResponseDto) {
-    if (!confirm(`Вы уверены, что хотите удалить файл "${file.originalName}"?`)) {
-      return;
-    }
+    const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        title: 'Удалить файл',
+        message: `Вы уверены, что хотите удалить файл "${file.originalName}"?`,
+        confirmText: 'Удалить',
+        cancelText: 'Отмена',
+      },
+    });
 
-    this.filesService.deleteFile(file.id).subscribe({
-      next: () => {
-        this.toastService.success('Файл удален');
-        this.loadFiles();
-      },
-      error: error => {
-        console.error('Error deleting file:', error);
-        this.toastService.error('Ошибка удаления файла');
-      },
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (confirmed) {
+        this.filesService.deleteFile(file.id).subscribe({
+          next: () => {
+            this.toastService.success('Файл удален');
+            this.loadFiles();
+          },
+          error: error => {
+            console.error('Error deleting file:', error);
+            this.toastService.error('Ошибка удаления файла');
+          },
+        });
+      }
     });
   }
 }

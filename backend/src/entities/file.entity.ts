@@ -6,6 +6,7 @@ import {
   JoinColumn,
   CreateDateColumn,
 } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import { User } from './user.entity';
 import { Order } from './order.entity';
 import { FileType } from '../../shared/dtos/file.dto';
@@ -30,7 +31,8 @@ export class File {
   @Column({ nullable: true })
   path: string;
 
-  @Column('blob', { nullable: true })
+  @Column('blob', { nullable: true, select: false }) // Don't select by default to reduce response size
+  @Exclude() // Exclude fileData from serialization by default
   fileData: Buffer;
 
   @Column({
@@ -59,4 +61,10 @@ export class File {
 
   @CreateDateColumn()
   uploadedAt: Date;
+
+  // Custom JSON serialization to exclude fileData
+  toJSON() {
+    const { fileData, ...rest } = this;
+    return rest;
+  }
 }

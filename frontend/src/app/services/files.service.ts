@@ -113,7 +113,7 @@ export class FilesService {
   }
 
   deleteFile(fileId: string): Observable<void> {
-    return this.http.delete<void>(`${environment.apiUrl}/files/metadata/${fileId}`);
+    return this.http.delete<void>(`${environment.apiUrl}/files/${fileId}`);
   }
 
   downloadFile(fileId: string): Observable<Blob> {

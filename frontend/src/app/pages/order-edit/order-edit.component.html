@@ -1,0 +1,500 @@
+<div class="order-edit-container">
+  <div class="header">
+    <h1>{{ isEdit ? 'Редактировать заказ' : 'Создать новый заказ' }}</h1>
+    <button mat-button (click)="onCancel()">
+      <mat-icon>arrow_back</mat-icon>
+      Назад
+    </button>
+  </div>
+
+  <div *ngIf="isLoading()" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Загрузка данных...</p>
+  </div>
+
+  <div *ngIf="!isLoading()" class="order-form-container">
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex">
+      <!-- Основная информация о заказе -->
+      <mat-tab label="Информация о заказе">
+        <form [formGroup]="orderForm" class="order-form">
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Название заказа</mat-label>
+        <input matInput formControlName="title" placeholder="Введите название заказа" />
+        <mat-error *ngIf="orderForm.get('title')?.hasError('required')">
+          Название обязательно
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Описание</mat-label>
+        <textarea
+          matInput
+          formControlName="description"
+          placeholder="Введите описание заказа"
+          rows="3"
+        ></textarea>
+      </mat-form-field>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Организация</mat-label>
+          <mat-select formControlName="organizationId">
+            <mat-option *ngFor="let org of organizations()" [value]="org.id">
+              {{ org.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="orderForm.get('organizationId')?.hasError('required')">
+            Организация обязательна
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Местоположение</mat-label>
+          <input matInput formControlName="location" placeholder="Введите местоположение" />
+          <mat-error *ngIf="orderForm.get('location')?.hasError('required')">
+            Местоположение обязательно
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Расстояние (км)</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="distanceKm"
+            placeholder="Расстояние в км"
+            min="0"
+            step="0.1"
+          />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Тип территории</mat-label>
+          <mat-select formControlName="territoryType">
+            <mat-option [value]="TerritoryType.URBAN">Городской</mat-option>
+            <mat-option [value]="TerritoryType.SUBURBAN">Пригородный</mat-option>
+            <mat-option [value]="TerritoryType.RURAL">Сельский</mat-option>
+            <mat-option [value]="TerritoryType.HOME">Домашний (≤60 км)</mat-option>
+            <mat-option [value]="TerritoryType.ZONE_1">Зона 1 (61-199 км)</mat-option>
+            <mat-option [value]="TerritoryType.ZONE_2">Зона 2 (200-250 км)</mat-option>
+            <mat-option [value]="TerritoryType.ZONE_3">Зона 3 (>250 км)</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Планируемая дата начала</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="plannedStartDate" />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <div class="form-row" *ngIf="isEdit">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Статус заказа</mat-label>
+          <mat-select formControlName="status">
+            <mat-option *ngFor="let status of availableStatuses" [value]="status">
+              {{ status === OrderStatus.WAITING ? 'Ожидает' : 
+                 status === OrderStatus.PROCESSING ? 'В обработке' : 
+                 status === OrderStatus.WORKING ? 'В работе' : 
+                 status === OrderStatus.REVIEW ? 'На проверке' : 
+                 status === OrderStatus.COMPLETED ? 'Завершен' : status }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field" *ngIf="!isEngineer">
+          <mat-label>Источник</mat-label>
+          <mat-select formControlName="source">
+            <mat-option [value]="OrderSource.MANUAL">Вручную</mat-option>
+            <mat-option [value]="OrderSource.AUTOMATIC">Автоматически</mat-option>
+            <mat-option [value]="OrderSource.EMAIL">Email</mat-option>
+            <mat-option [value]="OrderSource.API">API</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row" *ngIf="isEdit && !isEngineer">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Фактическая дата начала</mat-label>
+          <input matInput [matDatepicker]="actualPicker" formControlName="actualStartDate" />
+          <mat-datepicker-toggle matSuffix [for]="actualPicker"></mat-datepicker-toggle>
+          <mat-datepicker #actualPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Дата завершения</mat-label>
+          <input matInput [matDatepicker]="completionPicker" formControlName="completionDate" />
+          <mat-datepicker-toggle matSuffix [for]="completionPicker"></mat-datepicker-toggle>
+          <mat-datepicker #completionPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+      
+      <!-- Дополнительные поля для инженера при завершении заказа -->
+      <div class="engineer-completion-section" *ngIf="isEdit && isEngineer && order?.status === OrderStatus.WORKING">
+        <div class="engineer-note">
+          <p><strong>Внимание!</strong> Для завершения заказа необходимо:</p>
+          <ol>
+            <li>Изменить статус заказа на "Завершен"</li>
+            <li>Добавить фото выполненной работы во вкладке "Файлы"</li>
+          </ol>
+        </div>
+      </div>
+
+    </form>
+      </mat-tab>
+      
+      <!-- Таб для отчета о работе (только для инженеров) -->
+      <mat-tab label="Отчет о работе" *ngIf="showWorkReportTab()">
+        <div class="work-report-tab-content">
+          <h3>Отчет о выполненной работе</h3>
+          <p class="tab-description">
+            Заполните данные о времени работы и расстоянии для автоматического расчета оплаты
+          </p>
+
+          <form [formGroup]="workReportForm" class="work-report-form">
+            <!-- Work Hours -->
+            <div class="hours-group">
+              <h4>Отработанные часы</h4>
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>Обычные часы</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="regularHours"
+                    placeholder="8"
+                    min="0"
+                    step="0.25"
+                  />
+                  <mat-hint>Количество часов по обычному тарифу</mat-hint>
+                  <mat-error *ngIf="workReportForm.get('regularHours')?.hasError('required')">
+                    Обязательное поле
+                  </mat-error>
+                  <mat-error *ngIf="workReportForm.get('regularHours')?.hasError('min')">
+                    Значение должно быть положительным
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>Часы переработки</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="overtimeHours"
+                    placeholder="0"
+                    min="0"
+                    step="0.25"
+                  />
+                  <mat-hint>Часы по повышенному тарифу</mat-hint>
+                  <mat-error *ngIf="workReportForm.get('overtimeHours')?.hasError('min')">
+                    Значение должно быть положительным
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <!-- Total Hours Display -->
+              <div class="total-hours-display">
+                <mat-icon>schedule</mat-icon>
+                <span>Всего часов: <strong>{{ getTotalHours() }}</strong></span>
+              </div>
+            </div>
+
+            <!-- Car Payment -->
+            <div class="car-payment-group">
+              <h4>Оплата за автомобиль</h4>
+              <mat-form-field appearance="outline" class="form-field full-width">
+                <mat-label>Доплата за машину (₽)</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  formControlName="carPayment"
+                  placeholder="0"
+                  min="0"
+                  step="1"
+                />
+                <mat-hint>Сумма за использование личного автомобиля</mat-hint>
+                <mat-error *ngIf="workReportForm.get('carPayment')?.hasError('min')">
+                  Значение должно быть положительным
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Distance and Territory -->
+            <div class="distance-group">
+              <h4>Расстояние и территория (опционально)</h4>
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>Расстояние (км)</mat-label>
+                  <input
+                    matInput
+                    type="number"
+                    formControlName="distanceKm"
+                    placeholder="Введите расстояние"
+                    min="0"
+                    step="0.1"
+                  />
+                  <mat-hint>Расстояние от дома до места работы</mat-hint>
+                  <mat-error *ngIf="workReportForm.get('distanceKm')?.hasError('min')">
+                    Расстояние должно быть положительным
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>Тип территории</mat-label>
+                  <mat-select formControlName="territoryType">
+                    <mat-option [value]="TerritoryType.URBAN">Городская</mat-option>
+                    <mat-option [value]="TerritoryType.SUBURBAN">Пригородная</mat-option>
+                    <mat-option [value]="TerritoryType.RURAL">Сельская</mat-option>
+                    <mat-option [value]="TerritoryType.HOME">Домашняя (≤60 км)</mat-option>
+                    <mat-option [value]="TerritoryType.ZONE_1">Зона 1 (61-199 км)</mat-option>
+                    <mat-option [value]="TerritoryType.ZONE_2">Зона 2 (200-250 км)</mat-option>
+                    <mat-option [value]="TerritoryType.ZONE_3">Зона 3 (>250 км)</mat-option>
+                  </mat-select>
+                  <mat-hint>Для справочной информации</mat-hint>
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <mat-form-field appearance="outline" class="form-field full-width">
+              <mat-label>Примечания</mat-label>
+              <textarea
+                matInput
+                formControlName="notes"
+                placeholder="Дополнительная информация о выполненной работе"
+                rows="3"
+              ></textarea>
+              <mat-hint>Необязательно</mat-hint>
+            </mat-form-field>
+
+            <!-- Action Buttons -->
+            <div class="work-report-actions">
+              <button
+                mat-button
+                type="button"
+                (click)="onAutoFillWorkReport()"
+                [disabled]="isLoading()"
+              >
+                <mat-icon>auto_fix_high</mat-icon>
+                Заполнить автоматически
+              </button>
+              <button
+                mat-raised-button
+                color="primary"
+                type="button"
+                (click)="onSubmitWorkReport()"
+                [disabled]="workReportForm.invalid || isLoading()"
+              >
+                <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
+                <mat-icon *ngIf="!isLoading()">send</mat-icon>
+                <span *ngIf="!isLoading()">Отправить отчет</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Info Box -->
+          <div class="info-box">
+            <mat-icon class="info-icon">info</mat-icon>
+            <div class="info-text">
+              <p><strong>Информация:</strong></p>
+              <ul>
+                <li><strong>Обычные часы</strong> - оплачиваются по базовому тарифу</li>
+                <li><strong>Часы переработки</strong> - оплачиваются по повышенному тарифу</li>
+                <li><strong>Доплата за машину</strong> - компенсация за использование личного автомобиля</li>
+                <li>Рекомендуется указывать часы с точностью до 0.25 (15 минут)</li>
+                <li>Для завершения заказа добавьте фото выполненной работы на вкладке "Файлы"</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Таб для файлов -->
+      <mat-tab label="Файлы">
+        <div class="files-tab-content">
+          <div class="engineer-completion-section" *ngIf="isEngineer && order?.status === OrderStatus.WORKING">
+            <div class="engineer-note">
+              <p><strong>Внимание!</strong> Для завершения заказа необходимо добавить фото выполненной работы.</p>
+              <p>Фото должны показывать выполненную работу и подтверждать её качество.</p>
+            </div>
+          </div>
+          <h3>Управление файлами</h3>
+          
+          <!-- File Input -->
+          <div class="file-input-container">
+            <input
+              type="file"
+              #fileInput
+              (change)="onFileSelected($event)"
+              multiple
+              accept="image/*,.pdf,.doc,.docx,.txt,.xlsx,.xls"
+              style="display: none"
+            />
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="fileInput.click()"
+              [disabled]="isUploadingInProgress()"
+            >
+              <mat-icon>add</mat-icon>
+              Выбрать файлы
+            </button>
+          </div>
+
+          <!-- Drag and Drop Area -->
+          <div
+            class="drop-zone"
+            [class.drag-over]="isDragOver()"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+          >
+            <mat-icon>cloud_upload</mat-icon>
+            <p>
+              Перетащите файлы сюда или
+              <button mat-button type="button" (click)="fileInput.click()">выберите</button>
+            </p>
+            <small>Поддерживаемые форматы: изображения, PDF, документы (макс. 10MB)</small>
+          </div>
+
+          <!-- Upload Progress -->
+          <div class="upload-progress" *ngIf="uploadProgress().length > 0">
+            <h4>Загрузка файлов:</h4>
+            <div class="progress-list">
+              <div class="progress-item" *ngFor="let progress of uploadProgress()">
+                <div class="progress-header">
+                  <span class="file-name">{{ progress.file.name }}</span>
+                  <span class="progress-status" [class]="progress.status">
+                    {{
+                      progress.status === 'uploading'
+                        ? progress.progress + '%'
+                        : progress.status === 'completed'
+                          ? 'Готово'
+                          : progress.status === 'error'
+                            ? 'Ошибка'
+                            : 'Ожидание'
+                    }}
+                  </span>
+                </div>
+                <mat-progress-bar
+                  mode="determinate"
+                  [value]="progress.progress"
+                  [class]="progress.status"
+                ></mat-progress-bar>
+                <div class="error-message" *ngIf="progress.error">
+                  {{ progress.error }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Successfully Uploaded Files Ready for Attachment -->
+          <div class="uploaded-files" *ngIf="getCompletedUploads().length > 0">
+            <h4>Загруженные файлы (будут прикреплены к заказу):</h4>
+            <div class="file-list">
+              <div
+                class="file-item"
+                *ngFor="let progress of getCompletedUploads(); let i = index"
+              >
+                <span class="file-name">{{ progress.file.name }}</span>
+                <span class="file-size"
+                  >({{ (progress.file.size / 1024 / 1024).toFixed(2) }} MB)</span
+                >
+                <button
+                  mat-icon-button
+                  (click)="removeUploadedFile(getUploadIndex(progress))"
+                  type="button"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attached Files (for edit mode) -->
+          <div class="attached-files" *ngIf="attachedFiles().length > 0">
+            <h4>Прикрепленные файлы:</h4>
+            <div class="file-list">
+              <div class="file-item" *ngFor="let file of attachedFiles()">
+                <span class="file-name">{{ file.originalName }}</span>
+                <span class="file-size">({{ (file.size / 1024 / 1024).toFixed(2) }} MB)</span>
+                <div class="file-actions">
+                  <button
+                    mat-icon-button
+                    (click)="viewFile(file.id)"
+                    type="button"
+                    title="Просмотреть"
+                  >
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    (click)="downloadFile(file.id)"
+                    type="button"
+                    title="Скачать"
+                  >
+                    <mat-icon>download</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    (click)="removeAttachedFile(file.id)"
+                    type="button"
+                    title="Удалить"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+
+    <div class="form-actions">
+      <button mat-button (click)="onCancel()">Отмена</button>
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onSave()"
+        [disabled]="orderForm.invalid || isLoading() || isUploadingInProgress()"
+      >
+        <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
+        <span *ngIf="!isLoading()">{{ isEdit ? 'Обновить' : 'Создать' }}</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Image Viewer Modal -->
+<div *ngIf="imageModalVisible" class="image-modal-overlay" (click)="closeImageModal()">
+  <div class="image-modal-content" (click)="$event.stopPropagation()">
+    <div class="image-modal-header">
+      <h3>{{ currentImageMetadata?.originalName }}</h3>
+      <button mat-icon-button (click)="closeImageModal()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="image-modal-body">
+      <img
+        *ngIf="currentImageMetadata?.viewUrl"
+        [src]="currentImageMetadata.viewUrl"
+        [alt]="currentImageMetadata?.originalName"
+        class="image-viewer"
+      />
+    </div>
+    <div class="image-modal-footer">
+      <span class="file-info">
+        {{ currentImageMetadata?.sizeFormatted }}
+        • {{ currentImageMetadata?.type }}
+      </span>
+      <button mat-raised-button color="primary" (click)="downloadCurrentImage()">
+        <mat-icon>download</mat-icon>
+        Скачать
+      </button>
+    </div>
+  </div>
+</div>

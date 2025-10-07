@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from '../../entities/order.entity';
@@ -214,8 +214,14 @@ export class OrdersService {
       .leftJoinAndSelect('assignedEngineerEntity.user', 'assignedEngineerUser')
       .leftJoinAndSelect('order.createdBy', 'createdBy')
       .leftJoinAndSelect('order.assignedBy', 'assignedBy')
-      .leftJoinAndSelect('order.files', 'files')
-      .leftJoinAndSelect('files.uploadedBy', 'fileUploadedBy');
+      .leftJoin('order.files', 'files')
+      .leftJoin('files.uploadedBy', 'fileUploadedBy')
+      .addSelect([
+        'files.id', 'files.filename', 'files.originalName', 'files.mimetype',
+        'files.size', 'files.path', 'files.type', 'files.description',
+        'files.uploadedById', 'files.orderId', 'files.uploadedAt',
+        'fileUploadedBy.id', 'fileUploadedBy.firstName', 'fileUploadedBy.lastName', 'fileUploadedBy.email'
+      ]);
 
     // Apply filters based on user role
     if (user.role === UserRole.USER) {
@@ -331,8 +337,14 @@ export class OrdersService {
       .leftJoinAndSelect('assignedEngineerEntity.user', 'assignedEngineerUser')
       .leftJoinAndSelect('order.createdBy', 'createdBy')
       .leftJoinAndSelect('order.assignedBy', 'assignedBy')
-      .leftJoinAndSelect('order.files', 'files')
-      .leftJoinAndSelect('files.uploadedBy', 'fileUploadedBy')
+      .leftJoin('order.files', 'files')
+      .leftJoin('files.uploadedBy', 'fileUploadedBy')
+      .addSelect([
+        'files.id', 'files.filename', 'files.originalName', 'files.mimetype',
+        'files.size', 'files.path', 'files.type', 'files.description',
+        'files.uploadedById', 'files.orderId', 'files.uploadedAt',
+        'fileUploadedBy.id', 'fileUploadedBy.firstName', 'fileUploadedBy.lastName', 'fileUploadedBy.email'
+      ])
       .leftJoinAndSelect('order.workReports', 'workReports')
       .where('order.id = :id', { id })
       .getOne();
@@ -385,12 +397,24 @@ export class OrdersService {
       updateOrderDto.completionDate = new Date();
     }
 
+    console.log('\n🔄 UPDATE ORDER:', {
+      orderId: id,
+      hasFiles: updateOrderDto.files !== undefined,
+      filesCount: updateOrderDto.files?.length,
+      files: updateOrderDto.files,
+    });
+
     Object.assign(order, updateOrderDto);
     const updatedOrder = await this.ordersRepository.save(order);
+    console.log('💾 Order saved to database');
 
     // Attach files if provided (this will replace existing file associations)
     if (updateOrderDto.files !== undefined) {
+      console.log('📎 Calling attachFilesToOrder...');
       await this.attachFilesToOrder(updatedOrder.id, updateOrderDto.files);
+      console.log('✅ attachFilesToOrder completed');
+    } else {
+      console.log('ℹ️  No files field in update DTO, skipping file attachment');
     }
 
     // Log order status change
@@ -454,8 +478,32 @@ export class OrdersService {
       relations: ['user'],
     });
 
-    if (!engineer || !engineer.user || !engineer.user.isActive) {
-      throw new NotFoundException('Engineer not found or inactive');
+    console.log('🔍 Engineer lookup result:', {
+      engineerId: assignEngineerDto.engineerId,
+      engineerFound: !!engineer,
+      engineerData: engineer ? {
+        id: engineer.id,
+        userId: engineer.userId,
+        isActive: engineer.isActive,
+        hasUser: !!engineer.user,
+        user: engineer.user ? {
+          id: engineer.user.id,
+          email: engineer.user.email,
+          isActive: engineer.user.isActive
+        } : null
+      } : null
+    });
+
+    if (!engineer) {
+      throw new NotFoundException('Engineer not found or is inactive');
+    }
+
+    if (!engineer.user) {
+      throw new NotFoundException('Engineer has no associated user');
+    }
+
+    if (!engineer.user.isActive) {
+      throw new NotFoundException('Engineer user account is inactive');
     }
 
     const oldEngineerId = order.assignedEngineerId;
@@ -838,14 +886,15 @@ export class OrdersService {
   }
 
   /**
-   * Создание отчета о выполненной работе с автоматическим расчетом
+   * Создание отчета о выполненной работе с данными от инженера
    */
   async createWorkReport(
     orderId: number,
     engineerId: number,
     workReportData: {
-      startTime: Date;
-      endTime: Date;
+      regularHours: number;
+      overtimeHours: number;
+      carPayment: number;
       distanceKm?: number;
       territoryType?: TerritoryType;
       photoUrl?: string;
@@ -872,51 +921,41 @@ export class OrdersService {
       throw new NotFoundException('Engineer not found');
     }
 
-    // Рассчитываем время работы
-    // const totalHours = this.calculationService.calculateWorkHours(
-    //   workReportData.startTime,
-    //   workReportData.endTime
-    // );
-    const totalHours = 1; // Temporary fix
+    // Проверяем, что инженер назначен на этот заказ
+    if (order.assignedEngineerId !== engineer.id) {
+      throw new ForbiddenException('You are not assigned to this order');
+    }
 
-    // Определяем тип территории, если не указан
-    let territoryType = workReportData.territoryType;
-    // if (!territoryType && workReportData.distanceKm) {
-    //   territoryType = this.calculationService.getTerritoryType(
-    //     workReportData.distanceKm,
-    //     engineer.type
-    //   );
-    // }
+    // Общее количество часов
+    const totalHours = workReportData.regularHours + workReportData.overtimeHours;
 
     // Создаем отчет о работе
+    const now = new Date();
     const workReport = this.workReportsRepository.create({
       order,
       engineer,
-      startTime: workReportData.startTime,
-      endTime: workReportData.endTime,
+      startTime: now, // Используем текущее время как время начала
+      endTime: now, // Используем текущее время как время окончания
       totalHours,
+      isOvertime: workReportData.overtimeHours > 0,
       distanceKm: workReportData.distanceKm,
-      territoryType,
+      territoryType: workReportData.territoryType,
       photoUrl: workReportData.photoUrl,
       notes: workReportData.notes,
-      workResult: WorkResult.COMPLETED, // По умолчанию считаем завершенным
+      workResult: WorkResult.COMPLETED,
+      calculatedAmount: 0, // Будет рассчитано ниже
+      carUsageAmount: workReportData.carPayment,
     });
 
-    // Рассчитываем стоимость
-    // const calculations = await this.calculationService.calculateWorkReportTotals(
-    //   engineer,
-    //   order.organization,
-    //   workReport
-    // );
+    // Рассчитываем оплату на основе данных инженера
+    const baseRate = engineer.baseRate || 700;
+    const overtimeRate = engineer.overtimeRate || 700;
 
-    // workReport.isOvertime = calculations.isOvertime;
-    // workReport.calculatedAmount = calculations.calculatedAmount;
-    // workReport.carUsageAmount = calculations.carUsageAmount;
+    const regularPayment = workReportData.regularHours * baseRate;
+    const overtimePayment = workReportData.overtimeHours * overtimeRate;
+    const totalPayment = regularPayment + overtimePayment;
 
-    // Temporary fix
-    workReport.isOvertime = false;
-    workReport.calculatedAmount = 100;
-    workReport.carUsageAmount = 50;
+    workReport.calculatedAmount = totalPayment;
 
     // Сохраняем отчет
     const savedReport = await this.workReportsRepository.save(workReport);
@@ -924,14 +963,17 @@ export class OrdersService {
     // Логируем создание отчета
     await this.logActivity(
       orderId,
-      ActivityType.ORDER_STATUS_CHANGED, // Используем существующий тип активности
+      ActivityType.ORDER_STATUS_CHANGED,
       `Work report created for order ${order.title} by engineer ${engineer.user.firstName} ${engineer.user.lastName}`,
       {
         workReportId: savedReport.id,
-        hours: totalHours,
-        calculatedAmount: workReport.calculatedAmount,
-        carUsageAmount: workReport.carUsageAmount,
-        isOvertime: workReport.isOvertime,
+        regularHours: workReportData.regularHours,
+        overtimeHours: workReportData.overtimeHours,
+        totalHours,
+        regularPayment,
+        overtimePayment,
+        totalPayment,
+        carPayment: workReportData.carPayment,
       },
       engineer.userId
     );
@@ -980,32 +1022,64 @@ export class OrdersService {
    * Attach files to order (replace existing file associations)
    */
   private async attachFilesToOrder(orderId: number, fileIds: string[]): Promise<void> {
-    console.log(`Attaching files to order ${orderId}:`, fileIds);
+    console.log('\n========================================');
+    console.log(`🔗 ATTACHING FILES TO ORDER ${orderId}`);
+    console.log(`📋 Received file IDs:`, JSON.stringify(fileIds));
+    console.log('========================================\n');
 
     // First, detach all existing files from this order
-    await this.filesRepository.update({ orderId }, { order: null, orderId: null });
-    console.log('Detached existing files from order');
+    const detachResult = await this.filesRepository.update({ orderId }, { order: null, orderId: null });
+    console.log(`✂️  Detached ${detachResult.affected || 0} existing files from order ${orderId}`);
+
+    // Helper function to validate UUID
+    const isValidUUID = (uuid: string): boolean => {
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      return uuidRegex.test(uuid);
+    };
 
     // Then attach the new files
     if (fileIds.length > 0) {
       const order = await this.ordersRepository.findOne({ where: { id: orderId } });
       if (!order) {
+        console.error(`❌ Order ${orderId} not found!`);
         throw new NotFoundException('Order not found');
       }
+      console.log(`✅ Found order: ${order.title}`);
+
+      let attachedCount = 0;
+      let skippedCount = 0;
 
       for (const fileId of fileIds) {
+        console.log(`\n  Processing file ID: ${fileId}`);
+        
+        // Skip invalid UUIDs
+        if (!isValidUUID(fileId)) {
+          console.warn(`  ⚠️  Invalid UUID format: ${fileId}, skipping`);
+          skippedCount++;
+          continue;
+        }
+
         const file = await this.filesRepository.findOne({ where: { id: fileId } });
         if (file) {
+          console.log(`  📄 Found file: ${file.originalName} (${file.mimetype}, ${file.size} bytes)`);
           file.order = order;
           file.orderId = orderId;
-          await this.filesRepository.save(file);
-          console.log(`Attached file ${fileId} (${file.originalName}) to order ${orderId}`);
+          const savedFile = await this.filesRepository.save(file);
+          console.log(`  ✅ Successfully attached file ${fileId} to order ${orderId}`);
+          console.log(`  📊 Saved file orderId: ${savedFile.orderId}`);
+          attachedCount++;
         } else {
-          console.warn(`File ${fileId} not found, skipping`);
+          console.warn(`  ❌ File ${fileId} not found in database, skipping`);
+          skippedCount++;
         }
       }
-    }
 
-    console.log(`Finished attaching ${fileIds.length} files to order ${orderId}`);
+      console.log('\n========================================');
+      console.log(`✅ Successfully attached: ${attachedCount} files`);
+      console.log(`⚠️  Skipped: ${skippedCount} files`);
+      console.log('========================================\n');
+    } else {
+      console.log('ℹ️  No files to attach (empty array)');
+    }
   }
 }
