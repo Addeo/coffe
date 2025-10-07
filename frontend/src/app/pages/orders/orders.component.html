@@ -81,12 +81,12 @@
         <h1 i18n="@@orders.management">Управление заказами</h1>
         <div class="header-actions">
           <mat-form-field class="filter-field">
-            <mat-label i18n="@@orders.statusFilter">Фильтр по статусу</mat-label>
+            <mat-label>Фильтр по статусу</mat-label>
             <mat-select
               [value]="selectedStatus()"
               (selectionChange)="onStatusFilterChange($event.value)"
             >
-              <mat-option value="" i18n="@@orders.allStatuses">Все статусы</mat-option>
+              <mat-option value="">Все статусы</mat-option>
               <mat-option *ngFor="let status of statusOptions" [value]="status">
                 {{ getStatusDisplay(status) }}
               </mat-option>
@@ -94,7 +94,7 @@
           </mat-form-field>
 
           <mat-form-field class="search-field">
-            <mat-label i18n="@@orders.search">Поиск заказов</mat-label>
+            <mat-label>Поиск заказов</mat-label>
             <input
               matInput
               (keyup)="applyFilter($event)"
@@ -103,7 +103,7 @@
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
 
-          <button mat-icon-button (click)="refreshData()" matTooltip="Обновить данные">
+          <button mat-icon-button (click)="refreshData()" matTooltip="Обновить данные" aria-label="Обновить">
             <mat-icon>refresh</mat-icon>
           </button>
 
@@ -114,7 +114,7 @@
             *ngIf="canCreateOrders"
           >
             <mat-icon>add</mat-icon>
-            <span i18n="@@orders.addOrder">Добавить заказ</span>
+            <span>Создать заказ</span>
           </button>
         </div>
       </div>
@@ -163,14 +163,14 @@
               <div class="engineer-info">
                 <span>{{ getEngineerName(order) }}</span>
                 <br />
-                <small class="text-muted" i18n="@@orders.by">от</small> {{ getCreatorName(order) }}
+                <small class="text-muted">от</small> {{ getCreatorName(order) }}
               </div>
             </td>
           </ng-container>
 
           <!-- Status Column -->
           <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.status">Статус</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Статус</th>
             <td mat-cell *matCellDef="let order">
               <mat-chip [color]="getStatusColor(order.status)" selected>
                 {{ getStatusDisplay(order.status) }}
@@ -180,7 +180,7 @@
 
           <!-- Created Date Column -->
           <ng-container matColumnDef="createdAt">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.created">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
               Создан
             </th>
             <td mat-cell *matCellDef="let order">{{ order.createdAt | date: 'short' }}</td>
@@ -188,13 +188,13 @@
 
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef i18n="@@orders.actions">Действия</th>
+            <th mat-header-cell *matHeaderCellDef>Действия</th>
             <td mat-cell *matCellDef="let order">
               <button
                 mat-icon-button
                 (click)="onEditOrder(order)"
                 color="primary"
-                matTooltip="Редактировать заказ"
+                matTooltip="Редактировать заказ" aria-label="Редактировать"
                 *ngIf="canEditOrders"
               >
                 <mat-icon>edit</mat-icon>
@@ -204,7 +204,7 @@
                 mat-button
                 [matMenuTriggerFor]="statusMenu"
                 color="accent"
-                matTooltip="Изменить статус"
+                matTooltip="Изменить статус" aria-label="Изменить статус"
                 *ngIf="canUpdateOrderStatus(order)"
               >
                 <mat-icon>edit</mat-icon>
@@ -226,7 +226,7 @@
                 (click)="onAssignEngineer(order)"
                 [disabled]="order.status === 'completed'"
                 color="primary"
-                matTooltip="Назначить инженера"
+                matTooltip="Назначить инженера" aria-label="Назначить инженера"
                 *ngIf="canAssignEngineers && !order.assignedEngineerId"
               >
                 <mat-icon>person_add</mat-icon>
@@ -237,7 +237,7 @@
                 (click)="onDeleteOrder(order)"
                 [disabled]="order.status !== 'waiting'"
                 color="warn"
-                matTooltip="Удалить заказ"
+                matTooltip="Удалить заказ" aria-label="Удалить"
                 *ngIf="canDeleteOrders"
               >
                 <mat-icon>delete</mat-icon>
@@ -252,8 +252,8 @@
         <!-- No data message -->
         <div class="no-data" *ngIf="dataSource.data.length === 0">
           <mat-icon>assignment</mat-icon>
-          <h3 i18n="@@orders.noOrdersFound">Заказы не найдены</h3>
-          <p i18n="@@orders.noOrdersMessage">
+          <h3>Заказы не найдены</h3>
+          <p>
             Нет заказов, соответствующих критериям поиска, или заказы еще не были созданы.
           </p>
         </div>

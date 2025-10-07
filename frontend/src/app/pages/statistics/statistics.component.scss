@@ -24,9 +24,22 @@
     gap: 16px;
     margin-bottom: 24px;
     flex-wrap: wrap;
+    align-items: flex-end;
 
     mat-form-field {
       min-width: 120px;
+    }
+
+    .refresh-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
     }
   }
 
@@ -153,9 +166,15 @@
 
     .filters {
       flex-direction: column;
+      align-items: stretch;
 
       mat-form-field {
         width: 100%;
+      }
+
+      .refresh-button {
+        width: 100%;
+        justify-content: center;
       }
     }
 

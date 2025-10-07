@@ -5,6 +5,17 @@ import { environment } from '../../environments/environment';
 import { UserDto, CreateUserDto, UpdateUserDto, UsersQueryDto } from '@shared/dtos/user.dto';
 import { PaginatedResponse } from '@shared/types/api.types';
 
+export interface UserDeletionCheck {
+  canDelete: boolean;
+  conflicts?: UserDeletionConflict[];
+}
+
+export interface UserDeletionConflict {
+  table: string;
+  count: number;
+  description: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -39,6 +50,14 @@ export class UsersService {
 
   deleteUser(id: number): Observable<void> {
     return this.http.delete<void>(`${environment.apiUrl}/users/${id}`);
+  }
+
+  checkUserDeletion(id: number): Observable<UserDeletionCheck> {
+    return this.http.delete<UserDeletionCheck>(`${environment.apiUrl}/users/${id}`);
+  }
+
+  forceDeleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/users/${id}/force`);
   }
 
   getUserProfile(): Observable<UserDto> {

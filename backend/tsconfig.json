@@ -24,5 +24,7 @@
       "@interfaces/*": ["../shared/interfaces/*"],
       "@types/*": ["../shared/types/*"]
     }
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "shared"]
 }

@@ -888,8 +888,8 @@ export class OrderDialogComponent implements OnInit {
         this.organizations.set(response.data.filter(org => org.isActive));
       },
       error: error => {
-        console.error('Error loading organizations:', error);
-        this.toastService.error('Error loading organizations');
+        console.error('Ошибка загрузки организаций:', error);
+        this.toastService.error('Ошибка загрузки организаций');
       },
     });
   }
@@ -997,7 +997,7 @@ export class OrderDialogComponent implements OnInit {
         throw new Error('Upload failed');
       }
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error('Ошибка загрузки файла:', error);
       progressItem.status = 'error';
       progressItem.error = 'Ошибка загрузки файла';
       this.toastService.error(`Ошибка загрузки файла: ${file.name}`);
@@ -1147,7 +1147,7 @@ export class OrderDialogComponent implements OnInit {
         this.dialogRef.close(order);
       },
       error: error => {
-        console.error('Error creating order:', error);
+        console.error('Ошибка создания заказа:', error);
         this.toastService.error('Ошибка создания заказа. Попробуйте еще раз.');
         this.isLoading.set(false);
         this.isUploadingFiles.set(false);
@@ -1202,7 +1202,7 @@ export class OrderDialogComponent implements OnInit {
         this.dialogRef.close(order);
       },
       error: error => {
-        console.error('Error updating order:', error);
+        console.error('Ошибка обновления заказа:', error);
         this.toastService.error('Ошибка обновления заказа. Попробуйте еще раз.');
         this.isLoading.set(false);
         this.isUploadingFiles.set(false);

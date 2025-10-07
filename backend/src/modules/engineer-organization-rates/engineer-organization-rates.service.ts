@@ -86,11 +86,6 @@ export class EngineerOrganizationRatesService {
       });
     }
 
-    if (query.isActive !== undefined) {
-      const isActiveValue =
-        typeof query.isActive === 'string' ? query.isActive === 'true' : query.isActive;
-      qb.andWhere('rate.isActive = :isActive', { isActive: isActiveValue });
-    }
 
     // Пагинация
     if (query.page && query.limit) {
@@ -180,14 +175,9 @@ export class EngineerOrganizationRatesService {
       organizationName,
       customBaseRate: rate.customBaseRate,
       customOvertimeRate: rate.customOvertimeRate,
-      customOvertimeMultiplier: rate.customOvertimeMultiplier,
-      customFixedSalary: rate.customFixedSalary,
-      customFixedCarAmount: rate.customFixedCarAmount,
-      customCarKmRate: rate.customCarKmRate,
       customZone1Extra: rate.customZone1Extra,
       customZone2Extra: rate.customZone2Extra,
       customZone3Extra: rate.customZone3Extra,
-      isActive: rate.isActive,
       createdAt: rate.createdAt,
       updatedAt: rate.updatedAt,
     };

@@ -53,4 +53,10 @@ export class UsersController {
   remove(@Param('id') id: string, @Request() req) {
     return this.usersService.remove(+id, req.user);
   }
+
+  @Delete(':id/force')
+  @Roles(UserRole.ADMIN)
+  forceDelete(@Param('id') id: string, @Request() req) {
+    return this.usersService.forceDelete(+id, req.user);
+  }
 }

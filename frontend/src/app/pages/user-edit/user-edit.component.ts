@@ -929,10 +929,6 @@ export class UserEditComponent implements OnInit {
     const updateData: UpdateEngineerOrganizationRateDto = {
       customBaseRate: updates.customBaseRate,
       customOvertimeRate: updates.customOvertimeRate,
-      customOvertimeMultiplier: updates.customOvertimeMultiplier,
-      customFixedSalary: updates.customFixedSalary,
-      customFixedCarAmount: updates.customFixedCarAmount,
-      customCarKmRate: updates.customCarKmRate,
       customZone1Extra: updates.customZone1Extra,
       customZone2Extra: updates.customZone2Extra,
       customZone3Extra: updates.customZone3Extra,
@@ -972,14 +968,6 @@ export class UserEditComponent implements OnInit {
         return rate.customBaseRate ? `${rate.customBaseRate} ₽` : 'По умолчанию';
       case 'overtimeRate':
         return rate.customOvertimeRate ? `${rate.customOvertimeRate} ₽` : 'По умолчанию';
-      case 'overtimeMultiplier':
-        return rate.customOvertimeMultiplier ? `${rate.customOvertimeMultiplier}x` : 'По умолчанию';
-      case 'fixedSalary':
-        return rate.customFixedSalary ? `${rate.customFixedSalary} ₽` : 'По умолчанию';
-      case 'fixedCarAmount':
-        return rate.customFixedCarAmount ? `${rate.customFixedCarAmount} ₽` : 'По умолчанию';
-      case 'carKmRate':
-        return rate.customCarKmRate ? `${rate.customCarKmRate} ₽/км` : 'По умолчанию';
       case 'zone1Extra':
         return rate.customZone1Extra ? `${rate.customZone1Extra} ₽` : 'По умолчанию';
       case 'zone2Extra':

@@ -74,6 +74,12 @@ export class OrganizationsController {
     return this.organizationsService.update(+id, updateOrganizationDto);
   }
 
+  @Patch(':id/toggle-status')
+  @Roles(UserRole.ADMIN)
+  toggleStatus(@Param('id') id: string) {
+    return this.organizationsService.toggleStatus(+id);
+  }
+
   @Delete(':id')
   @Roles(UserRole.ADMIN)
   remove(@Param('id') id: string) {

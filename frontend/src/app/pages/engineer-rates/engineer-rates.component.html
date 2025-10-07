@@ -48,13 +48,6 @@
             </mat-select>
           </mat-form-field>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Статус</mat-label>
-            <mat-select formControlName="isActive">
-              <mat-option [value]="true">Активные</mat-option>
-              <mat-option [value]="false">Неактивные</mat-option>
-            </mat-select>
-          </mat-form-field>
 
           <div class="filter-actions">
             <button mat-raised-button color="primary" (click)="onApplyFilters()">
@@ -124,67 +117,6 @@
             </td>
           </ng-container>
 
-          <!-- Overtime Multiplier Column -->
-          <ng-container matColumnDef="customOvertimeMultiplier">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Множитель переработки</th>
-            <td mat-cell *matCellDef="let rate">
-              <span *ngIf="rate.customOvertimeMultiplier; else defaultMultiplier">
-                {{ rate.customOvertimeMultiplier | number: '1.1-1' }}x
-              </span>
-              <ng-template #defaultMultiplier>
-                <span class="default-value">По умолчанию</span>
-              </ng-template>
-            </td>
-          </ng-container>
-
-          <!-- Fixed Salary Column -->
-          <ng-container matColumnDef="customFixedSalary">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Фиксированная зарплата (₽)</th>
-            <td mat-cell *matCellDef="let rate">
-              <span *ngIf="rate.customFixedSalary; else defaultFixedSalary">
-                {{ rate.customFixedSalary | number: '1.2-2' }}
-              </span>
-              <ng-template #defaultFixedSalary>
-                <span class="default-value">По умолчанию</span>
-              </ng-template>
-            </td>
-          </ng-container>
-
-          <!-- Fixed Car Amount Column -->
-          <ng-container matColumnDef="customFixedCarAmount">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Фиксированная сумма за авто (₽)</th>
-            <td mat-cell *matCellDef="let rate">
-              <span *ngIf="rate.customFixedCarAmount; else defaultCarAmount">
-                {{ rate.customFixedCarAmount | number: '1.2-2' }}
-              </span>
-              <ng-template #defaultCarAmount>
-                <span class="default-value">По умолчанию</span>
-              </ng-template>
-            </td>
-          </ng-container>
-
-          <!-- Car Km Rate Column -->
-          <ng-container matColumnDef="customCarKmRate">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Ставка за км (₽/км)</th>
-            <td mat-cell *matCellDef="let rate">
-              <span *ngIf="rate.customCarKmRate; else defaultKmRate">
-                {{ rate.customCarKmRate | number: '1.2-2' }}
-              </span>
-              <ng-template #defaultKmRate>
-                <span class="default-value">По умолчанию</span>
-              </ng-template>
-            </td>
-          </ng-container>
-
-          <!-- Status Column -->
-          <ng-container matColumnDef="isActive">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Статус</th>
-            <td mat-cell *matCellDef="let rate">
-              <mat-chip [color]="getStatusColor(rate.isActive)" selected>
-                {{ getStatusDisplay(rate.isActive) }}
-              </mat-chip>
-            </td>
-          </ng-container>
 
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
@@ -200,11 +132,12 @@
               </button>
               <button
                 mat-icon-button
-                [matTooltip]="rate.isActive ? 'Деактивировать' : 'Активировать'"
-                (click)="onToggleRateStatus(rate)"
+                matTooltip="Удалить ставки"
+                (click)="onDeleteRate(rate)"
                 [disabled]="!canEditRates"
+                class="delete-button"
               >
-                <mat-icon>{{ rate.isActive ? 'visibility_off' : 'visibility' }}</mat-icon>
+                <mat-icon>delete</mat-icon>
               </button>
             </td>
           </ng-container>

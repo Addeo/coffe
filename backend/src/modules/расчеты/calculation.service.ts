@@ -58,11 +58,10 @@ export class CalculationService {
     const rates: EngineerRates = {
       baseRate: customRate.customBaseRate ?? engineer.baseRate,
       overtimeRate: customRate.customOvertimeRate ?? engineer.overtimeRate,
-      overtimeMultiplier: customRate.customOvertimeMultiplier ?? undefined,
-      fixedSalary: customRate.customFixedSalary ?? engineer.fixedSalary,
-      fixedCarAmount: customRate.customFixedCarAmount ?? engineer.fixedCarAmount,
-      carKmRate:
-        customRate.customCarKmRate ?? (engineer.type === EngineerType.CONTRACT ? 14 : undefined),
+      overtimeMultiplier: undefined, // Берется из настроек инженера
+      fixedSalary: engineer.fixedSalary,
+      fixedCarAmount: engineer.fixedCarAmount,
+      carKmRate: engineer.type === EngineerType.CONTRACT ? 14 : undefined,
       zone1Extra: customRate.customZone1Extra ?? undefined,
       zone2Extra: customRate.customZone2Extra ?? undefined,
       zone3Extra: customRate.customZone3Extra ?? undefined,

@@ -22,6 +22,7 @@ import { UserDto } from '@shared/dtos/user.dto';
 import { UserRole } from '@shared/interfaces/user.interface';
 import { UserDialogComponent } from '../../components/modals/user-dialog.component';
 import { DeleteConfirmationDialogComponent } from '../../components/modals/delete-confirmation-dialog.component';
+import { UserDeletionCheck, UserDeletionConflict } from '../../services/users.service';
 
 @Component({
   selector: 'app-users',
@@ -129,16 +130,75 @@ export class UsersComponent implements OnInit {
   }
 
   onDeleteUser(user: UserDto) {
+    // Show cascade deletion warning for all users (since most users have dependencies)
+    this.showCascadeDeleteConfirmation(user);
+  }
+
+  private showDeleteConfirmation(user: UserDto) {
     const dialogRef = this.modalService.openDialog(DeleteConfirmationDialogComponent, {
       user,
       title: 'Удалить пользователя',
       message: `Вы уверены, что хотите удалить пользователя ${user.firstName} ${user.lastName}?`,
+      confirmText: 'Удалить',
+      cancelText: 'Отмена',
     });
 
     dialogRef.subscribe(result => {
       if (result) {
-        this.loadUsers();
+        this.performDelete(user.id);
       }
+    });
+  }
+
+  private showCascadeDeleteConfirmation(user: UserDto) {
+    const dialogRef = this.modalService.openDialog(DeleteConfirmationDialogComponent, {
+      user,
+      title: 'Удалить пользователя',
+      message: `Пользователь ${user.firstName} ${user.lastName} будет удален со всеми связанными данными (профиль инженера, логи активности, уведомления и т.д.).\n\nВы уверены, что хотите продолжить? Это действие нельзя отменить.`,
+      confirmText: 'Удалить',
+      cancelText: 'Отмена',
+    });
+
+    dialogRef.subscribe(result => {
+      if (result) {
+        this.performCascadeDelete(user.id);
+      }
+    });
+  }
+
+  private performDelete(userId: number) {
+    this.usersService.deleteUser(userId).subscribe({
+      next: () => {
+        this.toastService.success('Пользователь успешно удален');
+        this.loadUsers();
+      },
+      error: error => {
+        console.error('Error deleting user:', error);
+        this.toastService.error('Ошибка при удалении пользователя');
+      },
+    });
+  }
+
+  private performCascadeDelete(userId: number) {
+    this.usersService.deleteUser(userId).subscribe({
+      next: () => {
+        this.toastService.success('Пользователь и все связанные данные успешно удалены');
+        this.loadUsers();
+      },
+      error: error => {
+        console.error('Error deleting user:', error);
+        // Try force delete if regular delete fails
+        this.usersService.forceDeleteUser(userId).subscribe({
+          next: () => {
+            this.toastService.success('Пользователь и все связанные данные успешно удалены');
+            this.loadUsers();
+          },
+          error: forceError => {
+            console.error('Error force deleting user:', forceError);
+            this.toastService.error('Ошибка при удалении пользователя');
+          },
+        });
+      },
     });
   }
 

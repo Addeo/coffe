@@ -164,17 +164,36 @@ export class OrganizationsService {
     return organization;
   }
 
+  async findOneIncludingInactive(id: number): Promise<Organization> {
+    const organization = await this.organizationRepository.findOne({
+      where: { id },
+    });
+
+    if (!organization) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    return organization;
+  }
+
   async update(id: number, updateOrganizationDto: UpdateOrganizationDto): Promise<Organization> {
-    const organization = await this.findOne(id);
+    const organization = await this.findOneIncludingInactive(id);
 
     Object.assign(organization, updateOrganizationDto);
     return this.organizationRepository.save(organization);
   }
 
+  async toggleStatus(id: number): Promise<Organization> {
+    const organization = await this.findOneIncludingInactive(id);
+    organization.isActive = !organization.isActive;
+    return this.organizationRepository.save(organization);
+  }
+
   async remove(id: number): Promise<void> {
-    const organization = await this.findOne(id);
-    organization.isActive = false;
-    await this.organizationRepository.save(organization);
+    const organization = await this.findOneIncludingInactive(id);
+    
+    // Hard delete - полное удаление из базы данных
+    await this.organizationRepository.remove(organization);
   }
 
   async findByName(name: string): Promise<Organization | null> {

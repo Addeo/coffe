@@ -38,19 +38,7 @@ export class EngineerOrganizationRate {
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
   customOvertimeRate?: number; // индивидуальная ставка переработки (руб/час)
 
-  @Column('decimal', { precision: 3, scale: 1, nullable: true })
-  customOvertimeMultiplier?: number; // индивидуальный коэффициент переработки
-
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
-  customFixedSalary?: number; // индивидуальная фиксированная зарплата
-
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
-  customFixedCarAmount?: number; // индивидуальная фиксированная оплата за автомобиль
-
   // Дополнительные настройки для конкретной пары инженер-организация
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
-  customCarKmRate?: number; // индивидуальная ставка за км (для наемных инженеров)
-
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
   customZone1Extra?: number; // дополнительная оплата за зону 1
 

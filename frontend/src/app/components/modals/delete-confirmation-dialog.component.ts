@@ -126,12 +126,12 @@ export class DeleteConfirmationDialogComponent {
       this.isLoading.set(true);
       this.usersService.deleteUser(this.data.user.id).subscribe({
         next: () => {
-          this.toastService.showSuccess('User deleted successfully');
+          this.toastService.showSuccess('Пользователь успешно удален');
           this.dialogRef.close(true);
         },
         error: error => {
-          console.error('Error deleting user:', error);
-          this.toastService.showError('Error deleting user. Please try again.');
+          console.error('Ошибка удаления пользователя:', error);
+          this.toastService.showError('Ошибка удаления пользователя. Пожалуйста, попробуйте еще раз.');
           this.isLoading.set(false);
         },
       });

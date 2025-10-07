@@ -8,12 +8,13 @@ import { Engineer } from '../../entities/engineer.entity';
 import { EngineerOrganizationRate } from '../../entities/engineer-organization-rate.entity';
 import { Organization } from '../../entities/organization.entity';
 import { Order } from '../../entities/order.entity';
+import { WorkReport } from '../../entities/work-report.entity';
 import { Notification } from '../../entities/notification.entity';
 import { EarningsStatistic } from '../../entities/earnings-statistic.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersQueryDto } from '../../../shared/dtos/user.dto';
-import { EngineerType } from '../../../shared/interfaces/order.interface';
+import { EngineerType, OrderStatus } from '../../../shared/interfaces/order.interface';
 import { UserDeletionException, UserDeletionConflict } from './exceptions/user-deletion.exception';
 
 export interface UsersResponse {
@@ -39,6 +40,8 @@ export class UsersService {
     private organizationRepository: Repository<Organization>,
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
+    @InjectRepository(WorkReport)
+    private workReportRepository: Repository<WorkReport>,
     @InjectRepository(Notification)
     private notificationRepository: Repository<Notification>,
     @InjectRepository(EarningsStatistic)
@@ -326,31 +329,105 @@ export class UsersService {
   }
 
   async remove(id: number, currentUser: any): Promise<boolean> {
-    // Check if current user can delete this user
-    const existingUser = await this.findOne(id, currentUser);
+    console.log(`Starting cascade deletion for user ${id}`);
+
+    // Find user directly (not through findOne to avoid permission checks)
+    const existingUser = await this.userRepository.findOne({ where: { id } });
     if (!existingUser) {
+      console.log(`User ${id} not found`);
       return false;
     }
 
-    // Check for dependencies before deletion
-    const conflicts = await this.checkDeletionConflicts(id);
+    // Perform cascade deletion (always, ignoring conflicts)
+    await this.performCascadeDeletion(id);
 
-    if (conflicts.length > 0) {
-      throw new UserDeletionException(conflicts);
-    }
-
+    // Delete the user
     await this.userRepository.delete(id);
 
     // Логируем удаление пользователя
     await this.logActivity(
       id,
       ActivityType.USER_DELETED,
-      `User ${existingUser.firstName} ${existingUser.lastName} was deleted`,
-      { deletedUser: existingUser },
+      `User ${existingUser.firstName} ${existingUser.lastName} was cascade deleted`,
+      { deletedUser: existingUser, cascadeDeletion: true },
+      currentUser.id
+    );
+
+    console.log(`User ${id} cascade deleted successfully`);
+    return true;
+  }
+
+  async forceDelete(id: number, currentUser: any): Promise<boolean> {
+    // Check if current user can delete this user
+    const existingUser = await this.findOne(id, currentUser);
+    if (!existingUser) {
+      return false;
+    }
+
+    // Perform cascade deletion
+    await this.performCascadeDeletion(id);
+
+    // Delete the user
+    await this.userRepository.delete(id);
+
+    // Логируем удаление пользователя
+    await this.logActivity(
+      id,
+      ActivityType.USER_DELETED,
+      `User ${existingUser.firstName} ${existingUser.lastName} was force deleted with cascade`,
+      { deletedUser: existingUser, cascadeDeletion: true },
       currentUser.id
     );
 
     return true;
+  }
+
+  /**
+   * Perform cascade deletion of all user-related data
+   */
+  private async performCascadeDeletion(userId: number): Promise<void> {
+    // Delete engineer organization rates first
+    await this.engineerOrganizationRateRepository.delete({ engineerId: userId });
+
+    // Delete engineer profile
+    await this.engineerRepository.delete({ userId });
+
+    // Delete orders created by this user
+    await this.orderRepository.update(
+      { createdById: userId },
+      { createdById: null }
+    );
+
+    // Delete orders assigned by this user
+    await this.orderRepository.update(
+      { assignedById: userId },
+      { assignedById: null }
+    );
+
+    // Delete user activity logs performed by this user
+    await this.activityLogRepository.delete({ performedById: userId });
+
+    // Delete user activity logs about this user
+    await this.activityLogRepository.delete({ userId });
+
+    // Delete notifications for this user
+    await this.notificationRepository.delete({ userId });
+
+    // Delete earnings statistics for this user
+    await this.earningsStatisticRepository.delete({ userId });
+
+    // Delete work reports for this user (if engineer exists)
+    const engineer = await this.engineerRepository.findOne({ where: { userId } });
+    if (engineer) {
+      // Delete work reports
+      await this.workReportRepository.delete({ engineerId: engineer.id });
+
+      // Update orders to remove engineer assignment
+      await this.orderRepository.update(
+        { assignedEngineerId: engineer.id },
+        { assignedEngineerId: null, status: OrderStatus.WAITING }
+      );
+    }
   }
 
   private async logActivity(

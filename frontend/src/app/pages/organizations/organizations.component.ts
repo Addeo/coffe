@@ -106,7 +106,7 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
       },
       error: error => {
         console.error('Failed to load organizations:', error);
-        this.toastService.showError('Failed to load organizations');
+        this.toastService.showError('Не удалось загрузить организации');
         // Ensure we set an empty array on error to prevent undefined
         this.organizations.set([]);
         this.dataSource.data = [];
@@ -169,12 +169,12 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
         this.dataSource.data = updatedOrganizations;
 
         this.toastService.showSuccess(
-          `Organization ${updatedOrg.name} ${updatedOrg.isActive ? 'activated' : 'deactivated'}`
+          `Организация ${updatedOrg.name} ${updatedOrg.isActive ? 'активирована' : 'деактивирована'}`
         );
       },
       error: error => {
-        console.error('Failed to toggle organization status:', error);
-        this.toastService.showError('Failed to update organization status');
+        console.error('Не удалось изменить статус организации:', error);
+        this.toastService.showError('Не удалось обновить статус организации');
       },
     });
   }
@@ -199,10 +199,10 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
     console.log('🗑️ Opening delete confirmation dialog');
     const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
       data: {
-        title: 'Delete Organization',
-        message: `Are you sure you want to delete "${organization.name}"? This action cannot be undone.`,
-        confirmText: 'Delete',
-        cancelText: 'Cancel',
+        title: 'Удалить организацию',
+        message: `Вы уверены, что хотите удалить "${organization.name}"? Это действие нельзя отменить.`,
+        confirmText: 'Удалить',
+        cancelText: 'Отмена',
       },
     });
 
@@ -230,13 +230,13 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
             this.organizations.set(updatedOrganizations);
             this.dataSource.data = updatedOrganizations;
 
-            this.toastService.showSuccess('Organization deleted successfully');
+            this.toastService.showSuccess('Организация успешно удалена');
 
             // Перезагрузим список для синхронизации с сервером
             this.loadOrganizations();
           },
           error: error => {
-            console.error('❌ Failed to delete organization:', {
+            console.error('❌ Не удалось удалить организацию:', {
               error: error,
               organizationId: organization.id,
               status: error.status,
@@ -245,7 +245,7 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
               userRole: this.currentUser()?.role,
             });
 
-            let errorMessage = 'Failed to delete organization';
+            let errorMessage = 'Не удалось удалить организацию';
             if (error.status === 401) {
               errorMessage = 'Не авторизован. Пожалуйста, войдите в систему снова.';
               // Можно добавить редирект на страницу логина
@@ -285,6 +285,6 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
   }
 
   getStatusText(isActive: boolean): string {
-    return isActive ? 'Active' : 'Inactive';
+    return isActive ? 'Активна' : 'Неактивна';
   }
 }

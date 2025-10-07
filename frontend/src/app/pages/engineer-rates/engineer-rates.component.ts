@@ -67,11 +67,6 @@ export class EngineerRatesComponent implements OnInit {
     'organizationName',
     'customBaseRate',
     'customOvertimeRate',
-    'customOvertimeMultiplier',
-    'customFixedSalary',
-    'customFixedCarAmount',
-    'customCarKmRate',
-    'isActive',
     'actions',
   ];
   dataSource = new MatTableDataSource<EngineerOrganizationRateDto>([]);
@@ -93,7 +88,6 @@ export class EngineerRatesComponent implements OnInit {
     this.filterForm = this.fb.group({
       engineerId: [''],
       organizationId: [''],
-      isActive: [true],
     });
   }
 
@@ -156,13 +150,6 @@ export class EngineerRatesComponent implements OnInit {
     return engineer ? `${engineer.firstName} ${engineer.lastName}` : `Engineer ${rate.engineerId}`;
   }
 
-  getStatusDisplay(isActive: boolean): string {
-    return isActive ? 'Active' : 'Inactive';
-  }
-
-  getStatusColor(isActive: boolean): string {
-    return isActive ? 'primary' : 'warn';
-  }
 
   onEditRate(rate: EngineerOrganizationRateDto) {
     // Open edit dialog
@@ -187,27 +174,30 @@ export class EngineerRatesComponent implements OnInit {
     });
   }
 
-  onToggleRateStatus(rate: EngineerOrganizationRateDto) {
-    const newStatus = !rate.isActive;
-    const updateData: UpdateEngineerOrganizationRateDto = {
-      isActive: newStatus,
-    };
 
-    this.engineerRatesService.updateRate(rate.id, updateData).subscribe({
-      next: updatedRate => {
-        // Update the rate in the data source
-        const index = this.dataSource.data.findIndex(r => r.id === rate.id);
-        if (index !== -1) {
-          this.dataSource.data[index] = updatedRate;
-          this.dataSource._updateChangeSubscription();
-        }
-        this.toastService.success(`Rate ${newStatus ? 'activated' : 'deactivated'} successfully`);
-      },
-      error: error => {
-        console.error('Error updating rate status:', error);
-        this.toastService.error('Error updating rate status');
-      },
-    });
+  onDeleteRate(rate: EngineerOrganizationRateDto) {
+    if (!this.canEditRates) {
+      this.toastService.error('У вас нет прав для удаления ставок');
+      return;
+    }
+
+    const engineerName = this.getEngineerName(rate);
+    const confirmed = confirm(
+      `Вы уверены, что хотите удалить ставки для инженера "${engineerName}" в организации "${rate.organizationName}"? Это действие нельзя отменить.`
+    );
+
+    if (confirmed) {
+      this.engineerRatesService.deleteRate(rate.id).subscribe({
+        next: () => {
+          this.toastService.success('Ставки инженера успешно удалены');
+          this.loadRates();
+        },
+        error: error => {
+          console.error('Error deleting rate:', error);
+          this.toastService.error('Ошибка при удалении ставок');
+        },
+      });
+    }
   }
 
   onApplyFilters() {
@@ -218,7 +208,6 @@ export class EngineerRatesComponent implements OnInit {
     this.filterForm.reset({
       engineerId: '',
       organizationId: '',
-      isActive: true,
     });
     this.loadRates();
   }

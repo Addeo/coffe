@@ -10,7 +10,7 @@
     "watchAssets": true,
     "outDir": "dist"
   },
-  "entryFile": "src/main",
+  "entryFile": "backend/src/main",
   "generateOptions": {
     "spec": false
   }

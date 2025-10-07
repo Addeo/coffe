@@ -125,69 +125,9 @@ export interface EngineerRateDialogData {
                   </mat-form-field>
                 </div>
 
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>Коэффициент переработки</mat-label>
-                  <input
-                    matInput
-                    formControlName="customOvertimeMultiplier"
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    placeholder="например, 1.5"
-                  />
-                  <mat-hint
-                    >Множитель для расчета переработки (если не указана фиксированная
-                    ставка)</mat-hint
-                  >
-                </mat-form-field>
               </div>
             </mat-tab>
 
-            <!-- Salary and Car Compensation Tab -->
-            <mat-tab label="Зарплата и автомобиль">
-              <div class="tab-content">
-                <div class="form-row">
-                  <mat-form-field appearance="outline" class="form-field">
-                    <mat-label>Фиксированная зарплата (руб)</mat-label>
-                    <input
-                      matInput
-                      formControlName="customFixedSalary"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="Оставьте пустым для использования ставки по умолчанию"
-                    />
-                    <mat-hint>Фиксированная зарплата (оклад)</mat-hint>
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="form-field">
-                    <mat-label>Фиксированная сумма за автомобиль (руб)</mat-label>
-                    <input
-                      matInput
-                      formControlName="customFixedCarAmount"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="Оставьте пустым для использования ставки по умолчанию"
-                    />
-                    <mat-hint>Фиксированная оплата за эксплуатацию автомобиля</mat-hint>
-                  </mat-form-field>
-                </div>
-
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>Ставка за километраж (руб/км)</mat-label>
-                  <input
-                    matInput
-                    formControlName="customCarKmRate"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Оставьте пустым для использования ставки по умолчанию"
-                  />
-                  <mat-hint>Оплата за километраж (для наемных инженеров)</mat-hint>
-                </mat-form-field>
-              </div>
-            </mat-tab>
 
             <!-- Zone Extras Tab -->
             <mat-tab label="Зональные надбавки">
@@ -473,14 +413,9 @@ export class EngineerRateDialogComponent {
     organizationId: [''],
     customBaseRate: [null, [Validators.min(0)]],
     customOvertimeRate: [null, [Validators.min(0)]],
-    customOvertimeMultiplier: [null, [Validators.min(0)]],
-    customFixedSalary: [null, [Validators.min(0)]],
-    customFixedCarAmount: [null, [Validators.min(0)]],
-    customCarKmRate: [null, [Validators.min(0)]],
     customZone1Extra: [null, [Validators.min(0)]],
     customZone2Extra: [null, [Validators.min(0)]],
     customZone3Extra: [null, [Validators.min(0)]],
-    isActive: [true],
   });
 
   ngOnInit() {
@@ -493,14 +428,9 @@ export class EngineerRateDialogComponent {
         organizationId: this.data.rate.organizationId,
         customBaseRate: this.data.rate.customBaseRate,
         customOvertimeRate: this.data.rate.customOvertimeRate,
-        customOvertimeMultiplier: this.data.rate.customOvertimeMultiplier,
-        customFixedSalary: this.data.rate.customFixedSalary,
-        customFixedCarAmount: this.data.rate.customFixedCarAmount,
-        customCarKmRate: this.data.rate.customCarKmRate,
         customZone1Extra: this.data.rate.customZone1Extra,
         customZone2Extra: this.data.rate.customZone2Extra,
         customZone3Extra: this.data.rate.customZone3Extra,
-        isActive: this.data.rate.isActive,
       });
 
       // Disable selection fields in edit mode
@@ -520,7 +450,7 @@ export class EngineerRateDialogComponent {
         this.engineers.set(response.data.filter(user => user.role === UserRole.USER));
       },
       error: error => {
-        console.error('Error loading engineers:', error);
+        console.error('Ошибка загрузки инженеров:', error);
       },
     });
   }
@@ -531,14 +461,14 @@ export class EngineerRateDialogComponent {
         this.organizations.set(response.data);
       },
       error: error => {
-        console.error('Error loading organizations:', error);
+        console.error('Ошибка загрузки организаций:', error);
       },
     });
   }
 
   getEngineerName(engineerId: number): string {
     const engineer = this.engineers().find(e => e.id === engineerId);
-    return engineer ? `${engineer.firstName} ${engineer.lastName}` : `Engineer ${engineerId}`;
+    return engineer ? `${engineer.firstName} ${engineer.lastName}` : `Инженер ${engineerId}`;
   }
 
   onSave() {
@@ -562,10 +492,6 @@ export class EngineerRateDialogComponent {
       organizationId: formValue.organizationId,
       customBaseRate: formValue.customBaseRate || undefined,
       customOvertimeRate: formValue.customOvertimeRate || undefined,
-      customOvertimeMultiplier: formValue.customOvertimeMultiplier || undefined,
-      customFixedSalary: formValue.customFixedSalary || undefined,
-      customFixedCarAmount: formValue.customFixedCarAmount || undefined,
-      customCarKmRate: formValue.customCarKmRate || undefined,
       customZone1Extra: formValue.customZone1Extra || undefined,
       customZone2Extra: formValue.customZone2Extra || undefined,
       customZone3Extra: formValue.customZone3Extra || undefined,
@@ -573,12 +499,12 @@ export class EngineerRateDialogComponent {
 
     this.engineerRatesService.createRate(rateData).subscribe({
       next: rate => {
-        this.toastService.showSuccess('Rate configuration created successfully');
+        this.toastService.showSuccess('Конфигурация ставок успешно создана');
         this.dialogRef.close(rate);
       },
       error: error => {
-        console.error('Error creating rate:', error);
-        this.toastService.showError('Error creating rate configuration. Please try again.');
+        console.error('Ошибка создания ставки:', error);
+        this.toastService.showError('Ошибка создания конфигурации ставок. Пожалуйста, попробуйте еще раз.');
         this.isLoading.set(false);
       },
     });
@@ -591,24 +517,19 @@ export class EngineerRateDialogComponent {
     const rateData: UpdateEngineerOrganizationRateDto = {
       customBaseRate: formValue.customBaseRate || undefined,
       customOvertimeRate: formValue.customOvertimeRate || undefined,
-      customOvertimeMultiplier: formValue.customOvertimeMultiplier || undefined,
-      customFixedSalary: formValue.customFixedSalary || undefined,
-      customFixedCarAmount: formValue.customFixedCarAmount || undefined,
-      customCarKmRate: formValue.customCarKmRate || undefined,
       customZone1Extra: formValue.customZone1Extra || undefined,
       customZone2Extra: formValue.customZone2Extra || undefined,
       customZone3Extra: formValue.customZone3Extra || undefined,
-      isActive: formValue.isActive,
     };
 
     this.engineerRatesService.updateRate(this.data.rate.id, rateData).subscribe({
       next: rate => {
-        this.toastService.showSuccess('Rate configuration updated successfully');
+        this.toastService.showSuccess('Конфигурация ставок успешно обновлена');
         this.dialogRef.close(rate);
       },
       error: error => {
-        console.error('Error updating rate:', error);
-        this.toastService.showError('Error updating rate configuration. Please try again.');
+        console.error('Ошибка обновления ставки:', error);
+        this.toastService.showError('Ошибка обновления конфигурации ставок. Пожалуйста, попробуйте еще раз.');
         this.isLoading.set(false);
       },
     });

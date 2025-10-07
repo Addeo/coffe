@@ -101,6 +101,10 @@ export class StatisticsComponent implements OnInit {
     this.loadStatistics();
   }
 
+  refreshStatistics() {
+    this.loadStatistics();
+  }
+
   formatCurrency(amount: number): string {
     return new Intl.NumberFormat('ru-RU', {
       style: 'currency',

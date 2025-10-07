@@ -5,3 +5,8 @@ export const environment = {
   appName: 'Coffee Admin Panel Demo',
   demo: true,
 };
+
+// apiUrl: 'https://api.coffe-ug.ru/api',
+// authUrl: 'https://api.coffe-ug.ru/api/auth/login',
+// appName: 'Coffee Admin Panel',
+// demo: false,

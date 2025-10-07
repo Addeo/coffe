@@ -4,7 +4,7 @@
   </div>
 
   <div class="profile-content">
-    <!-- Profile Avatar Section -->
+    <!-- Profile Avatar Section (outside tabs) -->
     <mat-card class="avatar-card">
       <mat-card-content>
         <div class="avatar-section">
@@ -23,108 +23,284 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Profile Information -->
-    <mat-card class="info-card">
-      <mat-card-header>
-        <mat-card-title i18n="@@profile.profileInformation">Информация о профиле</mat-card-title>
-        <mat-card-subtitle i18n="@@profile.updatePersonalInfo"
-          >Обновите свою личную информацию</mat-card-subtitle
-        >
-        <div class="card-actions">
-          <button mat-icon-button (click)="toggleEditMode()" [disabled]="isLoading()">
-            <mat-icon>{{ isEditing() ? 'close' : 'edit' }}</mat-icon>
-          </button>
-        </div>
-      </mat-card-header>
-
-      <mat-card-content>
-        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label i18n="@@profile.firstName">Имя</mat-label>
-              <input matInput formControlName="firstName" [readonly]="!isEditing()" />
-              <mat-error
-                *ngIf="
-                  profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched
-                "
-                i18n="@@profile.firstNameRequired"
+    <!-- Profile Tabs -->
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex">
+      <!-- General Information Tab -->
+      <mat-tab label="Общие данные">
+        <div class="tab-content">
+          <!-- Profile Information -->
+          <mat-card class="info-card">
+            <mat-card-header>
+              <mat-card-title i18n="@@profile.profileInformation">Информация о профиле</mat-card-title>
+              <mat-card-subtitle i18n="@@profile.updatePersonalInfo"
+                >Обновите свою личную информацию</mat-card-subtitle
               >
-                Имя обязательно и должно содержать минимум 2 символа
-              </mat-error>
-            </mat-form-field>
+              <div class="card-actions">
+                <button mat-icon-button (click)="toggleEditMode()" [disabled]="isLoading()">
+                  <mat-icon>{{ isEditing() ? 'close' : 'edit' }}</mat-icon>
+                </button>
+              </div>
+            </mat-card-header>
 
-            <mat-form-field appearance="outline" class="form-field">
-              <mat-label i18n="@@profile.lastName">Фамилия</mat-label>
-              <input matInput formControlName="lastName" [readonly]="!isEditing()" />
-              <mat-error
-                *ngIf="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched"
-                i18n="@@profile.lastNameRequired"
+            <mat-card-content>
+              <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label i18n="@@profile.firstName">Имя</mat-label>
+                    <input matInput formControlName="firstName" [readonly]="!isEditing()" />
+                    <mat-error
+                      *ngIf="
+                        profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched
+                      "
+                      i18n="@@profile.firstNameRequired"
+                    >
+                      Имя обязательно и должно содержать минимум 2 символа
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label i18n="@@profile.lastName">Фамилия</mat-label>
+                    <input matInput formControlName="lastName" [readonly]="!isEditing()" />
+                    <mat-error
+                      *ngIf="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched"
+                      i18n="@@profile.lastNameRequired"
+                    >
+                      Фамилия обязательна и должна содержать минимум 2 символа
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <mat-form-field appearance="outline" class="form-field full-width">
+                  <mat-label i18n="@@profile.email">Электронная почта</mat-label>
+                  <input matInput formControlName="email" type="email" [readonly]="!isEditing()" />
+                  <mat-error
+                    *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched"
+                    i18n="@@profile.emailRequired"
+                  >
+                    Пожалуйста, введите корректный email адрес
+                  </mat-error>
+                </mat-form-field>
+
+                <div class="role-info" *ngIf="currentUser()?.role">
+                  <mat-form-field appearance="outline" class="form-field full-width">
+                    <mat-label i18n="@@profile.role">Роль</mat-label>
+                    <input matInput [value]="getRoleDisplay(currentUser()!.role)" readonly />
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions" *ngIf="isEditing()">
+                  <button mat-button type="button" (click)="cancelEdit()" [disabled]="isLoading()">
+                    <span i18n="@@profile.cancel">Отмена</span>
+                  </button>
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    type="submit"
+                    [disabled]="isLoading() || profileForm.invalid"
+                  >
+                    <mat-icon *ngIf="isLoading()">refresh</mat-icon>
+                    <mat-icon *ngIf="!isLoading()">save</mat-icon>
+                    {{ isLoading() ? 'Сохранение...' : 'Сохранить изменения' }}
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Security Section -->
+          <mat-card class="security-card">
+            <mat-card-header>
+              <mat-card-title i18n="@@profile.security">Безопасность</mat-card-title>
+              <mat-card-subtitle i18n="@@profile.manageSecurity"
+                >Управление безопасностью учетной записи</mat-card-subtitle
               >
-                Фамилия обязательна и должна содержать минимум 2 символа
-              </mat-error>
-            </mat-form-field>
-          </div>
+            </mat-card-header>
 
-          <mat-form-field appearance="outline" class="form-field full-width">
-            <mat-label i18n="@@profile.email">Электронная почта</mat-label>
-            <input matInput formControlName="email" type="email" [readonly]="!isEditing()" />
-            <mat-error
-              *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched"
-              i18n="@@profile.emailRequired"
-            >
-              Пожалуйста, введите корректный email адрес
-            </mat-error>
-          </mat-form-field>
-
-          <div class="role-info" *ngIf="currentUser()?.role">
-            <mat-form-field appearance="outline" class="form-field full-width">
-              <mat-label i18n="@@profile.role">Роль</mat-label>
-              <input matInput [value]="getRoleDisplay(currentUser()!.role)" readonly />
-            </mat-form-field>
-          </div>
-
-          <div class="form-actions" *ngIf="isEditing()">
-            <button mat-button type="button" (click)="cancelEdit()" [disabled]="isLoading()">
-              <span i18n="@@profile.cancel">Отмена</span>
-            </button>
-            <button
-              mat-raised-button
-              color="primary"
-              type="submit"
-              [disabled]="isLoading() || profileForm.invalid"
-            >
-              <mat-icon *ngIf="isLoading()">refresh</mat-icon>
-              <mat-icon *ngIf="!isLoading()">save</mat-icon>
-              {{ isLoading() ? 'Сохранение...' : 'Сохранить изменения' }}
-            </button>
-          </div>
-        </form>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Security Section -->
-    <mat-card class="security-card">
-      <mat-card-header>
-        <mat-card-title i18n="@@profile.security">Безопасность</mat-card-title>
-        <mat-card-subtitle i18n="@@profile.manageSecurity"
-          >Управление безопасностью учетной записи</mat-card-subtitle
-        >
-      </mat-card-header>
-
-      <mat-card-content>
-        <div class="security-item">
-          <div class="security-info">
-            <mat-icon>lock</mat-icon>
-            <div>
-              <h4 i18n="@@profile.password">Пароль</h4>
-              <p i18n="@@profile.lastChanged">Последнее изменение: Недавно</p>
-            </div>
-          </div>
-          <button mat-raised-button (click)="changePassword()">
-            <span i18n="@@profile.changePassword">Изменить пароль</span>
-          </button>
+            <mat-card-content>
+              <div class="security-item">
+                <div class="security-info">
+                  <mat-icon>lock</mat-icon>
+                  <div>
+                    <h4 i18n="@@profile.password">Пароль</h4>
+                    <p i18n="@@profile.lastChanged">Последнее изменение: Недавно</p>
+                  </div>
+                </div>
+                <button mat-raised-button (click)="changePassword()">
+                  <span i18n="@@profile.changePassword">Изменить пароль</span>
+                </button>
+              </div>
+            </mat-card-content>
+          </mat-card>
         </div>
-      </mat-card-content>
-    </mat-card>
+      </mat-tab>
+
+      <!-- Engineer Rates Tab (only for engineers) -->
+      <mat-tab label="Ставки по организациям" *ngIf="isEngineer">
+        <div class="tab-content">
+          <mat-card class="engineer-rates-card">
+            <mat-card-header>
+              <mat-card-title i18n="@@profile.engineerRates">Мои ставки по организациям</mat-card-title>
+              <mat-card-subtitle i18n="@@profile.engineerRatesSubtitle"
+                >Индивидуальные ставки оплаты за работу в разных организациях</mat-card-subtitle
+              >
+            </mat-card-header>
+
+            <mat-card-content>
+              <div *ngIf="isLoadingRates()" class="loading-container">
+                <mat-spinner diameter="40"></mat-spinner>
+                <p>Загрузка ставок...</p>
+              </div>
+
+              <div *ngIf="!isLoadingRates() && engineerRates().length > 0" class="rates-table-container">
+                <table mat-table [dataSource]="engineerRates()" class="mat-elevation-z2">
+                  <!-- Organization Name Column -->
+                  <ng-container matColumnDef="organizationName">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@profile.organization">Организация</th>
+                    <td mat-cell *matCellDef="let rate">{{ rate.organizationName }}</td>
+                  </ng-container>
+
+                  <!-- Base Rate Column -->
+                  <ng-container matColumnDef="customBaseRate">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@profile.baseRate">Базовая ставка</th>
+                    <td mat-cell *matCellDef="let rate">
+                      {{ rate.customBaseRate ? formatCurrency(rate.customBaseRate) : 'По умолчанию' }}
+                    </td>
+                  </ng-container>
+
+                  <!-- Overtime Rate Column -->
+                  <ng-container matColumnDef="customOvertimeRate">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@profile.overtimeRate">Ставка переработки</th>
+                    <td mat-cell *matCellDef="let rate">
+                      {{ rate.customOvertimeRate ? formatCurrency(rate.customOvertimeRate) : 'По умолчанию' }}
+                    </td>
+                  </ng-container>
+
+                  <!-- Zone 1 Extra Column -->
+                  <ng-container matColumnDef="customZone1Extra">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@profile.zone1Extra">Зона 1</th>
+                    <td mat-cell *matCellDef="let rate">
+                      {{ rate.customZone1Extra ? formatCurrency(rate.customZone1Extra) : '-' }}
+                    </td>
+                  </ng-container>
+
+                  <!-- Zone 2 Extra Column -->
+                  <ng-container matColumnDef="customZone2Extra">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@profile.zone2Extra">Зона 2</th>
+                    <td mat-cell *matCellDef="let rate">
+                      {{ rate.customZone2Extra ? formatCurrency(rate.customZone2Extra) : '-' }}
+                    </td>
+                  </ng-container>
+
+                  <!-- Zone 3 Extra Column -->
+                  <ng-container matColumnDef="customZone3Extra">
+                    <th mat-header-cell *matHeaderCellDef i18n="@@profile.zone3Extra">Зона 3</th>
+                    <td mat-cell *matCellDef="let rate">
+                      {{ rate.customZone3Extra ? formatCurrency(rate.customZone3Extra) : '-' }}
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+              </div>
+
+              <div *ngIf="!isLoadingRates() && engineerRates().length === 0" class="no-rates">
+                <mat-icon>info</mat-icon>
+                <p i18n="@@profile.noRates">У вас нет индивидуальных ставок по организациям</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Vehicle Data Tab (only for engineers) -->
+      <mat-tab label="Данные по машине" *ngIf="isEngineer">
+        <div class="tab-content">
+          <mat-card class="engineer-settings-card">
+            <mat-card-header>
+              <mat-card-title i18n="@@profile.vehicleData">Данные по автомобилю и работе</mat-card-title>
+              <mat-card-subtitle i18n="@@profile.vehicleDataSubtitle"
+                >Информация о настройках автомобиля, территории и зарплате</mat-card-subtitle
+              >
+            </mat-card-header>
+
+            <mat-card-content>
+              <div class="settings-grid">
+                <!-- Hourly Rates -->
+                <div class="setting-item" *ngIf="getEngineerData()">
+                  <mat-icon>schedule</mat-icon>
+                  <div class="setting-content">
+                    <h4 i18n="@@profile.hourlyRates">Почасовые ставки</h4>
+                    <div class="rate-details">
+                      <div class="rate-item">
+                        <span class="rate-label">Базовая ставка:</span>
+                        <span class="rate-value">{{ formatCurrency(getEngineerData()!.baseRate) }}/час</span>
+                      </div>
+                      <div class="rate-item" *ngIf="getEngineerData()!.overtimeRate">
+                        <span class="rate-label">Ставка переработки:</span>
+                        <span class="rate-value">{{ formatCurrency(getEngineerData()!.overtimeRate!) }}/час</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- No Engineer Data Message -->
+                <div class="no-engineer-data" *ngIf="!getEngineerData()" style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px;">
+                  <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #856404; margin-bottom: 16px;">info</mat-icon>
+                  <h4 style="color: #856404; margin: 0 0 8px 0;">Данные инженера не найдены</h4>
+                  <p style="color: #856404; margin: 0;">Возможно, ваш профиль еще не полностью настроен.</p>
+                </div>
+
+                <!-- Vehicle Settings -->
+                <div class="setting-item" *ngIf="getEngineerData()">
+                  <mat-icon>directions_car</mat-icon>
+                  <div class="setting-content">
+                    <h4 i18n="@@profile.vehicleSettings">Настройки автомобиля</h4>
+                    <div class="rate-details">
+                      <div class="rate-item">
+                        <span class="rate-label">Фиксированная сумма за машину:</span>
+                        <span class="rate-value">{{ formatCurrency(getEngineerData()!.fixedCarAmount) }}/мес</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Territory Settings -->
+                <div class="setting-item" *ngIf="getEngineerData()">
+                  <mat-icon>location_on</mat-icon>
+                  <div class="setting-content">
+                    <h4 i18n="@@profile.territorySettings">Настройки территории</h4>
+                    <div class="rate-details">
+                      <div class="rate-item">
+                        <span class="rate-label">Фиксированная сумма за территорию:</span>
+                        <span class="rate-value">{{ formatCurrency(getEngineerData()!.homeTerritoryFixedAmount) }}/мес</span>
+                      </div>
+                      <div class="rate-item">
+                        <span class="rate-label">Плановые часы в месяц:</span>
+                        <span class="rate-value">{{ formatNumber(getEngineerData()!.planHoursMonth) }} часов</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Salary Settings -->
+                <div class="setting-item" *ngIf="getEngineerData()">
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  <div class="setting-content">
+                    <h4 i18n="@@profile.salarySettings">Настройки зарплаты</h4>
+                    <div class="rate-details">
+                      <div class="rate-item">
+                        <span class="rate-label">Фиксированная зарплата:</span>
+                        <span class="rate-value">{{ formatCurrency(getEngineerData()!.fixedSalary) }}/мес</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
   </div>
 </div>

@@ -152,7 +152,7 @@ export class OrdersComponent implements OnInit {
       },
       error: error => {
         console.error('Error loading orders:', error);
-        this.toastService.error('Error loading orders');
+        this.toastService.error('Ошибка загрузки заказов');
         this.isLoading.set(false);
       },
     });
@@ -164,7 +164,7 @@ export class OrdersComponent implements OnInit {
         this.orderStats.set(stats);
       },
       error: error => {
-        console.error('Error loading order stats:', error);
+        console.error('Ошибка загрузки статистики заказов:', error);
       },
     });
   }
@@ -232,11 +232,11 @@ export class OrdersComponent implements OnInit {
           this.dataSource._updateChangeSubscription();
         }
         this.loadOrderStats(); // Refresh stats
-        this.toastService.success(`Order status updated to ${newStatus}`);
+        this.toastService.success(`Статус заказа изменен на ${newStatus}`);
       },
       error: error => {
-        console.error('Error updating order status:', error);
-        this.toastService.error('Error updating order status');
+        console.error('Ошибка обновления статуса заказа:', error);
+        this.toastService.error('Ошибка обновления статуса заказа');
       },
     });
   }
@@ -264,8 +264,8 @@ export class OrdersComponent implements OnInit {
   onDeleteOrder(order: OrderDto) {
     const dialogRef = this.modalService.openDialog(OrderDeleteConfirmationDialogComponent, {
       order,
-      title: 'Delete Order',
-      message: `Are you sure you want to delete order "${order.title}"?`,
+      title: 'Удалить заказ',
+      message: `Вы уверены, что хотите удалить заказ "${order.title}"?`,
     });
 
     dialogRef.subscribe(result => {
@@ -294,7 +294,7 @@ export class OrdersComponent implements OnInit {
   }
 
   getEngineerName(order: OrderDto): string {
-    if (!order.assignedEngineer) return 'Unassigned';
+    if (!order.assignedEngineer) return 'Не назначен';
     return `${order.assignedEngineer.firstName} ${order.assignedEngineer.lastName}`;
   }
 

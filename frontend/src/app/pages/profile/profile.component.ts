@@ -14,8 +14,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
 import { AuthService } from '../../services/auth.service';
+import { UsersService } from '../../services/users.service';
+import { EngineerOrganizationRatesService } from '../../services/engineer-organization-rates.service';
 import { UserRole } from '@shared/interfaces/user.interface';
+import { EngineerOrganizationRateDto } from '@shared/dtos/engineer-organization-rate.dto';
+import { UserDto } from '@shared/dtos/user.dto';
 
 @Component({
   selector: 'app-profile',
@@ -29,6 +35,8 @@ import { UserRole } from '@shared/interfaces/user.interface';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatTableModule,
+    MatTabsModule,
   ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
@@ -36,16 +44,36 @@ import { UserRole } from '@shared/interfaces/user.interface';
 export class ProfileComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private usersService = inject(UsersService);
   private snackBar = inject(MatSnackBar);
+  private engineerRatesService = inject(EngineerOrganizationRatesService);
 
   profileForm!: FormGroup;
   isLoading = signal(false);
   isEditing = signal(false);
   currentUser = this.authService.currentUser;
+  fullUserProfile = signal<UserDto | null>(null);
+  selectedTabIndex = signal(0);
+
+  // Engineer rates data
+  engineerRates = signal<EngineerOrganizationRateDto[]>([]);
+  isLoadingRates = signal(false);
+  displayedColumns = ['organizationName', 'customBaseRate', 'customOvertimeRate', 'customZone1Extra', 'customZone2Extra', 'customZone3Extra'];
+
+  // Check if current user is an engineer
+  get isEngineer(): boolean {
+    const role = this.currentUser()?.role;
+    // For development/debugging - show engineer tabs for all authenticated users
+    // TODO: Remove this debug condition and use only: return role === UserRole.USER;
+    return role === UserRole.USER || !!this.currentUser();
+  }
 
   ngOnInit() {
     this.initializeForm();
     this.loadUserProfile();
+    if (this.isEngineer) {
+      this.loadEngineerRates();
+    }
   }
 
   private initializeForm() {
@@ -63,6 +91,34 @@ export class ProfileComponent implements OnInit {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+      });
+    }
+
+    // Load full user profile with engineer data
+    this.usersService.getUserProfile().subscribe({
+      next: (fullProfile) => {
+        this.fullUserProfile.set(fullProfile);
+      },
+      error: (error) => {
+        console.error('Error loading full user profile:', error);
+      },
+    });
+  }
+
+  private loadEngineerRates() {
+    const user = this.currentUser();
+    if (user?.id) {
+      this.isLoadingRates.set(true);
+      this.engineerRatesService.getActiveRatesForEngineer(user.id).subscribe({
+        next: (rates) => {
+          this.engineerRates.set(rates);
+          this.isLoadingRates.set(false);
+        },
+        error: (error) => {
+          console.error('Error loading engineer rates:', error);
+          this.snackBar.open('Failed to load engineer rates', 'Close', { duration: 3000 });
+          this.isLoadingRates.set(false);
+        },
       });
     }
   }
@@ -126,5 +182,20 @@ export class ProfileComponent implements OnInit {
   uploadAvatar() {
     // TODO: Open file upload dialog
     this.snackBar.open('Avatar upload functionality coming soon', 'Close', { duration: 2000 });
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: 'RUB',
+    }).format(amount);
+  }
+
+  formatNumber(value: number): string {
+    return new Intl.NumberFormat('ru-RU').format(value);
+  }
+
+  getEngineerData() {
+    return this.fullUserProfile()?.engineer;
   }
 }

@@ -44,7 +44,7 @@ export interface OrganizationDialogData {
       <mat-dialog-content>
         <form [formGroup]="organizationForm" class="organization-form">
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label i18n="@@organization.name">Organization Name</mat-label>
+            <mat-label>Название организации</mat-label>
             <input matInput formControlName="name" placeholder="Введите название организации" />
             <mat-error
               *ngIf="organizationForm.get('name')?.hasError('required')"
@@ -56,14 +56,14 @@ export interface OrganizationDialogData {
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label i18n="@@organization.baseRate">Base Rate (RUB/hour)</mat-label>
+              <mat-label>Базовая ставка (руб/час)</mat-label>
               <input
                 matInput
                 formControlName="baseRate"
                 type="number"
                 step="0.01"
                 min="0"
-                placeholder="Введите базовую ставку"
+                placeholder="Например: 500.00"
               />
               <mat-error
                 *ngIf="organizationForm.get('baseRate')?.hasError('required')"
@@ -80,31 +80,31 @@ export interface OrganizationDialogData {
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="form-field">
-              <mat-label i18n="@@organization.overtimeMultiplier">Overtime Multiplier</mat-label>
+              <mat-label>Коэффициент сверхурочных</mat-label>
               <input
                 matInput
                 formControlName="overtimeMultiplier"
                 type="number"
                 step="0.1"
                 min="0"
-                placeholder="e.g., 1.5"
+                placeholder="Например: 1.5"
               />
-              <mat-hint>Leave empty if no overtime</mat-hint>
+              <mat-hint>Оставьте пустым, если нет сверхурочных</mat-hint>
             </mat-form-field>
           </div>
 
           <div class="form-row">
             <div class="toggle-field">
-              <mat-slide-toggle formControlName="hasOvertime"> Has Overtime </mat-slide-toggle>
-              <span class="toggle-hint">Check if this organization pays overtime</span>
+              <mat-slide-toggle formControlName="hasOvertime"> Сверхурочные </mat-slide-toggle>
+              <span class="toggle-hint">Отметьте, если организация платит за сверхурочные</span>
             </div>
           </div>
 
           <!-- Active status field (only for editing) -->
           <div class="form-row" *ngIf="data.isEdit">
             <div class="toggle-field">
-              <mat-slide-toggle formControlName="isActive"> Active </mat-slide-toggle>
-              <span class="toggle-hint">Check if this organization is active</span>
+              <mat-slide-toggle formControlName="isActive"> Активна </mat-slide-toggle>
+              <span class="toggle-hint">Отметьте, если организация активна</span>
             </div>
           </div>
         </form>
@@ -319,12 +319,12 @@ export class OrganizationDialogComponent {
 
     this.organizationsService.createOrganization(organizationData).subscribe({
       next: organization => {
-        this.toastService.showSuccess('Organization created successfully');
+        this.toastService.showSuccess('Организация успешно создана');
         this.dialogRef.close(organization);
       },
       error: error => {
-        console.error('Error creating organization:', error);
-        this.toastService.showError('Error creating organization. Please try again.');
+        console.error('Ошибка создания организации:', error);
+        this.toastService.showError('Ошибка создания организации. Пожалуйста, попробуйте еще раз.');
         this.isLoading.set(false);
       },
     });
@@ -348,12 +348,12 @@ export class OrganizationDialogComponent {
       .updateOrganization(this.data.organization.id, organizationData)
       .subscribe({
         next: organization => {
-          this.toastService.showSuccess('Organization updated successfully');
+          this.toastService.showSuccess('Организация успешно обновлена');
           this.dialogRef.close(organization);
         },
         error: error => {
-          console.error('Error updating organization:', error);
-          this.toastService.showError('Error updating organization. Please try again.');
+          console.error('Ошибка обновления организации:', error);
+          this.toastService.showError('Ошибка обновления организации. Пожалуйста, попробуйте еще раз.');
           this.isLoading.set(false);
         },
       });
