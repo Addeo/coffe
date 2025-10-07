@@ -13,9 +13,21 @@ export interface FileResponseDto {
   originalName: string;
   mimetype: string;
   size: number;
-  url: string;
+  type: FileType;
+  description?: string;
+  uploadedById: number;
+  orderId?: number;
   uploadedAt: Date;
-  uploadedBy: number;
+  url?: string;
+  uploadedBy?: {
+    id: number;
+    name?: string;
+    email: string;
+  };
+  order?: {
+    id: number;
+    title: string;
+  };
 }
 
 export interface FileQueryDto {
@@ -34,6 +46,7 @@ export enum FileType {
   ORDER_PHOTO = 'order_photo', // Фото выполненной работы по заказу
   ORDER_BEFORE = 'order_before', // Фото до выполнения работы
   ORDER_AFTER = 'order_after', // Фото после выполнения работы
+  WORK_REPORT = 'work_report', // Отчет о работе
   OTHER = 'other',
 }
 

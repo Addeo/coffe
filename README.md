@@ -318,3 +318,7 @@ Created tunnel my-tunnel with id d722d85b-87fc-46aa-af20-c48eddc78c76
 INF Added CNAME app.coffe-ug.ru which will route to this tunnel tunnelID=d722d85b-87fc-46aa-af20-c48eddc78c76
 
 cloudflared tunnel run my-tunnel
+
+http://localhost:4202/files
+
+ http://localhost:4200/backups

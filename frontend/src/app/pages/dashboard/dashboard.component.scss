@@ -257,6 +257,41 @@
   }
 }
 
+// Стили для детальной статистики инженера
+.stat-details {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.detail-label {
+  color: #666;
+}
+
+.detail-value {
+  font-weight: 500;
+  color: #333;
+}
+
+// Стили для секции инженера
+.engineer-stats-section {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  border-left: 4px solid #1976d2;
+}
+
 @media (max-width: 768px) {
   .dashboard-container {
     padding: 16px;

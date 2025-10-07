@@ -56,6 +56,10 @@ export class FilesService {
     });
   }
 
+  getAllFiles(): Observable<FileResponseDto[]> {
+    return this.http.get<FileResponseDto[]>(`${environment.apiUrl}/files/all`);
+  }
+
   getMyFiles(query: FileQueryDto = {}): Observable<PaginatedResponse<FileResponseDto>> {
     let params = new HttpParams();
 

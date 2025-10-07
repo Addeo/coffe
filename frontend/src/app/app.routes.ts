@@ -128,6 +128,13 @@ export const routes: Routes = [
     data: { roles: ['admin'], title: 'System Settings' },
   },
   {
+    path: 'backups',
+    loadComponent: () =>
+      import('./pages/backups/backups.component').then(m => m.BackupsComponent),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin'], title: 'Database Backups' },
+  },
+  {
     path: 'unauthorized',
     loadComponent: () =>
       import('./pages/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent),

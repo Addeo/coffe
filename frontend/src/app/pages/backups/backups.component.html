@@ -1,0 +1,257 @@
+<div class="backups-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <mat-icon class="page-icon">backup</mat-icon>
+        <div>
+          <h1>Резервное копирование</h1>
+          <p class="subtitle">Управление бэкапами базы данных</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <input
+          #fileInput
+          type="file"
+          accept=".sql,.sqlite"
+          style="display: none"
+          (change)="onFileSelected($event)"
+        />
+
+        <button
+          mat-raised-button
+          color="accent"
+          (click)="fileInput.click()"
+          [disabled]="isLoading() || isUploading()"
+        >
+          <mat-icon>upload_file</mat-icon>
+          Загрузить бэкап
+        </button>
+
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="createBackup()"
+          [disabled]="isLoading() || isCreating()"
+        >
+          <mat-icon>add</mat-icon>
+          @if (isCreating()) {
+            <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+            Создание...
+          } @else {
+            Создать бэкап
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-grid">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon color="primary">backup</mat-icon>
+          <div class="stat-details">
+            <h3>{{ backups().length }}</h3>
+            <p>Всего бэкапов</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon color="accent">storage</mat-icon>
+          <div class="stat-details">
+            <h3>{{ totalBackupSize() }}</h3>
+            <p>Общий размер</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon color="warn">schedule</mat-icon>
+          <div class="stat-details">
+            <h3>Ежемесячно</h3>
+            <p>Автоматические бэкапы</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card action-card" (click)="cleanupOldBackups()">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon>delete_sweep</mat-icon>
+          <div class="stat-details">
+            <h3>Очистить</h3>
+            <p>Удалить старые бэкапы</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+      <p>Загрузка...</p>
+    </div>
+  }
+
+  <!-- Upload Progress -->
+  @if (isUploading()) {
+    <mat-card class="upload-progress-card">
+      <mat-card-content>
+        <div class="upload-progress">
+          <mat-icon>cloud_upload</mat-icon>
+          <div class="progress-details">
+            <h3>Загрузка файла...</h3>
+            <mat-progress-bar mode="indeterminate" color="accent"></mat-progress-bar>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading() && !hasBackups()) {
+    <mat-card class="empty-state">
+      <mat-card-content>
+        <mat-icon>backup</mat-icon>
+        <h2>Нет доступных бэкапов</h2>
+        <p>Создайте первый бэкап или загрузите существующий</p>
+        <div class="empty-state-actions">
+          <button mat-raised-button color="primary" (click)="createBackup()">
+            <mat-icon>add</mat-icon>
+            Создать бэкап
+          </button>
+          <button mat-raised-button color="accent" (click)="fileInput.click()">
+            <mat-icon>upload_file</mat-icon>
+            Загрузить файл
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Backups List -->
+  @if (!isLoading() && hasBackups()) {
+    <div class="backups-grid">
+      @for (backup of backups(); track backup.name) {
+        <mat-card class="backup-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar [color]="getBackupColor(backup.type)">
+              {{ getBackupIcon(backup.type) }}
+            </mat-icon>
+            <mat-card-title>{{ backup.name }}</mat-card-title>
+            <mat-card-subtitle>{{ getRelativeTime(backup.createdAt) }}</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="backup-details">
+              <div class="detail-row">
+                <mat-icon>calendar_today</mat-icon>
+                <span>{{ formatDate(backup.createdAt) }}</span>
+              </div>
+              <div class="detail-row">
+                <mat-icon>storage</mat-icon>
+                <span>{{ backup.sizeFormatted }}</span>
+              </div>
+              <div class="detail-row">
+                <mat-icon>category</mat-icon>
+                <span>
+                  <mat-chip [color]="getBackupColor(backup.type)">
+                    {{ backup.type === 'mysql' ? 'MySQL' : 'SQLite' }}
+                  </mat-chip>
+                </span>
+              </div>
+            </div>
+          </mat-card-content>
+
+          <mat-card-actions>
+            <button
+              mat-button
+              color="primary"
+              (click)="downloadBackup(backup)"
+              matTooltip="Скачать бэкап"
+            >
+              <mat-icon>download</mat-icon>
+              Скачать
+            </button>
+
+            <button
+              mat-button
+              color="accent"
+              (click)="restoreBackup(backup)"
+              matTooltip="Восстановить из бэкапа"
+            >
+              <mat-icon>restore</mat-icon>
+              Восстановить
+            </button>
+
+            <button
+              mat-button
+              color="warn"
+              (click)="deleteBackup(backup)"
+              matTooltip="Удалить бэкап"
+            >
+              <mat-icon>delete</mat-icon>
+              Удалить
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
+
+  <!-- Info Section -->
+  <mat-card class="info-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar color="primary">info</mat-icon>
+      <mat-card-title>Информация о бэкапах</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="info-section">
+        <h3>📅 Автоматические бэкапы</h3>
+        <p>Система автоматически создает бэкап 1-го числа каждого месяца в 2:00 ночи</p>
+
+        <h3>💾 Хранение</h3>
+        <p>Бэкапы хранятся 30 дней и автоматически удаляются по истечении срока</p>
+
+        <h3>⚠️ Восстановление</h3>
+        <p>При восстановлении текущая база данных будет полностью перезаписана. Рекомендуется создать бэкап перед восстановлением</p>
+
+        <h3>📤 Загрузка</h3>
+        <p>Поддерживаются файлы .sql (MySQL) и .sqlite (SQLite). Максимальный размер: 100MB</p>
+
+        <h3>🔒 Безопасность</h3>
+        <p>Только администраторы имеют доступ к управлению бэкапами. Все операции логируются</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Documentation Links -->
+  <mat-card class="docs-card">
+    <mat-card-content>
+      <h3>
+        <mat-icon>menu_book</mat-icon>
+        Документация
+      </h3>
+      <p>Подробное руководство по работе с бэкапами:</p>
+      <ul>
+        <li>BACKUP_QUICK_START.md - Быстрый старт</li>
+        <li>docs/BACKUP_BEST_PRACTICES.md - Лучшие практики</li>
+        <li>docs/VM_MANAGEMENT_BACKUP_README.md - Управление на VM</li>
+      </ul>
+    </mat-card-content>
+  </mat-card>
+</div>
+

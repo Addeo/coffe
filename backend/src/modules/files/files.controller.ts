@@ -69,6 +69,12 @@ export class FilesController {
     return this.filesService.findAll(query);
   }
 
+  @Get('all')
+  @UseGuards(JwtAuthGuard)
+  getAllFiles() {
+    return this.filesService.getAllFiles();
+  }
+
   @Get('stats')
   getStats() {
     return this.filesService.getFileStats();

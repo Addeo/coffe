@@ -166,6 +166,114 @@
         </mat-card>
       </div>
     </section>
+    
+    <!-- Engineer Detailed Statistics (только для инженеров - роль USER) -->
+    <section *ngIf="showEngineerStats() && engineerStats()" class="stats-section engineer-stats-section">
+      <h2>Моя статистика за {{ engineerStats()?.month }}/{{ engineerStats()?.year }}</h2>
+      
+      <div class="stats-grid">
+        <!-- Карточка с часами работы -->
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">schedule</mat-icon>
+              <div class="stat-info">
+                <h3>{{ formatHours(engineerStats()?.totalHours || 0) }}</h3>
+                <p>Всего отработано</p>
+              </div>
+            </div>
+            <div class="stat-details">
+              <div class="detail-item">
+                <span class="detail-label">Обычные часы:</span>
+                <span class="detail-value">{{ formatHours(engineerStats()?.regularHours || 0) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Переработка:</span>
+                <span class="detail-value">{{ formatHours(engineerStats()?.overtimeHours || 0) }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        
+        <!-- Карточка с заработком -->
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">payments</mat-icon>
+              <div class="stat-info">
+                <h3>{{ formatAmount(engineerStats()?.totalEarnings || 0) }}</h3>
+                <p>Всего заработано</p>
+              </div>
+            </div>
+            <div class="stat-details">
+              <div class="detail-item">
+                <span class="detail-label">Обязательная часть:</span>
+                <span class="detail-value">{{ formatAmount(engineerStats()?.baseEarnings || 0) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">За переработку:</span>
+                <span class="detail-value">{{ formatAmount(engineerStats()?.overtimeEarnings || 0) }}</span>
+              </div>
+              <div class="detail-item" *ngIf="engineerStats()?.bonusEarnings">
+                <span class="detail-label">Бонусы:</span>
+                <span class="detail-value">{{ formatAmount(engineerStats()?.bonusEarnings || 0) }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        
+        <!-- Карточка с заказами -->
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">assignment_turned_in</mat-icon>
+              <div class="stat-info">
+                <h3>{{ engineerStats()?.completedOrders || 0 }}</h3>
+                <p>Выполнено заказов</p>
+              </div>
+            </div>
+            <div class="stat-details">
+              <div class="detail-item">
+                <span class="detail-label">Среднее время на заказ:</span>
+                <span class="detail-value">{{ formatHours(engineerStats()?.averageHoursPerOrder || 0) }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        
+        <!-- Карточка с динамикой -->
+        <mat-card class="stat-card" *ngIf="engineerStats()?.previousMonthEarnings">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon 
+                class="stat-icon"
+                [style.color]="getGrowthColor(engineerStats()?.earningsGrowth || 0)"
+              >
+                {{ getGrowthIcon(engineerStats()?.earningsGrowth || 0) }}
+              </mat-icon>
+              <div class="stat-info">
+                <h3 [style.color]="getGrowthColor(engineerStats()?.earningsGrowth || 0)">
+                  {{ (engineerStats()?.earningsGrowth || 0) >= 0 ? '+' : '' }}{{ (engineerStats()?.earningsGrowth || 0).toFixed(1) }}%
+                </h3>
+                <p>Рост заработка</p>
+              </div>
+            </div>
+            <div class="stat-details">
+              <div class="detail-item">
+                <span class="detail-label">Прошлый месяц:</span>
+                <span class="detail-value">{{ formatAmount(engineerStats()?.previousMonthEarnings || 0) }}</span>
+              </div>
+              <div class="detail-item" *ngIf="engineerStats()?.previousMonthHours">
+                <span class="detail-label">Изменение часов:</span>
+                <span class="detail-value" [style.color]="getGrowthColor(engineerStats()?.hoursGrowth || 0)">
+                  {{ (engineerStats()?.hoursGrowth || 0) >= 0 ? '+' : '' }}{{ (engineerStats()?.hoursGrowth || 0).toFixed(1) }}%
+                </span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
 
     <!-- Quick Actions -->
     <section class="actions-section">

@@ -6,7 +6,8 @@ import {
   MonthlyStatisticsDto,
   AgentEarningsData,
   OrganizationEarningsData,
-  OvertimeStatisticsData
+  OvertimeStatisticsData,
+  EngineerDetailedStatsDto
 } from '@shared/dtos/reports.dto';
 
 export interface EarningsComparison {
@@ -44,6 +45,26 @@ export class StatisticsService {
 
     return this.http.get<MonthlyStatisticsDto>(
       `${environment.apiUrl}/statistics/monthly${params}`
+    );
+  }
+
+  /**
+   * Получает детальную статистику для инженера (текущего пользователя)
+   * @param year Год для получения статистики (по умолчанию - текущий год)
+   * @param month Месяц для получения статистики (по умолчанию - текущий месяц)
+   * @returns Observable с детальной статистикой инженера
+   */
+  getEngineerDetailedStats(year?: number, month?: number): Observable<EngineerDetailedStatsDto> {
+    let params = '';
+    if (year || month) {
+      const queryParams = [];
+      if (year) queryParams.push(`year=${year}`);
+      if (month) queryParams.push(`month=${month}`);
+      params = '?' + queryParams.join('&');
+    }
+
+    return this.http.get<EngineerDetailedStatsDto>(
+      `${environment.apiUrl}/statistics/engineer/detailed${params}`
     );
   }
 }

@@ -8,6 +8,7 @@ import { OrdersService } from '../../services/orders.service';
 import { UsersService } from '../../services/users.service';
 import { StatisticsService, EarningsComparison } from '../../services/statistics.service';
 import { UserRole } from '@shared/interfaces/user.interface';
+import { EngineerDetailedStatsDto } from '@shared/dtos/reports.dto';
 
 @Component({
   selector: 'app-dashboard',
@@ -48,6 +49,9 @@ export class DashboardComponent implements OnInit {
     previousMonth: null,
     growth: 0,
   });
+  
+  // Статистика инженера
+  engineerStats = signal<EngineerDetailedStatsDto | null>(null);
 
   // Computed values for role-based content
   dashboardTitle = computed(() => {
@@ -69,6 +73,9 @@ export class DashboardComponent implements OnInit {
   showEarningsStats = computed(() =>
     this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER, UserRole.USER])
   );
+  
+  // Показывать детальную статистику только для инженеров (роль USER)
+  showEngineerStats = computed(() => this.userRole() === UserRole.USER);
 
   ngOnInit() {
     this.loadDashboardData();
@@ -95,6 +102,11 @@ export class DashboardComponent implements OnInit {
     // Load earnings statistics
     if (this.showEarningsStats()) {
       this.loadEarningsStats();
+    }
+    
+    // Загрузка детальной статистики для инженера
+    if (this.showEngineerStats()) {
+      this.loadEngineerStats();
     }
 
     this.isLoading.set(false);
@@ -160,5 +172,40 @@ export class DashboardComponent implements OnInit {
     if (growth > 0) return 'trending_up';
     if (growth < 0) return 'trending_down';
     return 'trending_flat';
+  }
+  
+  /**
+   * Загружает детальную статистику для инженера
+   */
+  private loadEngineerStats(): void {
+    // Получаем текущий месяц и год
+    const now = new Date();
+    const currentMonth = now.getMonth() + 1; // getMonth() возвращает месяц от 0 до 11
+    const currentYear = now.getFullYear();
+    
+    this.statisticsService.getEngineerDetailedStats(currentYear, currentMonth).subscribe({
+      next: (stats: EngineerDetailedStatsDto) => {
+        this.engineerStats.set(stats);
+      },
+      error: (error: any) => {
+        console.error('Failed to load engineer statistics:', error);
+      }
+    });
+  }
+  
+  /**
+   * Форматирует число часов в удобочитаемый формат
+   * @param hours Количество часов
+   */
+  formatHours(hours: number): string {
+    return hours.toFixed(1) + ' ч';
+  }
+  
+  /**
+   * Форматирует сумму в рублях
+   * @param amount Сумма в рублях
+   */
+  formatAmount(amount: number): string {
+    return amount.toLocaleString('ru-RU') + ' ₽';
   }
 }

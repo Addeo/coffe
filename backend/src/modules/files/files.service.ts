@@ -103,6 +103,42 @@ export class FilesService {
     };
   }
 
+  async getAllFiles(): Promise<any[]> {
+    const files = await this.filesRepository.find({
+      relations: ['uploadedBy', 'order'],
+      order: {
+        uploadedAt: 'DESC',
+      },
+    });
+
+    // Transform response to return only necessary fields
+    return files.map(file => ({
+      id: file.id,
+      filename: file.filename,
+      originalName: file.originalName,
+      mimetype: file.mimetype,
+      size: file.size,
+      type: file.type,
+      description: file.description,
+      uploadedById: file.uploadedById,
+      orderId: file.orderId,
+      uploadedAt: file.uploadedAt,
+      uploadedBy: file.uploadedBy
+        ? {
+            id: file.uploadedBy.id,
+            name: `${file.uploadedBy.firstName} ${file.uploadedBy.lastName}`,
+            email: file.uploadedBy.email,
+          }
+        : undefined,
+      order: file.order
+        ? {
+            id: file.order.id,
+            title: file.order.title,
+          }
+        : null,
+    }));
+  }
+
   async findOne(id: string): Promise<File> {
     const file = await this.filesRepository.findOne({
       where: { id },

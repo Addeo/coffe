@@ -1,4 +1,17 @@
-import { Controller, Get, Post, Param, Delete, UseGuards, Query, Res } from '@nestjs/common';
+import { 
+  Controller, 
+  Get, 
+  Post, 
+  Param, 
+  Delete, 
+  UseGuards, 
+  Query, 
+  Res,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { BackupService } from './backup.service';
 import { JwtAuthGuard } from '../аутентификация/jwt-auth.guard';
@@ -41,11 +54,39 @@ export class BackupController {
     return { backups };
   }
 
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadBackup(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    const fileName = await this.backupService.uploadBackup(file);
+    
+    return {
+      success: true,
+      message: 'Backup file uploaded successfully',
+      fileName,
+      size: file.size,
+      originalName: file.originalname,
+    };
+  }
+
   @Post('restore/:fileName')
   async restoreBackup(@Param('fileName') fileName: string) {
     await this.backupService.restoreDatabase(fileName);
     return {
+      success: true,
       message: `Database restored successfully from ${fileName}`,
+    };
+  }
+
+  @Delete(':fileName')
+  async deleteBackup(@Param('fileName') fileName: string) {
+    await this.backupService.deleteBackup(fileName);
+    return {
+      success: true,
+      message: `Backup file deleted: ${fileName}`,
     };
   }
 
