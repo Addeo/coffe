@@ -421,13 +421,25 @@ export class CalculationService {
     engineer: Engineer,
     organization: Organization,
     workReport: WorkReport
-  ): Promise<{ calculatedAmount: number; carUsageAmount: number; isOvertime: boolean }> {
+  ): Promise<{ 
+    calculatedAmount: number; 
+    carUsageAmount: number; 
+    organizationPayment: number;
+    isOvertime: boolean;
+  }> {
     // Определение сверхурочного времени
     const isOvertime = this.isOvertimeWork(workReport.startTime, workReport.endTime, engineer.type);
 
-    // Расчет оплаты за работу
+    // Расчет оплаты инженеру за работу (индивидуальная ставка)
     const calculatedAmount = await this.calculateEngineerPayment(
       engineer,
+      organization,
+      workReport.totalHours,
+      isOvertime
+    );
+
+    // Расчет оплаты от организации (базовая ставка организации * коэффициент * часы)
+    const organizationPayment = this.calculateClientRevenue(
       organization,
       workReport.totalHours,
       isOvertime
@@ -447,6 +459,7 @@ export class CalculationService {
     return {
       calculatedAmount,
       carUsageAmount,
+      organizationPayment,
       isOvertime,
     };
   }

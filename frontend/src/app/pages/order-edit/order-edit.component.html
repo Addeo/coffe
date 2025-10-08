@@ -352,9 +352,9 @@
                   </div>
                 </div>
 
-                <!-- Payment Section -->
-                <div class="report-section">
-                  <h4><mat-icon>payments</mat-icon> Оплата</h4>
+                <!-- Payment Section for Engineers (simple view) -->
+                <div class="report-section" *ngIf="isEngineer">
+                  <h4><mat-icon>payments</mat-icon> Ваша оплата</h4>
                   <div class="report-grid">
                     <div class="report-item">
                       <span class="label">Оплата за работу:</span>
@@ -370,6 +370,59 @@
                     </div>
                   </div>
                 </div>
+
+                <!-- Payment Section for Admin/Manager (detailed view) -->
+                <ng-container *ngIf="isAdminOrManager()">
+                  <div class="report-section">
+                    <h4><mat-icon>payments</mat-icon> Оплата инженеру</h4>
+                    <div class="report-grid">
+                      <div class="report-item">
+                        <span class="label">Оплата за работу:</span>
+                        <span class="value">{{ formatAmount(report.calculatedAmount || 0) }}</span>
+                      </div>
+                      <div class="report-item">
+                        <span class="label">Доплата за машину:</span>
+                        <span class="value">{{ formatAmount(report.carUsageAmount || 0) }}</span>
+                      </div>
+                      <div class="report-item total">
+                        <span class="label">Итого к выплате инженеру:</span>
+                        <span class="value"><strong>{{ formatAmount((report.calculatedAmount || 0) + (report.carUsageAmount || 0)) }}</strong></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Organization Payment Section -->
+                  <div class="report-section">
+                    <h4><mat-icon>business</mat-icon> Оплата от организации</h4>
+                    <div class="report-grid">
+                      <div class="report-item">
+                        <span class="label">Оплата от организации:</span>
+                        <span class="value">{{ formatAmount(report.organizationPayment || 0) }}</span>
+                      </div>
+                      <div class="report-item">
+                        <span class="label">Доплата за машину:</span>
+                        <span class="value">{{ formatAmount(report.carUsageAmount || 0) }}</span>
+                      </div>
+                      <div class="report-item total">
+                        <span class="label">Итого от организации:</span>
+                        <span class="value"><strong>{{ formatAmount((report.organizationPayment || 0) + (report.carUsageAmount || 0)) }}</strong></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Profit Section -->
+                  <div class="report-section profit-section">
+                    <h4><mat-icon>trending_up</mat-icon> Прибыль</h4>
+                    <div class="report-grid">
+                      <div class="report-item profit-item">
+                        <span class="label">Наша прибыль:</span>
+                        <span class="value profit-value">
+                          <strong>{{ formatAmount((report.organizationPayment || 0) - (report.calculatedAmount || 0)) }}</strong>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
 
                 <!-- Distance and Territory Section -->
                 <div class="report-section" *ngIf="report.distanceKm || report.territoryType">

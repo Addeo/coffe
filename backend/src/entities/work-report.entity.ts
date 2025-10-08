@@ -76,6 +76,9 @@ export class WorkReport {
   @Column('decimal', { precision: 10, scale: 2, default: 0 })
   carUsageAmount: number; // сумма за эксплуатацию автомобиля
 
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  organizationPayment: number; // сумма, которую платит организация (базовая ставка * коэффициент * часы)
+
   @CreateDateColumn()
   submittedAt: Date;
 }

@@ -64,7 +64,8 @@ export class StatisticsService {
     const uniqueOrders = new Set<number>();
 
     for (const report of workReports) {
-      totalEarnings += Number(report.calculatedAmount) || 0;
+      // Включаем оплату за работу и доплату за машину
+      totalEarnings += (Number(report.calculatedAmount) || 0) + (Number(report.carUsageAmount) || 0);
       totalHours += Number(report.totalHours) || 0;
       if (report.order?.id) {
         uniqueOrders.add(report.order.id);
@@ -288,14 +289,16 @@ export class StatisticsService {
 
     for (const report of workReports) {
       totalHours += Number(report.totalHours) || 0;
-      totalEarnings += Number(report.calculatedAmount) || 0;
+      // Включаем оплату за работу и доплату за машину
+      const reportEarnings = (Number(report.calculatedAmount) || 0) + (Number(report.carUsageAmount) || 0);
+      totalEarnings += reportEarnings;
 
       if (report.isOvertime) {
         overtimeHours += Number(report.totalHours) || 0;
-        overtimeEarnings += Number(report.calculatedAmount) || 0;
+        overtimeEarnings += reportEarnings;
       } else {
         regularHours += Number(report.totalHours) || 0;
-        baseEarnings += Number(report.calculatedAmount) || 0;
+        baseEarnings += reportEarnings;
       }
 
       if (report.orderId) {
@@ -309,7 +312,8 @@ export class StatisticsService {
 
     for (const report of prevWorkReports) {
       prevTotalHours += Number(report.totalHours) || 0;
-      prevTotalEarnings += Number(report.calculatedAmount) || 0;
+      // Включаем оплату за работу и доплату за машину
+      prevTotalEarnings += (Number(report.calculatedAmount) || 0) + (Number(report.carUsageAmount) || 0);
     }
 
     const completedOrders = uniqueOrders.size;
@@ -419,7 +423,8 @@ export class StatisticsService {
       .addSelect('COUNT(DISTINCT report.orderId)', 'completedOrders')
       .addSelect('SUM(report.totalHours)', 'totalHours')
       .addSelect('SUM(report.calculatedAmount)', 'engineerEarnings')
-      .addSelect('SUM(report.totalHours * organization.baseRate)', 'organizationPayments')
+      .addSelect('SUM(report.organizationPayment)', 'organizationPayments') // Используем новое поле
+      .addSelect('SUM(report.carUsageAmount)', 'carUsageAmount') // Добавляем доплату за машину
       .leftJoin('report.engineer', 'engineer')
       .leftJoin('engineer.user', 'user')
       .leftJoin('report.order', 'order')
@@ -437,8 +442,19 @@ export class StatisticsService {
     const engineerStatsWithProfit = engineerStats.map(stat => {
       const engineerEarnings = Number(stat.engineerEarnings) || 0;
       const organizationPayments = Number(stat.organizationPayments) || 0;
+      const carUsageAmount = Number(stat.carUsageAmount) || 0;
+      
+      // Прибыль = (оплата от организации) - (оплата инженеру)
+      // Доплата за машину не учитывается в прибыли, так как она идёт напрямую инженеру
       const profit = organizationPayments - engineerEarnings;
-      const profitMargin = organizationPayments > 0 ? (profit / organizationPayments) * 100 : 0;
+      
+      // Общая сумма от организации включает доплату за машину
+      const totalOrganizationPayment = organizationPayments + carUsageAmount;
+      const totalEngineerPayment = engineerEarnings + carUsageAmount;
+      
+      const profitMargin = totalOrganizationPayment > 0 
+        ? (profit / totalOrganizationPayment) * 100 
+        : 0;
 
       return {
         engineerId: stat.engineerId,
@@ -446,8 +462,8 @@ export class StatisticsService {
         email: stat.email,
         completedOrders: Number(stat.completedOrders) || 0,
         totalHours: Number(stat.totalHours) || 0,
-        engineerEarnings,
-        organizationPayments,
+        engineerEarnings: totalEngineerPayment, // Включаем доплату за машину
+        organizationPayments: totalOrganizationPayment, // Включаем доплату за машину
         profit,
         profitMargin,
       };

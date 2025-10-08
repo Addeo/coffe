@@ -31,6 +31,7 @@ export interface WorkReportDto {
   notes?: string;
   calculatedAmount: number;
   carUsageAmount: number;
+  organizationPayment: number; // Сумма, которую платит организация
   submittedAt: Date;
 }
 

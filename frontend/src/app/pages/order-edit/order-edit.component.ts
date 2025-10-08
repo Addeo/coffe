@@ -698,4 +698,9 @@ export class OrderEditComponent implements OnInit {
   formatAmount(amount: number): string {
     return `${amount.toFixed(2)} ₽`;
   }
+
+  // Check if current user is admin or manager
+  isAdminOrManager(): boolean {
+    return this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
+  }
 }

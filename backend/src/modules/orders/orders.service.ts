@@ -1023,10 +1023,40 @@ export class OrdersService {
       };
     }
 
-    // Рассчитываем оплату с учётом индивидуальных ставок
+    // Рассчитываем оплату инженеру с учётом индивидуальных ставок
     const regularPayment = workReportData.regularHours * rates.baseRate;
     const overtimePayment = workReportData.overtimeHours * (rates.overtimeRate || rates.baseRate);
     const totalPayment = regularPayment + overtimePayment;
+
+    // Рассчитываем оплату от организации (базовая ставка организации * коэффициент * часы)
+    const organizationRegularPayment = workReportData.regularHours * order.organization.baseRate;
+    const organizationOvertimePayment = workReportData.overtimeHours > 0 && order.organization.hasOvertime
+      ? workReportData.overtimeHours * order.organization.baseRate * order.organization.overtimeMultiplier
+      : workReportData.overtimeHours * order.organization.baseRate;
+    const organizationPayment = organizationRegularPayment + organizationOvertimePayment;
+
+    console.log('💰 Payment calculation:', {
+      engineer: {
+        regularHours: workReportData.regularHours,
+        overtimeHours: workReportData.overtimeHours,
+        baseRate: rates.baseRate,
+        overtimeRate: rates.overtimeRate,
+        regularPayment,
+        overtimePayment,
+        totalPayment
+      },
+      organization: {
+        name: order.organization.name,
+        baseRate: order.organization.baseRate,
+        overtimeMultiplier: order.organization.overtimeMultiplier,
+        hasOvertime: order.organization.hasOvertime,
+        regularPayment: organizationRegularPayment,
+        overtimePayment: organizationOvertimePayment,
+        totalPayment: organizationPayment
+      },
+      profit: organizationPayment - totalPayment,
+      carPayment: workReportData.carPayment
+    });
 
     // Создаем отчет о работе
     const now = new Date();
@@ -1044,6 +1074,7 @@ export class OrdersService {
       workResult: WorkResult.COMPLETED,
       calculatedAmount: totalPayment,
       carUsageAmount: workReportData.carPayment,
+      organizationPayment: organizationPayment,
     });
 
     // Сохраняем отчет
