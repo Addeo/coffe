@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatCardModule } from '@angular/material/card';
 import { OrdersService } from '../../services/orders.service';
 import { OrganizationsService } from '../../services/organizations.service';
 import { FilesService } from '../../services/files.service';
@@ -52,6 +53,7 @@ interface FileUploadProgress {
     MatProgressSpinnerModule,
     MatProgressBarModule,
     MatTabsModule,
+    MatCardModule,
   ],
   templateUrl: './order-edit.component.html',
   styleUrl: './order-edit.component.scss'
@@ -637,5 +639,63 @@ export class OrderEditComponent implements OnInit {
       distanceKm: this.orderForm.get('distanceKm')?.value || null,
       territoryType: this.orderForm.get('territoryType')?.value || null,
     });
+  }
+
+  // Methods for work report view tab
+  hasWorkReport(): boolean {
+    return !!this.order && !!this.order.workReports && this.order.workReports.length > 0;
+  }
+
+  getRegularHours(report: any): number {
+    return report.isOvertime ? 0 : report.totalHours;
+  }
+
+  getOvertimeHours(report: any): number {
+    return report.isOvertime ? report.totalHours : 0;
+  }
+
+  getTerritoryTypeLabel(territoryType: string): string {
+    const labels: Record<string, string> = {
+      [TerritoryType.URBAN]: 'Городская',
+      [TerritoryType.SUBURBAN]: 'Пригородная',
+      [TerritoryType.RURAL]: 'Сельская',
+      [TerritoryType.HOME]: 'Домашняя (≤60 км)',
+      [TerritoryType.ZONE_1]: 'Зона 1 (61-199 км)',
+      [TerritoryType.ZONE_2]: 'Зона 2 (200-250 км)',
+      [TerritoryType.ZONE_3]: 'Зона 3 (>250 км)',
+    };
+    return labels[territoryType] || territoryType;
+  }
+
+  getWorkResultLabel(workResult: string): string {
+    const labels: Record<string, string> = {
+      completed: 'Завершено',
+      in_progress: 'В процессе',
+      pending: 'Ожидает',
+      cancelled: 'Отменено',
+    };
+    return labels[workResult] || workResult;
+  }
+
+  formatDate(date: Date | string | undefined): string {
+    if (!date) return 'Не указано';
+    const d = new Date(date);
+    return d.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  formatDateTime(date: Date | string | undefined): string {
+    if (!date) return 'Не указано';
+    const d = new Date(date);
+    return d.toLocaleString('ru-RU', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  formatAmount(amount: number): string {
+    return `${amount.toFixed(2)} ₽`;
   }
 }

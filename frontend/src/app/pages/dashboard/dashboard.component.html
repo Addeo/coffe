@@ -274,6 +274,140 @@
         </mat-card>
       </div>
     </section>
+    
+    <!-- Admin Engineer Statistics -->
+    <section *ngIf="showAdminEngineerStats() && adminEngineerStats()" class="stats-section admin-engineer-stats-section">
+      <h2>Статистика по инженерам за {{ adminEngineerStats()?.month }}/{{ adminEngineerStats()?.year }}</h2>
+      
+      <!-- Summary Cards -->
+      <div class="stats-grid summary-cards">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">attach_money</mat-icon>
+              <div class="stat-info">
+                <h3>{{ formatAmount(adminEngineerStats()?.totals?.organizationPayments || 0) }}</h3>
+                <p>Оплата от организаций</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">payments</mat-icon>
+              <div class="stat-info">
+                <h3>{{ formatAmount(adminEngineerStats()?.totals?.engineerEarnings || 0) }}</h3>
+                <p>Выплачено инженерам</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        
+        <mat-card class="stat-card profit-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">trending_up</mat-icon>
+              <div class="stat-info">
+                <h3>{{ formatAmount(adminEngineerStats()?.totals?.profit || 0) }}</h3>
+                <p>Прибыль ({{ (adminEngineerStats()?.totals?.profitMargin || 0).toFixed(1) }}%)</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+        
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">assignment_turned_in</mat-icon>
+              <div class="stat-info">
+                <h3>{{ adminEngineerStats()?.totals?.completedOrders || 0 }}</h3>
+                <p>Завершено заказов</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      
+      <!-- Engineers Table -->
+      <mat-card class="engineers-table-card">
+        <mat-card-header>
+          <mat-card-title>Детализация по инженерам</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="table-container">
+            <table mat-table [dataSource]="adminEngineerStats()?.engineers || []" class="engineers-table">
+              <!-- Engineer Name Column -->
+              <ng-container matColumnDef="engineerName">
+                <th mat-header-cell *matHeaderCellDef>Инженер</th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="engineer-info">
+                    <strong>{{ element.engineerName }}</strong>
+                    <small>{{ element.email }}</small>
+                  </div>
+                </td>
+                <td mat-footer-cell *matFooterCellDef><strong>ИТОГО:</strong></td>
+              </ng-container>
+              
+              <!-- Completed Orders Column -->
+              <ng-container matColumnDef="completedOrders">
+                <th mat-header-cell *matHeaderCellDef>Заказов</th>
+                <td mat-cell *matCellDef="let element">{{ element.completedOrders }}</td>
+                <td mat-footer-cell *matFooterCellDef><strong>{{ adminEngineerStats()?.totals?.completedOrders }}</strong></td>
+              </ng-container>
+              
+              <!-- Total Hours Column -->
+              <ng-container matColumnDef="totalHours">
+                <th mat-header-cell *matHeaderCellDef>Часов</th>
+                <td mat-cell *matCellDef="let element">{{ element.totalHours.toFixed(1) }}</td>
+                <td mat-footer-cell *matFooterCellDef><strong>{{ (adminEngineerStats()?.totals?.totalHours || 0).toFixed(1) }}</strong></td>
+              </ng-container>
+              
+              <!-- Organization Payments Column -->
+              <ng-container matColumnDef="organizationPayments">
+                <th mat-header-cell *matHeaderCellDef>От организаций</th>
+                <td mat-cell *matCellDef="let element">{{ formatAmount(element.organizationPayments) }}</td>
+                <td mat-footer-cell *matFooterCellDef><strong>{{ formatAmount(adminEngineerStats()?.totals?.organizationPayments || 0) }}</strong></td>
+              </ng-container>
+              
+              <!-- Engineer Earnings Column -->
+              <ng-container matColumnDef="engineerEarnings">
+                <th mat-header-cell *matHeaderCellDef>Инженеру</th>
+                <td mat-cell *matCellDef="let element">{{ formatAmount(element.engineerEarnings) }}</td>
+                <td mat-footer-cell *matFooterCellDef><strong>{{ formatAmount(adminEngineerStats()?.totals?.engineerEarnings || 0) }}</strong></td>
+              </ng-container>
+              
+              <!-- Profit Column -->
+              <ng-container matColumnDef="profit">
+                <th mat-header-cell *matHeaderCellDef>Прибыль</th>
+                <td mat-cell *matCellDef="let element" [class.positive-profit]="element.profit > 0" [class.negative-profit]="element.profit < 0">
+                  {{ formatAmount(element.profit) }}
+                </td>
+                <td mat-footer-cell *matFooterCellDef [class.positive-profit]="(adminEngineerStats()?.totals?.profit || 0) > 0">
+                  <strong>{{ formatAmount(adminEngineerStats()?.totals?.profit || 0) }}</strong>
+                </td>
+              </ng-container>
+              
+              <!-- Profit Margin Column -->
+              <ng-container matColumnDef="profitMargin">
+                <th mat-header-cell *matHeaderCellDef>Маржа</th>
+                <td mat-cell *matCellDef="let element" [class.positive-profit]="element.profitMargin > 0" [class.negative-profit]="element.profitMargin < 0">
+                  {{ element.profitMargin.toFixed(1) }}%
+                </td>
+                <td mat-footer-cell *matFooterCellDef [class.positive-profit]="(adminEngineerStats()?.totals?.profitMargin || 0) > 0">
+                  <strong>{{ (adminEngineerStats()?.totals?.profitMargin || 0).toFixed(1) }}%</strong>
+                </td>
+              </ng-container>
+              
+              <tr mat-header-row *matHeaderRowDef="['engineerName', 'completedOrders', 'totalHours', 'organizationPayments', 'engineerEarnings', 'profit', 'profitMargin']"></tr>
+              <tr mat-row *matRowDef="let row; columns: ['engineerName', 'completedOrders', 'totalHours', 'organizationPayments', 'engineerEarnings', 'profit', 'profitMargin'];"></tr>
+              <tr mat-footer-row *matFooterRowDef="['engineerName', 'completedOrders', 'totalHours', 'organizationPayments', 'engineerEarnings', 'profit', 'profitMargin']"></tr>
+            </table>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
 
     <!-- Quick Actions -->
     <section class="actions-section">

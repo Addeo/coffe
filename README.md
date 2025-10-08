@@ -338,3 +338,11 @@ cloudflared tunnel run my-tunnel
 http://localhost:4202/files
 
  http://localhost:4200/backups
+
+ ngrok http 3001
+
+ https://addeo.github.io/coffe-deploy/
+
+admin@coffee.com
+
+ admin123

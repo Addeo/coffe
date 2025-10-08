@@ -82,4 +82,17 @@ export class StatisticsController {
 
     return this.statisticsService.getMonthlyStatistics(targetYear, targetMonth);
   }
+
+  @Get('admin/engineers')
+  @Roles(UserRole.ADMIN)
+  async getAdminEngineerStatistics(
+    @Query('year', ParseIntPipe) year?: number,
+    @Query('month', ParseIntPipe) month?: number
+  ) {
+    const currentDate = new Date();
+    const targetYear = year || currentDate.getFullYear();
+    const targetMonth = month || (currentDate.getMonth() + 1);
+
+    return this.statisticsService.getAdminEngineerStatistics(targetYear, targetMonth);
+  }
 }

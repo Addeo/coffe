@@ -1,6 +1,39 @@
 import { OrderStatus, TerritoryType, OrderSource } from '../interfaces/order.interface';
 import { FileResponseDto } from './file.dto';
 
+export enum WorkResult {
+  COMPLETED = 'completed',
+  PARTIAL = 'partial',
+  CANCELLED = 'cancelled',
+}
+
+export interface WorkReportDto {
+  id: number;
+  orderId: number;
+  engineerId: number;
+  engineer?: {
+    id: number;
+    user?: {
+      id: number;
+      firstName: string;
+      lastName: string;
+      email: string;
+    };
+  };
+  startTime: Date;
+  endTime: Date;
+  totalHours: number;
+  isOvertime: boolean;
+  workResult: WorkResult;
+  distanceKm?: number;
+  territoryType?: TerritoryType;
+  photoUrl?: string;
+  notes?: string;
+  calculatedAmount: number;
+  carUsageAmount: number;
+  submittedAt: Date;
+}
+
 export interface CreateOrderDto {
   organizationId: number;
   title: string;
@@ -70,6 +103,7 @@ export interface OrderDto {
   actualStartDate?: Date;
   completionDate?: Date;
   files?: FileResponseDto[];
+  workReports?: WorkReportDto[];
   createdAt: Date;
   updatedAt: Date;
 }

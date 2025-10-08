@@ -312,6 +312,119 @@
         </div>
       </mat-tab>
 
+      <!-- Таб для просмотра данных отчета (только если отчет существует) -->
+      <mat-tab label="Данные отчета" *ngIf="hasWorkReport()">
+        <div class="work-report-view-tab-content">
+          <h3>Данные отчета о работе</h3>
+          <p class="tab-description">
+            Информация о выполненной работе, введенная инженером
+          </p>
+
+          <div *ngIf="order?.workReports && (order?.workReports?.length ?? 0) > 0" class="work-report-details">
+            <mat-card class="report-card" *ngFor="let report of order?.workReports || []">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>assignment_turned_in</mat-icon>
+                  Отчет от {{ formatDate(report.submittedAt) }}
+                </mat-card-title>
+                <mat-card-subtitle *ngIf="report.engineer">
+                  Инженер: {{ report.engineer.user?.firstName }} {{ report.engineer.user?.lastName }}
+                </mat-card-subtitle>
+              </mat-card-header>
+
+              <mat-card-content>
+                <!-- Hours Section -->
+                <div class="report-section">
+                  <h4><mat-icon>schedule</mat-icon> Отработанные часы</h4>
+                  <div class="report-grid">
+                    <div class="report-item">
+                      <span class="label">Обычные часы:</span>
+                      <span class="value">{{ getRegularHours(report) }} ч</span>
+                    </div>
+                    <div class="report-item">
+                      <span class="label">Часы переработки:</span>
+                      <span class="value">{{ getOvertimeHours(report) }} ч</span>
+                    </div>
+                    <div class="report-item total">
+                      <span class="label">Всего часов:</span>
+                      <span class="value"><strong>{{ report.totalHours }} ч</strong></span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Payment Section -->
+                <div class="report-section">
+                  <h4><mat-icon>payments</mat-icon> Оплата</h4>
+                  <div class="report-grid">
+                    <div class="report-item">
+                      <span class="label">Оплата за работу:</span>
+                      <span class="value">{{ formatAmount(report.calculatedAmount || 0) }}</span>
+                    </div>
+                    <div class="report-item">
+                      <span class="label">Доплата за машину:</span>
+                      <span class="value">{{ formatAmount(report.carUsageAmount || 0) }}</span>
+                    </div>
+                    <div class="report-item total">
+                      <span class="label">Итого к выплате:</span>
+                      <span class="value"><strong>{{ formatAmount((report.calculatedAmount || 0) + (report.carUsageAmount || 0)) }}</strong></span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Distance and Territory Section -->
+                <div class="report-section" *ngIf="report.distanceKm || report.territoryType">
+                  <h4><mat-icon>location_on</mat-icon> Расстояние и территория</h4>
+                  <div class="report-grid">
+                    <div class="report-item" *ngIf="report.distanceKm">
+                      <span class="label">Расстояние:</span>
+                      <span class="value">{{ report.distanceKm }} км</span>
+                    </div>
+                    <div class="report-item" *ngIf="report.territoryType">
+                      <span class="label">Тип территории:</span>
+                      <span class="value">{{ getTerritoryTypeLabel(report.territoryType) }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Notes Section -->
+                <div class="report-section" *ngIf="report.notes">
+                  <h4><mat-icon>notes</mat-icon> Примечания</h4>
+                  <p class="notes-text">{{ report.notes }}</p>
+                </div>
+
+                <!-- Work Result Section -->
+                <div class="report-section">
+                  <h4><mat-icon>check_circle</mat-icon> Результат работы</h4>
+                  <div class="report-item">
+                    <span class="label">Статус:</span>
+                    <span class="value" [class.status-completed]="report.workResult === 'completed'">
+                      {{ getWorkResultLabel(report.workResult) }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Timestamps -->
+                <div class="report-timestamps">
+                  <div class="timestamp-item">
+                    <mat-icon>access_time</mat-icon>
+                    <span>Начало: {{ formatDateTime(report.startTime) }}</span>
+                  </div>
+                  <div class="timestamp-item">
+                    <mat-icon>access_time</mat-icon>
+                    <span>Окончание: {{ formatDateTime(report.endTime) }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <div *ngIf="!order?.workReports || (order?.workReports?.length ?? 0) === 0" class="no-reports">
+            <mat-icon>info</mat-icon>
+            <p>Отчет о работе еще не создан</p>
+          </div>
+        </div>
+      </mat-tab>
+
       <!-- Таб для файлов -->
       <mat-tab label="Файлы">
         <div class="files-tab-content">

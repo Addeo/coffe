@@ -402,6 +402,90 @@ export class StatisticsService {
     }
   }
 
+  /**
+   * Get detailed admin statistics showing engineer earnings vs organization payments
+   */
+  async getAdminEngineerStatistics(year: number, month: number) {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 1);
+
+    // Get all work reports for the period with organization and engineer data
+    const engineerStats = await this.workReportRepository
+      .createQueryBuilder('report')
+      .select('engineer.userId', 'engineerId')
+      .addSelect('user.firstName', 'firstName')
+      .addSelect('user.lastName', 'lastName')
+      .addSelect('user.email', 'email')
+      .addSelect('COUNT(DISTINCT report.orderId)', 'completedOrders')
+      .addSelect('SUM(report.totalHours)', 'totalHours')
+      .addSelect('SUM(report.calculatedAmount)', 'engineerEarnings')
+      .addSelect('SUM(report.totalHours * organization.baseRate)', 'organizationPayments')
+      .leftJoin('report.engineer', 'engineer')
+      .leftJoin('engineer.user', 'user')
+      .leftJoin('report.order', 'order')
+      .leftJoin('order.organization', 'organization')
+      .where('report.submittedAt >= :startDate', { startDate })
+      .andWhere('report.submittedAt < :endDate', { endDate })
+      .andWhere('user.role = :role', { role: UserRole.USER })
+      .groupBy('engineer.userId')
+      .addGroupBy('user.firstName')
+      .addGroupBy('user.lastName')
+      .addGroupBy('user.email')
+      .orderBy('engineerEarnings', 'DESC')
+      .getRawMany();
+
+    const engineerStatsWithProfit = engineerStats.map(stat => {
+      const engineerEarnings = Number(stat.engineerEarnings) || 0;
+      const organizationPayments = Number(stat.organizationPayments) || 0;
+      const profit = organizationPayments - engineerEarnings;
+      const profitMargin = organizationPayments > 0 ? (profit / organizationPayments) * 100 : 0;
+
+      return {
+        engineerId: stat.engineerId,
+        engineerName: `${stat.firstName || ''} ${stat.lastName || ''}`.trim() || 'Unknown',
+        email: stat.email,
+        completedOrders: Number(stat.completedOrders) || 0,
+        totalHours: Number(stat.totalHours) || 0,
+        engineerEarnings,
+        organizationPayments,
+        profit,
+        profitMargin,
+      };
+    });
+
+    // Calculate totals
+    const totals = engineerStatsWithProfit.reduce(
+      (acc, stat) => ({
+        completedOrders: acc.completedOrders + stat.completedOrders,
+        totalHours: acc.totalHours + stat.totalHours,
+        engineerEarnings: acc.engineerEarnings + stat.engineerEarnings,
+        organizationPayments: acc.organizationPayments + stat.organizationPayments,
+        profit: acc.profit + stat.profit,
+      }),
+      {
+        completedOrders: 0,
+        totalHours: 0,
+        engineerEarnings: 0,
+        organizationPayments: 0,
+        profit: 0,
+      }
+    );
+
+    const totalProfitMargin = totals.organizationPayments > 0 
+      ? (totals.profit / totals.organizationPayments) * 100 
+      : 0;
+
+    return {
+      year,
+      month,
+      engineers: engineerStatsWithProfit,
+      totals: {
+        ...totals,
+        profitMargin: totalProfitMargin,
+      },
+    };
+  }
+
   private async getAgentEarningsData(year: number, month: number): Promise<AgentEarningsData[]> {
     // First try to get data from earnings_statistics table
     const earningsStats = await this.earningsStatisticRepository
