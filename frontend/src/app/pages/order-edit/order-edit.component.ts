@@ -227,6 +227,31 @@ export class OrderEditComponent implements OnInit {
       files: order.files?.map(f => f.id) || [],
     });
 
+    // Populate work report form if data exists
+    if (order.regularHours !== undefined || order.overtimeHours !== undefined) {
+      console.log('📋 Loading existing work data:', {
+        regularHours: order.regularHours,
+        overtimeHours: order.overtimeHours,
+        carUsageAmount: order.carUsageAmount,
+        workNotes: order.workNotes,
+      });
+
+      this.workReportForm.patchValue({
+        regularHours: order.regularHours || 0,
+        overtimeHours: order.overtimeHours || 0,
+        carPayment: order.carUsageAmount || 0,
+        distanceKm: order.distanceKm || null,
+        territoryType: order.territoryType || null,
+        notes: order.workNotes || '',
+      });
+
+      // Disable form if work data already exists and order is completed
+      if (order.status === 'completed') {
+        this.workReportForm.disable();
+        console.log('ℹ️ Work report form disabled - order already completed');
+      }
+    }
+
     // Load attached files
     if (order.files) {
       console.log(
@@ -534,6 +559,10 @@ export class OrderEditComponent implements OnInit {
       ')'
     );
 
+    // Get work report data if filled
+    const workReportValue = this.workReportForm.value;
+    const hasWorkData = workReportValue.regularHours !== null || workReportValue.overtimeHours !== null;
+
     const orderData: UpdateOrderDto = {
       title: formValue.title,
       description: formValue.description || undefined,
@@ -547,7 +576,18 @@ export class OrderEditComponent implements OnInit {
       actualStartDate: formValue.actualStartDate || undefined,
       completionDate: formValue.completionDate || undefined,
       files: allFileIds.length > 0 ? allFileIds : undefined,
+      // Work data from workReportForm
+      regularHours: hasWorkData ? (workReportValue.regularHours || 0) : undefined,
+      overtimeHours: hasWorkData ? (workReportValue.overtimeHours || 0) : undefined,
+      carUsageAmount: hasWorkData ? (workReportValue.carPayment || 0) : undefined,
+      workNotes: hasWorkData ? (workReportValue.notes || undefined) : undefined,
     };
+
+    console.log('📊 Order update data:', {
+      ...orderData,
+      hasWorkData,
+      workReportFormValue: workReportValue,
+    });
 
     this.ordersService.updateOrder(this.orderId, orderData).subscribe({
       next: order => {
@@ -593,38 +633,7 @@ export class OrderEditComponent implements OnInit {
   }
 
   // Work Report Methods
-  onCompleteWork() {
-    if (this.workReportForm.invalid || !this.orderId) {
-      this.toastService.error('Пожалуйста, заполните все обязательные поля');
-      return;
-    }
-
-    const formValue = this.workReportForm.value;
-
-    const workData = {
-      regularHours: formValue.regularHours,
-      overtimeHours: formValue.overtimeHours || 0,
-      carPayment: formValue.carPayment || 0,
-      distanceKm: formValue.distanceKm || undefined,
-      territoryType: formValue.territoryType || undefined,
-      notes: formValue.notes || undefined,
-    };
-
-    this.isLoading.set(true);
-
-    this.ordersService.completeWork(this.orderId, workData).subscribe({
-      next: order => {
-        this.toastService.success('Заказ успешно завершён');
-        this.workReportForm.reset();
-        this.loadOrder(this.orderId!); // Reload order to see completed status
-      },
-      error: error => {
-        console.error('Error completing work:', error);
-        this.toastService.error('Ошибка завершения заказа');
-        this.isLoading.set(false);
-      },
-    });
-  }
+  // onCompleteWork removed - work data is now sent via updateOrder()
 
   getTotalHours(): number {
     const regular = this.workReportForm.get('regularHours')?.value || 0;
