@@ -3,14 +3,12 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { SchedulerService } from './scheduler.service';
 // import { GmailModule } from '../gmail/gmail.module';
 import { BackupModule } from '../резервное-копирование/backup.module';
-import { StatisticsModule } from '../statistics/statistics.module';
 import { LoggerModule } from '../logger/logger.module';
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
     /* GmailModule, */ BackupModule,
-    StatisticsModule,
     LoggerModule,
   ],
   providers: [SchedulerService],

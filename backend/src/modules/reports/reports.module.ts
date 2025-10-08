@@ -3,11 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ReportsService } from './reports.service';
 import { ReportsController } from './reports.controller';
 import { SalaryCalculation } from '../../entities/salary-calculation.entity';
-import { WorkReport } from '../../entities/work-report.entity';
+import { Order } from '../../entities/order.entity';
 import { Engineer } from '../../entities/engineer.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SalaryCalculation, WorkReport, Engineer])],
+  imports: [TypeOrmModule.forFeature([SalaryCalculation, Order, Engineer])],
   controllers: [ReportsController],
   providers: [ReportsService],
   exports: [ReportsService],

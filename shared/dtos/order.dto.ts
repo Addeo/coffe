@@ -62,6 +62,14 @@ export interface UpdateOrderDto {
   assignedEngineerId?: number;
   assignedById?: number;
   files?: string[]; // Array of file IDs to attach
+  // Work details
+  regularHours?: number;
+  overtimeHours?: number;
+  calculatedAmount?: number;
+  carUsageAmount?: number;
+  organizationPayment?: number;
+  workNotes?: string;
+  workPhotoUrl?: string;
 }
 
 export interface AssignEngineerDto {
@@ -103,6 +111,14 @@ export interface OrderDto {
   plannedStartDate?: Date;
   actualStartDate?: Date;
   completionDate?: Date;
+  // Work details
+  regularHours?: number;
+  overtimeHours?: number;
+  calculatedAmount?: number;
+  carUsageAmount?: number;
+  organizationPayment?: number;
+  workNotes?: string;
+  workPhotoUrl?: string;
   files?: FileResponseDto[];
   workReports?: WorkReportDto[];
   createdAt: Date;

@@ -12,8 +12,6 @@ import { File } from './entities/file.entity';
 import { Setting } from './entities/settings.entity';
 import { UserActivityLog } from './entities/user-activity-log.entity';
 import { Notification } from './entities/notification.entity';
-import { EarningsStatistic } from './entities/earnings-statistic.entity';
-import { WorkReport } from './entities/work-report.entity';
 import { SalaryCalculation } from './entities/salary-calculation.entity';
 import { EngineerOrganizationRate } from './entities/engineer-organization-rate.entity';
 import { AuthModule } from './modules/аутентификация/auth.module';
@@ -62,8 +60,6 @@ import { TestController } from './test.controller';
               Setting,
               UserActivityLog,
               Notification,
-              EarningsStatistic,
-              WorkReport,
               SalaryCalculation,
               EngineerOrganizationRate,
             ],
@@ -91,8 +87,6 @@ import { TestController } from './test.controller';
               Setting,
               UserActivityLog,
               Notification,
-              EarningsStatistic,
-              WorkReport,
               SalaryCalculation,
               EngineerOrganizationRate,
             ],

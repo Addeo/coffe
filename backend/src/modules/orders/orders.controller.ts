@@ -122,53 +122,7 @@ export class OrdersController {
     return this.ordersService.remove(id, req.user);
   }
 
-  // Work Reports endpoints
-  @Post(':id/work-reports')
-  @Roles(UserRole.USER) // Only engineers can create work reports
-  createWorkReport(
-    @Param('id', ParseIntPipe) orderId: number,
-    @Body()
-    workReportData: {
-      regularHours: number;
-      overtimeHours: number;
-      carPayment: number;
-      distanceKm?: number;
-      territoryType?: TerritoryType;
-      photoUrl?: string;
-      notes?: string;
-    },
-    @Request() req
-  ) {
-    return this.ordersService.createWorkReport(orderId, req.user.id, {
-      regularHours: workReportData.regularHours,
-      overtimeHours: workReportData.overtimeHours,
-      carPayment: workReportData.carPayment,
-      distanceKm: workReportData.distanceKm,
-      territoryType: workReportData.territoryType,
-      photoUrl: workReportData.photoUrl,
-      notes: workReportData.notes,
-    });
-  }
-
-  @Get(':id/work-reports')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
-  getWorkReports(@Param('id', ParseIntPipe) orderId: number) {
-    return this.ordersService.getWorkReports(orderId);
-  }
-
-  @Get('work-reports/my')
-  @Roles(UserRole.USER) // Only engineers can see their own work reports
-  getMyWorkReports(
-    @Request() req,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string
-  ) {
-    return this.ordersService.getEngineerWorkReports(
-      req.user.id,
-      startDate ? new Date(startDate) : undefined,
-      endDate ? new Date(endDate) : undefined
-    );
-  }
+  // Work completion is now handled via PATCH /orders/:id with work data fields
 
   // Temporary test endpoint
   @Get('test')

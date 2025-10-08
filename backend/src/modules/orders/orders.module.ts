@@ -6,7 +6,6 @@ import { Order } from '../../entities/order.entity';
 import { User } from '../../entities/user.entity';
 import { Engineer } from '../../entities/engineer.entity';
 import { Organization } from '../../entities/organization.entity';
-import { WorkReport } from '../../entities/work-report.entity';
 import { Setting } from '../../entities/settings.entity';
 import { UserActivityLog } from '../../entities/user-activity-log.entity';
 import { File } from '../../entities/file.entity';
@@ -23,7 +22,6 @@ import { CalculationsModule } from '../расчеты/calculations.module';
       User,
       Engineer,
       Organization,
-      WorkReport,
       File,
       Setting,
       UserActivityLog,

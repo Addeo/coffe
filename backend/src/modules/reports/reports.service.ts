@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between } from 'typeorm';
 import { SalaryCalculation } from '../../entities/salary-calculation.entity';
-import { WorkReport } from '../../entities/work-report.entity';
+import { Order } from '../../entities/order.entity';
 import { Engineer } from '../../entities/engineer.entity';
 
 export interface EngineerSalaryChartData {
@@ -22,8 +22,8 @@ export class ReportsService {
   constructor(
     @InjectRepository(SalaryCalculation)
     private salaryCalculationRepository: Repository<SalaryCalculation>,
-    @InjectRepository(WorkReport)
-    private workReportRepository: Repository<WorkReport>,
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>,
     @InjectRepository(Engineer)
     private engineerRepository: Repository<Engineer>
   ) {}
@@ -174,13 +174,14 @@ export class ReportsService {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
-    // Получить все work reports за месяц
-    const workReports = await this.workReportRepository
-      .createQueryBuilder('workReport')
-      .where('workReport.engineerId = :engineerId', { engineerId: engineer.id })
-      .andWhere('workReport.startTime >= :startDate', { startDate })
-      .andWhere('workReport.startTime < :endDate', { endDate })
-      .orderBy('workReport.startTime', 'ASC')
+    // Получить все завершённые заказы за месяц
+    const orders = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('order.assignedEngineerId = :engineerId', { engineerId: engineer.id })
+      .andWhere('order.status = :status', { status: 'completed' })
+      .andWhere('order.completionDate >= :startDate', { startDate })
+      .andWhere('order.completionDate < :endDate', { endDate })
+      .orderBy('order.completionDate', 'ASC')
       .getMany();
 
     // Создать карту дат для накопления
@@ -195,9 +196,10 @@ export class ReportsService {
 
     // Накопительно суммировать часы
     let accumulatedHours = 0;
-    workReports.forEach(report => {
-      accumulatedHours += Number(report.totalHours);
-      const dateStr = report.startTime.toISOString().split('T')[0];
+    orders.forEach(order => {
+      const orderHours = (Number(order.regularHours) || 0) + (Number(order.overtimeHours) || 0);
+      accumulatedHours += orderHours;
+      const dateStr = order.completionDate.toISOString().split('T')[0];
       if (dailyData.has(dateStr)) {
         dailyData.set(dateStr, accumulatedHours);
       }

@@ -5,7 +5,6 @@ import * as ExcelJS from 'exceljs';
 import { Response } from 'express';
 import { Order } from '../../entities/order.entity';
 import { User } from '../../entities/user.entity';
-import { EarningsStatistic } from '../../entities/earnings-statistic.entity';
 import { UserRole } from '../../entities/user.entity';
 import { OrderStatus } from '../../../shared/interfaces/order.interface';
 
@@ -15,9 +14,7 @@ export class ExportService {
     @InjectRepository(Order)
     private ordersRepository: Repository<Order>,
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
-    @InjectRepository(EarningsStatistic)
-    private earningsRepository: Repository<EarningsStatistic>
+    private usersRepository: Repository<User>
   ) {}
 
   async exportOrdersReport(
@@ -107,81 +104,6 @@ export class ExportService {
     response.end();
   }
 
-  async exportEarningsReport(
-    response: Response,
-    userRole: UserRole,
-    userId?: number,
-    year?: number,
-    month?: number
-  ): Promise<void> {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Earnings Report');
-
-    // Настройка колонок
-    worksheet.columns = [
-      { header: 'Engineer', key: 'engineer', width: 25 },
-      { header: 'Month', key: 'month', width: 10 },
-      { header: 'Year', key: 'year', width: 10 },
-      { header: 'Total Earnings', key: 'totalEarnings', width: 15 },
-      { header: 'Completed Orders', key: 'completedOrders', width: 15 },
-      { header: 'Average Order Value', key: 'averageOrderValue', width: 20 },
-      { header: 'Efficiency Rating', key: 'efficiencyRating', width: 15 },
-    ];
-
-    // Стили для заголовков
-    worksheet.getRow(1).font = { bold: true };
-    worksheet.getRow(1).fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFE6E6FA' },
-    };
-
-    // Получаем данные о заработке
-    let queryBuilder = this.earningsRepository
-      .createQueryBuilder('earnings')
-      .leftJoinAndSelect('earnings.user', 'user')
-      .where('user.role = :role', { role: UserRole.USER })
-      .orderBy('earnings.year', 'DESC')
-      .addOrderBy('earnings.month', 'DESC');
-
-    if (userId) {
-      queryBuilder.andWhere('earnings.userId = :userId', { userId });
-    }
-    if (year) {
-      queryBuilder.andWhere('earnings.year = :year', { year });
-    }
-    if (month) {
-      queryBuilder.andWhere('earnings.month = :month', { month });
-    }
-
-    const earnings = await queryBuilder.getMany();
-
-    // Заполняем данными
-    earnings.forEach(earning => {
-      worksheet.addRow({
-        engineer: earning.user ? `${earning.user.firstName} ${earning.user.lastName}` : 'Unknown',
-        month: earning.month,
-        year: earning.year,
-        totalEarnings: earning.totalEarnings,
-        completedOrders: earning.completedOrders,
-        averageOrderValue: earning.averageOrderValue,
-        efficiencyRating: this.calculateEfficiencyRating(earning),
-      });
-    });
-
-    // Настройка HTTP ответа
-    response.setHeader(
-      'Content-Type',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    );
-    response.setHeader(
-      'Content-Disposition',
-      `attachment; filename=earnings-report-${new Date().toISOString().split('T')[0]}.xlsx`
-    );
-
-    await workbook.xlsx.write(response);
-    response.end();
-  }
 
   private getStatusDisplay(status: OrderStatus): string {
     switch (status) {
@@ -210,13 +132,4 @@ export class ExportService {
     return 'Low';
   }
 
-  private calculateEfficiencyRating(earning: EarningsStatistic): string {
-    if (earning.completedOrders === 0) return 'No data';
-
-    const avgOrderValue = earning.averageOrderValue;
-    if (avgOrderValue > 150) return 'Excellent';
-    if (avgOrderValue > 100) return 'Good';
-    if (avgOrderValue > 50) return 'Average';
-    return 'Needs improvement';
-  }
 }

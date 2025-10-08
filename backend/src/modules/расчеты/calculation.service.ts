@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Engineer } from '../../entities/engineer.entity';
 import { Organization } from '../../entities/organization.entity';
-import { WorkReport } from '../../entities/work-report.entity';
+import { Order } from '../../entities/order.entity';
 import { EngineerOrganizationRate } from '../../entities/engineer-organization-rate.entity';
 import { EngineerType, TerritoryType } from '../../../shared/interfaces/order.interface';
 
@@ -208,11 +208,11 @@ export class CalculationService {
   }
 
   /**
-   * Расчет месячной зарплаты инженера с новой логикой
+   * Расчет месячной зарплаты инженера с новой логикой (из Orders)
    */
   async calculateMonthlySalary(
     engineer: Engineer,
-    workReports: WorkReport[],
+    orders: Order[],
     plannedHours: number
   ): Promise<{
     actualHours: number;
@@ -235,43 +235,50 @@ export class CalculationService {
     let carUsageAmount = 0;
     let fixedCarAmount = 0;
 
-    // Группируем отчеты по организациям для получения индивидуальных ставок
-    const organizationReports = new Map<number, WorkReport[]>();
+    // Группируем заказы по организациям
+    const organizationOrders = new Map<number, Order[]>();
 
-    for (const report of workReports) {
-      actualHours += report.totalHours;
-
-      if (report.isOvertime) {
-        overtimeHours += report.totalHours;
-        overtimeAmount += report.calculatedAmount;
+    for (const order of orders) {
+      const orderRegularHours = Number(order.regularHours) || 0;
+      const orderOvertimeHours = Number(order.overtimeHours) || 0;
+      const orderTotalHours = orderRegularHours + orderOvertimeHours;
+      
+      actualHours += orderTotalHours;
+      overtimeHours += orderOvertimeHours;
+      
+      // Разделяем оплату на base и overtime пропорционально часам
+      const orderCalculatedAmount = Number(order.calculatedAmount) || 0;
+      if (orderTotalHours > 0) {
+        baseAmount += (orderCalculatedAmount * orderRegularHours) / orderTotalHours;
+        overtimeAmount += (orderCalculatedAmount * orderOvertimeHours) / orderTotalHours;
       } else {
-        baseAmount += report.calculatedAmount;
+        baseAmount += orderCalculatedAmount;
       }
 
-      carUsageAmount += report.carUsageAmount;
+      carUsageAmount += Number(order.carUsageAmount) || 0;
 
       // Группируем по организациям
-      if (report.order?.organization?.id) {
-        if (!organizationReports.has(report.order.organization.id)) {
-          organizationReports.set(report.order.organization.id, []);
+      if (order.organization?.id) {
+        if (!organizationOrders.has(order.organization.id)) {
+          organizationOrders.set(order.organization.id, []);
         }
-        organizationReports.get(report.order.organization.id)!.push(report);
+        organizationOrders.get(order.organization.id)!.push(order);
       }
     }
 
     // Получаем фиксированную оплату за автомобиль (максимальная из индивидуальных ставок)
     // и рассчитываем добавочные платежи за каждый выезд в зоны
     let zoneExtraAmount = 0;
-    for (const [organizationId, reports] of organizationReports) {
-      if (reports.length > 0) {
-        const organization = reports[0].order!.organization!;
+    for (const [organizationId, orgOrders] of organizationOrders) {
+      if (orgOrders.length > 0) {
+        const organization = orgOrders[0].organization!;
         const rates = await this.getEngineerRatesForOrganization(engineer, organization);
         fixedCarAmount = Math.max(fixedCarAmount, rates.fixedCarAmount);
 
-        // Для каждого отчета считаем добавочную стоимость за выезд в зону
-        for (const report of reports) {
-          if (report.territoryType && report.territoryType !== TerritoryType.HOME) {
-            switch (report.territoryType) {
+        // Для каждого заказа считаем добавочную стоимость за выезд в зону
+        for (const order of orgOrders) {
+          if (order.territoryType && order.territoryType !== TerritoryType.HOME) {
+            switch (order.territoryType) {
               case TerritoryType.ZONE_1:
                 zoneExtraAmount += rates.zone1Extra || 1000;
                 break;
@@ -412,56 +419,6 @@ export class CalculationService {
     }
 
     return amount;
-  }
-
-  /**
-   * Расчет полной стоимости работы (включая транспорт) с учетом индивидуальных ставок
-   */
-  async calculateWorkReportTotals(
-    engineer: Engineer,
-    organization: Organization,
-    workReport: WorkReport
-  ): Promise<{
-    calculatedAmount: number;
-    carUsageAmount: number;
-    organizationPayment: number;
-    isOvertime: boolean;
-  }> {
-    // Определение сверхурочного времени
-    const isOvertime = this.isOvertimeWork(workReport.startTime, workReport.endTime, engineer.type);
-
-    // Расчет оплаты инженеру за работу (индивидуальная ставка)
-    const calculatedAmount = await this.calculateEngineerPayment(
-      engineer,
-      organization,
-      workReport.totalHours,
-      isOvertime
-    );
-
-    // Расчет оплаты от организации (базовая ставка организации * коэффициент * часы)
-    const organizationPayment = this.calculateClientRevenue(
-      organization,
-      workReport.totalHours,
-      isOvertime
-    );
-
-    // Расчет транспорта
-    let carUsageAmount = 0;
-    if (workReport.distanceKm && workReport.territoryType) {
-      carUsageAmount = await this.calculateCarUsage(
-        engineer,
-        organization,
-        workReport.distanceKm,
-        workReport.territoryType
-      );
-    }
-
-    return {
-      calculatedAmount,
-      carUsageAmount,
-      organizationPayment,
-      isOvertime,
-    };
   }
 
   /**

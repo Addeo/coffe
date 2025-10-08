@@ -92,10 +92,10 @@ export class OrdersService {
     });
   }
 
-  // Work Report Methods
-  createWorkReport(
+  // Complete work on order
+  completeWork(
     orderId: number,
-    workReportData: {
+    workData: {
       regularHours: number;
       overtimeHours: number;
       carPayment: number;
@@ -103,11 +103,7 @@ export class OrdersService {
       territoryType?: string;
       notes?: string;
     }
-  ): Observable<any> {
-    return this.http.post(`${environment.apiUrl}/orders/${orderId}/work-reports`, workReportData);
-  }
-
-  getWorkReports(orderId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/orders/${orderId}/work-reports`);
+  ): Observable<OrderDto> {
+    return this.http.post<OrderDto>(`${environment.apiUrl}/orders/${orderId}/complete-work`, workData);
   }
 }

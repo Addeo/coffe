@@ -13,7 +13,6 @@ import { Organization } from './organization.entity';
 import { Engineer } from './engineer.entity';
 import { User } from './user.entity';
 import { File } from './file.entity';
-import { WorkReport } from './work-report.entity';
 // Temporarily define OrderSource locally until shared package is fixed
 export enum OrderSource {
   MANUAL = 'manual', // создан вручную
@@ -103,11 +102,30 @@ export class Order {
   @Column({ type: 'datetime', nullable: true })
   completionDate: Date;
 
+  // Work details (previously in WorkReport)
+  @Column('decimal', { precision: 5, scale: 2, nullable: true, default: 0 })
+  regularHours: number; // обычные часы работы
+
+  @Column('decimal', { precision: 5, scale: 2, nullable: true, default: 0 })
+  overtimeHours: number; // часы переработки
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true, default: 0 })
+  calculatedAmount: number; // рассчитанная оплата инженеру за работу
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true, default: 0 })
+  carUsageAmount: number; // доплата за использование машины
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true, default: 0 })
+  organizationPayment: number; // сумма, которую платит организация
+
+  @Column({ type: 'text', nullable: true })
+  workNotes: string; // примечания о выполненной работе
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  workPhotoUrl: string; // фото выполненной работы
+
   @OneToMany(() => File, file => file.order)
   files: File[];
-
-  @OneToMany(() => WorkReport, workReport => workReport.order)
-  workReports: WorkReport[];
 
   @CreateDateColumn()
   createdAt: Date;

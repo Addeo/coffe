@@ -10,7 +10,6 @@ import { Order } from '../../entities/order.entity';
 import { User } from '../../entities/user.entity';
 import { Engineer } from '../../entities/engineer.entity';
 import { Organization } from '../../entities/organization.entity';
-import { WorkReport } from '../../entities/work-report.entity';
 import { File } from '../../entities/file.entity';
 import { Setting, SettingKey } from '../../entities/settings.entity';
 import { UserActivityLog, ActivityType } from '../../entities/user-activity-log.entity';
@@ -44,6 +43,14 @@ interface UpdateOrderDto {
   assignedEngineerId?: number;
   assignedById?: number;
   files?: string[];
+  // Work details
+  regularHours?: number;
+  overtimeHours?: number;
+  calculatedAmount?: number;
+  carUsageAmount?: number;
+  organizationPayment?: number;
+  workNotes?: string;
+  workPhotoUrl?: string;
 }
 
 import { AssignEngineerDto, OrdersQueryDto } from '../../../shared/dtos/order.dto';
@@ -67,7 +74,6 @@ interface ExtendedOrdersQueryDto extends OrdersQueryDto {
   completionDateTo?: Date;
   assignedById?: number;
 }
-import { WorkResult } from '../../entities/work-report.entity';
 import { UserRole } from '../../entities/user.entity';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationPriority } from '../../entities/notification.entity';
@@ -91,8 +97,6 @@ export class OrdersService {
     private readonly engineersRepository: Repository<Engineer>,
     @InjectRepository(Organization)
     private readonly organizationsRepository: Repository<Organization>,
-    @InjectRepository(WorkReport)
-    private readonly workReportsRepository: Repository<WorkReport>,
     @InjectRepository(File)
     private readonly filesRepository: Repository<File>,
     @InjectRepository(Setting)
@@ -374,9 +378,6 @@ export class OrdersService {
         'fileUploadedBy.lastName',
         'fileUploadedBy.email',
       ])
-      .leftJoinAndSelect('order.workReports', 'workReports')
-      .leftJoinAndSelect('workReports.engineer', 'workReportEngineer')
-      .leftJoinAndSelect('workReportEngineer.user', 'workReportEngineerUser')
       .where('order.id = :id', { id })
       .getOne();
 
@@ -436,7 +437,67 @@ export class OrdersService {
       hasFiles: updateOrderDto.files !== undefined,
       filesCount: updateOrderDto.files?.length,
       files: updateOrderDto.files,
+      hasWorkData: !!(updateOrderDto.regularHours || updateOrderDto.overtimeHours),
     });
+
+    // Если обновляются данные о работе (regularHours, overtimeHours), рассчитываем оплату
+    if (updateOrderDto.regularHours !== undefined || updateOrderDto.overtimeHours !== undefined) {
+      const regularHours = updateOrderDto.regularHours || 0;
+      const overtimeHours = updateOrderDto.overtimeHours || 0;
+
+      // Загружаем организацию и инженера для расчёта
+      if (!order.organization) {
+        order.organization = await this.organizationsRepository.findOne({
+          where: { id: order.organizationId },
+        });
+      }
+
+      if (order.assignedEngineerId && order.organization) {
+        const engineer = await this.engineersRepository.findOne({
+          where: { id: order.assignedEngineerId },
+          relations: ['user'],
+        });
+
+        if (engineer) {
+          // Получаем ставки инженера для организации
+          let rates;
+          try {
+            rates = await this.calculationService.getEngineerRatesForOrganization(
+              engineer,
+              order.organization
+            );
+          } catch (error) {
+            rates = {
+              baseRate: engineer.baseRate || 700,
+              overtimeRate: engineer.overtimeRate || engineer.baseRate || 700,
+              fixedSalary: engineer.fixedSalary,
+              fixedCarAmount: engineer.fixedCarAmount,
+            };
+          }
+
+          // Рассчитываем оплату инженеру
+          const regularPayment = regularHours * rates.baseRate;
+          const overtimePayment = overtimeHours * (rates.overtimeRate || rates.baseRate);
+          updateOrderDto.calculatedAmount = regularPayment + overtimePayment;
+
+          // Рассчитываем оплату от организации
+          const organizationRegularPayment = regularHours * order.organization.baseRate;
+          const organizationOvertimePayment =
+            overtimeHours > 0 && order.organization.hasOvertime
+              ? overtimeHours * order.organization.baseRate * order.organization.overtimeMultiplier
+              : overtimeHours * order.organization.baseRate;
+          updateOrderDto.organizationPayment = organizationRegularPayment + organizationOvertimePayment;
+
+          console.log('💰 Auto-calculated payments:', {
+            regularHours,
+            overtimeHours,
+            calculatedAmount: updateOrderDto.calculatedAmount,
+            organizationPayment: updateOrderDto.organizationPayment,
+            carUsageAmount: updateOrderDto.carUsageAmount || 0,
+          });
+        }
+      }
+    }
 
     Object.assign(order, updateOrderDto);
     const updatedOrder = await this.ordersRepository.save(order);
@@ -597,13 +658,8 @@ export class OrdersService {
       }
 
       console.log(
-        `Deleting order ${id} with ${order.files?.length || 0} files and ${order.workReports?.length || 0} work reports`
+        `Deleting order ${id} with ${order.files?.length || 0} files`
       );
-
-      // First, check for any other relations that might prevent deletion
-      // Check for work reports
-      const workReportsCount = await this.workReportsRepository.count({ where: { orderId: id } });
-      console.log(`Found ${workReportsCount} work reports for order ${id}`);
 
       // Check for files
       const filesCount = await this.filesRepository.count({ where: { orderId: id } });
@@ -614,10 +670,6 @@ export class OrdersService {
       await this.filesRepository.delete({ orderId: id });
 
       // Delete related work reports
-      // Statistics are now calculated in real-time from work_reports
-      console.log('Deleting related work reports...');
-      await this.workReportsRepository.delete({ orderId: id });
-
       console.log('Deleting related activity logs...');
       await this.activityLogRepository
         .createQueryBuilder()
@@ -932,204 +984,7 @@ export class OrdersService {
     }
   }
 
-  /**
-   * Создание отчета о выполненной работе с данными от инженера
-   */
-  async createWorkReport(
-    orderId: number,
-    engineerId: number,
-    workReportData: {
-      regularHours: number;
-      overtimeHours: number;
-      carPayment: number;
-      distanceKm?: number;
-      territoryType?: TerritoryType;
-      photoUrl?: string;
-      notes?: string;
-    }
-  ): Promise<WorkReport> {
-    // Получаем заказ
-    const order = await this.ordersRepository.findOne({
-      where: { id: orderId },
-      relations: ['organization'],
-    });
-
-    if (!order) {
-      throw new NotFoundException('Order not found');
-    }
-
-    // Если организация не загрузилась через relation, загружаем отдельно
-    if (!order.organization && order.organizationId) {
-      order.organization = await this.organizationsRepository.findOne({
-        where: { id: order.organizationId },
-      });
-      console.log('📦 Loaded organization separately:', order.organization?.name);
-    }
-
-    if (!order.organization) {
-      throw new NotFoundException('Organization not found for this order');
-    }
-
-    // Получаем инженера
-    const engineer = await this.engineersRepository.findOne({
-      where: { userId: engineerId },
-      relations: ['user'],
-    });
-
-    if (!engineer) {
-      throw new NotFoundException('Engineer not found');
-    }
-
-    // Проверяем, что инженер назначен на этот заказ
-    if (order.assignedEngineerId !== engineer.id) {
-      throw new ForbiddenException('You are not assigned to this order');
-    }
-
-    // Общее количество часов
-    const totalHours = workReportData.regularHours + workReportData.overtimeHours;
-
-    // Получаем ставки инженера для организации (с учётом кастомных ставок)
-    let rates;
-    try {
-      rates = await this.calculationService.getEngineerRatesForOrganization(
-        engineer,
-        order.organization
-      );
-    } catch (error) {
-      // Если индивидуальные ставки не установлены, используем базовые ставки инженера
-      console.warn(
-        `Using default rates for engineer ${engineer.id} and organization ${order.organizationId}:`,
-        error.message
-      );
-      rates = {
-        baseRate: engineer.baseRate || 700,
-        overtimeRate: engineer.overtimeRate || engineer.baseRate || 700,
-        fixedSalary: engineer.fixedSalary,
-        fixedCarAmount: engineer.fixedCarAmount,
-      };
-    }
-
-    // Рассчитываем оплату инженеру с учётом индивидуальных ставок
-    const regularPayment = workReportData.regularHours * rates.baseRate;
-    const overtimePayment = workReportData.overtimeHours * (rates.overtimeRate || rates.baseRate);
-    const totalPayment = regularPayment + overtimePayment;
-
-    // Рассчитываем оплату от организации (базовая ставка организации * коэффициент * часы)
-    const organizationRegularPayment = workReportData.regularHours * order.organization.baseRate;
-    const organizationOvertimePayment =
-      workReportData.overtimeHours > 0 && order.organization.hasOvertime
-        ? workReportData.overtimeHours *
-          order.organization.baseRate *
-          order.organization.overtimeMultiplier
-        : workReportData.overtimeHours * order.organization.baseRate;
-    const organizationPayment = organizationRegularPayment + organizationOvertimePayment;
-
-    console.log('💰 Payment calculation:', {
-      engineer: {
-        regularHours: workReportData.regularHours,
-        overtimeHours: workReportData.overtimeHours,
-        baseRate: rates.baseRate,
-        overtimeRate: rates.overtimeRate,
-        regularPayment,
-        overtimePayment,
-        totalPayment,
-      },
-      organization: {
-        name: order.organization.name,
-        baseRate: order.organization.baseRate,
-        overtimeMultiplier: order.organization.overtimeMultiplier,
-        hasOvertime: order.organization.hasOvertime,
-        regularPayment: organizationRegularPayment,
-        overtimePayment: organizationOvertimePayment,
-        totalPayment: organizationPayment,
-      },
-      profit: organizationPayment - totalPayment,
-      carPayment: workReportData.carPayment,
-    });
-
-    // Создаем отчет о работе
-    const now = new Date();
-    const workReport = this.workReportsRepository.create({
-      orderId: order.id,
-      engineerId: engineer.id,
-      startTime: now, // Используем текущее время как время начала
-      endTime: now, // Используем текущее время как время окончания
-      totalHours,
-      isOvertime: workReportData.overtimeHours > 0,
-      distanceKm: workReportData.distanceKm,
-      territoryType: workReportData.territoryType,
-      photoUrl: workReportData.photoUrl,
-      notes: workReportData.notes,
-      workResult: WorkResult.COMPLETED,
-      calculatedAmount: totalPayment,
-      carUsageAmount: workReportData.carPayment,
-      organizationPayment: organizationPayment,
-    });
-
-    // Сохраняем отчет
-    const savedReport = await this.workReportsRepository.save(workReport);
-
-    // Логируем создание отчета
-    await this.logActivity(
-      orderId,
-      ActivityType.ORDER_STATUS_CHANGED,
-      `Work report created for order ${order.title} by engineer ${engineer.user.firstName} ${engineer.user.lastName}`,
-      {
-        workReportId: savedReport.id,
-        regularHours: workReportData.regularHours,
-        overtimeHours: workReportData.overtimeHours,
-        totalHours,
-        regularPayment,
-        overtimePayment,
-        totalPayment,
-        carPayment: workReportData.carPayment,
-      },
-      engineer.userId
-    );
-
-    // Statistics are now calculated in real-time from work_reports
-    // No need to update cached statistics
-    console.log('Work report created for engineer', engineer.userId);
-
-    return savedReport;
-  }
-
-  /**
-   * Получение отчетов о работе для заказа
-   */
-  async getWorkReports(orderId: number): Promise<WorkReport[]> {
-    return this.workReportsRepository.find({
-      where: { orderId },
-      relations: ['engineer', 'engineer.user'],
-      order: { submittedAt: 'DESC' },
-    });
-  }
-
-  /**
-   * Получение отчетов о работе для инженера
-   */
-  async getEngineerWorkReports(
-    engineerId: number,
-    startDate?: Date,
-    endDate?: Date
-  ): Promise<WorkReport[]> {
-    const query = this.workReportsRepository
-      .createQueryBuilder('workReport')
-      .leftJoinAndSelect('workReport.order', 'order')
-      .leftJoinAndSelect('workReport.engineer', 'engineer')
-      .leftJoinAndSelect('engineer.user', 'user')
-      .where('workReport.engineerId = :engineerId', { engineerId });
-
-    if (startDate) {
-      query.andWhere('workReport.submittedAt >= :startDate', { startDate });
-    }
-
-    if (endDate) {
-      query.andWhere('workReport.submittedAt <= :endDate', { endDate });
-    }
-
-    return query.orderBy('workReport.submittedAt', 'DESC').getMany();
-  }
+  // createWorkReport method removed - work data is now updated directly via update() method
 
   /**
    * Attach files to order (replace existing file associations)

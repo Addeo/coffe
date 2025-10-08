@@ -4,7 +4,6 @@ import { Repository } from 'typeorm';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { SalaryCalculation, CalculationStatus } from '../../entities/salary-calculation.entity';
 import { Engineer } from '../../entities/engineer.entity';
-import { WorkReport } from '../../entities/work-report.entity';
 import { Organization } from '../../entities/organization.entity';
 import { Order } from '../../entities/order.entity';
 import { CalculationService } from './calculation.service';
@@ -30,8 +29,6 @@ export class SalaryCalculationService {
     private salaryCalculationRepository: Repository<SalaryCalculation>,
     @InjectRepository(Engineer)
     private engineerRepository: Repository<Engineer>,
-    @InjectRepository(WorkReport)
-    private workReportRepository: Repository<WorkReport>,
     @InjectRepository(Organization)
     private organizationRepository: Repository<Organization>,
     @InjectRepository(Order)
@@ -102,30 +99,32 @@ export class SalaryCalculationService {
     year: number,
     calculatedById?: number
   ): Promise<SalaryCalculation> {
-    // Получаем отчеты за месяц
+    // Получаем завершённые заказы за месяц
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
-    const workReports = await this.workReportRepository
-      .createQueryBuilder('workReport')
-      .leftJoinAndSelect('workReport.organization', 'organization')
-      .where('workReport.engineerId = :engineerId', { engineerId: engineer.id })
-      .andWhere('workReport.startTime >= :startDate', { startDate })
-      .andWhere('workReport.startTime < :endDate', { endDate })
+    const orders = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.organization', 'organization')
+      .where('order.assignedEngineerId = :engineerId', { engineerId: engineer.id })
+      .andWhere('order.status = :status', { status: 'completed' })
+      .andWhere('order.completionDate >= :startDate', { startDate })
+      .andWhere('order.completionDate < :endDate', { endDate })
       .getMany();
 
     // Используем новый метод расчета месячной зарплаты
     const monthlyCalculation = await this.calculationService.calculateMonthlySalary(
       engineer,
-      workReports,
+      orders,
       engineer.planHoursMonth
     );
 
     // Расчет выручки от заказчика (для аналитики)
     let clientRevenue = 0;
-    for (const report of workReports) {
-      if (report.order?.organization) {
-        clientRevenue += report.totalHours * report.order.organization.baseRate;
+    for (const order of orders) {
+      if (order.organization) {
+        const totalHours = (Number(order.regularHours) || 0) + (Number(order.overtimeHours) || 0);
+        clientRevenue += totalHours * order.organization.baseRate;
       }
     }
 

@@ -77,18 +77,6 @@ export class CalculationsController {
   }
 
   /**
-   * Расчет стоимости работы по отчету
-   */
-  @Post('work-report-cost')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
-  async calculateWorkReportCost(@Body() body: any) {
-    // Этот endpoint для тестирования расчетов
-    const { engineer, organization, workReport } = body;
-
-    return this.calculationService.calculateWorkReportTotals(engineer, organization, workReport);
-  }
-
-  /**
    * Получение статистики расчетов
    */
   @Get('statistics')

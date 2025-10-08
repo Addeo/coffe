@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { EarningsStatistic } from '../../entities/earnings-statistic.entity';
 import { Order } from '../../entities/order.entity';
 import { User, UserRole } from '../../entities/user.entity';
 import { Organization } from '../../entities/organization.entity';
-import { WorkReport } from '../../entities/work-report.entity';
 import { Engineer } from '../../entities/engineer.entity';
 import {
   MonthlyStatisticsDto,
@@ -17,188 +15,165 @@ import {
 @Injectable()
 export class StatisticsService {
   constructor(
-    @InjectRepository(EarningsStatistic)
-    private earningsStatisticRepository: Repository<EarningsStatistic>,
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(Organization)
     private organizationRepository: Repository<Organization>,
-    @InjectRepository(WorkReport)
-    private workReportRepository: Repository<WorkReport>,
     @InjectRepository(Engineer)
     private engineerRepository: Repository<Engineer>
   ) {}
 
-  async calculateMonthlyEarnings(userId: number, month: number, year: number): Promise<void> {
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 1);
 
-    // Получаем инженера по userId
+  async getUserEarningsStatistics(
+    userId: number,
+    months: number = 12
+  ): Promise<Array<{
+    userId: number;
+    month: number;
+    year: number;
+    totalEarnings: number;
+    completedOrders: number;
+    totalHours: number;
+  }>> {
+    // Получаем инженера
     const engineer = await this.engineerRepository.findOne({
       where: { userId },
     });
 
     if (!engineer) {
-      console.warn(`No engineer profile found for userId ${userId}`);
-      return;
+      return [];
     }
 
-    // Получаем все work reports инженера за месяц (вместо завершенных заказов)
-    const workReports = await this.workReportRepository
-      .createQueryBuilder('report')
-      .leftJoinAndSelect('report.order', 'order')
-      .where('report.engineerId = :engineerId', { engineerId: engineer.id })
-      .andWhere('report.submittedAt >= :startDate', { startDate })
-      .andWhere('report.submittedAt < :endDate', { endDate })
-      .getMany();
+    const currentDate = new Date();
+    const statistics: Array<{
+      userId: number;
+      month: number;
+      year: number;
+      totalEarnings: number;
+      completedOrders: number;
+      totalHours: number;
+    }> = [];
 
-    // Если нет work reports, обнуляем статистику (важно для случая удаления всех заказов)
-    if (workReports.length === 0) {
-      const existingStatistic = await this.earningsStatisticRepository.findOne({
-        where: { userId, month, year },
-      });
+    // Рассчитываем статистику для каждого месяца из Order
+    for (let i = 0; i < months; i++) {
+      const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const targetMonth = targetDate.getMonth() + 1;
+      const targetYear = targetDate.getFullYear();
 
-      if (existingStatistic) {
-        // Обнуляем существующую статистику
-        existingStatistic.totalEarnings = 0;
-        existingStatistic.completedOrders = 0;
-        existingStatistic.averageOrderValue = 0;
-        existingStatistic.totalHours = 0;
-        await this.earningsStatisticRepository.save(existingStatistic);
-        console.log(`Statistics reset to zero for engineer userId ${userId} (${month}/${year})`);
+      const startDate = new Date(targetYear, targetMonth - 1, 1);
+      const endDate = new Date(targetYear, targetMonth, 1);
+
+      const orders = await this.orderRepository
+        .createQueryBuilder('order')
+        .where('order.assignedEngineerId = :engineerId', { engineerId: engineer.id })
+        .andWhere('order.status = :status', { status: 'completed' })
+        .andWhere('order.completionDate >= :startDate', { startDate })
+        .andWhere('order.completionDate < :endDate', { endDate })
+        .getMany();
+
+      let totalEarnings = 0;
+      let totalHours = 0;
+
+      for (const order of orders) {
+        totalEarnings +=
+          (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
+        totalHours += (Number(order.regularHours) || 0) + (Number(order.overtimeHours) || 0);
       }
-      return;
-    }
 
-    // Рассчитываем статистику на основе реальных work reports
-    let totalEarnings = 0;
-    let totalHours = 0;
-    const uniqueOrders = new Set<number>();
-
-    for (const report of workReports) {
-      // Включаем оплату за работу и доплату за машину
-      totalEarnings +=
-        (Number(report.calculatedAmount) || 0) + (Number(report.carUsageAmount) || 0);
-      totalHours += Number(report.totalHours) || 0;
-      if (report.order?.id) {
-        uniqueOrders.add(report.order.id);
-      }
-    }
-
-    const completedOrders = uniqueOrders.size;
-    const averageOrderValue = completedOrders > 0 ? totalEarnings / completedOrders : 0;
-
-    // Обновляем или создаем запись статистики
-    let statistic = await this.earningsStatisticRepository.findOne({
-      where: { userId, month, year },
-    });
-
-    if (statistic) {
-      statistic.totalEarnings = totalEarnings;
-      statistic.completedOrders = completedOrders;
-      statistic.averageOrderValue = averageOrderValue;
-      statistic.totalHours = totalHours;
-    } else {
-      statistic = this.earningsStatisticRepository.create({
+      statistics.push({
         userId,
-        month,
-        year,
+        month: targetMonth,
+        year: targetYear,
         totalEarnings,
-        completedOrders,
-        averageOrderValue,
+        completedOrders: orders.length,
         totalHours,
       });
     }
 
-    await this.earningsStatisticRepository.save(statistic);
+    return statistics;
   }
 
-  async getUserEarningsStatistics(
-    userId: number,
-    months: number = 12
-  ): Promise<EarningsStatistic[]> {
-    const currentDate = new Date();
-    const startDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - months + 1, 1);
-
-    return this.earningsStatisticRepository
-      .createQueryBuilder('statistic')
-      .where('statistic.userId = :userId', { userId })
-      .andWhere('statistic.createdAt >= :startDate', { startDate })
-      .orderBy('statistic.year', 'DESC')
-      .addOrderBy('statistic.month', 'DESC')
-      .getMany();
-  }
-
-  async getTopEarnersByMonth(
-    year: number,
-    month: number,
-    limit: number = 10
-  ): Promise<EarningsStatistic[]> {
-    return this.earningsStatisticRepository
-      .createQueryBuilder('statistic')
-      .leftJoinAndSelect('statistic.user', 'user')
-      .where('statistic.year = :year', { year })
-      .andWhere('statistic.month = :month', { month })
-      .andWhere('user.role = :role', { role: UserRole.USER })
-      .orderBy('statistic.totalEarnings', 'DESC')
-      .limit(limit)
-      .getMany();
-  }
-
-  async getTotalEarningsByPeriod(
-    startDate: Date,
-    endDate: Date,
-    userId?: number
-  ): Promise<{ totalEarnings: number; totalOrders: number; averageOrderValue: number }> {
-    const queryBuilder = this.earningsStatisticRepository
-      .createQueryBuilder('statistic')
-      .select('SUM(statistic.totalEarnings)', 'totalEarnings')
-      .addSelect('SUM(statistic.completedOrders)', 'totalOrders')
-      .addSelect('AVG(statistic.averageOrderValue)', 'averageOrderValue')
-      .where('statistic.createdAt BETWEEN :startDate AND :endDate', {
-        startDate,
-        endDate,
-      });
-
-    if (userId) {
-      queryBuilder.andWhere('statistic.userId = :userId', { userId });
-    }
-
-    const result = await queryBuilder.getRawOne();
-
-    return {
-      totalEarnings: parseFloat(result.totalEarnings) || 0,
-      totalOrders: parseInt(result.totalOrders) || 0,
-      averageOrderValue: parseFloat(result.averageOrderValue) || 0,
-    };
-  }
 
   async getUserRankByEarnings(userId: number, year: number, month: number): Promise<number> {
-    const userStatistic = await this.earningsStatisticRepository.findOne({
-      where: { userId, year, month },
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 1);
+
+    // Получаем инженера текущего пользователя
+    const engineer = await this.engineerRepository.findOne({
+      where: { userId },
     });
 
-    if (!userStatistic) {
-      return -1; // Пользователь не имеет статистики за этот период
+    if (!engineer) {
+      return -1; // Пользователь не имеет профиля инженера
     }
 
-    const rank = await this.earningsStatisticRepository
-      .createQueryBuilder('statistic')
-      .where('statistic.year = :year', { year })
-      .andWhere('statistic.month = :month', { month })
-      .andWhere('statistic.totalEarnings > :userEarnings', {
-        userEarnings: userStatistic.totalEarnings,
-      })
-      .getCount();
+    // Рассчитываем заработок текущего пользователя из orders
+    const userOrders = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('order.assignedEngineerId = :engineerId', { engineerId: engineer.id })
+      .andWhere('order.status = :status', { status: 'completed' })
+      .andWhere('order.completionDate >= :startDate', { startDate })
+      .andWhere('order.completionDate < :endDate', { endDate })
+      .getMany();
+
+    let userTotalEarnings = 0;
+    for (const order of userOrders) {
+      userTotalEarnings +=
+        (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
+    }
+
+    if (userTotalEarnings === 0) {
+      return -1; // Пользователь не имеет заработка за этот период
+    }
+
+    // Получаем всех инженеров и их заработки за период
+    const allEngineers = await this.engineerRepository.find({
+      relations: ['user'],
+    });
+
+    let rank = 0;
+    for (const otherEngineer of allEngineers) {
+      if (otherEngineer.id === engineer.id) continue;
+
+      const otherOrders = await this.orderRepository
+        .createQueryBuilder('order')
+        .where('order.assignedEngineerId = :engineerId', { engineerId: otherEngineer.id })
+        .andWhere('order.status = :status', { status: 'completed' })
+        .andWhere('order.completionDate >= :startDate', { startDate })
+        .andWhere('order.completionDate < :endDate', { endDate })
+        .getMany();
+
+      let otherTotalEarnings = 0;
+      for (const order of otherOrders) {
+        otherTotalEarnings +=
+          (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
+      }
+
+      if (otherTotalEarnings > userTotalEarnings) {
+        rank++;
+      }
+    }
 
     return rank + 1; // +1 потому что ранк начинается с 1
   }
 
   async getEarningsComparison(userId: number): Promise<{
-    currentMonth: EarningsStatistic | null;
-    previousMonth: EarningsStatistic | null;
+    currentMonth: {
+      totalEarnings: number;
+      completedOrders: number;
+      totalHours: number;
+      month: number;
+      year: number;
+    } | null;
+    previousMonth: {
+      totalEarnings: number;
+      completedOrders: number;
+      totalHours: number;
+      month: number;
+      year: number;
+    } | null;
     growth: number;
   }> {
     const currentDate = new Date();
@@ -208,37 +183,85 @@ export class StatisticsService {
     const previousMonth = currentMonth === 1 ? 12 : currentMonth - 1;
     const previousYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
-    const [currentMonthStat, previousMonthStat] = await Promise.all([
-      this.earningsStatisticRepository.findOne({
-        where: { userId, month: currentMonth, year: currentYear },
-      }),
-      this.earningsStatisticRepository.findOne({
-        where: { userId, month: previousMonth, year: previousYear },
-      }),
-    ]);
+    // Получаем инженера по userId
+    const engineer = await this.engineerRepository.findOne({
+      where: { userId },
+    });
+
+    if (!engineer) {
+      return {
+        currentMonth: null,
+        previousMonth: null,
+        growth: 0,
+      };
+    }
+
+    // Рассчитываем статистику за текущий месяц из orders
+    const currentStartDate = new Date(currentYear, currentMonth - 1, 1);
+    const currentEndDate = new Date(currentYear, currentMonth, 1);
+
+    const currentOrders = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('order.assignedEngineerId = :engineerId', { engineerId: engineer.id })
+      .andWhere('order.status = :status', { status: 'completed' })
+      .andWhere('order.completionDate >= :startDate', { startDate: currentStartDate })
+      .andWhere('order.completionDate < :endDate', { endDate: currentEndDate })
+      .getMany();
+
+    let currentTotalEarnings = 0;
+    let currentTotalHours = 0;
+
+    for (const order of currentOrders) {
+      currentTotalEarnings +=
+        (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
+      currentTotalHours += (Number(order.regularHours) || 0) + (Number(order.overtimeHours) || 0);
+    }
+
+    // Рассчитываем статистику за предыдущий месяц из orders
+    const prevStartDate = new Date(previousYear, previousMonth - 1, 1);
+    const prevEndDate = new Date(previousYear, previousMonth, 1);
+
+    const prevOrders = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('order.assignedEngineerId = :engineerId', { engineerId: engineer.id })
+      .andWhere('order.status = :status', { status: 'completed' })
+      .andWhere('order.completionDate >= :startDate', { startDate: prevStartDate })
+      .andWhere('order.completionDate < :endDate', { endDate: prevEndDate })
+      .getMany();
+
+    let prevTotalEarnings = 0;
+    let prevTotalHours = 0;
+
+    for (const order of prevOrders) {
+      prevTotalEarnings +=
+        (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
+      prevTotalHours += (Number(order.regularHours) || 0) + (Number(order.overtimeHours) || 0);
+    }
 
     let growth = 0;
-    if (currentMonthStat && previousMonthStat && previousMonthStat.totalEarnings > 0) {
-      growth =
-        ((currentMonthStat.totalEarnings - previousMonthStat.totalEarnings) /
-          previousMonthStat.totalEarnings) *
-        100;
+    if (prevTotalEarnings > 0) {
+      growth = ((currentTotalEarnings - prevTotalEarnings) / prevTotalEarnings) * 100;
     }
 
     return {
-      currentMonth: currentMonthStat,
-      previousMonth: previousMonthStat,
+      currentMonth: {
+        totalEarnings: currentTotalEarnings,
+        completedOrders: currentOrders.length,
+        totalHours: currentTotalHours,
+        month: currentMonth,
+        year: currentYear,
+      },
+      previousMonth: prevOrders.length > 0 ? {
+        totalEarnings: prevTotalEarnings,
+        completedOrders: prevOrders.length,
+        totalHours: prevTotalHours,
+        month: previousMonth,
+        year: previousYear,
+      } : null,
       growth,
     };
   }
 
-  async calculateAllUsersMonthlyEarnings(month: number, year: number): Promise<void> {
-    const users = await this.userRepository.find({
-      where: { role: UserRole.USER, isActive: true },
-    });
-
-    await Promise.all(users.map(user => this.calculateMonthlyEarnings(user.id, month, year)));
-  }
 
   async getEngineerDetailedStats(userId: number, year: number, month: number) {
     const startDate = new Date(year, month - 1, 1);
@@ -272,53 +295,52 @@ export class StatisticsService {
 
     const engineerId = engineer.id;
 
-    // Получаем work reports за текущий месяц
-    const workReports = await this.workReportRepository
-      .createQueryBuilder('report')
-      .where('report.engineerId = :engineerId', { engineerId })
-      .andWhere('report.submittedAt >= :startDate', { startDate })
-      .andWhere('report.submittedAt < :endDate', { endDate })
+    // Получаем orders за текущий месяц
+    const orders = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('order.assignedEngineerId = :engineerId', { engineerId })
+      .andWhere('order.status = :status', { status: 'completed' })
+      .andWhere('order.completionDate >= :startDate', { startDate })
+      .andWhere('order.completionDate < :endDate', { endDate })
       .getMany();
 
-    // Получаем work reports за предыдущий месяц для сравнения
+    // Получаем orders за предыдущий месяц для сравнения
     const prevMonth = month === 1 ? 12 : month - 1;
     const prevYear = month === 1 ? year - 1 : year;
     const prevStartDate = new Date(prevYear, prevMonth - 1, 1);
     const prevEndDate = new Date(prevYear, prevMonth, 1);
 
-    const prevWorkReports = await this.workReportRepository
-      .createQueryBuilder('report')
-      .where('report.engineerId = :engineerId', { engineerId })
-      .andWhere('report.submittedAt >= :startDate', { startDate: prevStartDate })
-      .andWhere('report.submittedAt < :endDate', { endDate: prevEndDate })
+    const prevOrders = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('order.assignedEngineerId = :engineerId', { engineerId })
+      .andWhere('order.status = :status', { status: 'completed' })
+      .andWhere('order.completionDate >= :startDate', { startDate: prevStartDate })
+      .andWhere('order.completionDate < :endDate', { endDate: prevEndDate })
       .getMany();
 
-    // Рассчитываем текущую статистику
+    // Рассчитываем текущую статистику из Order fields
     let totalHours = 0;
     let regularHours = 0;
     let overtimeHours = 0;
     let totalEarnings = 0;
     let baseEarnings = 0;
     let overtimeEarnings = 0;
-    const uniqueOrders = new Set<number>();
 
-    for (const report of workReports) {
-      totalHours += Number(report.totalHours) || 0;
-      // Включаем оплату за работу и доплату за машину
-      const reportEarnings =
-        (Number(report.calculatedAmount) || 0) + (Number(report.carUsageAmount) || 0);
-      totalEarnings += reportEarnings;
-
-      if (report.isOvertime) {
-        overtimeHours += Number(report.totalHours) || 0;
-        overtimeEarnings += reportEarnings;
-      } else {
-        regularHours += Number(report.totalHours) || 0;
-        baseEarnings += reportEarnings;
-      }
-
-      if (report.orderId) {
-        uniqueOrders.add(report.orderId);
+    for (const order of orders) {
+      const orderRegularHours = Number(order.regularHours) || 0;
+      const orderOvertimeHours = Number(order.overtimeHours) || 0;
+      regularHours += orderRegularHours;
+      overtimeHours += orderOvertimeHours;
+      totalHours += orderRegularHours + orderOvertimeHours;
+      
+      const orderEarnings =
+        (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
+      totalEarnings += orderEarnings;
+      
+      // Примерное разделение на base/overtime (пропорционально часам)
+      if (totalHours > 0) {
+        baseEarnings += (orderEarnings * orderRegularHours) / (orderRegularHours + orderOvertimeHours || 1);
+        overtimeEarnings += (orderEarnings * orderOvertimeHours) / (orderRegularHours + orderOvertimeHours || 1);
       }
     }
 
@@ -326,14 +348,13 @@ export class StatisticsService {
     let prevTotalHours = 0;
     let prevTotalEarnings = 0;
 
-    for (const report of prevWorkReports) {
-      prevTotalHours += Number(report.totalHours) || 0;
-      // Включаем оплату за работу и доплату за машину
+    for (const order of prevOrders) {
+      prevTotalHours += (Number(order.regularHours) || 0) + (Number(order.overtimeHours) || 0);
       prevTotalEarnings +=
-        (Number(report.calculatedAmount) || 0) + (Number(report.carUsageAmount) || 0);
+        (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
     }
 
-    const completedOrders = uniqueOrders.size;
+    const completedOrders = orders.length;
     const averageHoursPerOrder = completedOrders > 0 ? totalHours / completedOrders : 0;
     const earningsGrowth =
       prevTotalEarnings > 0 ? ((totalEarnings - prevTotalEarnings) / prevTotalEarnings) * 100 : 0;
@@ -441,24 +462,23 @@ export class StatisticsService {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
-    // Get all work reports for the period with organization and engineer data
-    const engineerStats = await this.workReportRepository
-      .createQueryBuilder('report')
+    // Get all orders for the period with engineer data (from aggregated Order fields)
+    const engineerStats = await this.orderRepository
+      .createQueryBuilder('order')
       .select('engineer.userId', 'engineerId')
       .addSelect('user.firstName', 'firstName')
       .addSelect('user.lastName', 'lastName')
       .addSelect('user.email', 'email')
-      .addSelect('COUNT(DISTINCT report.orderId)', 'completedOrders')
-      .addSelect('SUM(report.totalHours)', 'totalHours')
-      .addSelect('SUM(report.calculatedAmount)', 'engineerEarnings')
-      .addSelect('SUM(report.organizationPayment)', 'organizationPayments') // Используем новое поле
-      .addSelect('SUM(report.carUsageAmount)', 'carUsageAmount') // Добавляем доплату за машину
-      .leftJoin('report.engineer', 'engineer')
+      .addSelect('COUNT(order.id)', 'completedOrders')
+      .addSelect('SUM(order.regularHours + order.overtimeHours)', 'totalHours')
+      .addSelect('SUM(order.calculatedAmount)', 'engineerEarnings')
+      .addSelect('SUM(order.organizationPayment)', 'organizationPayments')
+      .addSelect('SUM(order.carUsageAmount)', 'carUsageAmount')
+      .leftJoin('order.assignedEngineer', 'engineer')
       .leftJoin('engineer.user', 'user')
-      .leftJoin('report.order', 'order')
-      .leftJoin('order.organization', 'organization')
-      .where('report.submittedAt >= :startDate', { startDate })
-      .andWhere('report.submittedAt < :endDate', { endDate })
+      .where('order.completionDate >= :startDate', { startDate })
+      .andWhere('order.completionDate < :endDate', { endDate })
+      .andWhere('order.status = :status', { status: 'completed' })
       .andWhere('user.role = :role', { role: UserRole.USER })
       .groupBy('engineer.userId')
       .addGroupBy('user.firstName')
@@ -529,41 +549,22 @@ export class StatisticsService {
   }
 
   private async getAgentEarningsData(year: number, month: number): Promise<AgentEarningsData[]> {
-    // First try to get data from earnings_statistics table
-    const earningsStats = await this.earningsStatisticRepository
-      .createQueryBuilder('stat')
-      .leftJoinAndSelect('stat.user', 'user')
-      .where('stat.year = :year', { year })
-      .andWhere('stat.month = :month', { month })
-      .andWhere('user.role = :role', { role: UserRole.USER })
-      .orderBy('stat.totalEarnings', 'DESC')
-      .getMany();
-
-    if (earningsStats.length > 0) {
-      return earningsStats.map(stat => ({
-        agentId: stat.userId,
-        agentName: stat.user ? `${stat.user.firstName} ${stat.user.lastName}` : 'Unknown',
-        totalEarnings: Number(stat.totalEarnings),
-        completedOrders: stat.completedOrders,
-        averageOrderValue: Number(stat.averageOrderValue),
-      }));
-    }
-
-    // If no data in earnings_statistics, calculate from work reports directly
+    // Calculate directly from Order fields (aggregated data from work_reports)
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
-    const agentData = await this.workReportRepository
-      .createQueryBuilder('report')
+    const agentData = await this.orderRepository
+      .createQueryBuilder('order')
       .select('engineer.userId', 'userId')
       .addSelect('user.firstName', 'firstName')
       .addSelect('user.lastName', 'lastName')
-      .addSelect('SUM(report.calculatedAmount)', 'totalEarnings')
-      .addSelect('COUNT(DISTINCT report.orderId)', 'completedOrders')
-      .addSelect('AVG(report.calculatedAmount)', 'averageOrderValue')
-      .leftJoin('report.engineer', 'engineer')
+      .addSelect('SUM(order.calculatedAmount + order.carUsageAmount)', 'totalEarnings')
+      .addSelect('COUNT(order.id)', 'completedOrders')
+      .addSelect('AVG(order.calculatedAmount + order.carUsageAmount)', 'averageOrderValue')
+      .leftJoin('order.assignedEngineer', 'engineer')
       .leftJoin('engineer.user', 'user')
-      .where('report.submittedAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .where('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('order.status = :status', { status: 'completed' })
       .andWhere('user.role = :role', { role: UserRole.USER })
       .groupBy('engineer.userId')
       .addGroupBy('user.firstName')
@@ -584,22 +585,22 @@ export class StatisticsService {
     startDate: Date,
     endDate: Date
   ): Promise<OrganizationEarningsData[]> {
-    // Calculate full financial picture for each organization:
-    // 1. Revenue: hours × organization.baseRate (what organizations pay us)
-    // 2. Costs: report.calculatedAmount (what we pay engineers)
+    // Calculate from Order aggregated fields:
+    // 1. Revenue: organizationPayment (what organizations pay us)
+    // 2. Costs: calculatedAmount + carUsageAmount (what we pay engineers)
     // 3. Profit: Revenue - Costs
-    const organizationStats = await this.workReportRepository
-      .createQueryBuilder('report')
+    const organizationStats = await this.orderRepository
+      .createQueryBuilder('order')
       .select('order.organizationId', 'organizationId')
       .addSelect('organization.name', 'organizationName')
-      .addSelect('COUNT(DISTINCT order.id)', 'totalOrders')
-      .addSelect('SUM(report.totalHours)', 'totalHours')
-      .addSelect('SUM(report.totalHours * organization.baseRate)', 'totalRevenue')
-      .addSelect('SUM(report.calculatedAmount)', 'totalCosts')
-      .addSelect('AVG(report.totalHours * organization.baseRate)', 'averageOrderValue')
-      .leftJoin('report.order', 'order')
+      .addSelect('COUNT(order.id)', 'totalOrders')
+      .addSelect('SUM(order.regularHours + order.overtimeHours)', 'totalHours')
+      .addSelect('SUM(order.organizationPayment)', 'totalRevenue')
+      .addSelect('SUM(order.calculatedAmount)', 'totalCosts')
+      .addSelect('AVG(order.organizationPayment)', 'averageOrderValue')
       .leftJoin('order.organization', 'organization')
-      .where('report.submittedAt BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .where('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('order.status = :status', { status: 'completed' })
       .andWhere('order.organizationId IS NOT NULL')
       .groupBy('order.organizationId')
       .addGroupBy('organization.name')
@@ -630,24 +631,21 @@ export class StatisticsService {
     startDate: Date,
     endDate: Date
   ): Promise<OvertimeStatisticsData[]> {
-    const engineerStats = await this.workReportRepository
-      .createQueryBuilder('report')
-      .select('report.engineerId', 'engineerId')
+    // Calculate from Order aggregated fields
+    const engineerStats = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('order.assignedEngineerId', 'engineerId')
       .addSelect('user.firstName', 'firstName')
       .addSelect('user.lastName', 'lastName')
-      .addSelect(
-        'SUM(CASE WHEN report.isOvertime = true THEN report.totalHours ELSE 0 END)',
-        'overtimeHours'
-      )
-      .addSelect(
-        'SUM(CASE WHEN report.isOvertime = false THEN report.totalHours ELSE 0 END)',
-        'regularHours'
-      )
-      .addSelect('SUM(report.totalHours)', 'totalHours')
-      .leftJoin('report.engineer', 'engineer')
+      .addSelect('SUM(order.overtimeHours)', 'overtimeHours')
+      .addSelect('SUM(order.regularHours)', 'regularHours')
+      .addSelect('SUM(order.regularHours + order.overtimeHours)', 'totalHours')
+      .leftJoin('order.assignedEngineer', 'engineer')
       .leftJoin('engineer.user', 'user')
-      .where('report.submittedAt BETWEEN :startDate AND :endDate', { startDate, endDate })
-      .groupBy('report.engineerId')
+      .where('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('order.status = :status', { status: 'completed' })
+      .andWhere('order.assignedEngineerId IS NOT NULL')
+      .groupBy('order.assignedEngineerId')
       .addGroupBy('user.firstName')
       .addGroupBy('user.lastName')
       .orderBy('overtimeHours', 'DESC')

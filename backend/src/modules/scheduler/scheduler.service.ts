@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 // import { GmailService } from '../gmail/gmail.service';
 import { BackupService } from '../резервное-копирование/backup.service';
-import { StatisticsService } from '../statistics/statistics.service';
 import { LoggerService } from '../logger/logger.service';
 
 @Injectable()
@@ -12,7 +11,6 @@ export class SchedulerService {
   constructor(
     // private gmailService: GmailService,
     private backupService: BackupService,
-    private statisticsService: StatisticsService,
     private loggerService: LoggerService
   ) {}
 
@@ -55,38 +53,6 @@ export class SchedulerService {
       this.loggerService.error('Scheduled monthly backup failed', error.stack, {
         action: 'scheduled_backup_failed',
         resource: 'backup',
-      });
-    }
-  }
-
-  // Ежемесячное обновление статистики заработка в последний день месяца в 23:00
-  @Cron('0 23 28-31 * *')
-  async handleMonthlyStatisticsUpdate() {
-    try {
-      const now = new Date();
-      const currentMonth = now.getMonth() + 1;
-      const currentYear = now.getFullYear();
-
-      // Проверяем, последний ли день месяца
-      const lastDayOfMonth = new Date(currentYear, currentMonth, 0).getDate();
-      if (now.getDate() !== lastDayOfMonth) {
-        return; // Не последний день месяца
-      }
-
-      this.logger.log('Starting scheduled monthly statistics update');
-
-      await this.statisticsService.calculateAllUsersMonthlyEarnings(currentMonth, currentYear);
-
-      this.loggerService.log('Monthly statistics update completed', {
-        action: 'scheduled_statistics_completed',
-        resource: 'statistics',
-        metadata: { month: currentMonth, year: currentYear },
-      });
-    } catch (error) {
-      this.logger.error('Scheduled monthly statistics update failed:', error);
-      this.loggerService.error('Scheduled monthly statistics update failed', error.stack, {
-        action: 'scheduled_statistics_failed',
-        resource: 'statistics',
       });
     }
   }

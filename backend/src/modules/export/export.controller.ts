@@ -26,20 +26,4 @@ export class ExportController {
     await this.exportService.exportOrdersReport(response, req.user.role, req.user.id, start, end);
   }
 
-  @Get('earnings')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
-  async exportEarnings(
-    @Res() response: Response,
-    @Query('year') year?: number,
-    @Query('month') month?: number,
-    @Query('userId') userId?: number
-  ) {
-    await this.exportService.exportEarningsReport(
-      response,
-      UserRole.ADMIN, // Для экспорта доступны все данные
-      userId,
-      year,
-      month
-    );
-  }
 }

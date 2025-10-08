@@ -34,29 +34,6 @@ export class StatisticsController {
     return { rank };
   }
 
-  @Get('top-earners')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
-  async getTopEarners(
-    @Query('year', ParseIntPipe) year: number,
-    @Query('month', ParseIntPipe) month: number,
-    @Query('limit', ParseIntPipe) limit: number = 10
-  ) {
-    return this.statisticsService.getTopEarnersByMonth(year, month, limit);
-  }
-
-  @Get('total-earnings')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
-  async getTotalEarningsByPeriod(
-    @Query('startDate') startDate: string,
-    @Query('endDate') endDate: string,
-    @Query('userId', ParseIntPipe) userId?: number
-  ) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    return this.statisticsService.getTotalEarningsByPeriod(start, end, userId);
-  }
-
   @Get('engineer/detailed')
   async getEngineerDetailedStats(
     @Request() req,

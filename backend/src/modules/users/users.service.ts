@@ -8,9 +8,7 @@ import { Engineer } from '../../entities/engineer.entity';
 import { EngineerOrganizationRate } from '../../entities/engineer-organization-rate.entity';
 import { Organization } from '../../entities/organization.entity';
 import { Order } from '../../entities/order.entity';
-import { WorkReport } from '../../entities/work-report.entity';
 import { Notification } from '../../entities/notification.entity';
-import { EarningsStatistic } from '../../entities/earnings-statistic.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersQueryDto } from '../../../shared/dtos/user.dto';
@@ -40,12 +38,8 @@ export class UsersService {
     private organizationRepository: Repository<Organization>,
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
-    @InjectRepository(WorkReport)
-    private workReportRepository: Repository<WorkReport>,
     @InjectRepository(Notification)
-    private notificationRepository: Repository<Notification>,
-    @InjectRepository(EarningsStatistic)
-    private earningsStatisticRepository: Repository<EarningsStatistic>
+    private notificationRepository: Repository<Notification>
   ) {}
 
   async create(createUserDto: CreateUserDto, createdById: number): Promise<User> {
@@ -438,16 +432,9 @@ export class UsersService {
     // Delete notifications for this user
     await this.notificationRepository.delete({ userId });
 
-    // Delete earnings statistics for this user
-    await this.earningsStatisticRepository.delete({ userId });
-
-    // Delete work reports for this user (if engineer exists)
+    // Update orders to remove engineer assignment (if engineer exists)
     const engineer = await this.engineerRepository.findOne({ where: { userId } });
     if (engineer) {
-      // Delete work reports
-      await this.workReportRepository.delete({ engineerId: engineer.id });
-
-      // Update orders to remove engineer assignment
       await this.orderRepository.update(
         { assignedEngineerId: engineer.id },
         { assignedEngineerId: null, status: OrderStatus.WAITING }
@@ -562,18 +549,6 @@ export class UsersService {
         table: 'notifications',
         count: notificationsCount,
         description: `User has ${notificationsCount} notification(s)`,
-      });
-    }
-
-    // Check earnings statistics for this user
-    const earningsStatsCount = await this.earningsStatisticRepository.count({
-      where: { userId },
-    });
-    if (earningsStatsCount > 0) {
-      conflicts.push({
-        table: 'earnings_statistics',
-        count: earningsStatsCount,
-        description: `User has ${earningsStatsCount} earnings statistic(s) record(s)`,
       });
     }
 

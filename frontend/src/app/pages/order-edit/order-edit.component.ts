@@ -593,7 +593,7 @@ export class OrderEditComponent implements OnInit {
   }
 
   // Work Report Methods
-  onSubmitWorkReport() {
+  onCompleteWork() {
     if (this.workReportForm.invalid || !this.orderId) {
       this.toastService.error('Пожалуйста, заполните все обязательные поля');
       return;
@@ -601,7 +601,7 @@ export class OrderEditComponent implements OnInit {
 
     const formValue = this.workReportForm.value;
 
-    const workReportData = {
+    const workData = {
       regularHours: formValue.regularHours,
       overtimeHours: formValue.overtimeHours || 0,
       carPayment: formValue.carPayment || 0,
@@ -612,15 +612,15 @@ export class OrderEditComponent implements OnInit {
 
     this.isLoading.set(true);
 
-    this.ordersService.createWorkReport(this.orderId, workReportData).subscribe({
-      next: workReport => {
-        this.toastService.success('Отчет о работе успешно создан');
+    this.ordersService.completeWork(this.orderId, workData).subscribe({
+      next: order => {
+        this.toastService.success('Заказ успешно завершён');
         this.workReportForm.reset();
-        this.loadOrder(this.orderId!); // Reload order to see updated status
+        this.loadOrder(this.orderId!); // Reload order to see completed status
       },
       error: error => {
-        console.error('Error creating work report:', error);
-        this.toastService.error('Ошибка создания отчета о работе');
+        console.error('Error completing work:', error);
+        this.toastService.error('Ошибка завершения заказа');
         this.isLoading.set(false);
       },
     });
@@ -644,17 +644,6 @@ export class OrderEditComponent implements OnInit {
   }
 
   // Methods for work report view tab
-  hasWorkReport(): boolean {
-    return !!this.order && !!this.order.workReports && this.order.workReports.length > 0;
-  }
-
-  getRegularHours(report: any): number {
-    return report.isOvertime ? 0 : report.totalHours;
-  }
-
-  getOvertimeHours(report: any): number {
-    return report.isOvertime ? report.totalHours : 0;
-  }
 
   getTerritoryTypeLabel(territoryType: string): string {
     const labels: Record<string, string> = {
@@ -669,15 +658,6 @@ export class OrderEditComponent implements OnInit {
     return labels[territoryType] || territoryType;
   }
 
-  getWorkResultLabel(workResult: string): string {
-    const labels: Record<string, string> = {
-      completed: 'Завершено',
-      in_progress: 'В процессе',
-      pending: 'Ожидает',
-      cancelled: 'Отменено',
-    };
-    return labels[workResult] || workResult;
-  }
 
   formatDate(date: Date | string | undefined): string {
     if (!date) return 'Не указано';
