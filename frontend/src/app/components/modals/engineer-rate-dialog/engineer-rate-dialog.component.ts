@@ -619,7 +619,9 @@ export class EngineerRateDialogComponent {
       },
       error: error => {
         console.error('Ошибка создания ставки:', error);
-        this.toastService.showError('Ошибка создания конфигурации ставок. Пожалуйста, попробуйте еще раз.');
+        this.toastService.showError(
+          'Ошибка создания конфигурации ставок. Пожалуйста, попробуйте еще раз.'
+        );
         this.isLoading.set(false);
       },
     });
@@ -644,7 +646,9 @@ export class EngineerRateDialogComponent {
       },
       error: error => {
         console.error('Ошибка обновления ставки:', error);
-        this.toastService.showError('Ошибка обновления конфигурации ставок. Пожалуйста, попробуйте еще раз.');
+        this.toastService.showError(
+          'Ошибка обновления конфигурации ставок. Пожалуйста, попробуйте еще раз.'
+        );
         this.isLoading.set(false);
       },
     });

@@ -1,11 +1,11 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Param, 
-  Delete, 
-  UseGuards, 
-  Query, 
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
   Res,
   UseInterceptors,
   UploadedFile,
@@ -62,7 +62,7 @@ export class BackupController {
     }
 
     const fileName = await this.backupService.uploadBackup(file);
-    
+
     return {
       success: true,
       message: 'Backup file uploaded successfully',

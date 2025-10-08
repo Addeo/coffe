@@ -276,12 +276,20 @@ export class UsersService {
     const updatedUser = await this.findOne(id, currentUser);
 
     // Update engineer data if provided and user role is USER
-    const hasEngineerData = updateUserDto.engineerType || updateUserDto.baseRate !== undefined ||
-      updateUserDto.overtimeRate !== undefined || updateUserDto.planHoursMonth !== undefined ||
-      updateUserDto.homeTerritoryFixedAmount !== undefined || updateUserDto.fixedSalary !== undefined ||
-      updateUserDto.fixedCarAmount !== undefined || updateUserDto.engineerIsActive !== undefined;
+    const hasEngineerData =
+      updateUserDto.engineerType ||
+      updateUserDto.baseRate !== undefined ||
+      updateUserDto.overtimeRate !== undefined ||
+      updateUserDto.planHoursMonth !== undefined ||
+      updateUserDto.homeTerritoryFixedAmount !== undefined ||
+      updateUserDto.fixedSalary !== undefined ||
+      updateUserDto.fixedCarAmount !== undefined ||
+      updateUserDto.engineerIsActive !== undefined;
 
-    if ((updateUserDto.role === UserRole.USER || existingUser.role === UserRole.USER) && hasEngineerData) {
+    if (
+      (updateUserDto.role === UserRole.USER || existingUser.role === UserRole.USER) &&
+      hasEngineerData
+    ) {
       let engineer = await this.engineerRepository.findOne({ where: { userId: id } });
 
       if (engineer) {
@@ -289,12 +297,24 @@ export class UsersService {
         await this.engineerRepository.update(engineer.id, {
           ...(updateUserDto.engineerType && { type: updateUserDto.engineerType }),
           ...(updateUserDto.baseRate !== undefined && { baseRate: updateUserDto.baseRate }),
-          ...(updateUserDto.overtimeRate !== undefined && { overtimeRate: updateUserDto.overtimeRate }),
-          ...(updateUserDto.planHoursMonth !== undefined && { planHoursMonth: updateUserDto.planHoursMonth }),
-          ...(updateUserDto.homeTerritoryFixedAmount !== undefined && { homeTerritoryFixedAmount: updateUserDto.homeTerritoryFixedAmount }),
-          ...(updateUserDto.fixedSalary !== undefined && { fixedSalary: updateUserDto.fixedSalary }),
-          ...(updateUserDto.fixedCarAmount !== undefined && { fixedCarAmount: updateUserDto.fixedCarAmount }),
-          ...(updateUserDto.engineerIsActive !== undefined && { isActive: updateUserDto.engineerIsActive }),
+          ...(updateUserDto.overtimeRate !== undefined && {
+            overtimeRate: updateUserDto.overtimeRate,
+          }),
+          ...(updateUserDto.planHoursMonth !== undefined && {
+            planHoursMonth: updateUserDto.planHoursMonth,
+          }),
+          ...(updateUserDto.homeTerritoryFixedAmount !== undefined && {
+            homeTerritoryFixedAmount: updateUserDto.homeTerritoryFixedAmount,
+          }),
+          ...(updateUserDto.fixedSalary !== undefined && {
+            fixedSalary: updateUserDto.fixedSalary,
+          }),
+          ...(updateUserDto.fixedCarAmount !== undefined && {
+            fixedCarAmount: updateUserDto.fixedCarAmount,
+          }),
+          ...(updateUserDto.engineerIsActive !== undefined && {
+            isActive: updateUserDto.engineerIsActive,
+          }),
         });
       } else {
         // Create new engineer record if it doesn't exist
@@ -302,12 +322,23 @@ export class UsersService {
           userId: id,
           ...(updateUserDto.engineerType && { type: updateUserDto.engineerType }),
           ...(updateUserDto.baseRate !== undefined && { baseRate: updateUserDto.baseRate }),
-          ...(updateUserDto.overtimeRate !== undefined && { overtimeRate: updateUserDto.overtimeRate }),
-          ...(updateUserDto.planHoursMonth !== undefined && { planHoursMonth: updateUserDto.planHoursMonth }),
-          ...(updateUserDto.homeTerritoryFixedAmount !== undefined && { homeTerritoryFixedAmount: updateUserDto.homeTerritoryFixedAmount }),
-          ...(updateUserDto.fixedSalary !== undefined && { fixedSalary: updateUserDto.fixedSalary }),
-          ...(updateUserDto.fixedCarAmount !== undefined && { fixedCarAmount: updateUserDto.fixedCarAmount }),
-          isActive: updateUserDto.engineerIsActive !== undefined ? updateUserDto.engineerIsActive : true,
+          ...(updateUserDto.overtimeRate !== undefined && {
+            overtimeRate: updateUserDto.overtimeRate,
+          }),
+          ...(updateUserDto.planHoursMonth !== undefined && {
+            planHoursMonth: updateUserDto.planHoursMonth,
+          }),
+          ...(updateUserDto.homeTerritoryFixedAmount !== undefined && {
+            homeTerritoryFixedAmount: updateUserDto.homeTerritoryFixedAmount,
+          }),
+          ...(updateUserDto.fixedSalary !== undefined && {
+            fixedSalary: updateUserDto.fixedSalary,
+          }),
+          ...(updateUserDto.fixedCarAmount !== undefined && {
+            fixedCarAmount: updateUserDto.fixedCarAmount,
+          }),
+          isActive:
+            updateUserDto.engineerIsActive !== undefined ? updateUserDto.engineerIsActive : true,
         });
         await this.engineerRepository.save(engineer);
       }
@@ -393,16 +424,10 @@ export class UsersService {
     await this.engineerRepository.delete({ userId });
 
     // Delete orders created by this user
-    await this.orderRepository.update(
-      { createdById: userId },
-      { createdById: null }
-    );
+    await this.orderRepository.update({ createdById: userId }, { createdById: null });
 
     // Delete orders assigned by this user
-    await this.orderRepository.update(
-      { assignedById: userId },
-      { assignedById: null }
-    );
+    await this.orderRepository.update({ assignedById: userId }, { assignedById: null });
 
     // Delete user activity logs performed by this user
     await this.activityLogRepository.delete({ performedById: userId });

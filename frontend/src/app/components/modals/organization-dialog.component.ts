@@ -353,7 +353,9 @@ export class OrganizationDialogComponent {
         },
         error: error => {
           console.error('Ошибка обновления организации:', error);
-          this.toastService.showError('Ошибка обновления организации. Пожалуйста, попробуйте еще раз.');
+          this.toastService.showError(
+            'Ошибка обновления организации. Пожалуйста, попробуйте еще раз.'
+          );
           this.isLoading.set(false);
         },
       });

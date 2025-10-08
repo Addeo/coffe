@@ -10,9 +10,7 @@ import { httpRequestInterceptor } from './interceptors/http.interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, withEnabledBlockingInitialNavigation()),
-    provideHttpClient(
-      withInterceptors([authInterceptor, httpRequestInterceptor])
-    ),
-    provideAnimations()
-  ]
+    provideHttpClient(withInterceptors([authInterceptor, httpRequestInterceptor])),
+    provideAnimations(),
+  ],
 };

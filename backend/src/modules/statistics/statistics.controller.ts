@@ -65,7 +65,7 @@ export class StatisticsController {
   ) {
     const currentDate = new Date();
     const targetYear = year || currentDate.getFullYear();
-    const targetMonth = month || (currentDate.getMonth() + 1);
+    const targetMonth = month || currentDate.getMonth() + 1;
 
     return this.statisticsService.getEngineerDetailedStats(req.user.id, targetYear, targetMonth);
   }
@@ -78,7 +78,7 @@ export class StatisticsController {
   ): Promise<MonthlyStatisticsDto> {
     const currentDate = new Date();
     const targetYear = year || currentDate.getFullYear();
-    const targetMonth = month || (currentDate.getMonth() + 1);
+    const targetMonth = month || currentDate.getMonth() + 1;
 
     return this.statisticsService.getMonthlyStatistics(targetYear, targetMonth);
   }
@@ -91,7 +91,7 @@ export class StatisticsController {
   ) {
     const currentDate = new Date();
     const targetYear = year || currentDate.getFullYear();
-    const targetMonth = month || (currentDate.getMonth() + 1);
+    const targetMonth = month || currentDate.getMonth() + 1;
 
     return this.statisticsService.getAdminEngineerStatistics(targetYear, targetMonth);
   }

@@ -11,7 +11,7 @@ import {
   MonthlyStatisticsDto,
   AgentEarningsData,
   OrganizationEarningsData,
-  OvertimeStatisticsData
+  OvertimeStatisticsData,
 } from '@dtos/reports.dto';
 
 @Injectable()
@@ -37,7 +37,7 @@ export class StatisticsService {
 
     // Получаем инженера по userId
     const engineer = await this.engineerRepository.findOne({
-      where: { userId }
+      where: { userId },
     });
 
     if (!engineer) {
@@ -79,7 +79,8 @@ export class StatisticsService {
 
     for (const report of workReports) {
       // Включаем оплату за работу и доплату за машину
-      totalEarnings += (Number(report.calculatedAmount) || 0) + (Number(report.carUsageAmount) || 0);
+      totalEarnings +=
+        (Number(report.calculatedAmount) || 0) + (Number(report.carUsageAmount) || 0);
       totalHours += Number(report.totalHours) || 0;
       if (report.order?.id) {
         uniqueOrders.add(report.order.id);
@@ -245,7 +246,7 @@ export class StatisticsService {
 
     // Получаем инженера по userId
     const engineer = await this.engineerRepository.findOne({
-      where: { userId }
+      where: { userId },
     });
 
     if (!engineer) {
@@ -304,7 +305,8 @@ export class StatisticsService {
     for (const report of workReports) {
       totalHours += Number(report.totalHours) || 0;
       // Включаем оплату за работу и доплату за машину
-      const reportEarnings = (Number(report.calculatedAmount) || 0) + (Number(report.carUsageAmount) || 0);
+      const reportEarnings =
+        (Number(report.calculatedAmount) || 0) + (Number(report.carUsageAmount) || 0);
       totalEarnings += reportEarnings;
 
       if (report.isOvertime) {
@@ -327,17 +329,16 @@ export class StatisticsService {
     for (const report of prevWorkReports) {
       prevTotalHours += Number(report.totalHours) || 0;
       // Включаем оплату за работу и доплату за машину
-      prevTotalEarnings += (Number(report.calculatedAmount) || 0) + (Number(report.carUsageAmount) || 0);
+      prevTotalEarnings +=
+        (Number(report.calculatedAmount) || 0) + (Number(report.carUsageAmount) || 0);
     }
 
     const completedOrders = uniqueOrders.size;
     const averageHoursPerOrder = completedOrders > 0 ? totalHours / completedOrders : 0;
-    const earningsGrowth = prevTotalEarnings > 0 
-      ? ((totalEarnings - prevTotalEarnings) / prevTotalEarnings) * 100 
-      : 0;
-    const hoursGrowth = prevTotalHours > 0 
-      ? ((totalHours - prevTotalHours) / prevTotalHours) * 100 
-      : 0;
+    const earningsGrowth =
+      prevTotalEarnings > 0 ? ((totalEarnings - prevTotalEarnings) / prevTotalEarnings) * 100 : 0;
+    const hoursGrowth =
+      prevTotalHours > 0 ? ((totalHours - prevTotalHours) / prevTotalHours) * 100 : 0;
 
     return {
       year,
@@ -360,8 +361,18 @@ export class StatisticsService {
 
   async getMonthlyStatistics(year: number, month: number): Promise<MonthlyStatisticsDto> {
     const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
 
     const startDate = new Date(year, month - 1, 1);
@@ -369,7 +380,7 @@ export class StatisticsService {
 
     try {
       console.log('Getting monthly statistics for', year, month);
-      
+
       // Get agent earnings data
       console.log('Fetching agent earnings...');
       const agentEarnings = await this.getAgentEarningsData(year, month);
@@ -388,7 +399,10 @@ export class StatisticsService {
       // Calculate totals
       const totalEarnings = agentEarnings.reduce((sum, agent) => sum + agent.totalEarnings, 0);
       const totalOrders = agentEarnings.reduce((sum, agent) => sum + agent.completedOrders, 0);
-      const totalOvertimeHours = overtimeStatistics.reduce((sum, stat) => sum + stat.overtimeHours, 0);
+      const totalOvertimeHours = overtimeStatistics.reduce(
+        (sum, stat) => sum + stat.overtimeHours,
+        0
+      );
 
       console.log('Monthly statistics calculated successfully');
       return {
@@ -457,18 +471,17 @@ export class StatisticsService {
       const engineerEarnings = Number(stat.engineerEarnings) || 0;
       const organizationPayments = Number(stat.organizationPayments) || 0;
       const carUsageAmount = Number(stat.carUsageAmount) || 0;
-      
+
       // Прибыль = (оплата от организации) - (оплата инженеру)
       // Доплата за машину не учитывается в прибыли, так как она идёт напрямую инженеру
       const profit = organizationPayments - engineerEarnings;
-      
+
       // Общая сумма от организации включает доплату за машину
       const totalOrganizationPayment = organizationPayments + carUsageAmount;
       const totalEngineerPayment = engineerEarnings + carUsageAmount;
-      
-      const profitMargin = totalOrganizationPayment > 0 
-        ? (profit / totalOrganizationPayment) * 100 
-        : 0;
+
+      const profitMargin =
+        totalOrganizationPayment > 0 ? (profit / totalOrganizationPayment) * 100 : 0;
 
       return {
         engineerId: stat.engineerId,
@@ -501,9 +514,8 @@ export class StatisticsService {
       }
     );
 
-    const totalProfitMargin = totals.organizationPayments > 0 
-      ? (totals.profit / totals.organizationPayments) * 100 
-      : 0;
+    const totalProfitMargin =
+      totals.organizationPayments > 0 ? (totals.profit / totals.organizationPayments) * 100 : 0;
 
     return {
       year,
@@ -568,7 +580,10 @@ export class StatisticsService {
     }));
   }
 
-  private async getOrganizationEarningsData(startDate: Date, endDate: Date): Promise<OrganizationEarningsData[]> {
+  private async getOrganizationEarningsData(
+    startDate: Date,
+    endDate: Date
+  ): Promise<OrganizationEarningsData[]> {
     // Calculate full financial picture for each organization:
     // 1. Revenue: hours × organization.baseRate (what organizations pay us)
     // 2. Costs: report.calculatedAmount (what we pay engineers)
@@ -611,14 +626,23 @@ export class StatisticsService {
     });
   }
 
-  private async getOvertimeStatisticsData(startDate: Date, endDate: Date): Promise<OvertimeStatisticsData[]> {
+  private async getOvertimeStatisticsData(
+    startDate: Date,
+    endDate: Date
+  ): Promise<OvertimeStatisticsData[]> {
     const engineerStats = await this.workReportRepository
       .createQueryBuilder('report')
       .select('report.engineerId', 'engineerId')
       .addSelect('user.firstName', 'firstName')
       .addSelect('user.lastName', 'lastName')
-      .addSelect('SUM(CASE WHEN report.isOvertime = true THEN report.totalHours ELSE 0 END)', 'overtimeHours')
-      .addSelect('SUM(CASE WHEN report.isOvertime = false THEN report.totalHours ELSE 0 END)', 'regularHours')
+      .addSelect(
+        'SUM(CASE WHEN report.isOvertime = true THEN report.totalHours ELSE 0 END)',
+        'overtimeHours'
+      )
+      .addSelect(
+        'SUM(CASE WHEN report.isOvertime = false THEN report.totalHours ELSE 0 END)',
+        'regularHours'
+      )
       .addSelect('SUM(report.totalHours)', 'totalHours')
       .leftJoin('report.engineer', 'engineer')
       .leftJoin('engineer.user', 'user')

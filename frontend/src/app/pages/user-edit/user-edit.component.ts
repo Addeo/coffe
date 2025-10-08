@@ -123,7 +123,10 @@ import {
               <div *ngIf="userForm.get('role')?.value === UserRole.USER">
                 <mat-form-field appearance="outline" class="form-field">
                   <mat-label>Тип инженера</mat-label>
-                  <mat-select formControlName="engineerType" (selectionChange)="onEngineerTypeChange()">
+                  <mat-select
+                    formControlName="engineerType"
+                    (selectionChange)="onEngineerTypeChange()"
+                  >
                     <mat-option [value]="EngineerType.STAFF">Штатный инженер</mat-option>
                     <mat-option [value]="EngineerType.REMOTE">Удаленный инженер</mat-option>
                     <mat-option [value]="EngineerType.CONTRACT">Контрактный инженер</mat-option>
@@ -193,18 +196,21 @@ import {
                     </mat-error>
                   </mat-form-field>
                 </div>
-                
+
                 <!-- Информация о фиксированных расходах для штатных инженеров -->
-                <div class="info-box" *ngIf="userForm.get('engineerType')?.value === EngineerType.STAFF">
+                <div
+                  class="info-box"
+                  *ngIf="userForm.get('engineerType')?.value === EngineerType.STAFF"
+                >
                   <mat-icon class="info-icon">info</mat-icon>
                   <div class="info-text">
                     <p>
-                      <strong>Фиксированные расходы:</strong> 
-                      {{ calculateFixedExpenses() | currency:'RUB':'symbol':'1.0-0' }} в месяц
+                      <strong>Фиксированные расходы:</strong>
+                      {{ calculateFixedExpenses() | currency: 'RUB' : 'symbol' : '1.0-0' }} в месяц
                     </p>
                     <p class="info-details">
-                      Расчет: Плановые часы/месяц × Базовая ставка = 
-                      {{ userForm.get('planHoursMonth')?.value || 0 }} × 
+                      Расчет: Плановые часы/месяц × Базовая ставка =
+                      {{ userForm.get('planHoursMonth')?.value || 0 }} ×
                       {{ userForm.get('baseRate')?.value || 0 }} руб.
                     </p>
                   </div>
@@ -633,7 +639,7 @@ export class UserEditComponent implements OnInit {
   private toastService = inject(ToastService);
   private engineerRatesService = inject(EngineerOrganizationRatesService);
   private organizationsService = inject(OrganizationsService);
-  
+
   // Метод для расчета фиксированных расходов для штатных инженеров
   calculateFixedExpenses(): number {
     const planHoursMonth = this.userForm.get('planHoursMonth')?.value || 0;
@@ -777,49 +783,49 @@ export class UserEditComponent implements OnInit {
       this.onEngineerTypeChange();
     }
   }
-  
+
   onEngineerTypeChange() {
     const engineerType = this.userForm.get('engineerType')?.value;
-    
+
     // Set default values based on engineer type
-    switch(engineerType) {
+    switch (engineerType) {
       case EngineerType.STAFF:
         // Штатный инженер - базовая ставка 700 руб/час
         this.userForm.patchValue({
           baseRate: 700,
           overtimeRate: 700,
           planHoursMonth: 160, // Только для штатного инженера
-          homeTerritoryFixedAmount: 0 // Только для штатного инженера
+          homeTerritoryFixedAmount: 0, // Только для штатного инженера
         });
-        
+
         // Show fields specific to staff engineers
         this.userForm.get('planHoursMonth')?.enable();
         this.userForm.get('homeTerritoryFixedAmount')?.enable();
         break;
-        
+
       case EngineerType.REMOTE:
         // Удаленный инженер - базовая ставка 750 руб/час
         this.userForm.patchValue({
           baseRate: 750,
           overtimeRate: 750,
           planHoursMonth: null, // Не применимо
-          homeTerritoryFixedAmount: null // Не применимо
+          homeTerritoryFixedAmount: null, // Не применимо
         });
-        
+
         // Hide fields not applicable to remote engineers
         this.userForm.get('planHoursMonth')?.disable();
         this.userForm.get('homeTerritoryFixedAmount')?.disable();
         break;
-        
+
       case EngineerType.CONTRACT:
         // Наемный инженер - базовая ставка 700 руб/час, фиксированная ставка переработки 1200-1400 руб/час
         this.userForm.patchValue({
           baseRate: 700,
           overtimeRate: 1200,
           planHoursMonth: null, // Не применимо
-          homeTerritoryFixedAmount: null // Не применимо
+          homeTerritoryFixedAmount: null, // Не применимо
         });
-        
+
         // Hide fields not applicable to contract engineers
         this.userForm.get('planHoursMonth')?.disable();
         this.userForm.get('homeTerritoryFixedAmount')?.disable();

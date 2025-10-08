@@ -63,7 +63,7 @@ export class EngineerOrganizationRatesService {
       customZone2Extra: createDto.customZone2Extra ?? null,
       customZone3Extra: createDto.customZone3Extra ?? null,
     });
-    
+
     const savedRate = await this.engineerOrganizationRateRepository.save(rate);
 
     // Ensure savedRate is a single entity, not an array
@@ -96,7 +96,6 @@ export class EngineerOrganizationRatesService {
         organizationId: query.organizationId,
       });
     }
-
 
     // Пагинация
     if (query.page && query.limit) {

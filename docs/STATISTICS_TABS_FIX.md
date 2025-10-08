@@ -12,6 +12,7 @@ The user reported two issues with the statistics dashboard:
 ### 1. Agent Earnings Tab Issues
 
 **Problem:** The tab was empty because it relied solely on the `earnings_statistics` table, which may not have data if:
+
 - Work reports were created recently and statistics haven't been calculated yet
 - The system is new and doesn't have historical data
 
@@ -22,10 +23,12 @@ The user reported two issues with the statistics dashboard:
 **Problem:** The calculation was conceptually wrong.
 
 **What it was showing:** Engineer costs (sum of `calculatedAmount` from work reports)
+
 - `calculatedAmount` = hours × engineer's rate
 - This represents **costs TO engineers** (expenses)
 
 **What it should show:** Client revenue (what organizations pay)
+
 - Should be: hours × organization's rate
 - This represents **revenue FROM organizations** (income)
 
@@ -36,6 +39,7 @@ The user reported two issues with the statistics dashboard:
 #### 1. Fixed Agent Earnings Calculation
 
 **Before:**
+
 ```typescript
 private async getAgentEarningsData(year: number, month: number): Promise<AgentEarningsData[]> {
   // Only queried earnings_statistics table
@@ -49,6 +53,7 @@ private async getAgentEarningsData(year: number, month: number): Promise<AgentEa
 ```
 
 **After:**
+
 ```typescript
 private async getAgentEarningsData(year: number, month: number): Promise<AgentEarningsData[]> {
   // First try earnings_statistics table
@@ -75,6 +80,7 @@ private async getAgentEarningsData(year: number, month: number): Promise<AgentEa
 ```
 
 **Benefits:**
+
 - Always shows data if work reports exist
 - Provides fallback when statistics table is not populated
 - Maintains consistency with historical data when available
@@ -82,6 +88,7 @@ private async getAgentEarningsData(year: number, month: number): Promise<AgentEa
 #### 2. Fixed Organization Earnings Calculation
 
 **Before:**
+
 ```typescript
 private async getOrganizationEarningsData(startDate: Date, endDate: Date): Promise<OrganizationEarningsData[]> {
   const organizationStats = await this.workReportRepository
@@ -93,6 +100,7 @@ private async getOrganizationEarningsData(startDate: Date, endDate: Date): Promi
 ```
 
 **After:**
+
 ```typescript
 private async getOrganizationEarningsData(startDate: Date, endDate: Date): Promise<OrganizationEarningsData[]> {
   const organizationStats = await this.workReportRepository
@@ -105,11 +113,13 @@ private async getOrganizationEarningsData(startDate: Date, endDate: Date): Promi
 ```
 
 **Key Changes:**
+
 - Changed calculation from `SUM(report.calculatedAmount)` to `SUM(report.totalHours * organization.baseRate)`
 - Added filter to exclude records without organization
 - This now correctly shows revenue FROM organizations
 
 **Business Logic:**
+
 - **Engineer Cost**: hours × engineer.baseRate → What we pay engineers
 - **Client Revenue**: hours × organization.baseRate → What organizations pay us
 - **Profit Margin**: Client Revenue - Engineer Cost
@@ -123,6 +133,7 @@ Removed `OrderStatus` import that was causing linter errors.
 #### 1. Updated Component HTML (`statistics.component.html`)
 
 **Agent Earnings Tab:**
+
 - Added subtitle explaining what the data represents: "Показывает начисленные суммы инженерам (затраты на персонал)"
 - Added empty state message with helpful hints
 - Updated column headers for clarity:
@@ -131,6 +142,7 @@ Removed `OrderStatus` import that was causing linter errors.
   - "Выполненные заказы" → "Заказов"
 
 **Organization Earnings Tab:**
+
 - Changed tab label: "Доходы организаций" → "Доходы от организаций"
 - Changed title: "Доходы организаций" → "Выручка от организаций"
 - Added subtitle: "Показывает доходы от организаций-заказчиков (часы × ставка организации)"
@@ -176,12 +188,14 @@ Removed `OrderStatus` import that was causing linter errors.
 ## User Experience Improvements
 
 ### Before:
+
 - ❌ Agent Earnings: Empty with no explanation
 - ❌ Organization Earnings: Showing incorrect data (costs instead of revenue)
 - ❌ No clear explanation of what each tab shows
 - ❌ Confusing when no data exists
 
 ### After:
+
 - ✅ Agent Earnings: Shows data from work reports if statistics not calculated
 - ✅ Organization Earnings: Correctly shows client revenue
 - ✅ Clear subtitles explaining what each section represents
@@ -191,12 +205,14 @@ Removed `OrderStatus` import that was causing linter errors.
 ## Data Flow
 
 ### Agent Earnings:
+
 1. Try to fetch from `earnings_statistics` table (pre-calculated)
 2. If empty, calculate on-the-fly from `work_reports` table
 3. Group by engineer (user)
 4. Show: Total earnings, completed orders, average order value
 
 ### Organization Earnings:
+
 1. Fetch from `work_reports` table (always fresh)
 2. Join with `orders` and `organizations` tables
 3. Calculate: `SUM(hours × organization.baseRate)`
@@ -227,15 +243,18 @@ Removed `OrderStatus` import that was causing linter errors.
 ## Files Modified
 
 ### Backend:
+
 - `backend/src/modules/statistics/statistics.service.ts`
 
 ### Frontend:
+
 - `frontend/src/app/pages/statistics/statistics.component.html`
 - `frontend/src/app/pages/statistics/statistics.component.scss`
 
 ## Summary
 
 The statistics tabs now:
+
 1. **Always show data** when work reports exist (no more empty screens)
 2. **Show correct financial data** (revenue vs. costs)
 3. **Provide clear explanations** of what each section represents
@@ -243,4 +262,3 @@ The statistics tabs now:
 5. **Use consistent, clear terminology** throughout
 
 The fixes address both the technical issues (wrong calculations, missing fallbacks) and UX issues (unclear labels, no empty states).
-

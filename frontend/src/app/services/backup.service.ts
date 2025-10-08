@@ -45,7 +45,7 @@ export interface BackupCleanupResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BackupService {
   private http = inject(HttpClient);
@@ -70,13 +70,16 @@ export class BackupService {
    * @param file Файл бэкапа (.sql или .sqlite)
    * @param onProgress Callback для отслеживания прогресса загрузки
    */
-  uploadBackup(file: File, onProgress?: (progress: number) => void): Observable<BackupUploadResponse> {
+  uploadBackup(
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Observable<BackupUploadResponse> {
     const formData = new FormData();
     formData.append('file', file);
 
     return this.http.post<BackupUploadResponse>(`${this.apiUrl}/upload`, formData, {
       reportProgress: true,
-      observe: 'body'
+      observe: 'body',
     });
   }
 
@@ -95,7 +98,7 @@ export class BackupService {
    */
   downloadBackup(fileName: string): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/download/${fileName}`, {
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
 
@@ -121,7 +124,7 @@ export class BackupService {
    */
   downloadAndSaveBackup(fileName: string): void {
     this.downloadBackup(fileName).subscribe({
-      next: (blob) => {
+      next: blob => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -129,10 +132,10 @@ export class BackupService {
         link.click();
         window.URL.revokeObjectURL(url);
       },
-      error: (err) => {
+      error: err => {
         console.error('Failed to download backup:', err);
         throw err;
-      }
+      },
     });
   }
 
@@ -145,11 +148,11 @@ export class BackupService {
     // Проверка расширения
     const allowedExtensions = ['.sql', '.sqlite'];
     const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
-    
+
     if (!allowedExtensions.includes(fileExtension)) {
       return {
         valid: false,
-        error: `Invalid file type. Only ${allowedExtensions.join(', ')} files are allowed`
+        error: `Invalid file type. Only ${allowedExtensions.join(', ')} files are allowed`,
       };
     }
 
@@ -158,11 +161,10 @@ export class BackupService {
     if (file.size > maxSize) {
       return {
         valid: false,
-        error: 'File size exceeds 100MB limit'
+        error: 'File size exceeds 100MB limit',
       };
     }
 
     return { valid: true };
   }
 }
-

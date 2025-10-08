@@ -42,21 +42,25 @@
 ### Ключевые возможности
 
 ✅ **Создание бэкапов**
+
 - Автоматические ежемесячные бэкапы
 - Ручное создание через API
 - Поддержка MySQL (production) и SQLite (development)
 
 ✅ **Загрузка бэкапов**
+
 - Загрузка .sql и .sqlite файлов через API
 - Валидация размера (макс 100MB)
 - Санитизация имен файлов
 
 ✅ **Восстановление**
+
 - Восстановление из локальных бэкапов
 - Восстановление из загруженных файлов
 - Автоматический rollback при ошибках (SQLite)
 
 ✅ **Управление**
+
 - Список всех бэкапов с метаданными
 - Скачивание бэкапов
 - Удаление старых бэкапов
@@ -67,13 +71,16 @@
 ## 2. API Endpoints
 
 ### Базовый URL
+
 ```
 Production:  http://your-domain.com:3001/api/backup
 Development: http://localhost:3001/api/backup
 ```
 
 ### 🔐 Аутентификация
+
 Все endpoints требуют:
+
 - JWT токен в заголовке: `Authorization: Bearer <token>`
 - Роль пользователя: `ADMIN`
 
@@ -86,6 +93,7 @@ Development: http://localhost:3001/api/backup
 Создает новый бэкап базы данных.
 
 **Response:**
+
 ```json
 {
   "message": "Database backup created successfully",
@@ -94,6 +102,7 @@ Development: http://localhost:3001/api/backup
 ```
 
 **Пример (curl):**
+
 ```bash
 curl -X POST http://localhost:3001/api/backup/create \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
@@ -108,6 +117,7 @@ curl -X POST http://localhost:3001/api/backup/create \
 Возвращает список всех доступных бэкапов с метаданными.
 
 **Response:**
+
 ```json
 {
   "backups": [
@@ -124,6 +134,7 @@ curl -X POST http://localhost:3001/api/backup/create \
 ```
 
 **Пример (curl):**
+
 ```bash
 curl -X GET http://localhost:3001/api/backup/list \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
@@ -140,13 +151,16 @@ curl -X GET http://localhost:3001/api/backup/list \
 **Content-Type:** `multipart/form-data`
 
 **Form Data:**
+
 - `file`: файл бэкапа (.sql или .sqlite)
 
 **Ограничения:**
+
 - Максимальный размер: 100MB
 - Разрешенные форматы: `.sql`, `.sqlite`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -158,6 +172,7 @@ curl -X GET http://localhost:3001/api/backup/list \
 ```
 
 **Пример (curl):**
+
 ```bash
 curl -X POST http://localhost:3001/api/backup/upload \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
@@ -165,6 +180,7 @@ curl -X POST http://localhost:3001/api/backup/upload \
 ```
 
 **Пример (JavaScript/TypeScript):**
+
 ```typescript
 const formData = new FormData();
 formData.append('file', fileInput.files[0]);
@@ -172,7 +188,7 @@ formData.append('file', fileInput.files[0]);
 const response = await fetch('http://localhost:3001/api/backup/upload', {
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
   },
   body: formData,
 });
@@ -192,6 +208,7 @@ console.log('Uploaded:', result.fileName);
 ⚠️ **ВНИМАНИЕ:** Эта операция перезапишет текущую базу данных!
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -200,6 +217,7 @@ console.log('Uploaded:', result.fileName);
 ```
 
 **Пример (curl):**
+
 ```bash
 curl -X POST http://localhost:3001/api/backup/restore/backup-mysql-coffee_admin-2025-01-15T14-30-00.sql \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
@@ -216,6 +234,7 @@ curl -X POST http://localhost:3001/api/backup/restore/backup-mysql-coffee_admin-
 **Response:** Бинарный файл (application/sql)
 
 **Пример (curl):**
+
 ```bash
 curl -X GET http://localhost:3001/api/backup/download/backup-mysql-coffee_admin-2025-01-15T14-30-00.sql \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
@@ -231,6 +250,7 @@ curl -X GET http://localhost:3001/api/backup/download/backup-mysql-coffee_admin-
 Удаляет файл бэкапа.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -239,6 +259,7 @@ curl -X GET http://localhost:3001/api/backup/download/backup-mysql-coffee_admin-
 ```
 
 **Пример (curl):**
+
 ```bash
 curl -X DELETE http://localhost:3001/api/backup/backup-mysql-coffee_admin-2025-01-15T14-30-00.sql \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
@@ -253,9 +274,11 @@ curl -X DELETE http://localhost:3001/api/backup/backup-mysql-coffee_admin-2025-0
 Удаляет бэкапы старше указанного количества дней.
 
 **Query Parameters:**
+
 - `keepDays`: количество дней для хранения (по умолчанию: 30)
 
 **Response:**
+
 ```json
 {
   "message": "Cleaned up 5 old backup files",
@@ -264,6 +287,7 @@ curl -X DELETE http://localhost:3001/api/backup/backup-mysql-coffee_admin-2025-0
 ```
 
 **Пример (curl):**
+
 ```bash
 curl -X DELETE "http://localhost:3001/api/backup/cleanup?keepDays=30" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
@@ -278,6 +302,7 @@ curl -X DELETE "http://localhost:3001/api/backup/cleanup?keepDays=30" \
 Система автоматически выполняет следующие задачи:
 
 **Ежемесячный бэкап** (1-го числа каждого месяца в 2:00):
+
 ```typescript
 @Cron('0 2 1 * *')
 async handleMonthlyBackup() {
@@ -289,16 +314,19 @@ async handleMonthlyBackup() {
 ### 3.2. Shell скрипты для VM
 
 **Создание бэкапа на VM:**
+
 ```bash
 ~/scripts/create-backup.sh
 ```
 
 **Автоматическая настройка:**
+
 ```bash
 ./vm-backup-setup.sh <vm_ip> <ssh_key>
 ```
 
 **Скачивание бэкапов с VM:**
+
 ```bash
 ./download-backups.sh <vm_ip> <ssh_key> <local_dir>
 ```
@@ -311,13 +339,14 @@ async handleMonthlyBackup() {
 
 **Рекомендации по частоте:**
 
-| Окружение | Частота | Метод |
-|-----------|---------|-------|
-| **Development** | Перед важными изменениями | Ручной |
-| **Staging** | Ежедневно | Автоматический |
-| **Production** | Ежедневно (2:00 AM) | Автоматический |
+| Окружение       | Частота                   | Метод          |
+| --------------- | ------------------------- | -------------- |
+| **Development** | Перед важными изменениями | Ручной         |
+| **Staging**     | Ежедневно                 | Автоматический |
+| **Production**  | Ежедневно (2:00 AM)       | Автоматический |
 
 **Важно:**
+
 - 📅 **Production**: Ежедневные бэкапы обязательны
 - 🔄 **Перед обновлениями**: Всегда создавайте бэкап
 - 🧪 **Перед тестами**: Бэкап перед тестированием миграций
@@ -325,11 +354,13 @@ async handleMonthlyBackup() {
 ### 4.2. Хранение бэкапов
 
 **Стратегия хранения (3-2-1 rule):**
+
 - 3 копии данных
 - 2 разных типа носителей
 - 1 копия вне офиса
 
 **Для Coffee Admin Panel:**
+
 ```
 ├── Local VM:     30 дней (автоочистка)
 ├── Dev Machine:  7 дней (еженедельная загрузка)
@@ -337,24 +368,27 @@ async handleMonthlyBackup() {
 ```
 
 **Сроки хранения:**
+
 ```typescript
 // В коде
 const RETENTION_POLICY = {
-  daily: 30,      // 30 дней для ежедневных
-  monthly: 180,   // 6 месяцев для ежемесячных
-  yearly: 2190,   // 6 лет для годовых (если требуется)
+  daily: 30, // 30 дней для ежедневных
+  monthly: 180, // 6 месяцев для ежемесячных
+  yearly: 2190, // 6 лет для годовых (если требуется)
 };
 ```
 
 ### 4.3. Тестирование восстановления
 
 **Регулярное тестирование:**
+
 1. Создайте тестовую среду
 2. Восстановите последний бэкап
 3. Проверьте целостность данных
 4. Документируйте результаты
 
 **Пример теста восстановления:**
+
 ```bash
 #!/bin/bash
 # test-restore.sh
@@ -384,6 +418,7 @@ echo "✅ Restore test completed"
 ### 4.4. Мониторинг размера бэкапов
 
 **Следите за ростом:**
+
 ```bash
 # Проверка размера бэкапов
 du -sh ~/backups/
@@ -393,6 +428,7 @@ ls -lh ~/backups/ | tail -30
 ```
 
 **Алерты при превышении:**
+
 - Если размер бэкапа > 100MB: проверить таблицы
 - Если рост > 50% за месяц: оптимизировать БД
 
@@ -485,7 +521,7 @@ if [ $? -eq 0 ]; then
   BACKUP_PATH=$(echo $RESPONSE | jq -r '.backupPath')
   BACKUP_NAME=$(basename $BACKUP_PATH)
   BACKUP_SIZE=$(du -h $BACKUP_PATH | cut -f1)
-  
+
   # Успешное уведомление
   curl -X POST $WEBHOOK_URL \
     -H 'Content-Type: application/json' \
@@ -508,6 +544,7 @@ fi
 ```
 
 **Добавьте в crontab:**
+
 ```bash
 0 2 * * * /path/to/daily-backup-with-notification.sh
 ```
@@ -531,7 +568,7 @@ interface BackupMetadata {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BackupService {
   private http = inject(HttpClient);
@@ -558,7 +595,7 @@ export class BackupService {
 
   downloadBackup(fileName: string): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/download/${fileName}`, {
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
 
@@ -583,11 +620,11 @@ import { BackupService } from '@app/services/backup.service';
   selector: 'app-backup-management',
   templateUrl: './backup-management.component.html',
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule],
 })
 export class BackupManagementComponent implements OnInit {
   private backupService = inject(BackupService);
-  
+
   backups$ = signal<BackupMetadata[]>([]);
   loading$ = signal(false);
   uploadProgress$ = signal(0);
@@ -599,26 +636,26 @@ export class BackupManagementComponent implements OnInit {
   loadBackups() {
     this.loading$.set(true);
     this.backupService.listBackups().subscribe({
-      next: (data) => {
+      next: data => {
         this.backups$.set(data.backups);
         this.loading$.set(false);
       },
-      error: (err) => {
+      error: err => {
         console.error('Failed to load backups', err);
         this.loading$.set(false);
-      }
+      },
     });
   }
 
   createBackup() {
     if (!confirm('Create a new backup?')) return;
-    
+
     this.backupService.createBackup().subscribe({
-      next: (result) => {
+      next: result => {
         alert(`Backup created: ${result.backupPath}`);
         this.loadBackups();
       },
-      error: (err) => alert(`Failed to create backup: ${err.message}`)
+      error: err => alert(`Failed to create backup: ${err.message}`),
     });
   }
 
@@ -627,7 +664,7 @@ export class BackupManagementComponent implements OnInit {
     if (!input.files?.length) return;
 
     const file = input.files[0];
-    
+
     // Проверка размера
     if (file.size > 100 * 1024 * 1024) {
       alert('File size exceeds 100MB limit');
@@ -645,25 +682,25 @@ export class BackupManagementComponent implements OnInit {
 
   uploadBackup(file: File) {
     this.loading$.set(true);
-    
+
     this.backupService.uploadBackup(file).subscribe({
-      next: (result) => {
+      next: result => {
         alert(`Backup uploaded: ${result.fileName}`);
         this.loadBackups();
       },
-      error: (err) => {
+      error: err => {
         alert(`Upload failed: ${err.message}`);
         this.loading$.set(false);
-      }
+      },
     });
   }
 
   restoreBackup(fileName: string) {
     const confirmed = confirm(
       `⚠️ WARNING: This will overwrite the current database!\n\n` +
-      `Are you sure you want to restore from: ${fileName}?`
+        `Are you sure you want to restore from: ${fileName}?`
     );
-    
+
     if (!confirmed) return;
 
     this.backupService.restoreBackup(fileName).subscribe({
@@ -671,13 +708,13 @@ export class BackupManagementComponent implements OnInit {
         alert('Database restored successfully! Please refresh the page.');
         setTimeout(() => window.location.reload(), 2000);
       },
-      error: (err) => alert(`Restore failed: ${err.message}`)
+      error: err => alert(`Restore failed: ${err.message}`),
     });
   }
 
   downloadBackup(fileName: string) {
     this.backupService.downloadBackup(fileName).subscribe({
-      next: (blob) => {
+      next: blob => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -685,7 +722,7 @@ export class BackupManagementComponent implements OnInit {
         link.click();
         window.URL.revokeObjectURL(url);
       },
-      error: (err) => alert(`Download failed: ${err.message}`)
+      error: err => alert(`Download failed: ${err.message}`),
     });
   }
 
@@ -697,7 +734,7 @@ export class BackupManagementComponent implements OnInit {
         alert('Backup deleted');
         this.loadBackups();
       },
-      error: (err) => alert(`Delete failed: ${err.message}`)
+      error: err => alert(`Delete failed: ${err.message}`),
     });
   }
 }
@@ -710,10 +747,11 @@ export class BackupManagementComponent implements OnInit {
 ### 6.1. Контроль доступа
 
 **Только администраторы:**
+
 ```typescript
 @Controller('backup')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.ADMIN)  // ✅ Только ADMIN
+@Roles(UserRole.ADMIN) // ✅ Только ADMIN
 export class BackupController {
   // ...
 }
@@ -722,6 +760,7 @@ export class BackupController {
 ### 6.2. Валидация файлов
 
 **Проверки при загрузке:**
+
 - ✅ Расширение файла (только .sql, .sqlite)
 - ✅ Размер файла (макс 100MB)
 - ✅ Санитизация имени файла
@@ -730,11 +769,12 @@ export class BackupController {
 ### 6.3. Логирование
 
 Все операции логируются:
+
 ```typescript
 this.logger.log('Database backup created', {
   action: 'backup_created',
   resource: 'database',
-  metadata: { fileName, fileSize, filePath }
+  metadata: { fileName, fileSize, filePath },
 });
 ```
 
@@ -745,6 +785,7 @@ this.logger.log('Database backup created', {
 ### 7.1. Что мониторить
 
 **Ключевые метрики:**
+
 - ✅ Успешность бэкапов (>99%)
 - ✅ Время создания бэкапа (<5 минут)
 - ✅ Размер бэкапов (тренд роста)
@@ -753,6 +794,7 @@ this.logger.log('Database backup created', {
 ### 7.2. Алерты
 
 **Настройте уведомления при:**
+
 - ❌ Бэкап не создан в течение 25 часов
 - ❌ Размер бэкапа вырос на >50%
 - ❌ Свободное место <10%
@@ -790,11 +832,13 @@ fi
 ## 🤝 Поддержка
 
 При проблемах с бэкапами:
+
 1. Проверьте логи: `docker-compose logs backend`
 2. Проверьте место на диске: `df -h`
 3. Проверьте права доступа: `ls -la backups/`
 
 **Критичные ситуации:**
+
 - Немедленно создайте ручной бэкап
 - Скачайте бэкап на локальную машину
 - Обратитесь к команде поддержки
@@ -802,4 +846,3 @@ fi
 ---
 
 **✅ Следуя этим практикам, вы обеспечите надежное резервное копирование и быстрое восстановление данных Coffee Admin Panel!**
-

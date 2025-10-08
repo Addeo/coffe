@@ -191,7 +191,7 @@ export class OrganizationsService {
 
   async remove(id: number): Promise<void> {
     const organization = await this.findOneIncludingInactive(id);
-    
+
     // Hard delete - полное удаление из базы данных
     await this.organizationRepository.remove(organization);
   }

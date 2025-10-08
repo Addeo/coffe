@@ -3,6 +3,7 @@
 ## Проблема
 
 При запросе списка заказов через API инженеры получали данные с пустыми relations:
+
 - `organization: null` (вместо объекта Organization)
 - `assignedEngineer: null` (вместо объекта Engineer)
 - `createdBy: null` или неполные данные
@@ -24,20 +25,20 @@ TypeORM entities используют snake_case для foreign key колоно
 
 ```sql
 -- Миграция для таблицы orders
-UPDATE orders 
-SET organization_id = organizationId 
+UPDATE orders
+SET organization_id = organizationId
 WHERE organization_id IS NULL AND organizationId IS NOT NULL;
 
-UPDATE orders 
-SET assigned_engineer_id = assignedEngineerId 
+UPDATE orders
+SET assigned_engineer_id = assignedEngineerId
 WHERE assigned_engineer_id IS NULL AND assignedEngineerId IS NOT NULL;
 
-UPDATE orders 
-SET created_by = createdById 
+UPDATE orders
+SET created_by = createdById
 WHERE created_by IS NULL AND createdById IS NOT NULL;
 
-UPDATE orders 
-SET assigned_by = assignedById 
+UPDATE orders
+SET assigned_by = assignedById
 WHERE assigned_by IS NULL AND assignedById IS NOT NULL;
 ```
 
@@ -46,8 +47,8 @@ WHERE assigned_by IS NULL AND assignedById IS NOT NULL;
 После миграции можно проверить результат:
 
 ```sql
-SELECT 
-  id, 
+SELECT
+  id,
   organizationId, organization_id,
   assignedEngineerId, assigned_engineer_id,
   createdById, created_by,
@@ -117,10 +118,10 @@ UPDATE orders SET assigned_by = assignedById WHERE assigned_by IS NULL;
 UPDATE engineers SET user_id = userId WHERE user_id IS NULL;
 
 -- Engineer Organization Rates
-UPDATE engineer_organization_rates 
+UPDATE engineer_organization_rates
 SET engineer_id = engineerId WHERE engineer_id IS NULL;
 
-UPDATE engineer_organization_rates 
+UPDATE engineer_organization_rates
 SET organization_id = organizationId WHERE organization_id IS NULL;
 
 -- Work Reports (если есть)
@@ -183,4 +184,3 @@ FROM engineers WHERE user_id IS NULL AND userId IS NOT NULL;
 
 - `STATISTICS_DASHBOARD_FIX.md` - Исправления статистики
 - `STATISTICS_FIX_SUMMARY.md` - Общий обзор исправлений системы статистики
-

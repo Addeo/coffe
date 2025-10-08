@@ -150,7 +150,6 @@ export class EngineerRatesComponent implements OnInit {
     return engineer ? `${engineer.firstName} ${engineer.lastName}` : `Engineer ${rate.engineerId}`;
   }
 
-
   onEditRate(rate: EngineerOrganizationRateDto) {
     // Open edit dialog
     this.openRateDialog(rate);
@@ -173,7 +172,6 @@ export class EngineerRatesComponent implements OnInit {
       }
     });
   }
-
 
   onDeleteRate(rate: EngineerOrganizationRateDto) {
     if (!this.canEditRates) {

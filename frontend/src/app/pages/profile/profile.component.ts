@@ -58,7 +58,14 @@ export class ProfileComponent implements OnInit {
   // Engineer rates data
   engineerRates = signal<EngineerOrganizationRateDto[]>([]);
   isLoadingRates = signal(false);
-  displayedColumns = ['organizationName', 'customBaseRate', 'customOvertimeRate', 'customZone1Extra', 'customZone2Extra', 'customZone3Extra'];
+  displayedColumns = [
+    'organizationName',
+    'customBaseRate',
+    'customOvertimeRate',
+    'customZone1Extra',
+    'customZone2Extra',
+    'customZone3Extra',
+  ];
 
   // Check if current user is an engineer
   get isEngineer(): boolean {
@@ -96,10 +103,10 @@ export class ProfileComponent implements OnInit {
 
     // Load full user profile with engineer data
     this.usersService.getUserProfile().subscribe({
-      next: (fullProfile) => {
+      next: fullProfile => {
         this.fullUserProfile.set(fullProfile);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error loading full user profile:', error);
       },
     });
@@ -110,11 +117,11 @@ export class ProfileComponent implements OnInit {
     if (user?.id) {
       this.isLoadingRates.set(true);
       this.engineerRatesService.getActiveRatesForEngineer(user.id).subscribe({
-        next: (rates) => {
+        next: rates => {
           this.engineerRates.set(rates);
           this.isLoadingRates.set(false);
         },
-        error: (error) => {
+        error: error => {
           console.error('Error loading engineer rates:', error);
           this.snackBar.open('Failed to load engineer rates', 'Close', { duration: 3000 });
           this.isLoadingRates.set(false);

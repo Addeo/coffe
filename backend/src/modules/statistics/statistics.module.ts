@@ -10,7 +10,9 @@ import { WorkReport } from '../../entities/work-report.entity';
 import { Engineer } from '../../entities/engineer.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([EarningsStatistic, Order, User, Organization, WorkReport, Engineer])],
+  imports: [
+    TypeOrmModule.forFeature([EarningsStatistic, Order, User, Organization, WorkReport, Engineer]),
+  ],
   controllers: [StatisticsController],
   providers: [StatisticsService],
   exports: [StatisticsService],

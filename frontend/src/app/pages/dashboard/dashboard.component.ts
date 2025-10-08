@@ -6,7 +6,11 @@ import { MaterialModule } from '../../shared/material/material.module';
 import { AuthService } from '../../services/auth.service';
 import { OrdersService } from '../../services/orders.service';
 import { UsersService } from '../../services/users.service';
-import { StatisticsService, EarningsComparison, AdminEngineerStatistics } from '../../services/statistics.service';
+import {
+  StatisticsService,
+  EarningsComparison,
+  AdminEngineerStatistics,
+} from '../../services/statistics.service';
 import { UserRole } from '@shared/interfaces/user.interface';
 import { EngineerDetailedStatsDto } from '@shared/dtos/reports.dto';
 
@@ -49,10 +53,10 @@ export class DashboardComponent implements OnInit {
     previousMonth: null,
     growth: 0,
   });
-  
+
   // Статистика инженера
   engineerStats = signal<EngineerDetailedStatsDto | null>(null);
-  
+
   // Статистика для админа по всем инженерам
   adminEngineerStats = signal<AdminEngineerStatistics | null>(null);
 
@@ -76,10 +80,10 @@ export class DashboardComponent implements OnInit {
   showEarningsStats = computed(() =>
     this.authService.hasAnyRole([UserRole.MANAGER, UserRole.USER])
   );
-  
+
   // Показывать детальную статистику только для инженеров (роль USER)
   showEngineerStats = computed(() => this.userRole() === UserRole.USER);
-  
+
   // Показывать статистику по всем инженерам только для админа
   showAdminEngineerStats = computed(() => this.userRole() === UserRole.ADMIN);
 
@@ -109,12 +113,12 @@ export class DashboardComponent implements OnInit {
     if (this.showEarningsStats()) {
       this.loadEarningsStats();
     }
-    
+
     // Загрузка детальной статистики для инженера
     if (this.showEngineerStats()) {
       this.loadEngineerStats();
     }
-    
+
     // Загрузка статистики по всем инженерам для админа
     if (this.showAdminEngineerStats()) {
       this.loadAdminEngineerStats();
@@ -184,7 +188,7 @@ export class DashboardComponent implements OnInit {
     if (growth < 0) return 'trending_down';
     return 'trending_flat';
   }
-  
+
   /**
    * Загружает детальную статистику для инженера
    */
@@ -193,17 +197,17 @@ export class DashboardComponent implements OnInit {
     const now = new Date();
     const currentMonth = now.getMonth() + 1; // getMonth() возвращает месяц от 0 до 11
     const currentYear = now.getFullYear();
-    
+
     this.statisticsService.getEngineerDetailedStats(currentYear, currentMonth).subscribe({
       next: (stats: EngineerDetailedStatsDto) => {
         this.engineerStats.set(stats);
       },
       error: (error: any) => {
         console.error('Failed to load engineer statistics:', error);
-      }
+      },
     });
   }
-  
+
   /**
    * Загружает статистику по всем инженерам для админа
    */
@@ -211,17 +215,17 @@ export class DashboardComponent implements OnInit {
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
-    
+
     this.statisticsService.getAdminEngineerStatistics(currentYear, currentMonth).subscribe({
       next: (stats: AdminEngineerStatistics) => {
         this.adminEngineerStats.set(stats);
       },
       error: (error: any) => {
         console.error('Failed to load admin engineer statistics:', error);
-      }
+      },
     });
   }
-  
+
   /**
    * Форматирует число часов в удобочитаемый формат
    * @param hours Количество часов
@@ -229,7 +233,7 @@ export class DashboardComponent implements OnInit {
   formatHours(hours: number): string {
     return hours.toFixed(1) + ' ч';
   }
-  
+
   /**
    * Форматирует сумму в рублях
    * @param amount Сумма в рублях

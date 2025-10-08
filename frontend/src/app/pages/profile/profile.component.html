@@ -31,7 +31,9 @@
           <!-- Profile Information -->
           <mat-card class="info-card">
             <mat-card-header>
-              <mat-card-title i18n="@@profile.profileInformation">Информация о профиле</mat-card-title>
+              <mat-card-title i18n="@@profile.profileInformation"
+                >Информация о профиле</mat-card-title
+              >
               <mat-card-subtitle i18n="@@profile.updatePersonalInfo"
                 >Обновите свою личную информацию</mat-card-subtitle
               >
@@ -50,7 +52,8 @@
                     <input matInput formControlName="firstName" [readonly]="!isEditing()" />
                     <mat-error
                       *ngIf="
-                        profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched
+                        profileForm.get('firstName')?.invalid &&
+                        profileForm.get('firstName')?.touched
                       "
                       i18n="@@profile.firstNameRequired"
                     >
@@ -62,7 +65,9 @@
                     <mat-label i18n="@@profile.lastName">Фамилия</mat-label>
                     <input matInput formControlName="lastName" [readonly]="!isEditing()" />
                     <mat-error
-                      *ngIf="profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched"
+                      *ngIf="
+                        profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched
+                      "
                       i18n="@@profile.lastNameRequired"
                     >
                       Фамилия обязательна и должна содержать минимум 2 символа
@@ -139,7 +144,9 @@
         <div class="tab-content">
           <mat-card class="engineer-rates-card">
             <mat-card-header>
-              <mat-card-title i18n="@@profile.engineerRates">Мои ставки по организациям</mat-card-title>
+              <mat-card-title i18n="@@profile.engineerRates"
+                >Мои ставки по организациям</mat-card-title
+              >
               <mat-card-subtitle i18n="@@profile.engineerRatesSubtitle"
                 >Индивидуальные ставки оплаты за работу в разных организациях</mat-card-subtitle
               >
@@ -151,27 +158,42 @@
                 <p>Загрузка ставок...</p>
               </div>
 
-              <div *ngIf="!isLoadingRates() && engineerRates().length > 0" class="rates-table-container">
+              <div
+                *ngIf="!isLoadingRates() && engineerRates().length > 0"
+                class="rates-table-container"
+              >
                 <table mat-table [dataSource]="engineerRates()" class="mat-elevation-z2">
                   <!-- Organization Name Column -->
                   <ng-container matColumnDef="organizationName">
-                    <th mat-header-cell *matHeaderCellDef i18n="@@profile.organization">Организация</th>
+                    <th mat-header-cell *matHeaderCellDef i18n="@@profile.organization">
+                      Организация
+                    </th>
                     <td mat-cell *matCellDef="let rate">{{ rate.organizationName }}</td>
                   </ng-container>
 
                   <!-- Base Rate Column -->
                   <ng-container matColumnDef="customBaseRate">
-                    <th mat-header-cell *matHeaderCellDef i18n="@@profile.baseRate">Базовая ставка</th>
+                    <th mat-header-cell *matHeaderCellDef i18n="@@profile.baseRate">
+                      Базовая ставка
+                    </th>
                     <td mat-cell *matCellDef="let rate">
-                      {{ rate.customBaseRate ? formatCurrency(rate.customBaseRate) : 'По умолчанию' }}
+                      {{
+                        rate.customBaseRate ? formatCurrency(rate.customBaseRate) : 'По умолчанию'
+                      }}
                     </td>
                   </ng-container>
 
                   <!-- Overtime Rate Column -->
                   <ng-container matColumnDef="customOvertimeRate">
-                    <th mat-header-cell *matHeaderCellDef i18n="@@profile.overtimeRate">Ставка переработки</th>
+                    <th mat-header-cell *matHeaderCellDef i18n="@@profile.overtimeRate">
+                      Ставка переработки
+                    </th>
                     <td mat-cell *matCellDef="let rate">
-                      {{ rate.customOvertimeRate ? formatCurrency(rate.customOvertimeRate) : 'По умолчанию' }}
+                      {{
+                        rate.customOvertimeRate
+                          ? formatCurrency(rate.customOvertimeRate)
+                          : 'По умолчанию'
+                      }}
                     </td>
                   </ng-container>
 
@@ -200,7 +222,7 @@
                   </ng-container>
 
                   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
                 </table>
               </div>
 
@@ -218,7 +240,9 @@
         <div class="tab-content">
           <mat-card class="engineer-settings-card">
             <mat-card-header>
-              <mat-card-title i18n="@@profile.vehicleData">Данные по автомобилю и работе</mat-card-title>
+              <mat-card-title i18n="@@profile.vehicleData"
+                >Данные по автомобилю и работе</mat-card-title
+              >
               <mat-card-subtitle i18n="@@profile.vehicleDataSubtitle"
                 >Информация о настройках автомобиля, территории и зарплате</mat-card-subtitle
               >
@@ -234,21 +258,47 @@
                     <div class="rate-details">
                       <div class="rate-item">
                         <span class="rate-label">Базовая ставка:</span>
-                        <span class="rate-value">{{ formatCurrency(getEngineerData()!.baseRate) }}/час</span>
+                        <span class="rate-value"
+                          >{{ formatCurrency(getEngineerData()!.baseRate) }}/час</span
+                        >
                       </div>
                       <div class="rate-item" *ngIf="getEngineerData()!.overtimeRate">
                         <span class="rate-label">Ставка переработки:</span>
-                        <span class="rate-value">{{ formatCurrency(getEngineerData()!.overtimeRate!) }}/час</span>
+                        <span class="rate-value"
+                          >{{ formatCurrency(getEngineerData()!.overtimeRate!) }}/час</span
+                        >
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <!-- No Engineer Data Message -->
-                <div class="no-engineer-data" *ngIf="!getEngineerData()" style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px;">
-                  <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #856404; margin-bottom: 16px;">info</mat-icon>
-                  <h4 style="color: #856404; margin: 0 0 8px 0;">Данные инженера не найдены</h4>
-                  <p style="color: #856404; margin: 0;">Возможно, ваш профиль еще не полностью настроен.</p>
+                <div
+                  class="no-engineer-data"
+                  *ngIf="!getEngineerData()"
+                  style="
+                    grid-column: 1 / -1;
+                    text-align: center;
+                    padding: 40px;
+                    background: #fff3cd;
+                    border: 1px solid #ffeaa7;
+                    border-radius: 4px;
+                  "
+                >
+                  <mat-icon
+                    style="
+                      font-size: 48px;
+                      width: 48px;
+                      height: 48px;
+                      color: #856404;
+                      margin-bottom: 16px;
+                    "
+                    >info</mat-icon
+                  >
+                  <h4 style="color: #856404; margin: 0 0 8px 0">Данные инженера не найдены</h4>
+                  <p style="color: #856404; margin: 0">
+                    Возможно, ваш профиль еще не полностью настроен.
+                  </p>
                 </div>
 
                 <!-- Vehicle Settings -->
@@ -259,7 +309,9 @@
                     <div class="rate-details">
                       <div class="rate-item">
                         <span class="rate-label">Фиксированная сумма за машину:</span>
-                        <span class="rate-value">{{ formatCurrency(getEngineerData()!.fixedCarAmount) }}/мес</span>
+                        <span class="rate-value"
+                          >{{ formatCurrency(getEngineerData()!.fixedCarAmount) }}/мес</span
+                        >
                       </div>
                     </div>
                   </div>
@@ -273,11 +325,17 @@
                     <div class="rate-details">
                       <div class="rate-item">
                         <span class="rate-label">Фиксированная сумма за территорию:</span>
-                        <span class="rate-value">{{ formatCurrency(getEngineerData()!.homeTerritoryFixedAmount) }}/мес</span>
+                        <span class="rate-value"
+                          >{{
+                            formatCurrency(getEngineerData()!.homeTerritoryFixedAmount)
+                          }}/мес</span
+                        >
                       </div>
                       <div class="rate-item">
                         <span class="rate-label">Плановые часы в месяц:</span>
-                        <span class="rate-value">{{ formatNumber(getEngineerData()!.planHoursMonth) }} часов</span>
+                        <span class="rate-value"
+                          >{{ formatNumber(getEngineerData()!.planHoursMonth) }} часов</span
+                        >
                       </div>
                     </div>
                   </div>
@@ -291,7 +349,9 @@
                     <div class="rate-details">
                       <div class="rate-item">
                         <span class="rate-label">Фиксированная зарплата:</span>
-                        <span class="rate-value">{{ formatCurrency(getEngineerData()!.fixedSalary) }}/мес</span>
+                        <span class="rate-value"
+                          >{{ formatCurrency(getEngineerData()!.fixedSalary) }}/мес</span
+                        >
                       </div>
                     </div>
                   </div>

@@ -421,9 +421,9 @@ export class CalculationService {
     engineer: Engineer,
     organization: Organization,
     workReport: WorkReport
-  ): Promise<{ 
-    calculatedAmount: number; 
-    carUsageAmount: number; 
+  ): Promise<{
+    calculatedAmount: number;
+    carUsageAmount: number;
     organizationPayment: number;
     isOvertime: boolean;
   }> {

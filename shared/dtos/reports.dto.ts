@@ -75,25 +75,25 @@ export interface EngineerDetailedStatsDto {
   engineerName: string;
   month: number;
   year: number;
-  
+
   // Информация о часах
   totalHours: number;
   regularHours: number;
   overtimeHours: number;
-  
+
   // Финансовая информация
   totalEarnings: number;
-  baseEarnings: number;  // Обязательная часть (плановые часы * базовая ставка)
+  baseEarnings: number; // Обязательная часть (плановые часы * базовая ставка)
   overtimeEarnings: number;
   bonusEarnings: number;
-  
+
   // Дополнительная информация
   completedOrders: number;
   averageHoursPerOrder: number;
-  
+
   // Сравнение с предыдущим месяцем
   previousMonthHours?: number;
   previousMonthEarnings?: number;
-  hoursGrowth?: number;  // в процентах
-  earningsGrowth?: number;  // в процентах
+  hoursGrowth?: number; // в процентах
+  earningsGrowth?: number; // в процентах
 }

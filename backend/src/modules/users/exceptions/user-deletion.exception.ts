@@ -15,7 +15,7 @@ export class UserDeletionException extends HttpException {
         conflicts,
         error: 'USER_DELETION_CONFLICT',
       },
-      HttpStatus.CONFLICT,
+      HttpStatus.CONFLICT
     );
   }
 }

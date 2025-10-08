@@ -58,7 +58,7 @@ export class BackupService {
       } else {
         // SQLite бэкап для development
         const sqliteDbPath = path.join(process.cwd(), 'database.sqlite');
-        
+
         if (!fs.existsSync(sqliteDbPath)) {
           throw new Error('SQLite database file not found');
         }
@@ -114,14 +114,13 @@ export class BackupService {
           const filePath = path.join(backupDir, file);
           const stats = fs.statSync(filePath);
           const sizeInMB = stats.size / (1024 * 1024);
-          
+
           return {
             name: file,
             path: filePath,
             size: stats.size,
-            sizeFormatted: sizeInMB >= 1 
-              ? `${sizeInMB.toFixed(2)} MB` 
-              : `${(stats.size / 1024).toFixed(2)} KB`,
+            sizeFormatted:
+              sizeInMB >= 1 ? `${sizeInMB.toFixed(2)} MB` : `${(stats.size / 1024).toFixed(2)} KB`,
             createdAt: stats.birthtime,
             type: file.includes('mysql') ? 'mysql' : 'sqlite',
           } as BackupMetadata;
@@ -151,7 +150,9 @@ export class BackupService {
       const isSqliteFile = backupFileName.endsWith('.sqlite');
 
       if (!isSqlFile && !isSqliteFile) {
-        throw new BadRequestException('Invalid backup file format. Only .sql and .sqlite files are supported');
+        throw new BadRequestException(
+          'Invalid backup file format. Only .sql and .sqlite files are supported'
+        );
       }
 
       if (isProduction && !isSqlFile) {
@@ -198,7 +199,7 @@ export class BackupService {
       this.logger.log(`Database restored successfully from: ${backupFileName}`, {
         action: 'database_restored',
         resource: 'database',
-        metadata: { 
+        metadata: {
           backupFileName,
           dbType: isProduction ? 'mysql' : 'sqlite',
         },
@@ -258,19 +259,16 @@ export class BackupService {
       const stats = fs.statSync(backupFilePath);
       const fileSizeMB = (stats.size / (1024 * 1024)).toFixed(2);
 
-      this.logger.log(
-        `Backup file uploaded successfully: ${backupFileName} (${fileSizeMB} MB)`,
-        {
-          action: 'backup_uploaded',
-          resource: 'backup',
-          metadata: {
-            fileName: backupFileName,
-            originalName: file.originalname,
-            fileSize: stats.size,
-            filePath: backupFilePath,
-          },
-        }
-      );
+      this.logger.log(`Backup file uploaded successfully: ${backupFileName} (${fileSizeMB} MB)`, {
+        action: 'backup_uploaded',
+        resource: 'backup',
+        metadata: {
+          fileName: backupFileName,
+          originalName: file.originalname,
+          fileSize: stats.size,
+          filePath: backupFilePath,
+        },
+      });
 
       return backupFileName;
     } catch (error) {

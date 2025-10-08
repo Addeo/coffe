@@ -131,7 +131,9 @@ export class DeleteConfirmationDialogComponent {
         },
         error: error => {
           console.error('Ошибка удаления пользователя:', error);
-          this.toastService.showError('Ошибка удаления пользователя. Пожалуйста, попробуйте еще раз.');
+          this.toastService.showError(
+            'Ошибка удаления пользователя. Пожалуйста, попробуйте еще раз.'
+          );
           this.isLoading.set(false);
         },
       });

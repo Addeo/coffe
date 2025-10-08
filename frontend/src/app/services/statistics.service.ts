@@ -7,7 +7,7 @@ import {
   AgentEarningsData,
   OrganizationEarningsData,
   OvertimeStatisticsData,
-  EngineerDetailedStatsDto
+  EngineerDetailedStatsDto,
 } from '@shared/dtos/reports.dto';
 
 export interface EarningsComparison {
@@ -69,9 +69,7 @@ export class StatisticsService {
       params = '?' + queryParams.join('&');
     }
 
-    return this.http.get<MonthlyStatisticsDto>(
-      `${environment.apiUrl}/statistics/monthly${params}`
-    );
+    return this.http.get<MonthlyStatisticsDto>(`${environment.apiUrl}/statistics/monthly${params}`);
   }
 
   /**

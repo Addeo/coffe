@@ -43,7 +43,7 @@ export class NotificationsComponent implements OnInit, AfterViewInit {
     message: $localize`:@@notifications.message:Message`,
     priority: $localize`:@@notifications.priority:Priority`,
     created: $localize`:@@notifications.created:Created`,
-    actions: $localize`:@@notifications.actions:Actions`
+    actions: $localize`:@@notifications.actions:Actions`,
   };
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;

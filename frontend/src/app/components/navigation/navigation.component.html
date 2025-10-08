@@ -91,7 +91,11 @@
     <div class="right-section" *ngIf="isAuthenticated()">
       <!-- Notifications -->
       <div class="notifications-menu">
-        <button mat-icon-button [matMenuTriggerFor]="notificationsMenu" class="notifications-button">
+        <button
+          mat-icon-button
+          [matMenuTriggerFor]="notificationsMenu"
+          class="notifications-button"
+        >
           <mat-icon class="notifications-icon">notifications</mat-icon>
           <span
             class="notifications-badge"

@@ -85,7 +85,8 @@ export const routes: Routes = [
   },
   {
     path: 'orders/:id/edit',
-    loadComponent: () => import('./pages/order-edit/order-edit.component').then(m => m.OrderEditComponent),
+    loadComponent: () =>
+      import('./pages/order-edit/order-edit.component').then(m => m.OrderEditComponent),
     canActivate: [AuthGuard],
     data: { title: 'Edit Order' },
   },
@@ -109,7 +110,8 @@ export const routes: Routes = [
   },
   {
     path: 'statistics',
-    loadComponent: () => import('./pages/statistics/statistics.component').then(m => m.StatisticsComponent),
+    loadComponent: () =>
+      import('./pages/statistics/statistics.component').then(m => m.StatisticsComponent),
     canActivate: [AuthGuard],
     data: { roles: ['admin', 'manager'], title: 'Statistics' },
   },
@@ -129,8 +131,7 @@ export const routes: Routes = [
   },
   {
     path: 'backups',
-    loadComponent: () =>
-      import('./pages/backups/backups.component').then(m => m.BackupsComponent),
+    loadComponent: () => import('./pages/backups/backups.component').then(m => m.BackupsComponent),
     canActivate: [AuthGuard],
     data: { roles: ['admin'], title: 'Database Backups' },
   },

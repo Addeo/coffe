@@ -5,18 +5,20 @@
 ### 1. ✅ JWT Secret - обязательная проверка
 
 **Проблема:**
+
 ```typescript
-secretOrKey: configService.get<string>('JWT_SECRET') || 'your-secret-key' // ⚠️ ОПАСНО!
+secretOrKey: configService.get<string>('JWT_SECRET') || 'your-secret-key'; // ⚠️ ОПАСНО!
 ```
 
 **Исправлено:**
+
 ```typescript
 const secret = configService.get<string>('JWT_SECRET');
 
 if (!secret) {
   throw new Error(
     'JWT_SECRET is not defined in environment variables! ' +
-    'Please set JWT_SECRET in your .env file before starting the application.'
+      'Please set JWT_SECRET in your .env file before starting the application.'
   );
 }
 ```
@@ -30,6 +32,7 @@ if (!secret) {
 ### 2. ✅ База данных убрана из Git
 
 **Проблема:**
+
 - `database.sqlite` - база с реальными данными в репозитории
 - `backend/database.sqlite` - дубликат
 - Любой с доступом к Git может скачать все данные
@@ -37,6 +40,7 @@ if (!secret) {
 **Исправлено:**
 
 1. Добавлено в `.gitignore`:
+
 ```gitignore
 # Databases - КРИТИЧНО: НЕ ЗАГРУЖАТЬ В GIT!
 *.sqlite
@@ -47,6 +51,7 @@ backend/database.sqlite
 ```
 
 2. Файлы удалены из Git индекса:
+
 ```bash
 git rm --cached database.sqlite backend/database.sqlite
 ```
@@ -58,12 +63,14 @@ git rm --cached database.sqlite backend/database.sqlite
 ### 3. ✅ Uploads убраны из Git
 
 **Проблема:**
+
 - Загруженные пользователями файлы в репозитории
 - Может содержать конфиденциальную информацию
 
 **Исправлено:**
 
 1. Добавлено в `.gitignore`:
+
 ```gitignore
 # Uploads and user files - НЕ ЗАГРУЖАТЬ В GIT!
 uploads/
@@ -71,6 +78,7 @@ backend/uploads/
 ```
 
 2. Файлы удалены из Git:
+
 ```bash
 git rm --cached -r backend/uploads/
 ```
@@ -82,6 +90,7 @@ git rm --cached -r backend/uploads/
 ### 4. ✅ Backups убраны из Git
 
 **Исправлено:**
+
 ```gitignore
 # Backups - НЕ ЗАГРУЖАТЬ В GIT!
 backups/
@@ -95,6 +104,7 @@ backend/backups/
 ### 5. 📝 Обновлен env.example
 
 **Добавлено:**
+
 - Четкие инструкции по генерации JWT_SECRET
 - Предупреждения о безопасности
 - Рекомендации для dev и prod
@@ -107,14 +117,18 @@ backend/backups/
 ## 📚 Новая документация
 
 ### 1. `DATABASE_SETUP.md`
+
 Полное руководство по настройке БД:
+
 - Почему разные БД - это плохо
 - Как перейти на MySQL везде через Docker
 - Альтернатива с PostgreSQL
 - Настройка миграций
 
 ### 2. `docker-compose.dev.yml`
+
 Готовая конфигурация для локальной разработки:
+
 - MySQL 8.0
 - phpMyAdmin для просмотра БД
 - Автоматическая инициализация
@@ -133,16 +147,19 @@ cp env.example .env
 ### Шаг 2: Сгенерируйте JWT_SECRET
 
 **Вариант 1 (Node.js):**
+
 ```bash
 node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"
 ```
 
 **Вариант 2 (OpenSSL):**
+
 ```bash
 openssl rand -base64 64
 ```
 
 **Вставьте результат в .env:**
+
 ```env
 JWT_SECRET=ваш_сгенерированный_секрет_здесь
 ```
@@ -150,6 +167,7 @@ JWT_SECRET=ваш_сгенерированный_секрет_здесь
 ### Шаг 3: Настройте БД
 
 **Опция A: Продолжить с SQLite (быстро, но не рекомендуется)**
+
 ```env
 # В .env оставьте как есть, SQLite будет работать
 NODE_ENV=development
@@ -159,17 +177,20 @@ NODE_ENV=development
 
 1. Установите Docker Desktop
 2. Запустите MySQL:
+
 ```bash
 docker-compose -f docker-compose.dev.yml up -d
 ```
 
 3. Проверьте:
+
 ```bash
 docker ps
 # Должен быть запущен coffee_admin_mysql_dev
 ```
 
 4. Обновите .env:
+
 ```env
 NODE_ENV=development
 DB_HOST=localhost
@@ -312,6 +333,7 @@ cp database.sqlite database.sqlite.backup
 ## 📞 Вопросы?
 
 Если что-то непонятно или не работает:
+
 1. Проверьте документацию в `docs/`
 2. Посмотрите логи: `docker logs coffee_admin_mysql_dev`
 3. Проверьте .env файл

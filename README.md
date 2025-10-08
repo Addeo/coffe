@@ -75,10 +75,10 @@ A modern admin panel built with Angular/Ionic frontend and NestJS backend, conta
    ```bash
    # Copy example environment file
    cp env.example .env
-   
+
    # Generate secure JWT secret
    openssl rand -base64 64
-   
+
    # Edit .env and set JWT_SECRET to the generated value
    # JWT_SECRET=<your-generated-secret>
    ```
@@ -91,7 +91,7 @@ A modern admin panel built with Angular/Ionic frontend and NestJS backend, conta
    npm run dev
    ```
 
-3. **Or run locally**:
+4. **Or run locally**:
 
    ```bash
    # Backend
@@ -320,7 +320,6 @@ This project is licensed under the MIT License.
 admin@coffee.com
 password
 
-
 dante.ns.cloudflare.com
 
 mallory.ns.cloudflare.com
@@ -337,12 +336,12 @@ cloudflared tunnel run my-tunnel
 
 http://localhost:4202/files
 
- http://localhost:4200/backups
+http://localhost:4200/backups
 
- ngrok http 3001
+ngrok http 3001
 
- https://addeo.github.io/coffe-deploy/
+https://addeo.github.io/coffe-deploy/
 
 admin@coffee.com
 
- admin123
+admin123

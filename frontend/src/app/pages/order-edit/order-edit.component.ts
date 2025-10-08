@@ -56,7 +56,7 @@ interface FileUploadProgress {
     MatCardModule,
   ],
   templateUrl: './order-edit.component.html',
-  styleUrl: './order-edit.component.scss'
+  styleUrl: './order-edit.component.scss',
 })
 export class OrderEditComponent implements OnInit {
   private fb = inject(FormBuilder);
@@ -74,7 +74,7 @@ export class OrderEditComponent implements OnInit {
   OrderStatus = OrderStatus;
   OrderSource = OrderSource;
   UserRole = UserRole; // Добавляем UserRole для проверки роли пользователя
-  
+
   orderId: number | null = null;
   isEdit = false;
   order: OrderDto | null = null;
@@ -85,24 +85,24 @@ export class OrderEditComponent implements OnInit {
   isUploadingFiles = signal(false);
   isDragOver = signal(false);
   uploadProgress = signal<FileUploadProgress[]>([]);
-  
+
   // Image Viewer Modal
   imageModalVisible = false;
   currentImageMetadata: any = null;
-  
+
   // Tabs
   selectedTabIndex = 0;
-  
+
   // Доступные статусы заказа в зависимости от роли пользователя
   get availableStatuses(): OrderStatus[] {
     const currentUser = this.authService.currentUser();
     if (!currentUser) return [];
-    
+
     // Админы и менеджеры могут устанавливать любой статус
     if (currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.MANAGER) {
       return Object.values(OrderStatus);
     }
-    
+
     // Инженеры имеют ограниченный набор статусов в зависимости от текущего статуса заказа
     if (currentUser.role === UserRole.USER && this.order) {
       if (this.order.assignedEngineerId === currentUser.id) {
@@ -116,31 +116,31 @@ export class OrderEditComponent implements OnInit {
         }
       }
     }
-    
+
     return [];
   }
-  
+
   // Проверка, является ли пользователь инженером
   get isEngineer(): boolean {
     const currentUser = this.authService.currentUser();
     return currentUser?.role === UserRole.USER;
   }
-  
+
   // Проверка, может ли пользователь редактировать заказ
   get canEditOrder(): boolean {
     const currentUser = this.authService.currentUser();
     if (!currentUser || !this.order) return false;
-    
+
     // Админы и менеджеры могут редактировать любой заказ
     if (currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.MANAGER) {
       return true;
     }
-    
+
     // Инженеры могут редактировать только свои назначенные заказы
     if (currentUser.role === UserRole.USER) {
       return this.order.assignedEngineerId === currentUser.id;
     }
-    
+
     return false;
   }
 
@@ -171,15 +171,17 @@ export class OrderEditComponent implements OnInit {
 
   // Show work report tab for engineers when order is WORKING or COMPLETED
   showWorkReportTab = computed(() => {
-    return this.isEngineer &&
+    return (
+      this.isEngineer &&
       this.isEdit &&
       this.order &&
-      (this.order.status === OrderStatus.WORKING || this.order.status === OrderStatus.COMPLETED);
+      (this.order.status === OrderStatus.WORKING || this.order.status === OrderStatus.COMPLETED)
+    );
   });
 
   ngOnInit() {
     this.loadOrganizations();
-    
+
     // Get order ID from route params
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
@@ -190,25 +192,25 @@ export class OrderEditComponent implements OnInit {
       }
     });
   }
-  
+
   private loadOrder(id: number) {
     this.isLoading.set(true);
-    
+
     this.ordersService.getOrder(id).subscribe({
-      next: (order) => {
+      next: order => {
         this.order = order;
         this.populateForm(order);
         this.isLoading.set(false);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error loading order:', error);
         this.toastService.error('Ошибка загрузки заказа');
         this.isLoading.set(false);
         this.router.navigate(['/orders']);
-      }
+      },
     });
   }
-  
+
   private populateForm(order: OrderDto) {
     this.orderForm.patchValue({
       title: order.title,
@@ -611,12 +613,12 @@ export class OrderEditComponent implements OnInit {
     this.isLoading.set(true);
 
     this.ordersService.createWorkReport(this.orderId, workReportData).subscribe({
-      next: (workReport) => {
+      next: workReport => {
         this.toastService.success('Отчет о работе успешно создан');
         this.workReportForm.reset();
         this.loadOrder(this.orderId!); // Reload order to see updated status
       },
-      error: (error) => {
+      error: error => {
         console.error('Error creating work report:', error);
         this.toastService.error('Ошибка создания отчета о работе');
         this.isLoading.set(false);
@@ -686,12 +688,12 @@ export class OrderEditComponent implements OnInit {
   formatDateTime(date: Date | string | undefined): string {
     if (!date) return 'Не указано';
     const d = new Date(date);
-    return d.toLocaleString('ru-RU', { 
-      year: 'numeric', 
-      month: 'short', 
+    return d.toLocaleString('ru-RU', {
+      year: 'numeric',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   }
 

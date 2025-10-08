@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from '../../entities/order.entity';
@@ -217,10 +222,21 @@ export class OrdersService {
       .leftJoin('order.files', 'files')
       .leftJoin('files.uploadedBy', 'fileUploadedBy')
       .addSelect([
-        'files.id', 'files.filename', 'files.originalName', 'files.mimetype',
-        'files.size', 'files.path', 'files.type', 'files.description',
-        'files.uploadedById', 'files.orderId', 'files.uploadedAt',
-        'fileUploadedBy.id', 'fileUploadedBy.firstName', 'fileUploadedBy.lastName', 'fileUploadedBy.email'
+        'files.id',
+        'files.filename',
+        'files.originalName',
+        'files.mimetype',
+        'files.size',
+        'files.path',
+        'files.type',
+        'files.description',
+        'files.uploadedById',
+        'files.orderId',
+        'files.uploadedAt',
+        'fileUploadedBy.id',
+        'fileUploadedBy.firstName',
+        'fileUploadedBy.lastName',
+        'fileUploadedBy.email',
       ]);
 
     // Apply filters based on user role
@@ -232,7 +248,9 @@ export class OrdersService {
       });
 
       if (engineer) {
-        queryBuilder.andWhere('order.assignedEngineerId = :engineerId', { engineerId: engineer.id });
+        queryBuilder.andWhere('order.assignedEngineerId = :engineerId', {
+          engineerId: engineer.id,
+        });
       } else {
         // If no engineer profile found, return no orders
         queryBuilder.andWhere('1 = 0'); // Always false condition
@@ -340,10 +358,21 @@ export class OrdersService {
       .leftJoin('order.files', 'files')
       .leftJoin('files.uploadedBy', 'fileUploadedBy')
       .addSelect([
-        'files.id', 'files.filename', 'files.originalName', 'files.mimetype',
-        'files.size', 'files.path', 'files.type', 'files.description',
-        'files.uploadedById', 'files.orderId', 'files.uploadedAt',
-        'fileUploadedBy.id', 'fileUploadedBy.firstName', 'fileUploadedBy.lastName', 'fileUploadedBy.email'
+        'files.id',
+        'files.filename',
+        'files.originalName',
+        'files.mimetype',
+        'files.size',
+        'files.path',
+        'files.type',
+        'files.description',
+        'files.uploadedById',
+        'files.orderId',
+        'files.uploadedAt',
+        'fileUploadedBy.id',
+        'fileUploadedBy.firstName',
+        'fileUploadedBy.lastName',
+        'fileUploadedBy.email',
       ])
       .leftJoinAndSelect('order.workReports', 'workReports')
       .leftJoinAndSelect('workReports.engineer', 'workReportEngineer')
@@ -379,7 +408,10 @@ export class OrdersService {
       }
 
       // Engineers can change status from PROCESSING to WORKING, or WORKING to COMPLETED
-      if (updateOrderDto.status === OrderStatus.WORKING && order.status !== OrderStatus.PROCESSING) {
+      if (
+        updateOrderDto.status === OrderStatus.WORKING &&
+        order.status !== OrderStatus.PROCESSING
+      ) {
         throw new BadRequestException('You can only start working on orders in PROCESSING status');
       }
       if (updateOrderDto.status === OrderStatus.COMPLETED && order.status !== OrderStatus.WORKING) {
@@ -437,51 +469,8 @@ export class OrdersService {
       await this.sendStatusChangeNotifications(updatedOrder, user.id);
     }
 
-    // Recalculate earnings statistics if order status changed to/from completed
-    // or if assigned engineer changed (to update both old and new engineer's stats)
-    const shouldUpdateStats = 
-      (updateOrderDto.status === OrderStatus.COMPLETED && oldStatus !== OrderStatus.COMPLETED) ||
-      (oldStatus === OrderStatus.COMPLETED && updateOrderDto.status && updateOrderDto.status !== OrderStatus.COMPLETED) ||
-      (updateOrderDto.assignedEngineerId && updateOrderDto.assignedEngineerId !== order.assignedEngineerId);
-
-    if (shouldUpdateStats) {
-      const completionDate = updatedOrder.completionDate || new Date();
-      const engineersToUpdate = new Set<number>();
-
-      // Add current assigned engineer
-      if (updatedOrder.assignedEngineerId) {
-        const engineer = await this.engineersRepository.findOne({
-          where: { id: updatedOrder.assignedEngineerId },
-        });
-        if (engineer) {
-          engineersToUpdate.add(engineer.userId);
-        }
-      }
-
-      // Add old assigned engineer if it changed
-      if (order.assignedEngineerId && order.assignedEngineerId !== updatedOrder.assignedEngineerId) {
-        const oldEngineer = await this.engineersRepository.findOne({
-          where: { id: order.assignedEngineerId },
-        });
-        if (oldEngineer) {
-          engineersToUpdate.add(oldEngineer.userId);
-        }
-      }
-
-      // Update statistics for all affected engineers
-      for (const engineerUserId of engineersToUpdate) {
-        try {
-          await this.statisticsService.calculateMonthlyEarnings(
-            engineerUserId,
-            completionDate.getMonth() + 1,
-            completionDate.getFullYear()
-          );
-          console.log(`Statistics updated for engineer ${engineerUserId} after order update`);
-        } catch (error) {
-          console.error(`Failed to update statistics for engineer ${engineerUserId}:`, error);
-        }
-      }
-    }
+    // Statistics are now calculated in real-time from work_reports
+    // No need to update cached statistics
 
     // Return updated order with attached files
     return this.findOne(id, user);
@@ -492,7 +481,12 @@ export class OrdersService {
     assignEngineerDto: AssignEngineerDto,
     user: User
   ): Promise<Order> {
-    console.log('🚀 assignEngineer called:', { id, engineerId: assignEngineerDto.engineerId, userRole: user.role, userId: user.id });
+    console.log('🚀 assignEngineer called:', {
+      id,
+      engineerId: assignEngineerDto.engineerId,
+      userRole: user.role,
+      userId: user.id,
+    });
 
     // Only admins and managers can assign engineers
     if (user.role !== UserRole.ADMIN && user.role !== UserRole.MANAGER) {
@@ -519,17 +513,21 @@ export class OrdersService {
     console.log('🔍 Engineer lookup result:', {
       engineerId: assignEngineerDto.engineerId,
       engineerFound: !!engineer,
-      engineerData: engineer ? {
-        id: engineer.id,
-        userId: engineer.userId,
-        isActive: engineer.isActive,
-        hasUser: !!engineer.user,
-        user: engineer.user ? {
-          id: engineer.user.id,
-          email: engineer.user.email,
-          isActive: engineer.user.isActive
-        } : null
-      } : null
+      engineerData: engineer
+        ? {
+            id: engineer.id,
+            userId: engineer.userId,
+            isActive: engineer.isActive,
+            hasUser: !!engineer.user,
+            user: engineer.user
+              ? {
+                  id: engineer.user.id,
+                  email: engineer.user.email,
+                  isActive: engineer.user.isActive,
+                }
+              : null,
+          }
+        : null,
     });
 
     if (!engineer) {
@@ -591,7 +589,7 @@ export class OrdersService {
           console.log(`Cannot delete order: status is ${order.status}, not WAITING`);
           throw new BadRequestException('Can only delete waiting orders');
         }
-        
+
         if (order.createdById !== user.id) {
           console.log(`User ${user.id} cannot delete order created by ${order.createdById}`);
           throw new BadRequestException('Insufficient permissions to delete this order');
@@ -615,42 +613,10 @@ export class OrdersService {
       console.log('Deleting related files...');
       await this.filesRepository.delete({ orderId: id });
 
-      // Get work reports before deletion to update statistics
-      const workReportsToDelete = await this.workReportsRepository.find({ 
-        where: { orderId: id },
-        relations: ['engineer']
-      });
-
+      // Delete related work reports
+      // Statistics are now calculated in real-time from work_reports
       console.log('Deleting related work reports...');
       await this.workReportsRepository.delete({ orderId: id });
-
-      // Update statistics for affected engineers
-      if (workReportsToDelete.length > 0) {
-        const affectedEngineers = new Set<number>();
-        const reportDates = new Map<number, Date>();
-
-        for (const report of workReportsToDelete) {
-          if (report.engineer?.userId) {
-            affectedEngineers.add(report.engineer.userId);
-            reportDates.set(report.engineer.userId, report.submittedAt || new Date());
-          }
-        }
-
-        // Update statistics for each affected engineer
-        for (const engineerUserId of affectedEngineers) {
-          const reportDate = reportDates.get(engineerUserId) || new Date();
-          try {
-            await this.statisticsService.calculateMonthlyEarnings(
-              engineerUserId,
-              reportDate.getMonth() + 1,
-              reportDate.getFullYear()
-            );
-            console.log(`Statistics updated for engineer ${engineerUserId} after deleting work reports`);
-          } catch (error) {
-            console.error(`Failed to update statistics for engineer ${engineerUserId}:`, error);
-          }
-        }
-      }
 
       console.log('Deleting related activity logs...');
       await this.activityLogRepository
@@ -1025,10 +991,16 @@ export class OrdersService {
     // Получаем ставки инженера для организации (с учётом кастомных ставок)
     let rates;
     try {
-      rates = await this.calculationService.getEngineerRatesForOrganization(engineer, order.organization);
+      rates = await this.calculationService.getEngineerRatesForOrganization(
+        engineer,
+        order.organization
+      );
     } catch (error) {
       // Если индивидуальные ставки не установлены, используем базовые ставки инженера
-      console.warn(`Using default rates for engineer ${engineer.id} and organization ${order.organizationId}:`, error.message);
+      console.warn(
+        `Using default rates for engineer ${engineer.id} and organization ${order.organizationId}:`,
+        error.message
+      );
       rates = {
         baseRate: engineer.baseRate || 700,
         overtimeRate: engineer.overtimeRate || engineer.baseRate || 700,
@@ -1044,9 +1016,12 @@ export class OrdersService {
 
     // Рассчитываем оплату от организации (базовая ставка организации * коэффициент * часы)
     const organizationRegularPayment = workReportData.regularHours * order.organization.baseRate;
-    const organizationOvertimePayment = workReportData.overtimeHours > 0 && order.organization.hasOvertime
-      ? workReportData.overtimeHours * order.organization.baseRate * order.organization.overtimeMultiplier
-      : workReportData.overtimeHours * order.organization.baseRate;
+    const organizationOvertimePayment =
+      workReportData.overtimeHours > 0 && order.organization.hasOvertime
+        ? workReportData.overtimeHours *
+          order.organization.baseRate *
+          order.organization.overtimeMultiplier
+        : workReportData.overtimeHours * order.organization.baseRate;
     const organizationPayment = organizationRegularPayment + organizationOvertimePayment;
 
     console.log('💰 Payment calculation:', {
@@ -1057,7 +1032,7 @@ export class OrdersService {
         overtimeRate: rates.overtimeRate,
         regularPayment,
         overtimePayment,
-        totalPayment
+        totalPayment,
       },
       organization: {
         name: order.organization.name,
@@ -1066,10 +1041,10 @@ export class OrdersService {
         hasOvertime: order.organization.hasOvertime,
         regularPayment: organizationRegularPayment,
         overtimePayment: organizationOvertimePayment,
-        totalPayment: organizationPayment
+        totalPayment: organizationPayment,
       },
       profit: organizationPayment - totalPayment,
-      carPayment: workReportData.carPayment
+      carPayment: workReportData.carPayment,
     });
 
     // Создаем отчет о работе
@@ -1112,19 +1087,9 @@ export class OrdersService {
       engineer.userId
     );
 
-    // Обновляем статистику заработка инженера
-    const reportDate = savedReport.submittedAt || new Date();
-    try {
-      await this.statisticsService.calculateMonthlyEarnings(
-        engineer.userId, // Используем userId, не engineer.id!
-        reportDate.getMonth() + 1,
-        reportDate.getFullYear()
-      );
-      console.log('Statistics updated for engineer', engineer.userId);
-    } catch (error) {
-      console.error('Failed to update statistics for engineer', engineer.userId, error);
-      // Не блокируем сохранение отчета если статистика не обновилась
-    }
+    // Statistics are now calculated in real-time from work_reports
+    // No need to update cached statistics
+    console.log('Work report created for engineer', engineer.userId);
 
     return savedReport;
   }
@@ -1176,7 +1141,10 @@ export class OrdersService {
     console.log('========================================\n');
 
     // First, detach all existing files from this order
-    const detachResult = await this.filesRepository.update({ orderId }, { order: null, orderId: null });
+    const detachResult = await this.filesRepository.update(
+      { orderId },
+      { order: null, orderId: null }
+    );
     console.log(`✂️  Detached ${detachResult.affected || 0} existing files from order ${orderId}`);
 
     // Helper function to validate UUID
@@ -1199,7 +1167,7 @@ export class OrdersService {
 
       for (const fileId of fileIds) {
         console.log(`\n  Processing file ID: ${fileId}`);
-        
+
         // Skip invalid UUIDs
         if (!isValidUUID(fileId)) {
           console.warn(`  ⚠️  Invalid UUID format: ${fileId}, skipping`);
@@ -1209,7 +1177,9 @@ export class OrdersService {
 
         const file = await this.filesRepository.findOne({ where: { id: fileId } });
         if (file) {
-          console.log(`  📄 Found file: ${file.originalName} (${file.mimetype}, ${file.size} bytes)`);
+          console.log(
+            `  📄 Found file: ${file.originalName} (${file.mimetype}, ${file.size} bytes)`
+          );
           file.order = order;
           file.orderId = orderId;
           const savedFile = await this.filesRepository.save(file);

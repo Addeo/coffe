@@ -62,7 +62,9 @@
                 </ng-container>
 
                 <ng-container *ngIf="column === 'title'">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders.title }}</th>
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                    {{ columnHeaders.title }}
+                  </th>
                   <td mat-cell *matCellDef="let notification">
                     <div class="title-cell">
                       <strong>{{ notification.title }}</strong>
@@ -83,7 +85,9 @@
                 </ng-container>
 
                 <ng-container *ngIf="column === 'priority'">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders.priority }}</th>
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                    {{ columnHeaders.priority }}
+                  </th>
                   <td mat-cell *matCellDef="let notification">
                     <mat-chip [color]="getPriorityColor(notification.priority)" selected>
                       <mat-icon>{{ getPriorityIcon(notification.priority) }}</mat-icon>
@@ -93,7 +97,9 @@
                 </ng-container>
 
                 <ng-container *ngIf="column === 'createdAt'">
-                  <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders.created }}</th>
+                  <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                    {{ columnHeaders.created }}
+                  </th>
                   <td mat-cell *matCellDef="let notification">
                     {{ formatDate(notification.createdAt) }}
                   </td>
@@ -317,9 +323,7 @@
       <div class="no-data-container">
         <mat-icon class="no-data-icon">notifications_off</mat-icon>
         <h3>Уведомления не найдены</h3>
-        <p>
-          У вас нет уведомлений в этой категории.
-        </p>
+        <p>У вас нет уведомлений в этой категории.</p>
       </div>
 
       <!-- Paginator -->

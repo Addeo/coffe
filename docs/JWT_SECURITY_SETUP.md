@@ -26,6 +26,7 @@ JWT (JSON Web Token) используется для аутентификаци�
 ### Development (локальная разработка)
 
 **Файл:** `.env`
+
 ```env
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 NODE_ENV=development
@@ -36,6 +37,7 @@ NODE_ENV=development
 ### Production
 
 **Требования к JWT_SECRET:**
+
 - ✅ Минимум **32 символа**
 - ✅ Содержит буквы, цифры и специальные символы
 - ✅ Случайно сгенерирован
@@ -57,6 +59,7 @@ node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"
 ```
 
 **Пример безопасного секрета:**
+
 ```env
 JWT_SECRET=8Zf9kL2mN5pQ7rS1tU3vW6xY0zA4bC8dE2fG5hJ7kL9mN1pQ3rS5tU7vW9xY1zA3
 ```
@@ -64,6 +67,7 @@ JWT_SECRET=8Zf9kL2mN5pQ7rS1tU3vW6xY0zA4bC8dE2fG5hJ7kL9mN1pQ3rS5tU7vW9xY1zA3
 ### Docker / Docker Compose
 
 **docker-compose.yml:**
+
 ```yaml
 services:
   backend:
@@ -74,6 +78,7 @@ services:
 ```
 
 **Или через secrets (рекомендуется):**
+
 ```yaml
 services:
   backend:
@@ -90,6 +95,7 @@ secrets:
 ### Kubernetes
 
 **Secret:**
+
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -97,10 +103,11 @@ metadata:
   name: jwt-secret
 type: Opaque
 stringData:
-  JWT_SECRET: "your-production-secret-here"
+  JWT_SECRET: 'your-production-secret-here'
 ```
 
 **Deployment:**
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -110,33 +117,37 @@ spec:
   template:
     spec:
       containers:
-      - name: backend
-        env:
-        - name: JWT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: jwt-secret
-              key: JWT_SECRET
+        - name: backend
+          env:
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: JWT_SECRET
 ```
 
 ### Cloud Providers
 
 #### Render.com
+
 1. Dashboard → Service → Environment
 2. Add Environment Variable:
    - Key: `JWT_SECRET`
    - Value: `<your-generated-secret>`
 
 #### Heroku
+
 ```bash
 heroku config:set JWT_SECRET="your-generated-secret"
 ```
 
 #### AWS (ECS/EKS)
+
 - Используйте **AWS Secrets Manager** или **Parameter Store**
 - Загружайте секрет при старте контейнера
 
 #### Yandex Cloud / SberCloud
+
 - Используйте встроенные сервисы управления секретами
 - Или передавайте через переменные окружения VM
 
@@ -189,6 +200,7 @@ curl http://localhost:3001/api/users \
 ### Процесс ротации:
 
 1. **Подготовка:**
+
    ```bash
    # Сгенерировать новый секрет
    NEW_SECRET=$(openssl rand -base64 64)
@@ -196,12 +208,14 @@ curl http://localhost:3001/api/users \
    ```
 
 2. **Обновление:**
+
    ```bash
    # Обновить .env или переменные окружения
    JWT_SECRET="$NEW_SECRET"
    ```
 
 3. **Перезапуск:**
+
    ```bash
    # Перезапустить backend
    pm2 restart coffee-admin-backend
@@ -209,7 +223,7 @@ curl http://localhost:3001/api/users \
    docker-compose restart backend
    ```
 
-4. **Важно:** 
+4. **Важно:**
    - ⚠️ Все активные токены станут невалидными
    - 👥 Пользователи должны будут войти заново
    - 📱 Мобильные приложения потребуют повторной авторизации
@@ -217,6 +231,7 @@ curl http://localhost:3001/api/users \
 ### Стратегия без downtime (advanced):
 
 Для ротации без отключения пользователей можно:
+
 1. Поддерживать два секрета одновременно (старый + новый)
 2. Подписывать новые токены новым секретом
 3. Проверять токены обоими секретами
@@ -227,6 +242,7 @@ curl http://localhost:3001/api/users \
 ### ✅ Best Practices:
 
 1. **Никогда не коммитьте .env в git**
+
    ```gitignore
    # .gitignore
    .env
@@ -265,6 +281,7 @@ curl http://localhost:3001/api/users \
 ### Проблема: "JWT_SECRET is not defined"
 
 **Решение:**
+
 ```bash
 # 1. Проверить наличие .env файла
 ls -la .env
@@ -285,11 +302,13 @@ echo "JWT_SECRET=<generated-secret>" >> .env
 ### Проблема: "Invalid token"
 
 **Возможные причины:**
+
 1. JWT_SECRET был изменён после создания токена
 2. Токен истёк (> 24 часа)
 3. Токен повреждён
 
 **Решение:**
+
 ```bash
 # Получить новый токен
 curl -X POST http://localhost:3001/api/auth/login \
@@ -300,6 +319,7 @@ curl -X POST http://localhost:3001/api/auth/login \
 ### Проблема: Backend не запускается
 
 **Проверить:**
+
 ```bash
 # 1. Загружается ли .env
 cd backend
@@ -321,8 +341,8 @@ JwtModule.registerAsync({
   // ...
   useFactory: async (configService: ConfigService) => ({
     secret: configService.get<string>('JWT_SECRET'),
-    signOptions: { 
-      expiresIn: '7d' // Изменить на нужное значение
+    signOptions: {
+      expiresIn: '7d', // Изменить на нужное значение
       // '1h' - 1 час
       // '24h' - 24 часа
       // '7d' - 7 дней
@@ -330,12 +350,13 @@ JwtModule.registerAsync({
     },
   }),
   // ...
-})
+});
 ```
 
 ### Добавить refresh tokens (advanced)
 
 Для реализации refresh tokens нужно:
+
 1. Создать отдельную таблицу для refresh tokens
 2. Добавить endpoint `/auth/refresh`
 3. Хранить refresh token в httpOnly cookie

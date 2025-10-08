@@ -103,7 +103,12 @@
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
 
-          <button mat-icon-button (click)="refreshData()" matTooltip="Обновить данные" aria-label="Обновить">
+          <button
+            mat-icon-button
+            (click)="refreshData()"
+            matTooltip="Обновить данные"
+            aria-label="Обновить"
+          >
             <mat-icon>refresh</mat-icon>
           </button>
 
@@ -180,9 +185,7 @@
 
           <!-- Created Date Column -->
           <ng-container matColumnDef="createdAt">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              Создан
-            </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Создан</th>
             <td mat-cell *matCellDef="let order">{{ order.createdAt | date: 'short' }}</td>
           </ng-container>
 
@@ -194,7 +197,8 @@
                 mat-icon-button
                 (click)="onEditOrder(order)"
                 color="primary"
-                matTooltip="Редактировать заказ" aria-label="Редактировать"
+                matTooltip="Редактировать заказ"
+                aria-label="Редактировать"
                 *ngIf="canEditOrder(order)"
               >
                 <mat-icon>edit</mat-icon>
@@ -204,7 +208,8 @@
                 mat-button
                 [matMenuTriggerFor]="statusMenu"
                 color="accent"
-                matTooltip="Изменить статус" aria-label="Изменить статус"
+                matTooltip="Изменить статус"
+                aria-label="Изменить статус"
                 *ngIf="canUpdateOrderStatus(order)"
               >
                 <mat-icon>edit</mat-icon>
@@ -226,7 +231,8 @@
                 (click)="onAssignEngineer(order)"
                 [disabled]="order.status === 'completed'"
                 color="primary"
-                matTooltip="Назначить инженера" aria-label="Назначить инженера"
+                matTooltip="Назначить инженера"
+                aria-label="Назначить инженера"
                 *ngIf="canAssignEngineers && !order.assignedEngineerId"
               >
                 <mat-icon>person_add</mat-icon>
@@ -236,7 +242,8 @@
                 mat-icon-button
                 (click)="onDeleteOrder(order)"
                 color="warn"
-                matTooltip="Удалить заказ" aria-label="Удалить"
+                matTooltip="Удалить заказ"
+                aria-label="Удалить"
                 *ngIf="canDeleteOrders"
               >
                 <mat-icon>delete</mat-icon>
@@ -252,9 +259,7 @@
         <div class="no-data" *ngIf="dataSource.data.length === 0">
           <mat-icon>assignment</mat-icon>
           <h3>Заказы не найдены</h3>
-          <p>
-            Нет заказов, соответствующих критериям поиска, или заказы еще не были созданы.
-          </p>
+          <p>Нет заказов, соответствующих критериям поиска, или заказы еще не были созданы.</p>
         </div>
       </div>
 

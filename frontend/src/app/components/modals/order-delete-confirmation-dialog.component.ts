@@ -48,9 +48,7 @@ export interface OrderDeleteConfirmationData {
         <div class="warning-box">
           <mat-icon>warning</mat-icon>
           <div>
-            <p class="warning-text">
-              <strong>Внимание!</strong> Это действие нельзя отменить.
-            </p>
+            <p class="warning-text"><strong>Внимание!</strong> Это действие нельзя отменить.</p>
             <p class="warning-text" *ngIf="data.order && data.order.status !== 'waiting'">
               При удалении заказа будут также удалены все связанные данные:
             </p>
@@ -65,12 +63,7 @@ export interface OrderDeleteConfirmationData {
 
       <mat-dialog-actions align="end">
         <button mat-button (click)="onCancel()">Отмена</button>
-        <button
-          mat-raised-button
-          color="warn"
-          (click)="onConfirm()"
-          [disabled]="isLoading()"
-        >
+        <button mat-raised-button color="warn" (click)="onConfirm()" [disabled]="isLoading()">
           <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
           <span *ngIf="!isLoading()">Удалить</span>
         </button>

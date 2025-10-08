@@ -56,13 +56,7 @@ export interface ImageViewerData {
 
       <mat-dialog-actions align="end">
         <button mat-button (click)="close()">Закрыть</button>
-        <a
-          mat-raised-button
-          color="primary"
-          [href]="data.imageUrl"
-          download
-          target="_blank"
-        >
+        <a mat-raised-button color="primary" [href]="data.imageUrl" download target="_blank">
           <mat-icon>download</mat-icon>
           Скачать
         </a>
@@ -231,4 +225,3 @@ export class ImageViewerDialogComponent {
     this.dialogRef.close();
   }
 }
-

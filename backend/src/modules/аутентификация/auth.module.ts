@@ -17,14 +17,14 @@ import { LocalStrategy } from './local.strategy';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
         const secret = configService.get<string>('JWT_SECRET');
-        
+
         if (!secret) {
           throw new Error(
             'JWT_SECRET is not defined in environment variables! ' +
-            'Please set JWT_SECRET in your .env file before starting the application.'
+              'Please set JWT_SECRET in your .env file before starting the application.'
           );
         }
-        
+
         return {
           secret,
           signOptions: { expiresIn: '24h' },

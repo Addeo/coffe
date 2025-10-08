@@ -16,7 +16,7 @@ import {
   MonthlyStatisticsDto,
   AgentEarningsData,
   OrganizationEarningsData,
-  OvertimeStatisticsData
+  OvertimeStatisticsData,
 } from '@shared/dtos/reports.dto';
 
 @Component({
@@ -74,9 +74,15 @@ export class StatisticsComponent implements OnInit {
     'totalProfit',
     'profitMargin',
     'totalOrders',
-    'totalHours'
+    'totalHours',
   ];
-  overtimeColumns = ['agentName', 'overtimeHours', 'regularHours', 'totalHours', 'overtimePercentage'];
+  overtimeColumns = [
+    'agentName',
+    'overtimeHours',
+    'regularHours',
+    'totalHours',
+    'overtimePercentage',
+  ];
 
   ngOnInit() {
     this.loadStatistics();
@@ -87,11 +93,11 @@ export class StatisticsComponent implements OnInit {
     this.statisticsService
       .getMonthlyStatistics(this.selectedYear(), this.selectedMonth())
       .subscribe({
-        next: (data) => {
+        next: data => {
           this.statistics.set(data);
           this.isLoading.set(false);
         },
-        error: (error) => {
+        error: error => {
           console.error('Error loading statistics:', error);
           this.snackBar.open('Failed to load statistics', 'Close', { duration: 3000 });
           this.isLoading.set(false);

@@ -104,10 +104,7 @@ export class OrdersService {
       notes?: string;
     }
   ): Observable<any> {
-    return this.http.post(
-      `${environment.apiUrl}/orders/${orderId}/work-reports`,
-      workReportData
-    );
+    return this.http.post(`${environment.apiUrl}/orders/${orderId}/work-reports`, workReportData);
   }
 
   getWorkReports(orderId: number): Observable<any[]> {

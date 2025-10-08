@@ -157,10 +157,7 @@ interface FileUploadProgress {
           <div class="files-table" *ngIf="!isLoading()">
             <div class="stats">
               <span>Всего файлов: {{ filteredFiles().length }}</span>
-              <span
-                >Общий размер:
-                {{ (getTotalSize() / 1024 / 1024).toFixed(2) }} MB</span
-              >
+              <span>Общий размер: {{ (getTotalSize() / 1024 / 1024).toFixed(2) }} MB</span>
             </div>
 
             <table mat-table [dataSource]="filteredFiles()" class="files-table-element">
@@ -241,18 +238,10 @@ interface FileUploadProgress {
               <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>Действия</th>
                 <td mat-cell *matCellDef="let file">
-                  <button
-                    mat-icon-button
-                    [matTooltip]="'Просмотр'"
-                    (click)="viewFile(file)"
-                  >
+                  <button mat-icon-button [matTooltip]="'Просмотр'" (click)="viewFile(file)">
                     <mat-icon>visibility</mat-icon>
                   </button>
-                  <button
-                    mat-icon-button
-                    [matTooltip]="'Скачать'"
-                    (click)="downloadFile(file)"
-                  >
+                  <button mat-icon-button [matTooltip]="'Скачать'" (click)="downloadFile(file)">
                     <mat-icon>download</mat-icon>
                   </button>
                   <button
@@ -559,7 +548,7 @@ export class FilesComponent implements OnInit {
       error: error => {
         console.error('Error loading files:', error);
         this.toastService.error('Ошибка загрузки файлов');
-    this.isLoading.set(false);
+        this.isLoading.set(false);
       },
     });
   }
@@ -587,9 +576,7 @@ export class FilesComponent implements OnInit {
     this.uploadProgress.set([...this.uploadProgress(), progressItem]);
 
     try {
-      const uploadedFile = await this.filesService
-        .uploadFile(file, FileType.OTHER)
-        .toPromise();
+      const uploadedFile = await this.filesService.uploadFile(file, FileType.OTHER).toPromise();
 
       if (uploadedFile) {
         progressItem.progress = 100;
@@ -641,8 +628,7 @@ export class FilesComponent implements OnInit {
       const query = this.searchQuery.toLowerCase();
       filtered = filtered.filter(
         f =>
-          f.originalName.toLowerCase().includes(query) ||
-          f.filename.toLowerCase().includes(query)
+          f.originalName.toLowerCase().includes(query) || f.filename.toLowerCase().includes(query)
       );
     }
 

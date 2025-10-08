@@ -7,11 +7,13 @@
 ## Problem Statement
 
 Пользователь указал, что нужно отображать:
+
 1. Все доходы со всех заказов (выручка от организаций)
 2. Все расходы на зарплаты инженеров по заказам
 3. Разницу (профицит/прибыль) после вычета одного из другого
 
 **Пример:**
+
 - Заказ может идти по 1000₽/час от организации
 - Инженер получает 700₽/час
 - Прибыль = 300₽/час
@@ -21,6 +23,7 @@
 ### 1. Updated DTO (`shared/dtos/reports.dto.ts`)
 
 **Before:**
+
 ```typescript
 export interface OrganizationEarningsData {
   organizationId: number;
@@ -32,14 +35,15 @@ export interface OrganizationEarningsData {
 ```
 
 **After:**
+
 ```typescript
 export interface OrganizationEarningsData {
   organizationId: number;
   organizationName: string;
-  totalRevenue: number;      // Выручка от организации (часы × ставка организации)
-  totalCosts: number;        // Затраты на инженеров (часы × ставка инженера)
-  totalProfit: number;       // Прибыль (выручка - затраты)
-  profitMargin: number;      // Маржа прибыли в процентах
+  totalRevenue: number; // Выручка от организации (часы × ставка организации)
+  totalCosts: number; // Затраты на инженеров (часы × ставка инженера)
+  totalProfit: number; // Прибыль (выручка - затраты)
+  profitMargin: number; // Маржа прибыли в процентах
   totalOrders: number;
   totalHours: number;
   averageOrderValue: number;
@@ -98,45 +102,53 @@ private async getOrganizationEarningsData(startDate: Date, endDate: Date): Promi
 **Key Calculations:**
 
 1. **Total Revenue (Выручка):**
+
    ```sql
    SUM(report.totalHours * organization.baseRate)
    ```
+
    - Что организация платит нам за работу
    - Например: 10 часов × 1000₽/час = 10,000₽
 
 2. **Total Costs (Затраты):**
+
    ```sql
    SUM(report.calculatedAmount)
    ```
+
    - Что мы платим инженерам
    - Например: 10 часов × 700₽/час = 7,000₽
 
 3. **Total Profit (Прибыль):**
+
    ```typescript
-   totalRevenue - totalCosts
+   totalRevenue - totalCosts;
    ```
+
    - Наша прибыль
    - Например: 10,000₽ - 7,000₽ = 3,000₽
 
 4. **Profit Margin (Маржа):**
    ```typescript
-   (totalProfit / totalRevenue) * 100
+   (totalProfit / totalRevenue) * 100;
    ```
+
    - Процент прибыли от выручки
    - Например: (3,000₽ / 10,000₽) × 100 = 30%
 
 ### 3. Frontend Component (`frontend/src/app/pages/statistics/statistics.component.ts`)
 
 **Updated Columns:**
+
 ```typescript
 organizationEarningsColumns = [
   'organizationName',
-  'totalRevenue',    // Выручка
-  'totalCosts',      // Затраты
-  'totalProfit',     // Прибыль
-  'profitMargin',    // Маржа
-  'totalOrders',     // Количество заказов
-  'totalHours'       // Всего часов
+  'totalRevenue', // Выручка
+  'totalCosts', // Затраты
+  'totalProfit', // Прибыль
+  'profitMargin', // Маржа
+  'totalOrders', // Количество заказов
+  'totalHours', // Всего часов
 ];
 ```
 
@@ -166,15 +178,15 @@ getProfitMarginColor(margin: number): string {
 **New Table Structure:**
 
 ```html
-<table mat-table [dataSource]="statistics()?.organizationEarnings || []" 
-       class="mat-elevation-z8 financial-table">
-  
+<table
+  mat-table
+  [dataSource]="statistics()?.organizationEarnings || []"
+  class="mat-elevation-z8 financial-table"
+>
   <!-- Organization Name -->
   <ng-container matColumnDef="organizationName">
     <th mat-header-cell *matHeaderCellDef>Организация</th>
-    <td mat-cell *matCellDef="let element" class="org-name">
-      {{ element.organizationName }}
-    </td>
+    <td mat-cell *matCellDef="let element" class="org-name">{{ element.organizationName }}</td>
   </ng-container>
 
   <!-- Total Revenue (Выручка) -->
@@ -197,8 +209,7 @@ getProfitMarginColor(margin: number): string {
   <ng-container matColumnDef="totalProfit">
     <th mat-header-cell *matHeaderCellDef>Прибыль (₽)</th>
     <td mat-cell *matCellDef="let element" class="profit">
-      <span [style.color]="getProfitColor(element.totalProfit)" 
-            [style.font-weight]="'600'">
+      <span [style.color]="getProfitColor(element.totalProfit)" [style.font-weight]="'600'">
         {{ formatCurrency(element.totalProfit) }}
       </span>
     </td>
@@ -208,8 +219,7 @@ getProfitMarginColor(margin: number): string {
   <ng-container matColumnDef="profitMargin">
     <th mat-header-cell *matHeaderCellDef>Маржа (%)</th>
     <td mat-cell *matCellDef="let element" class="margin">
-      <span [style.color]="getProfitMarginColor(element.profitMargin)" 
-            [style.font-weight]="'600'">
+      <span [style.color]="getProfitMarginColor(element.profitMargin)" [style.font-weight]="'600'">
         {{ formatPercentage(element.profitMargin) }}
       </span>
     </td>
@@ -218,16 +228,12 @@ getProfitMarginColor(margin: number): string {
   <!-- Orders and Hours -->
   <ng-container matColumnDef="totalOrders">
     <th mat-header-cell *matHeaderCellDef>Заказов</th>
-    <td mat-cell *matCellDef="let element">
-      {{ formatNumber(element.totalOrders) }}
-    </td>
+    <td mat-cell *matCellDef="let element">{{ formatNumber(element.totalOrders) }}</td>
   </ng-container>
 
   <ng-container matColumnDef="totalHours">
     <th mat-header-cell *matHeaderCellDef>Часов</th>
-    <td mat-cell *matCellDef="let element">
-      {{ formatNumber(element.totalHours) }}
-    </td>
+    <td mat-cell *matCellDef="let element">{{ formatNumber(element.totalHours) }}</td>
   </ng-container>
 </table>
 ```
@@ -274,17 +280,20 @@ getProfitMarginColor(margin: number): string {
 ### Color Coding System
 
 **Profit Column:**
+
 - 🟢 **Green** (#4caf50): Positive profit (прибыльно)
 - 🔴 **Red** (#f44336): Negative profit (убыточно)
 - ⚫ **Gray** (#666): Zero profit
 
 **Profit Margin Column:**
+
 - 🟢 **Green** (#4caf50): ≥20% (отличная маржа)
 - 🟠 **Orange** (#ff9800): 10-19% (хорошая маржа)
 - 🟡 **Yellow** (#ffeb3b): 1-9% (низкая маржа)
 - 🔴 **Red** (#f44336): <0% (убыток)
 
 **Other Columns:**
+
 - 🔵 **Blue** (#2196f3): Revenue (выручка)
 - 🟠 **Orange** (#ff9800): Costs (затраты)
 
@@ -292,12 +301,12 @@ getProfitMarginColor(margin: number): string {
 
 ### Sample Data Display
 
-| Организация | Выручка (₽) | Затраты (₽) | Прибыль (₽) | Маржа (%) | Заказов | Часов |
-|-------------|-------------|--------------|-------------|-----------|---------|-------|
-| ООО "Альфа" | 500,000.00  | 350,000.00   | **150,000.00** 🟢 | **30.00%** 🟢 | 50 | 500 |
-| ООО "Бета"  | 300,000.00  | 240,000.00   | **60,000.00** 🟢 | **20.00%** 🟢 | 30 | 300 |
-| ООО "Гамма" | 200,000.00  | 175,000.00   | **25,000.00** 🟢 | **12.50%** 🟠 | 20 | 200 |
-| ООО "Дельта"| 150,000.00  | 140,000.00   | **10,000.00** 🟢 | **6.67%** 🟡 | 15 | 150 |
+| Организация  | Выручка (₽) | Затраты (₽) | Прибыль (₽)       | Маржа (%)     | Заказов | Часов |
+| ------------ | ----------- | ----------- | ----------------- | ------------- | ------- | ----- |
+| ООО "Альфа"  | 500,000.00  | 350,000.00  | **150,000.00** 🟢 | **30.00%** 🟢 | 50      | 500   |
+| ООО "Бета"   | 300,000.00  | 240,000.00  | **60,000.00** 🟢  | **20.00%** 🟢 | 30      | 300   |
+| ООО "Гамма"  | 200,000.00  | 175,000.00  | **25,000.00** 🟢  | **12.50%** 🟠 | 20      | 200   |
+| ООО "Дельта" | 150,000.00  | 140,000.00  | **10,000.00** 🟢  | **6.67%** 🟡  | 15      | 150   |
 
 ## Business Logic Explanation
 
@@ -328,13 +337,16 @@ getProfitMarginColor(margin: number): string {
 ### Example Scenario
 
 **Organization "Alpha Service":**
+
 - Has baseRate: 1000₽/час
 
 **Engineer Ivan:**
+
 - Has baseRate: 700₽/час
 - Works 10 hours on Order #123 from Alpha Service
 
 **Calculation:**
+
 ```
 Revenue from Alpha Service:  10h × 1000₽ = 10,000₽
 Cost to pay Ivan:            10h × 700₽  = 7,000₽
@@ -369,12 +381,15 @@ Margin:                      (3,000₽ / 10,000₽) × 100 = 30%
 ## Files Modified
 
 ### Shared:
+
 - `shared/dtos/reports.dto.ts` - Updated `OrganizationEarningsData` interface
 
 ### Backend:
+
 - `backend/src/modules/statistics/statistics.service.ts` - Updated calculation logic
 
 ### Frontend:
+
 - `frontend/src/app/pages/statistics/statistics.component.ts` - Added columns and helper methods
 - `frontend/src/app/pages/statistics/statistics.component.html` - Updated table structure
 - `frontend/src/app/pages/statistics/statistics.component.scss` - Added financial table styles
@@ -410,7 +425,6 @@ Margin:                      (3,000₽ / 10,000₽) × 100 = 30%
 ✅ **Выручка** - что организация платит нам  
 ✅ **Затраты** - что мы платим инженерам  
 ✅ **Прибыль** - наша прибыль (выручка - затраты)  
-✅ **Маржа** - процент прибыли от выручки  
+✅ **Маржа** - процент прибыли от выручки
 
 Все данные представлены с визуальным кодированием цветом для быстрого понимания финансового состояния каждой организации-заказчика.
-
