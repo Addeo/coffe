@@ -13,12 +13,15 @@ async function bootstrap() {
     app.use(express.json({ limit: '50mb' }));
     app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-    // Enable CORS for all origins (disabled origin check)
+    // Enable CORS - completely open (for development)
     app.enableCors({
-      origin: true, // Allow all origins
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+      origin: '*', // Allow absolutely all origins
+      credentials: false, // Disable credentials when using wildcard
+      methods: '*', // Allow all methods
+      allowedHeaders: '*', // Allow all headers
+      exposedHeaders: '*', // Expose all headers
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
     });
 
     console.log('Middleware configured');
