@@ -25,18 +25,19 @@ export class StatisticsService {
     private engineerRepository: Repository<Engineer>
   ) {}
 
-
   async getUserEarningsStatistics(
     userId: number,
     months: number = 12
-  ): Promise<Array<{
-    userId: number;
-    month: number;
-    year: number;
-    totalEarnings: number;
-    completedOrders: number;
-    totalHours: number;
-  }>> {
+  ): Promise<
+    Array<{
+      userId: number;
+      month: number;
+      year: number;
+      totalEarnings: number;
+      completedOrders: number;
+      totalHours: number;
+    }>
+  > {
     // Получаем инженера
     const engineer = await this.engineerRepository.findOne({
       where: { userId },
@@ -94,7 +95,6 @@ export class StatisticsService {
 
     return statistics;
   }
-
 
   async getUserRankByEarnings(userId: number, year: number, month: number): Promise<number> {
     const startDate = new Date(year, month - 1, 1);
@@ -251,17 +251,19 @@ export class StatisticsService {
         month: currentMonth,
         year: currentYear,
       },
-      previousMonth: prevOrders.length > 0 ? {
-        totalEarnings: prevTotalEarnings,
-        completedOrders: prevOrders.length,
-        totalHours: prevTotalHours,
-        month: previousMonth,
-        year: previousYear,
-      } : null,
+      previousMonth:
+        prevOrders.length > 0
+          ? {
+              totalEarnings: prevTotalEarnings,
+              completedOrders: prevOrders.length,
+              totalHours: prevTotalHours,
+              month: previousMonth,
+              year: previousYear,
+            }
+          : null,
       growth,
     };
   }
-
 
   async getEngineerDetailedStats(userId: number, year: number, month: number) {
     const startDate = new Date(year, month - 1, 1);
@@ -332,15 +334,17 @@ export class StatisticsService {
       regularHours += orderRegularHours;
       overtimeHours += orderOvertimeHours;
       totalHours += orderRegularHours + orderOvertimeHours;
-      
+
       const orderEarnings =
         (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
       totalEarnings += orderEarnings;
-      
+
       // Примерное разделение на base/overtime (пропорционально часам)
       if (totalHours > 0) {
-        baseEarnings += (orderEarnings * orderRegularHours) / (orderRegularHours + orderOvertimeHours || 1);
-        overtimeEarnings += (orderEarnings * orderOvertimeHours) / (orderRegularHours + orderOvertimeHours || 1);
+        baseEarnings +=
+          (orderEarnings * orderRegularHours) / (orderRegularHours + orderOvertimeHours || 1);
+        overtimeEarnings +=
+          (orderEarnings * orderOvertimeHours) / (orderRegularHours + orderOvertimeHours || 1);
       }
     }
 

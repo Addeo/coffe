@@ -7,23 +7,26 @@ Simplify architecture by storing all work data **directly in Order entity**, eli
 ## ❌ Problem with Original Architecture
 
 ### Before:
+
 ```
 Order (Contract)
   └── WorkReports[] (Event Log)
         ├── WorkReport #1: 4h, photo, notes
-        ├── WorkReport #2: 23h, photo, notes  
+        ├── WorkReport #2: 23h, photo, notes
         └── WorkReport #3: 4h, photo, notes
-  
+
 Statistics → Query work_reports → Aggregate → Return
 ```
 
 **Issues:**
+
 - 🔄 Extra complexity with 2 entities
 - 📊 Statistics had to aggregate work_reports
 - 🗄️ Two tables to maintain
 - 🔗 Complex relationships
 
 ### After:
+
 ```
 Order (Single Entity)
   ├── regularHours: 0h
@@ -32,11 +35,12 @@ Order (Single Entity)
   ├── carUsageAmount: 4,000₽
   ├── workPhotoUrl: "..."
   └── workNotes: "..."
-  
+
 Statistics → Query orders → Return (already aggregated!)
 ```
 
 **Benefits:**
+
 - ✅ Single source of truth
 - ✅ Simpler architecture
 - ✅ Faster queries
@@ -49,25 +53,26 @@ Statistics → Query orders → Return (already aggregated!)
 **File:** `backend/src/entities/order.entity.ts`
 
 Order already had all necessary fields:
+
 ```typescript
 // Work hours
-regularHours: number;      // Regular work hours
-overtimeHours: number;     // Overtime hours
+regularHours: number; // Regular work hours
+overtimeHours: number; // Overtime hours
 
 // Payments
-calculatedAmount: number;       // Engineer payment
-carUsageAmount: number;         // Car usage payment  
-organizationPayment: number;    // Organization payment
+calculatedAmount: number; // Engineer payment
+carUsageAmount: number; // Car usage payment
+organizationPayment: number; // Organization payment
 
 // Work details
-workNotes: string;         // Work notes
-workPhotoUrl: string;      // Work photo
-distanceKm: number;        // Distance traveled
+workNotes: string; // Work notes
+workPhotoUrl: string; // Work photo
+distanceKm: number; // Distance traveled
 territoryType: TerritoryType; // Territory type
 
 // Timestamps
-actualStartDate: Date;     // Work started
-completionDate: Date;      // Work completed
+actualStartDate: Date; // Work started
+completionDate: Date; // Work completed
 ```
 
 ### 2. Simplified Work Report Creation
@@ -75,6 +80,7 @@ completionDate: Date;      // Work completed
 **File:** `backend/src/modules/orders/orders.service.ts`
 
 **Before:**
+
 ```typescript
 // Create WorkReport entity
 const workReport = this.workReportsRepository.create({...});
@@ -88,6 +94,7 @@ return workReport;
 ```
 
 **After:**
+
 ```typescript
 // Update Order directly
 order.regularHours += workData.regularHours;
@@ -108,6 +115,7 @@ return order;
 ### 4. Updated All Modules
 
 **Removed WorkReport imports from:**
+
 - ✅ `app.module.ts`
 - ✅ `orders.module.ts` & `orders.service.ts`
 - ✅ `statistics.module.ts` & `statistics.service.ts`
@@ -121,6 +129,7 @@ return order;
 ### 5. Updated Statistics (Already Done)
 
 Statistics now query Order fields directly:
+
 - `getAgentEarningsData()` - from `order.calculatedAmount`
 - `getOrganizationEarningsData()` - from `order.organizationPayment`
 - `getOvertimeStatisticsData()` - from `order.overtimeHours` + `order.regularHours`
@@ -130,6 +139,7 @@ Statistics now query Order fields directly:
 **File:** `backend/src/modules/расчеты/salary-calculation.service.ts`
 
 **Before:**
+
 ```typescript
 const workReports = await this.workReportRepository.find(...);
 const calculation = await this.calculationService.calculateMonthlySalary(
@@ -140,12 +150,13 @@ const calculation = await this.calculationService.calculateMonthlySalary(
 ```
 
 **After:**
+
 ```typescript
 const orders = await this.orderRepository
   .where('order.assignedEngineerId = :engineerId')
   .andWhere('order.status = :status', { status: 'completed' })
   .getMany();
-  
+
 const calculation = await this.calculationService.calculateMonthlySalary(
   engineer,
   orders,
@@ -158,11 +169,12 @@ const calculation = await this.calculationService.calculateMonthlySalary(
 **File:** `backend/src/modules/reports/reports.service.ts`
 
 Charts now built from Orders instead of work_reports:
+
 ```typescript
 // Before: work_reports for hours chart
 const workReports = await this.workReportRepository.find(...);
 
-// After: orders for hours chart  
+// After: orders for hours chart
 const orders = await this.orderRepository
   .where('order.status = :status', { status: 'completed' })
   .getMany();
@@ -171,16 +183,19 @@ const orders = await this.orderRepository
 ### 8. Removed Endpoints
 
 **Removed:**
+
 - `GET /api/orders/:id/work-reports` - list work reports
 - `GET /api/orders/work-reports/my` - my work reports
 
 **Renamed:**
+
 - `POST /api/orders/:id/work-reports` → `POST /api/orders/:id/complete-work`
 - Now returns `Order` instead of `WorkReport`
 
 ### 9. Removed Test Endpoints
 
 **Removed:**
+
 - `POST /api/calculations/work-report-cost` - test endpoint
 
 ## 📊 Data Flow (New)
@@ -208,8 +223,8 @@ const orders = await this.orderRepository
 3. Statistics query Order
    GET /api/statistics/monthly
    ↓
-   SELECT 
-     SUM(regularHours), 
+   SELECT
+     SUM(regularHours),
      SUM(overtimeHours),
      SUM(calculatedAmount)
    FROM orders
@@ -220,11 +235,13 @@ const orders = await this.orderRepository
 ## 🗄️ Database Changes
 
 ### Dropped Table:
+
 ```sql
 DROP TABLE IF EXISTS work_reports;
 ```
 
 ### Orders Table - Fields Used:
+
 ```sql
 -- Work hours
 regularHours         DECIMAL(5,2) DEFAULT 0
@@ -249,24 +266,28 @@ completionDate       DATETIME
 ## ✅ Benefits
 
 ### 1. Simpler Architecture
+
 - ❌ No work_reports table
 - ❌ No relationships to manage
 - ✅ Single entity (Order)
 - ✅ Clearer data model
 
 ### 2. Better Performance
+
 - ✅ No JOINs needed for statistics
 - ✅ Pre-aggregated data in Order
 - ✅ Faster queries
 - ✅ Less database load
 
 ### 3. Easier Maintenance
+
 - ✅ One entity to understand
 - ✅ No cascade deletions
 - ✅ Simpler migrations
 - ✅ Less code to maintain
 
 ### 4. Clearer Business Logic
+
 ```typescript
 // Order IS the work contract
 Order {
@@ -282,12 +303,14 @@ Order {
 ## ⚠️ Trade-offs
 
 ### Lost Features:
+
 - ❌ **Multiple work sessions** per order (now only one "completion")
 - ❌ **Detailed history** of when/how work was done
 - ❌ **Audit trail** for each visit
 - ❌ **Multiple photos** per order (only one via workPhotoUrl)
 
 **But** we can use:
+
 - ✅ **Files** entity for multiple photos (order.files[])
 - ✅ **Activity logs** for audit trail
 - ✅ **Simpler model** for most use cases
@@ -297,15 +320,17 @@ Order {
 ### Script: `backend/migrate-order-aggregates.js`
 
 Already ran successfully:
+
 ```
 ✅ Order #6 "тестовый заказ": 0h regular + 31h overtime = 25600 RUB (3 work reports)
 ```
 
 ### Manual Migration (if needed):
+
 ```sql
 -- Aggregate work_reports into orders
 UPDATE orders o
-SET 
+SET
   regularHours = (
     SELECT SUM(CASE WHEN isOvertime = 0 THEN totalHours ELSE 0 END)
     FROM work_reports WHERE orderId = o.id
@@ -330,12 +355,14 @@ DROP TABLE IF EXISTS work_reports;
 ## 🧪 Testing
 
 ### Test Statistics Endpoint:
+
 ```bash
 curl 'http://localhost:3000/api/statistics/monthly?year=2025&month=10' \
   -H 'Authorization: Bearer TOKEN'
 ```
 
 **Expected Response:**
+
 ```json
 {
   "year": 2025,
@@ -372,6 +399,7 @@ curl 'http://localhost:3000/api/statistics/monthly?year=2025&month=10' \
 **File:** `shared/dtos/order.dto.ts`
 
 Remove:
+
 ```typescript
 workReports?: WorkReportDto[];
 ```
@@ -381,6 +409,7 @@ workReports?: WorkReportDto[];
 **File:** `frontend/src/app/pages/order-edit/order-edit.component.html`
 
 Replace "Work Report" tab to show Order data directly:
+
 ```html
 <!-- Before: Loop through workReports -->
 <mat-card *ngFor="let report of order.workReports">...</mat-card>
@@ -413,16 +442,19 @@ completeWork(orderId: number, data: WorkData): Observable<Order> {
 ## 🎉 Result
 
 ### Database:
+
 - ❌ work_reports table removed
 - ✅ All data in orders table
 - ✅ Simpler schema
 
 ### Backend:
+
 - ❌ WorkReport entity removed
 - ✅ All statistics from Order
 - ✅ Cleaner code
 
 ### Architecture:
+
 ```
 ┌─────────────────────────────────┐
 │  Order #6: "тестовый заказ"   │
@@ -468,6 +500,7 @@ completeWork(orderId: number, data: WorkData): Observable<Order> {
 ## 🚀 Deployment
 
 1. **Deploy Backend:**
+
    ```bash
    cd backend
    npm run build
@@ -475,12 +508,14 @@ completeWork(orderId: number, data: WorkData): Observable<Order> {
    ```
 
 2. **Run Migration:**
+
    ```bash
    cd backend
    node migrate-order-aggregates.js
    ```
 
 3. **Drop Table (if needed):**
+
    ```sql
    DROP TABLE IF EXISTS work_reports;
    ```
@@ -493,6 +528,7 @@ completeWork(orderId: number, data: WorkData): Observable<Order> {
 ## 🎯 Final Architecture
 
 **Order = Complete Contract**
+
 - Work hours (regular + overtime)
 - Payments (engineer + car + organization)
 - Work details (photo, notes, location)

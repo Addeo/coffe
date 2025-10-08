@@ -7,34 +7,43 @@
 ## 📦 What Was Removed
 
 ### 1. ❌ `earnings_statistics` Table (Cache)
+
 **Why it existed:**
+
 - Monthly cache of engineer earnings
 - Updated once per month via cron job
 
 **Why it's gone:**
+
 - ❌ Always stale data
 - ❌ Out of sync with reality
 - ❌ Returned empty arrays
 
 **Replaced with:**
+
 - ✅ Real-time calculation from Order fields
 
 ### 2. ❌ `work_reports` Table (Event Log)
+
 **Why it existed:**
+
 - History of multiple work sessions per order
 - Audit trail with timestamps, photos, notes
 
 **Why it's gone:**
+
 - ❌ Overcomplicated architecture
 - ❌ Required JOINs for statistics
 - ❌ Duplicate data storage
 
 **Replaced with:**
+
 - ✅ Order fields store everything directly
 
 ## 🏗️ New Architecture
 
 ### Before (Complex):
+
 ```
                     ┌──────────────────────┐
                     │  earnings_statistics │ ← Monthly cache (stale!)
@@ -52,6 +61,7 @@
 ```
 
 ### After (Simple):
+
 ```
 ┌───────────────────────────────────────┐
 │  Order (Single Source of Truth)      │
@@ -82,10 +92,12 @@
 ## 🔧 Technical Details
 
 ### Entities Deleted:
+
 1. `backend/src/entities/earnings-statistic.entity.ts` ❌
 2. `backend/src/entities/work-report.entity.ts` ❌
 
 ### Modules Updated:
+
 1. ✅ `app.module.ts` - removed entities
 2. ✅ `orders.module.ts` & `orders.service.ts` - simplified
 3. ✅ `statistics.module.ts` & `statistics.service.ts` - real-time calc
@@ -97,7 +109,8 @@
 9. ✅ `config/database.config.ts` - removed entities
 
 ### Statistics Methods - All Use Order Now:
-- `getAgentEarningsData()` 
+
+- `getAgentEarningsData()`
 - `getOrganizationEarningsData()`
 - `getOvertimeStatisticsData()`
 - `getUserEarningsStatistics()`
@@ -107,7 +120,9 @@
 - `getAdminEngineerStatistics()`
 
 ### API Changes:
+
 **Removed endpoints:**
+
 - `GET /api/statistics/top-earners`
 - `GET /api/statistics/total-earnings`
 - `GET /api/export/earnings`
@@ -116,6 +131,7 @@
 - `POST /api/calculations/work-report-cost`
 
 **Changed endpoints:**
+
 - `POST /api/orders/:id/work-reports` → `POST /api/orders/:id/complete-work`
 - Now returns `Order` instead of `WorkReport`
 
@@ -124,23 +140,27 @@
 ### Script: `backend/migrate-order-aggregates.js`
 
 **What it does:**
+
 - Reads all work_reports from database
 - Aggregates data by orderId
 - Updates Order fields with totals
 - Handles isOvertime flag correctly
 
 **Execution:**
+
 ```bash
 cd backend
 node migrate-order-aggregates.js
 ```
 
 **Result:**
+
 ```
 ✅ Order #6 "тестовый заказ": 0h regular + 31h overtime = 25600 RUB (3 work reports)
 ```
 
 ### Verified in Database:
+
 ```sql
 SELECT id, title, regularHours, overtimeHours, calculatedAmount, status
 FROM orders WHERE id = 6;
@@ -151,16 +171,16 @@ FROM orders WHERE id = 6;
 
 ## 🎉 Benefits Summary
 
-| Aspect | Before | After |
-|--------|--------|-------|
-| **Entities** | Order + WorkReport + EarningsStatistic | Order only |
-| **Tables** | 3 tables | 1 table |
-| **Statistics** | Cached (stale) | Real-time |
-| **Queries** | Complex JOINs | Simple aggregates |
-| **Maintenance** | Complex cache invalidation | Simple CRUD |
-| **Data Consistency** | Often inconsistent | Always consistent |
-| **Performance** | Multiple queries | Single query |
-| **Code Lines** | ~2000 lines | ~1000 lines |
+| Aspect               | Before                                 | After             |
+| -------------------- | -------------------------------------- | ----------------- |
+| **Entities**         | Order + WorkReport + EarningsStatistic | Order only        |
+| **Tables**           | 3 tables                               | 1 table           |
+| **Statistics**       | Cached (stale)                         | Real-time         |
+| **Queries**          | Complex JOINs                          | Simple aggregates |
+| **Maintenance**      | Complex cache invalidation             | Simple CRUD       |
+| **Data Consistency** | Often inconsistent                     | Always consistent |
+| **Performance**      | Multiple queries                       | Single query      |
+| **Code Lines**       | ~2000 lines                            | ~1000 lines       |
 
 ## 📝 Documentation Created
 
@@ -181,6 +201,7 @@ npm run build
 ## 🚀 Next Steps
 
 ### Backend (Done):
+
 - [x] Remove all cache entities
 - [x] Remove work_reports entity
 - [x] Update all statistics methods
@@ -188,6 +209,7 @@ npm run build
 - [x] Test compilation
 
 ### Frontend (TODO):
+
 - [ ] Remove `workReports` from Order interface
 - [ ] Update `order-edit.component` to show Order data
 - [ ] Change API call to `/complete-work` endpoint
@@ -195,6 +217,7 @@ npm run build
 - [ ] Test UI flow
 
 ### Deployment (TODO):
+
 - [ ] Deploy backend to production
 - [ ] Run migration on production
 - [ ] Drop work_reports table
@@ -204,34 +227,39 @@ npm run build
 ## 🎊 Final Result
 
 **From this:**
+
 ```json
 {
-  "agentEarnings": [],              // ❌ Empty (cache miss)
-  "organizationEarnings": [],       // ❌ Empty (cache miss)
+  "agentEarnings": [], // ❌ Empty (cache miss)
+  "organizationEarnings": [], // ❌ Empty (cache miss)
   "overtimeStatistics": [
-    {"overtimeHours": 27}           // ❌ Wrong (all as overtime)
+    { "overtimeHours": 27 } // ❌ Wrong (all as overtime)
   ]
 }
 ```
 
 **To this:**
+
 ```json
 {
-  "agentEarnings": [                // ✅ Real-time from Orders!
+  "agentEarnings": [
+    // ✅ Real-time from Orders!
     {
       "agentId": 4,
       "totalEarnings": 25600,
       "completedOrders": 1
     }
   ],
-  "organizationEarnings": [         // ✅ Real-time from Orders!
+  "organizationEarnings": [
+    // ✅ Real-time from Orders!
     {
       "organizationId": 1,
       "totalRevenue": 30150,
       "totalProfit": 8550
     }
   ],
-  "overtimeStatistics": [           // ✅ Correct separation!
+  "overtimeStatistics": [
+    // ✅ Correct separation!
     {
       "overtimeHours": 31,
       "regularHours": 0,

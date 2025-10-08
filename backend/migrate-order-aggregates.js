@@ -1,6 +1,6 @@
 /**
  * Migration script to populate Order aggregate fields from existing work_reports
- * 
+ *
  * This script fills regularHours, overtimeHours, calculatedAmount, carUsageAmount,
  * and organizationPayment fields in orders table by aggregating data from work_reports.
  */
@@ -12,7 +12,7 @@ const dbPath = path.join(__dirname, 'database.sqlite');
 
 console.log('🔄 Starting migration: Aggregate work_reports data into orders...\n');
 
-const db = new sqlite3.Database(dbPath, (err) => {
+const db = new sqlite3.Database(dbPath, err => {
   if (err) {
     console.error('❌ Error opening database:', err.message);
     process.exit(1);
@@ -60,7 +60,7 @@ db.all(query, [], (err, rows) => {
         calculatedAmount: 0,
         carUsageAmount: 0,
         organizationPayment: 0,
-        workReportCount: 0
+        workReportCount: 0,
       };
     }
 
@@ -86,7 +86,7 @@ db.all(query, [], (err, rows) => {
   let completed = 0;
   let errors = 0;
 
-  const updateOrder = (order) => {
+  const updateOrder = order => {
     return new Promise((resolve, reject) => {
       const updateQuery = `
         UPDATE orders 
@@ -107,9 +107,9 @@ db.all(query, [], (err, rows) => {
           order.calculatedAmount,
           order.carUsageAmount,
           order.organizationPayment,
-          order.id
+          order.id,
         ],
-        function(err) {
+        function (err) {
           if (err) {
             reject(err);
           } else {
@@ -126,10 +126,12 @@ db.all(query, [], (err, rows) => {
       try {
         await updateOrder(order);
         completed++;
-        console.log(`✅ Order #${order.id} "${order.title}": ` +
-          `${order.regularHours}h regular + ${order.overtimeHours}h overtime = ` +
-          `${order.calculatedAmount + order.carUsageAmount} RUB ` +
-          `(${order.workReportCount} work reports)`);
+        console.log(
+          `✅ Order #${order.id} "${order.title}": ` +
+            `${order.regularHours}h regular + ${order.overtimeHours}h overtime = ` +
+            `${order.calculatedAmount + order.carUsageAmount} RUB ` +
+            `(${order.workReportCount} work reports)`
+        );
       } catch (err) {
         errors++;
         console.error(`❌ Error updating order #${order.id}:`, err.message);
@@ -142,7 +144,7 @@ db.all(query, [], (err, rows) => {
       console.log(`   ❌ Errors: ${errors} orders`);
     }
 
-    db.close((err) => {
+    db.close(err => {
       if (err) {
         console.error('Error closing database:', err.message);
       } else {

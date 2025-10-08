@@ -25,5 +25,4 @@ export class ExportController {
 
     await this.exportService.exportOrdersReport(response, req.user.role, req.user.id, start, end);
   }
-
 }

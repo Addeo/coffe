@@ -478,6 +478,63 @@
   height: 18px;
 }
 
+/* Detailed Calculation Breakdown Styles */
+.calculation-details {
+  background-color: #f9fafb !important;
+  border: 2px solid #e3f2fd;
+
+  h4 {
+    color: #1565c0;
+    margin-bottom: 20px;
+  }
+
+  .details-subsection {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e0e0e0;
+
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    h5 {
+      margin: 0 0 12px 0;
+      color: #424242;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      &:before {
+        content: '•';
+        color: #1976d2;
+        font-size: 18px;
+      }
+    }
+
+    .report-grid {
+      gap: 12px;
+    }
+
+    .report-item {
+      background-color: white;
+      border: 1px solid #e0e0e0;
+
+      .label {
+        color: #616161;
+        font-size: 13px;
+      }
+
+      .value {
+        color: #1976d2;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
 /* Image Viewer Modal Styles */
 .image-modal-overlay {
   position: fixed;

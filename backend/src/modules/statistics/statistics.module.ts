@@ -8,9 +8,7 @@ import { Organization } from '../../entities/organization.entity';
 import { Engineer } from '../../entities/engineer.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Order, User, Organization, Engineer]),
-  ],
+  imports: [TypeOrmModule.forFeature([Order, User, Organization, Engineer])],
   controllers: [StatisticsController],
   providers: [StatisticsService],
   exports: [StatisticsService],

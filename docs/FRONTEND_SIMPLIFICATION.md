@@ -11,6 +11,7 @@ Update frontend to work with simplified backend architecture where Order stores 
 **File:** `frontend/src/app/services/orders.service.ts`
 
 **Before:**
+
 ```typescript
 createWorkReport(orderId: number, workReportData: any): Observable<any> {
   return this.http.post(`/orders/${orderId}/work-reports`, workReportData);
@@ -22,6 +23,7 @@ getWorkReports(orderId: number): Observable<any[]> {
 ```
 
 **After:**
+
 ```typescript
 completeWork(orderId: number, workData: any): Observable<OrderDto> {
   return this.http.post<OrderDto>(`/orders/${orderId}/complete-work`, workData);
@@ -30,6 +32,7 @@ completeWork(orderId: number, workData: any): Observable<OrderDto> {
 ```
 
 **Changes:**
+
 - ✅ `createWorkReport()` → `completeWork()`
 - ✅ Endpoint: `/work-reports` → `/complete-work`
 - ✅ Returns `OrderDto` instead of `any`
@@ -40,6 +43,7 @@ completeWork(orderId: number, workData: any): Observable<OrderDto> {
 **File:** `frontend/src/app/pages/order-edit/order-edit.component.ts`
 
 **Renamed Method:**
+
 ```typescript
 // Before:
 onSubmitWorkReport() {
@@ -59,6 +63,7 @@ onCompleteWork() {
 ```
 
 **Removed Methods:**
+
 ```typescript
 ❌ hasWorkReport()      // No longer needed
 ❌ getRegularHours()    // Data now in order.regularHours
@@ -67,6 +72,7 @@ onCompleteWork() {
 ```
 
 **Kept Methods:**
+
 ```typescript
 ✅ getTerritoryTypeLabel()  // Still needed for display
 ✅ getTotalHours()          // Calculate total from form
@@ -78,6 +84,7 @@ onCompleteWork() {
 **File:** `frontend/src/app/pages/order-edit/order-edit.component.html`
 
 #### Tab 1: "Завершение работы" (renamed)
+
 ```html
 <!-- Before: -->
 <mat-tab label="Отчет о работе">
@@ -99,6 +106,7 @@ onCompleteWork() {
 ```
 
 #### Tab 2: "Результат работы" (simplified)
+
 ```html
 <!-- Before: Loop through workReports[] -->
 <mat-tab label="Данные отчета" *ngIf="hasWorkReport()">
@@ -120,6 +128,7 @@ onCompleteWork() {
 ```
 
 **Key Changes:**
+
 - ✅ Condition: `hasWorkReport()` → `order?.status === OrderStatus.COMPLETED`
 - ✅ Data source: `report.totalHours` → `order.regularHours + order.overtimeHours`
 - ✅ No loop: single card with Order data
@@ -130,6 +139,7 @@ onCompleteWork() {
 ## 🔄 User Flow
 
 ### Before (Complex):
+
 ```
 1. Engineer opens order
 2. Goes to "Отчет о работе" tab
@@ -142,6 +152,7 @@ onCompleteWork() {
 ```
 
 ### After (Simple):
+
 ```
 1. Engineer opens order
 2. Goes to "Завершение работы" tab
@@ -156,6 +167,7 @@ onCompleteWork() {
 ## 📊 Data Display Comparison
 
 ### Before:
+
 ```typescript
 // Multiple reports per order
 order.workReports = [
@@ -169,6 +181,7 @@ order.workReports = [
 ```
 
 ### After:
+
 ```typescript
 // Single Order with aggregated data
 order = {
@@ -176,28 +189,39 @@ order = {
   overtimeHours: 31,
   calculatedAmount: 21600,
   carUsageAmount: 4000,
-  workNotes: "...",
-  workPhotoUrl: "..."
+  workNotes: '...',
+  workPhotoUrl: '...',
 };
 
 // Display Order data directly:
-{{ order.regularHours }}
-{{ order.overtimeHours }}
+{
+  {
+    order.regularHours;
+  }
+}
+{
+  {
+    order.overtimeHours;
+  }
+}
 ```
 
 ## ✅ Benefits
 
 ### Simpler UI
+
 - ❌ No list of multiple reports
 - ✅ Single summary card
 - ✅ Clearer user experience
 
 ### Better UX
+
 - ✅ "Завершить заказ" is clearer than "Отправить отчет"
 - ✅ One action completes the order
 - ✅ Immediate feedback (status changes)
 
 ### Consistency
+
 - ✅ Frontend matches backend architecture
 - ✅ Order is single source of truth
 - ✅ No duplicate data display
@@ -221,11 +245,13 @@ order = {
 ## 📋 Next Steps
 
 ### Required:
+
 - [ ] Test complete work flow end-to-end
 - [ ] Verify statistics dashboard shows correct data
 - [ ] Check salary calculations use Order data
 
 ### Optional:
+
 - [ ] Update translations (if using i18n)
 - [ ] Update user documentation
 - [ ] Update help texts
@@ -235,11 +261,13 @@ order = {
 **UI is now simplified and matches the clean backend architecture!**
 
 No more:
+
 - ❌ "Отправить отчет" button
 - ❌ Multiple work reports per order
 - ❌ Complex event history
 
 Just:
+
 - ✅ "Завершить заказ" action
 - ✅ Order stores everything
 - ✅ Simple, clean interface

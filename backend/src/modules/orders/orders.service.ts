@@ -486,14 +486,41 @@ export class OrdersService {
             overtimeHours > 0 && order.organization.hasOvertime
               ? overtimeHours * order.organization.baseRate * order.organization.overtimeMultiplier
               : overtimeHours * order.organization.baseRate;
-          updateOrderDto.organizationPayment = organizationRegularPayment + organizationOvertimePayment;
+          updateOrderDto.organizationPayment =
+            organizationRegularPayment + organizationOvertimePayment;
 
-          console.log('💰 Auto-calculated payments:', {
+          // Сохраняем детальную разбивку расчётов для аудита
+          updateOrderDto['engineerBaseRate'] = rates.baseRate;
+          updateOrderDto['engineerOvertimeRate'] = rates.overtimeRate || rates.baseRate;
+          updateOrderDto['organizationBaseRate'] = order.organization.baseRate;
+          updateOrderDto['organizationOvertimeMultiplier'] = order.organization.overtimeMultiplier;
+          updateOrderDto['regularPayment'] = regularPayment;
+          updateOrderDto['overtimePayment'] = overtimePayment;
+          updateOrderDto['organizationRegularPayment'] = organizationRegularPayment;
+          updateOrderDto['organizationOvertimePayment'] = organizationOvertimePayment;
+          updateOrderDto['profit'] = updateOrderDto.organizationPayment - updateOrderDto.calculatedAmount;
+
+          console.log('💰 Auto-calculated payments with details:', {
             regularHours,
             overtimeHours,
-            calculatedAmount: updateOrderDto.calculatedAmount,
-            organizationPayment: updateOrderDto.organizationPayment,
-            carUsageAmount: updateOrderDto.carUsageAmount || 0,
+            engineerRates: {
+              base: rates.baseRate,
+              overtime: rates.overtimeRate || rates.baseRate,
+            },
+            organizationRates: {
+              base: order.organization.baseRate,
+              overtimeMultiplier: order.organization.overtimeMultiplier,
+            },
+            payments: {
+              engineerRegular: regularPayment,
+              engineerOvertime: overtimePayment,
+              engineerTotal: updateOrderDto.calculatedAmount,
+              organizationRegular: organizationRegularPayment,
+              organizationOvertime: organizationOvertimePayment,
+              organizationTotal: updateOrderDto.organizationPayment,
+              carUsage: updateOrderDto.carUsageAmount || 0,
+              profit: updateOrderDto['profit'],
+            },
           });
         }
       }
@@ -657,9 +684,7 @@ export class OrdersService {
         }
       }
 
-      console.log(
-        `Deleting order ${id} with ${order.files?.length || 0} files`
-      );
+      console.log(`Deleting order ${id} with ${order.files?.length || 0} files`);
 
       // Check for files
       const filesCount = await this.filesRepository.count({ where: { orderId: id } });
@@ -984,7 +1009,129 @@ export class OrdersService {
     }
   }
 
-  // createWorkReport method removed - work data is now updated directly via update() method
+  /**
+   * Complete work on order - saves work data with rates for audit
+   */
+  async completeWork(
+    orderId: number,
+    engineerId: number,
+    workData: {
+      regularHours: number;
+      overtimeHours: number;
+      carPayment: number;
+      distanceKm?: number;
+      territoryType?: string;
+      notes?: string;
+    }
+  ): Promise<Order> {
+    // Get order with relations
+    const order = await this.ordersRepository.findOne({
+      where: { id: orderId },
+      relations: ['organization', 'assignedEngineer', 'assignedEngineer.user'],
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // Get engineer
+    const engineer = await this.engineersRepository.findOne({
+      where: { userId: engineerId },
+      relations: ['user'],
+    });
+
+    if (!engineer) {
+      throw new NotFoundException('Engineer not found');
+    }
+
+    // Get rates for this engineer-organization pair
+    const rates = await this.calculationService.getEngineerRatesForOrganization(
+      engineer,
+      order.organization
+    );
+
+    // Calculate payments
+    const totalHours = workData.regularHours + workData.overtimeHours;
+    const regularPayment = workData.regularHours * rates.baseRate;
+    const overtimePayment = workData.overtimeHours * (rates.overtimeRate || rates.baseRate);
+    const totalPayment = regularPayment + overtimePayment;
+
+    // Calculate organization payment
+    const organizationRegularPayment = workData.regularHours * order.organization.baseRate;
+    const organizationOvertimePayment = order.organization.hasOvertime
+      ? workData.overtimeHours * order.organization.baseRate * order.organization.overtimeMultiplier
+      : workData.overtimeHours * order.organization.baseRate;
+    const organizationPayment = organizationRegularPayment + organizationOvertimePayment;
+
+    // Update order with work data AND RATES
+    order.regularHours = (order.regularHours || 0) + workData.regularHours;
+    order.overtimeHours = (order.overtimeHours || 0) + workData.overtimeHours;
+    order.calculatedAmount = (order.calculatedAmount || 0) + totalPayment;
+    order.carUsageAmount = (order.carUsageAmount || 0) + workData.carPayment;
+    order.organizationPayment = (order.organizationPayment || 0) + organizationPayment;
+    
+    // 🔥 SAVE RATES for audit
+    order.engineerBaseRate = rates.baseRate;
+    order.engineerOvertimeRate = rates.overtimeRate || rates.baseRate;
+    order.organizationBaseRate = order.organization.baseRate;
+    order.organizationOvertimeMultiplier = order.organization.overtimeMultiplier;
+    
+    // 🔥 SAVE PAYMENT BREAKDOWN for detailed reporting
+    order.regularPayment = (order.regularPayment || 0) + regularPayment;
+    order.overtimePayment = (order.overtimePayment || 0) + overtimePayment;
+    order.organizationRegularPayment = (order.organizationRegularPayment || 0) + organizationRegularPayment;
+    order.organizationOvertimePayment = (order.organizationOvertimePayment || 0) + organizationOvertimePayment;
+    
+    // Calculate profit
+    const currentProfit = organizationPayment - totalPayment;
+    order.profit = (order.profit || 0) + currentProfit;
+
+    // Save additional work details
+    order.distanceKm = workData.distanceKm || order.distanceKm;
+    order.territoryType = (workData.territoryType as any) || order.territoryType;
+    order.workNotes = workData.notes || order.workNotes;
+
+    // Update timestamps and status
+    const now = new Date();
+    if (!order.actualStartDate) {
+      order.actualStartDate = now;
+    }
+    if (order.status === 'working') {
+      order.completionDate = now;
+      order.status = 'completed' as any;
+    }
+
+    const savedOrder = await this.ordersRepository.save(order);
+
+    console.log('✅ Order completed with rates:', {
+      regularHours: order.regularHours,
+      overtimeHours: order.overtimeHours,
+      engineerBaseRate: order.engineerBaseRate,
+      engineerOvertimeRate: order.engineerOvertimeRate,
+      calculatedAmount: order.calculatedAmount,
+    });
+
+    // Log activity
+    await this.logActivity(
+      orderId,
+      ActivityType.ORDER_STATUS_CHANGED,
+      `Work completed for order ${order.title} by engineer ${engineer.user.firstName} ${engineer.user.lastName}`,
+      {
+        regularHours: workData.regularHours,
+        overtimeHours: workData.overtimeHours,
+        totalHours,
+        regularPayment,
+        overtimePayment,
+        totalPayment,
+        carPayment: workData.carPayment,
+        baseRate: rates.baseRate,
+        overtimeRate: rates.overtimeRate,
+      },
+      engineerId
+    );
+
+    return savedOrder;
+  }
 
   /**
    * Attach files to order (replace existing file associations)

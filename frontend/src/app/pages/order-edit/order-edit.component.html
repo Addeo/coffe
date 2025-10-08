@@ -453,11 +453,73 @@
                       <span class="label">Наша прибыль:</span>
                       <span class="value profit-value">
                         <strong>{{
-                          formatAmount(
-                            (order?.organizationPayment || 0) - (order?.calculatedAmount || 0)
-                          )
+                          formatAmount(order?.profit || ((order?.organizationPayment || 0) - (order?.calculatedAmount || 0)))
                         }}</strong>
                       </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Detailed Calculation Breakdown (Admin/Manager Only) -->
+                <div class="report-section calculation-details" *ngIf="order?.engineerBaseRate || order?.organizationBaseRate">
+                  <h4><mat-icon>calculate</mat-icon> Детальная разбивка расчёта</h4>
+                  
+                  <!-- Engineer Rates -->
+                  <div class="details-subsection">
+                    <h5>Ставки инженера:</h5>
+                    <div class="report-grid">
+                      <div class="report-item" *ngIf="order?.engineerBaseRate">
+                        <span class="label">Базовая ставка:</span>
+                        <span class="value">{{ formatAmount(order?.engineerBaseRate || 0) }}/ч</span>
+                      </div>
+                      <div class="report-item" *ngIf="order?.engineerOvertimeRate">
+                        <span class="label">Ставка переработки:</span>
+                        <span class="value">{{ formatAmount(order?.engineerOvertimeRate || 0) }}/ч</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Organization Rates -->
+                  <div class="details-subsection">
+                    <h5>Ставки организации:</h5>
+                    <div class="report-grid">
+                      <div class="report-item" *ngIf="order?.organizationBaseRate">
+                        <span class="label">Базовая ставка:</span>
+                        <span class="value">{{ formatAmount(order?.organizationBaseRate || 0) }}/ч</span>
+                      </div>
+                      <div class="report-item" *ngIf="order?.organizationOvertimeMultiplier">
+                        <span class="label">Коэффициент переработки:</span>
+                        <span class="value">{{ order?.organizationOvertimeMultiplier }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Payment Details -->
+                  <div class="details-subsection">
+                    <h5>Расчёт оплаты инженеру:</h5>
+                    <div class="report-grid">
+                      <div class="report-item" *ngIf="order?.regularPayment">
+                        <span class="label">За обычные часы:</span>
+                        <span class="value">{{ formatAmount(order?.regularPayment || 0) }}</span>
+                      </div>
+                      <div class="report-item" *ngIf="order?.overtimePayment">
+                        <span class="label">За переработку:</span>
+                        <span class="value">{{ formatAmount(order?.overtimePayment || 0) }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="details-subsection">
+                    <h5>Расчёт оплаты от организации:</h5>
+                    <div class="report-grid">
+                      <div class="report-item" *ngIf="order?.organizationRegularPayment">
+                        <span class="label">За обычные часы:</span>
+                        <span class="value">{{ formatAmount(order?.organizationRegularPayment || 0) }}</span>
+                      </div>
+                      <div class="report-item" *ngIf="order?.organizationOvertimePayment">
+                        <span class="label">За переработку:</span>
+                        <span class="value">{{ formatAmount(order?.organizationOvertimePayment || 0) }}</span>
+                      </div>
                     </div>
                   </div>
                 </div>

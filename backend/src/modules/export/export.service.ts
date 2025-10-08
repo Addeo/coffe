@@ -104,7 +104,6 @@ export class ExportService {
     response.end();
   }
 
-
   private getStatusDisplay(status: OrderStatus): string {
     switch (status) {
       case OrderStatus.WAITING:
@@ -131,5 +130,4 @@ export class ExportService {
     if (daysSinceCreation > 3) return 'Medium';
     return 'Low';
   }
-
 }

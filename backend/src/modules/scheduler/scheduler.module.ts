@@ -6,11 +6,7 @@ import { BackupModule } from '../резервное-копирование/backu
 import { LoggerModule } from '../logger/logger.module';
 
 @Module({
-  imports: [
-    ScheduleModule.forRoot(),
-    /* GmailModule, */ BackupModule,
-    LoggerModule,
-  ],
+  imports: [ScheduleModule.forRoot(), /* GmailModule, */ BackupModule, LoggerModule],
   providers: [SchedulerService],
 })
 export class SchedulerModule {}

@@ -242,10 +242,10 @@ export class CalculationService {
       const orderRegularHours = Number(order.regularHours) || 0;
       const orderOvertimeHours = Number(order.overtimeHours) || 0;
       const orderTotalHours = orderRegularHours + orderOvertimeHours;
-      
+
       actualHours += orderTotalHours;
       overtimeHours += orderOvertimeHours;
-      
+
       // Разделяем оплату на base и overtime пропорционально часам
       const orderCalculatedAmount = Number(order.calculatedAmount) || 0;
       if (orderTotalHours > 0) {

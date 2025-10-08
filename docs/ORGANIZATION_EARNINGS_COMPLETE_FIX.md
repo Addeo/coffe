@@ -129,6 +129,7 @@ private async getOrganizationEarningsData(startDate: Date, endDate: Date): Promi
    - Например: 10,000₽ - 7,000₽ = 3,000₽
 
 4. **Profit Margin (Маржа):**
+
    ```typescript
    (totalProfit / totalRevenue) * 100;
    ```

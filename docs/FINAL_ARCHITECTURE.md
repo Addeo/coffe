@@ -8,32 +8,33 @@
 
 ### Database Tables
 
-| ДО | ПОСЛЕ |
-|----|-------|
-| ✅ orders | ✅ orders |
-| ❌ work_reports (дублирование) | **УДАЛЕНО** |
-| ❌ earnings_statistics (кеш) | **УДАЛЕНО** |
-| ✅ users | ✅ users |
-| ✅ engineers | ✅ engineers |
-| ✅ organizations | ✅ organizations |
-| ✅ salary_calculations | ✅ salary_calculations |
-| ... | ... |
+| ДО                             | ПОСЛЕ                  |
+| ------------------------------ | ---------------------- |
+| ✅ orders                      | ✅ orders              |
+| ❌ work_reports (дублирование) | **УДАЛЕНО**            |
+| ❌ earnings_statistics (кеш)   | **УДАЛЕНО**            |
+| ✅ users                       | ✅ users               |
+| ✅ engineers                   | ✅ engineers           |
+| ✅ organizations               | ✅ organizations       |
+| ✅ salary_calculations         | ✅ salary_calculations |
+| ...                            | ...                    |
 
 **Итог:** 2 таблицы удалены, **архитектура упрощена** ✨
 
 ### Backend Entities
 
-| ДО | ПОСЛЕ |
-|----|-------|
-| Order entity | ✅ Order entity (расширен) |
-| WorkReport entity | ❌ **УДАЛЁН** |
-| EarningsStatistic entity | ❌ **УДАЛЁН** |
+| ДО                       | ПОСЛЕ                      |
+| ------------------------ | -------------------------- |
+| Order entity             | ✅ Order entity (расширен) |
+| WorkReport entity        | ❌ **УДАЛЁН**              |
+| EarningsStatistic entity | ❌ **УДАЛЁН**              |
 
 ### Backend Services
 
 #### Statistics Service
 
 **ДО:**
+
 ```typescript
 // Пытался взять из кеша
 const stats = await earningsStatisticRepository.find(...);
@@ -48,6 +49,7 @@ const data = await workReportRepository
 ```
 
 **ПОСЛЕ:**
+
 ```typescript
 // Всегда из Order (единственный источник истины)
 const data = await orderRepository
@@ -60,6 +62,7 @@ const data = await orderRepository
 #### Orders Service
 
 **ДО:**
+
 ```typescript
 async createWorkReport(...): Promise<WorkReport> {
   // 1. Создаём WorkReport
@@ -68,16 +71,17 @@ async createWorkReport(...): Promise<WorkReport> {
     isOvertime: overtimeHours > 0,  // ❌ Неправильно!
     ...
   });
-  
+
   // 2. Агрегируем в Order
   order.regularHours += ...;
   await ordersRepository.save(order);
-  
+
   return workReport;
 }
 ```
 
 **ПОСЛЕ:**
+
 ```typescript
 async createWorkReport(...): Promise<Order> {
   // Обновляем Order напрямую
@@ -87,28 +91,29 @@ async createWorkReport(...): Promise<Order> {
   order.workPhotoUrl = workData.photoUrl;
   order.workNotes = workData.notes;
   order.status = OrderStatus.COMPLETED;
-  
+
   return await ordersRepository.save(order);
 }
 ```
 
 ### Backend API Endpoints
 
-| ДО | ПОСЛЕ |
-|----|-------|
-| `POST /orders/:id/work-reports` | `POST /orders/:id/complete-work` |
-| `GET /orders/:id/work-reports` | ❌ **УДАЛЁН** |
-| `GET /orders/work-reports/my` | ❌ **УДАЛЁН** |
-| `GET /statistics/top-earners` | ❌ **УДАЛЁН** |
-| `GET /statistics/total-earnings` | ❌ **УДАЛЁН** |
-| `GET /export/earnings` | ❌ **УДАЛЁН** |
-| `POST /calculations/work-report-cost` | ❌ **УДАЛЁН** |
+| ДО                                    | ПОСЛЕ                            |
+| ------------------------------------- | -------------------------------- |
+| `POST /orders/:id/work-reports`       | `POST /orders/:id/complete-work` |
+| `GET /orders/:id/work-reports`        | ❌ **УДАЛЁН**                    |
+| `GET /orders/work-reports/my`         | ❌ **УДАЛЁН**                    |
+| `GET /statistics/top-earners`         | ❌ **УДАЛЁН**                    |
+| `GET /statistics/total-earnings`      | ❌ **УДАЛЁН**                    |
+| `GET /export/earnings`                | ❌ **УДАЛЁН**                    |
+| `POST /calculations/work-report-cost` | ❌ **УДАЛЁН**                    |
 
 ### Frontend Components
 
 #### Order Edit Component (HTML)
 
 **ДО:**
+
 ```html
 <mat-tab label="Отчет о работе">
   <h3>Отчет о выполненной работе</h3>
@@ -128,6 +133,7 @@ async createWorkReport(...): Promise<Order> {
 ```
 
 **ПОСЛЕ:**
+
 ```html
 <mat-tab label="Завершение работы">
   <h3>Завершить выполнение заказа</h3>
@@ -150,6 +156,7 @@ async createWorkReport(...): Promise<Order> {
 #### Order Edit Component (TS)
 
 **Removed Methods:**
+
 ```typescript
 ❌ hasWorkReport(): boolean
 ❌ getRegularHours(report): number
@@ -158,6 +165,7 @@ async createWorkReport(...): Promise<Order> {
 ```
 
 **Updated Method:**
+
 ```typescript
 onSubmitWorkReport() → onCompleteWork()
 ```
@@ -167,18 +175,19 @@ onSubmitWorkReport() → onCompleteWork()
 ### Order Interface
 
 **Before:**
+
 ```typescript
 interface OrderDto {
   id: number;
   title: string;
   status: OrderStatus;
-  
+
   // Aggregated from work_reports
   regularHours?: number;
   overtimeHours?: number;
-  
+
   // Relations
-  workReports?: WorkReportDto[];  // ❌ Array of reports
+  workReports?: WorkReportDto[]; // ❌ Array of reports
 }
 
 interface WorkReportDto {
@@ -193,25 +202,26 @@ interface WorkReportDto {
 ```
 
 **After:**
+
 ```typescript
 interface OrderDto {
   id: number;
   title: string;
   status: OrderStatus;
-  
+
   // Work data stored directly
   regularHours: number;
   overtimeHours: number;
   calculatedAmount: number;
   carUsageAmount: number;
   organizationPayment: number;
-  
+
   // Work details
   workNotes?: string;
   workPhotoUrl?: string;
   distanceKm?: number;
   territoryType?: string;
-  
+
   // Timestamps
   actualStartDate?: Date;
   completionDate?: Date;
@@ -223,17 +233,21 @@ interface OrderDto {
 ## 🎨 UI/UX Changes
 
 ### Tab Labels
+
 - "Отчет о работе" → **"Завершение работы"**
 - "Данные отчета" → **"Результат работы"**
 
 ### Button Labels
+
 - "Отправить отчет" → **"Завершить заказ"**
 - Icon: `send` → **`check_circle`**
 
 ### Success Messages
+
 - "Отчет о работе успешно создан" → **"Заказ успешно завершён"**
 
 ### Visibility
+
 - "Данные отчета" showed when `hasWorkReport()` → **"Результат работы" shows when `status === COMPLETED`**
 
 ## 🔄 Complete User Flow
@@ -241,6 +255,7 @@ interface OrderDto {
 ### As Engineer:
 
 **1. Start Work**
+
 ```
 Order Status: WAITING
   ↓ (assigned)
@@ -248,9 +263,10 @@ Status: WORKING
 ```
 
 **2. Complete Work**
+
 ```
 Go to: "Завершение работы" tab
-Fill: 
+Fill:
   - Обычные часы: 4
   - Часы переработки: 0
   - Доплата за машину: 1000₽
@@ -259,6 +275,7 @@ Click: "Завершить заказ"
 ```
 
 **3. View Result**
+
 ```
 Order Status: COMPLETED
   ↓
@@ -274,6 +291,7 @@ Shows:
 ### As Admin/Manager:
 
 **View Statistics**
+
 ```
 Dashboard → Statistics
   ↓
@@ -291,6 +309,7 @@ GET /api/statistics/monthly
 ```
 
 **View Salary Calculations**
+
 ```
 Расчеты → Calculate Monthly
   ↓
@@ -301,18 +320,19 @@ Uses Order.regularHours + Order.overtimeHours
 
 ## 📈 Performance Comparison
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Database Tables | 11 | 9 | -18% |
-| Entities | 11 | 9 | -18% |
-| Statistics Query Time | ~200ms (JOINs) | ~50ms (direct) | **4x faster** |
-| Backend LOC | ~2,000 | ~1,000 | **50% less code** |
-| API Endpoints | 45+ | 38 | -7 endpoints |
-| Frontend Methods | 25+ | 18 | -7 methods |
+| Metric                | Before         | After          | Improvement       |
+| --------------------- | -------------- | -------------- | ----------------- |
+| Database Tables       | 11             | 9              | -18%              |
+| Entities              | 11             | 9              | -18%              |
+| Statistics Query Time | ~200ms (JOINs) | ~50ms (direct) | **4x faster**     |
+| Backend LOC           | ~2,000         | ~1,000         | **50% less code** |
+| API Endpoints         | 45+            | 38             | -7 endpoints      |
+| Frontend Methods      | 25+            | 18             | -7 methods        |
 
 ## 🎯 Architecture Principles Applied
 
 ### 1. Single Source of Truth
+
 ```
 Order entity = THE TRUTH
   - All work data
@@ -321,6 +341,7 @@ Order entity = THE TRUTH
 ```
 
 ### 2. No Intermediate Entities
+
 ```
 ❌ earnings_statistics (cache)
 ❌ work_reports (event log)
@@ -328,12 +349,14 @@ Order entity = THE TRUTH
 ```
 
 ### 3. Real-Time Data
+
 ```
 Statistics → Direct query → Fresh data
 No caches → No stale data → Always accurate
 ```
 
 ### 4. DRY (Don't Repeat Yourself)
+
 ```
 Before: Order + WorkReports store same data
 After: Order stores data once
@@ -353,6 +376,7 @@ After: Order stores data once
 ## ✅ Final Checklist
 
 ### Backend
+
 - [x] Remove earnings_statistics entity
 - [x] Remove work_reports entity
 - [x] Update all statistics methods
@@ -365,6 +389,7 @@ After: Order stores data once
 - [x] Test compilation ✅
 
 ### Frontend
+
 - [x] Update orders service
 - [x] Rename methods and endpoints
 - [x] Update order-edit component
@@ -374,6 +399,7 @@ After: Order stores data once
 - [ ] Test UI flow
 
 ### Deployment
+
 - [ ] Deploy backend
 - [ ] Run migration on production
 - [ ] Drop work_reports table
@@ -384,17 +410,20 @@ After: Order stores data once
 ## 🎊 Achievement Unlocked
 
 ### Code Reduction
+
 - **Backend:** ~1,000 lines removed
 - **Frontend:** ~300 lines simplified
 - **Total:** ~1,300 lines cleaner codebase
 
 ### Complexity Reduction
+
 - **2 fewer entities** to maintain
 - **7 fewer endpoints** to test
 - **Simpler queries** to optimize
 - **No cache** to invalidate
 
 ### Quality Improvement
+
 - ✅ **Always accurate data** (no stale cache)
 - ✅ **Faster statistics** (no JOINs)
 - ✅ **Clearer UX** (one action, one result)
@@ -405,41 +434,41 @@ After: Order stores data once
 ```typescript
 /**
  * Order - The Single Source of Truth
- * 
+ *
  * This entity contains ALL information about a work order:
  * - Contract details (who, what, where)
  * - Work summary (hours, payments)
  * - Work details (notes, photos)
  * - Status lifecycle (waiting → working → completed)
- * 
+ *
  * No intermediate entities.
  * No cached calculations.
  * No event logs.
- * 
+ *
  * Just the Order. Simple. Clean. Perfect.
  */
 interface Order {
   // Identity
   id: number;
   title: string;
-  
+
   // Relations
   organization: Organization;
   assignedEngineer: Engineer;
-  
+
   // Work Summary
   regularHours: number;
   overtimeHours: number;
   calculatedAmount: number;
   carUsageAmount: number;
   organizationPayment: number;
-  
+
   // Work Details
   workNotes?: string;
   workPhotoUrl?: string;
   distanceKm?: number;
   territoryType?: string;
-  
+
   // Lifecycle
   status: OrderStatus;
   createdAt: Date;
@@ -452,14 +481,14 @@ interface Order {
 
 **From chaos to clarity.**  
 **From complexity to simplicity.**  
-**From cache to real-time.**  
+**From cache to real-time.**
 
 **One entity to rule them all: Order.** 👑
 
 ---
 
-*"Perfection is achieved, not when there is nothing more to add,  
-but when there is nothing left to take away."*  
+_"Perfection is achieved, not when there is nothing more to add,  
+but when there is nothing left to take away."_  
 — Antoine de Saint-Exupéry
 
 **We removed 2 entities, 1,300 lines of code, and infinite complexity.**  

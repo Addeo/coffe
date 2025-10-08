@@ -118,6 +118,34 @@ export class Order {
   @Column('decimal', { precision: 10, scale: 2, nullable: true, default: 0 })
   organizationPayment: number; // сумма, которую платит организация
 
+  // Детальная разбивка расчётов (для аудита и отчётности)
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  engineerBaseRate: number; // базовая ставка инженера (₽/час)
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  engineerOvertimeRate: number; // ставка переработки инженера (₽/час)
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  organizationBaseRate: number; // базовая ставка организации (₽/час)
+
+  @Column('decimal', { precision: 5, scale: 2, nullable: true })
+  organizationOvertimeMultiplier: number; // коэффициент переработки организации
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  regularPayment: number; // оплата за обычные часы (инженеру)
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  overtimePayment: number; // оплата за переработку (инженеру)
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  organizationRegularPayment: number; // оплата за обычные часы (от организации)
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  organizationOvertimePayment: number; // оплата за переработку (от организации)
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  profit: number; // прибыль (organizationPayment - calculatedAmount)
+
   @Column({ type: 'text', nullable: true })
   workNotes: string; // примечания о выполненной работе
 

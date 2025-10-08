@@ -10,18 +10,21 @@
 ## 📦 Part 1: Cache Removal (STATISTICS_REFACTORING.md)
 
 ### Problem
+
 - `earnings_statistics` table cached monthly data
 - Updated only once per month via cron job
 - Statistics returned empty arrays when cache was not populated
 - Data inconsistency when orders/work_reports changed
 
 ### Solution
+
 - Deleted `earnings-statistic.entity.ts`
 - Removed all references from modules
 - Removed scheduler job for cache updates
 - Refactored all statistics methods to calculate in real-time
 
 ### Files Modified
+
 - `backend/src/entities/earnings-statistic.entity.ts` - ❌ DELETED
 - `backend/src/modules/statistics/statistics.service.ts` - removed cache logic
 - `backend/src/modules/scheduler/scheduler.service.ts` - removed cron job
@@ -30,15 +33,17 @@
 ## 📊 Part 2: Overtime Fix (OVERTIME_FIX.md)
 
 ### Problem
+
 ```typescript
 // WRONG:
-workReport.isOvertime = (overtimeHours > 0);
+workReport.isOvertime = overtimeHours > 0;
 // This marked ENTIRE report as overtime if ANY overtime hours present
 ```
 
 **Result:** User entering 4h regular + 4h overtime = 8h ALL marked as overtime ❌
 
 ### Solution
+
 - Use Order entity aggregate fields instead of work_report flags
 - Separate `regularHours` and `overtimeHours` at Order level
 - Statistics calculate from Order fields, not work_reports
@@ -46,6 +51,7 @@ workReport.isOvertime = (overtimeHours > 0);
 ### Architecture
 
 **Order (Aggregate Root) - Single Source of Truth:**
+
 ```typescript
 {
   regularHours: 4,          // ✅ Properly separated
@@ -57,6 +63,7 @@ workReport.isOvertime = (overtimeHours > 0);
 ```
 
 **WorkReport (Audit Trail / Event Log):**
+
 - Multiple work_reports per order (history of work sessions)
 - Each report contains: timestamps, photos, notes, location
 - Data aggregates into Order for statistics and payments
@@ -85,6 +92,7 @@ await this.ordersRepository.save(order);
 **File:** `backend/src/modules/statistics/statistics.service.ts`
 
 **All methods now use Order aggregates:**
+
 - `getAgentEarningsData()` - from `order.calculatedAmount + order.carUsageAmount`
 - `getOrganizationEarningsData()` - from `order.organizationPayment`
 - `getOvertimeStatisticsData()` - from `order.overtimeHours + order.regularHours`
@@ -101,12 +109,14 @@ await this.ordersRepository.save(order);
 Aggregates existing work_reports into order fields.
 
 **Execution:**
+
 ```bash
 cd backend
 node migrate-order-aggregates.js
 ```
 
 **Result:**
+
 ```
 ✅ Order #6 "тестовый заказ": 0h regular + 31h overtime = 25600 RUB (3 work reports)
 ```
@@ -114,21 +124,25 @@ node migrate-order-aggregates.js
 ## 📈 Benefits
 
 ### Performance
+
 - ✅ Faster queries (orders table instead of work_reports joins)
 - ✅ Pre-aggregated data ready to use
 - ✅ Fewer database queries
 
 ### Accuracy
+
 - ✅ Real-time statistics (no stale cache)
 - ✅ Correct regular/overtime separation
 - ✅ Always reflects current data
 
 ### Maintainability
+
 - ✅ Simpler architecture (no cache invalidation)
 - ✅ Single source of truth (Order)
 - ✅ Easier to understand and debug
 
 ### Scalability
+
 - ✅ Modern databases handle aggregation efficiently
 - ✅ Proper indexes on key fields
 - ✅ No redundant cached data
@@ -136,10 +150,11 @@ node migrate-order-aggregates.js
 ## 🧪 Testing Results
 
 ### Database State After Migration:
+
 ```
 Order #6:
   Regular hours: 0
-  Overtime hours: 31  
+  Overtime hours: 31
   Payment: 21600 RUB
   Car: 4000 RUB
   Organization Payment: 30150 RUB
@@ -147,6 +162,7 @@ Order #6:
 ```
 
 ### API Response:
+
 ```json
 {
   "year": 2025,
@@ -154,14 +170,14 @@ Order #6:
   "agentEarnings": [
     {
       "agentId": 4,
-      "totalEarnings": 25600,  // ✅ Correct sum
+      "totalEarnings": 25600, // ✅ Correct sum
       "completedOrders": 1
     }
   ],
   "organizationEarnings": [
     {
       "organizationId": 1,
-      "totalRevenue": 30150,   // ✅ From Order
+      "totalRevenue": 30150, // ✅ From Order
       "totalCosts": 21600,
       "totalProfit": 8550
     }
@@ -169,8 +185,8 @@ Order #6:
   "overtimeStatistics": [
     {
       "agentId": 4,
-      "overtimeHours": 31,     // ✅ From Order aggregate
-      "regularHours": 0,       // ✅ From Order aggregate
+      "overtimeHours": 31, // ✅ From Order aggregate
+      "regularHours": 0, // ✅ From Order aggregate
       "totalHours": 31
     }
   ]
@@ -202,6 +218,7 @@ Order #6:
 ## 🚀 Deployment Plan
 
 ### 1. Pre-Deployment
+
 ```bash
 # Build and test locally
 cd backend
@@ -210,12 +227,14 @@ npm test  # if tests exist
 ```
 
 ### 2. Deploy Code
+
 ```bash
 # Upload to server
 # Restart backend service
 ```
 
 ### 3. Run Migration
+
 ```bash
 ssh server
 cd /path/to/backend
@@ -223,6 +242,7 @@ node migrate-order-aggregates.js
 ```
 
 ### 4. Verify
+
 ```bash
 # Test statistics endpoint
 curl 'https://your-api/statistics/monthly?year=2025&month=10' \
@@ -230,6 +250,7 @@ curl 'https://your-api/statistics/monthly?year=2025&month=10' \
 ```
 
 ### 5. Monitor
+
 - Check application logs for errors
 - Verify statistics calculations
 - Monitor performance metrics
@@ -237,12 +258,14 @@ curl 'https://your-api/statistics/monthly?year=2025&month=10' \
 ## 🎉 Final Result
 
 **Before:**
+
 - ❌ Empty statistics (cache not populated)
 - ❌ All hours marked as overtime
 - ❌ Stale data from monthly cron
 - ❌ Complex cache invalidation logic
 
 **After:**
+
 - ✅ Real-time statistics from Order aggregates
 - ✅ Correct regular/overtime separation
 - ✅ Always accurate data

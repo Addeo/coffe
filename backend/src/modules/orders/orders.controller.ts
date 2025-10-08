@@ -122,7 +122,24 @@ export class OrdersController {
     return this.ordersService.remove(id, req.user);
   }
 
-  // Work completion is now handled via PATCH /orders/:id with work data fields
+  // Complete work endpoint
+  @Post(':id/complete-work')
+  @Roles(UserRole.USER) // Only engineers can complete work
+  async completeWork(
+    @Param('id', ParseIntPipe) orderId: number,
+    @Body()
+    workData: {
+      regularHours: number;
+      overtimeHours: number;
+      carPayment: number;
+      distanceKm?: number;
+      territoryType?: string;
+      notes?: string;
+    },
+    @Request() req
+  ) {
+    return this.ordersService.completeWork(orderId, req.user.id, workData);
+  }
 
   // Temporary test endpoint
   @Get('test')

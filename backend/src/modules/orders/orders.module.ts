@@ -17,15 +17,7 @@ import { CalculationsModule } from '../расчеты/calculations.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      Order,
-      User,
-      Engineer,
-      Organization,
-      File,
-      Setting,
-      UserActivityLog,
-    ]),
+    TypeOrmModule.forFeature([Order, User, Engineer, Organization, File, Setting, UserActivityLog]),
     NotificationsModule,
     StatisticsModule,
     CalculationsModule,

@@ -10,7 +10,7 @@ Statistics API was returning overtime hours incorrectly:
     {
       "agentId": 4,
       "agentName": "Unknown",
-      "overtimeHours": 27,  // ❌ All hours marked as overtime!
+      "overtimeHours": 27, // ❌ All hours marked as overtime!
       "regularHours": 0,
       "totalHours": 27
     }
@@ -26,11 +26,12 @@ Statistics API was returning overtime hours incorrectly:
 // OLD LOGIC (WRONG):
 const workReport = {
   totalHours: regularHours + overtimeHours,
-  isOvertime: overtimeHours > 0,  // ❌ Marks ENTIRE report as overtime!
+  isOvertime: overtimeHours > 0, // ❌ Marks ENTIRE report as overtime!
 };
 ```
 
 **Problem:**
+
 - If user entered ANY overtime hours, the **entire work_report** was marked as `isOvertime=true`
 - Statistics counted ALL hours in that report as overtime
 - User entering 4h regular + 0h overtime = 4h regular ✅
@@ -45,7 +46,7 @@ Instead of storing overtime flag on work_report level, we now **aggregate data a
 
 ```
 BEFORE (Wrong):
-work_report { 
+work_report {
   totalHours: 4,
   isOvertime: true  // ❌ Entire report marked as overtime
 }
@@ -65,6 +66,7 @@ order {
 #### 1. Order Entity Already Had Aggregate Fields
 
 Order entity (lines 107-120) already contained:
+
 - `regularHours` - regular work hours
 - `overtimeHours` - overtime work hours
 - `calculatedAmount` - engineer payment
@@ -93,22 +95,28 @@ await this.ordersRepository.save(order);
 **All statistics methods now query Order fields instead of work_reports:**
 
 **Before:**
+
 ```typescript
 const stats = await this.workReportRepository
-  .select('SUM(CASE WHEN report.isOvertime = true THEN report.totalHours ELSE 0 END)', 'overtimeHours')
-  .where('report.submittedAt BETWEEN :start AND :end')
+  .select(
+    'SUM(CASE WHEN report.isOvertime = true THEN report.totalHours ELSE 0 END)',
+    'overtimeHours'
+  )
+  .where('report.submittedAt BETWEEN :start AND :end');
 ```
 
 **After:**
+
 ```typescript
 const stats = await this.orderRepository
   .select('SUM(order.overtimeHours)', 'overtimeHours')
   .select('SUM(order.regularHours)', 'regularHours')
   .where('order.completionDate BETWEEN :start AND :end')
-  .andWhere('order.status = :status', { status: 'completed' })
+  .andWhere('order.status = :status', { status: 'completed' });
 ```
 
 **Methods Updated:**
+
 - `getAgentEarningsData()` - uses `order.calculatedAmount` + `order.carUsageAmount`
 - `getOrganizationEarningsData()` - uses `order.organizationPayment`
 - `getOvertimeStatisticsData()` - uses `order.overtimeHours` + `order.regularHours`
@@ -125,12 +133,14 @@ const stats = await this.orderRepository
 Migrates existing work_reports data into order aggregate fields.
 
 **Run with:**
+
 ```bash
 cd backend
 node migrate-order-aggregates.js
 ```
 
 **Output:**
+
 ```
 🔄 Starting migration: Aggregate work_reports data into orders...
 ✅ Order #6 "тестовый заказ": 0h regular + 31h overtime = 25600 RUB (3 work reports)
@@ -140,21 +150,25 @@ node migrate-order-aggregates.js
 ## 📊 Benefits
 
 ### 1. Accurate Statistics
+
 - Regular and overtime hours are properly separated
 - Statistics reflect actual work breakdown
 - No more "all hours as overtime" bug
 
 ### 2. Better Performance
+
 - Single query to orders table instead of joining work_reports
 - Aggregated data ready to use, no runtime aggregation needed
 - Simpler queries with fewer joins
 
 ### 3. Single Source of Truth
+
 - Order holds all financial information
 - work_reports are audit trail, Order is the contract
 - Easier to understand and maintain
 
 ### 4. Cleaner Architecture
+
 ```
 Order (Aggregate Root)
   ├── regularHours
@@ -171,6 +185,7 @@ Order (Aggregate Root)
 ## 🧪 Testing
 
 ### Before Fix:
+
 ```bash
 curl 'https://api/statistics/monthly?year=2025&month=10'
 
@@ -187,6 +202,7 @@ curl 'https://api/statistics/monthly?year=2025&month=10'
 ```
 
 ### After Fix:
+
 ```bash
 curl 'https://api/statistics/monthly?year=2025&month=10'
 
@@ -216,6 +232,7 @@ curl 'https://api/statistics/monthly?year=2025&month=10'
 ## 🚀 Deployment Steps
 
 1. **Deploy Code:**
+
    ```bash
    cd backend
    npm run build
@@ -223,12 +240,14 @@ curl 'https://api/statistics/monthly?year=2025&month=10'
    ```
 
 2. **Run Migration:**
+
    ```bash
    cd backend
    node migrate-order-aggregates.js
    ```
 
 3. **Verify Statistics:**
+
    ```bash
    curl 'https://your-api/statistics/monthly?year=2025&month=10'
    ```
@@ -240,15 +259,17 @@ curl 'https://api/statistics/monthly?year=2025&month=10'
 ## 🔍 Database Changes
 
 ### Orders Table - Fields Used:
+
 ```sql
 regularHours         DECIMAL(5,2) DEFAULT 0
-overtimeHours        DECIMAL(5,2) DEFAULT 0  
+overtimeHours        DECIMAL(5,2) DEFAULT 0
 calculatedAmount     DECIMAL(10,2) DEFAULT 0
 carUsageAmount       DECIMAL(10,2) DEFAULT 0
 organizationPayment  DECIMAL(10,2) DEFAULT 0
 ```
 
 ### Work Reports Table:
+
 - `isOvertime` field is now deprecated (kept for backward compatibility)
 - Field still exists but is NOT used by statistics
 - Future work_reports still set this field, but it's not queried
@@ -256,6 +277,7 @@ organizationPayment  DECIMAL(10,2) DEFAULT 0
 ## 🎯 Result
 
 **Statistics now correctly show:**
+
 - ✅ Separate regular and overtime hours
 - ✅ Accurate earnings calculations
 - ✅ Correct organization payments
