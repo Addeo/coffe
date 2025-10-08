@@ -54,7 +54,21 @@ export class StatisticsService {
       .andWhere('report.submittedAt < :endDate', { endDate })
       .getMany();
 
+    // Если нет work reports, обнуляем статистику (важно для случая удаления всех заказов)
     if (workReports.length === 0) {
+      const existingStatistic = await this.earningsStatisticRepository.findOne({
+        where: { userId, month, year },
+      });
+
+      if (existingStatistic) {
+        // Обнуляем существующую статистику
+        existingStatistic.totalEarnings = 0;
+        existingStatistic.completedOrders = 0;
+        existingStatistic.averageOrderValue = 0;
+        existingStatistic.totalHours = 0;
+        await this.earningsStatisticRepository.save(existingStatistic);
+        console.log(`Statistics reset to zero for engineer userId ${userId} (${month}/${year})`);
+      }
       return;
     }
 

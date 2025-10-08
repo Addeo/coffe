@@ -346,6 +346,8 @@ export class OrdersService {
         'fileUploadedBy.id', 'fileUploadedBy.firstName', 'fileUploadedBy.lastName', 'fileUploadedBy.email'
       ])
       .leftJoinAndSelect('order.workReports', 'workReports')
+      .leftJoinAndSelect('workReports.engineer', 'workReportEngineer')
+      .leftJoinAndSelect('workReportEngineer.user', 'workReportEngineerUser')
       .where('order.id = :id', { id })
       .getOne();
 
@@ -990,6 +992,18 @@ export class OrdersService {
       throw new NotFoundException('Order not found');
     }
 
+    // Если организация не загрузилась через relation, загружаем отдельно
+    if (!order.organization && order.organizationId) {
+      order.organization = await this.organizationsRepository.findOne({
+        where: { id: order.organizationId },
+      });
+      console.log('📦 Loaded organization separately:', order.organization?.name);
+    }
+
+    if (!order.organization) {
+      throw new NotFoundException('Organization not found for this order');
+    }
+
     // Получаем инженера
     const engineer = await this.engineersRepository.findOne({
       where: { userId: engineerId },
@@ -1061,8 +1075,8 @@ export class OrdersService {
     // Создаем отчет о работе
     const now = new Date();
     const workReport = this.workReportsRepository.create({
-      order,
-      engineer,
+      orderId: order.id,
+      engineerId: engineer.id,
       startTime: now, // Используем текущее время как время начала
       endTime: now, // Используем текущее время как время окончания
       totalHours,
