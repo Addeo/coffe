@@ -90,9 +90,15 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title>Доходы агентов за {{ statistics()?.monthName }} {{ statistics()?.year }}</mat-card-title>
+              <mat-card-subtitle>Показывает начисленные суммы инженерам (затраты на персонал)</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
-              <div class="table-container">
+              <div *ngIf="!statistics()?.agentEarnings || statistics()!.agentEarnings.length === 0" class="empty-state">
+                <mat-icon>info_outline</mat-icon>
+                <p>Нет данных за выбранный период</p>
+                <p class="hint">Данные появятся после создания отчетов о работе агентами</p>
+              </div>
+              <div *ngIf="statistics()?.agentEarnings && statistics()!.agentEarnings.length > 0" class="table-container">
                 <table mat-table [dataSource]="statistics()?.agentEarnings || []" class="mat-elevation-z8">
                   <!-- Agent Name Column -->
                   <ng-container matColumnDef="agentName">
@@ -102,19 +108,19 @@
 
                   <!-- Total Earnings Column -->
                   <ng-container matColumnDef="totalEarnings">
-                    <th mat-header-cell *matHeaderCellDef>Общий доход</th>
+                    <th mat-header-cell *matHeaderCellDef>Начислено (₽)</th>
                     <td mat-cell *matCellDef="let element">{{ formatCurrency(element.totalEarnings) }}</td>
                   </ng-container>
 
                   <!-- Completed Orders Column -->
                   <ng-container matColumnDef="completedOrders">
-                    <th mat-header-cell *matHeaderCellDef>Выполненные заказы</th>
+                    <th mat-header-cell *matHeaderCellDef>Заказов</th>
                     <td mat-cell *matCellDef="let element">{{ formatNumber(element.completedOrders) }}</td>
                   </ng-container>
 
                   <!-- Average Order Value Column -->
                   <ng-container matColumnDef="averageOrderValue">
-                    <th mat-header-cell *matHeaderCellDef>Средняя стоимость заказа</th>
+                    <th mat-header-cell *matHeaderCellDef>Средний чек (₽)</th>
                     <td mat-cell *matCellDef="let element">{{ formatCurrency(element.averageOrderValue) }}</td>
                   </ng-container>
 
@@ -128,37 +134,73 @@
       </mat-tab>
 
       <!-- Organization Earnings Tab -->
-      <mat-tab label="Доходы организаций">
+      <mat-tab label="Доходы от организаций">
         <div class="tab-content">
           <mat-card>
             <mat-card-header>
-              <mat-card-title>Доходы организаций за {{ statistics()?.monthName }} {{ statistics()?.year }}</mat-card-title>
+              <mat-card-title>Финансовый анализ по организациям за {{ statistics()?.monthName }} {{ statistics()?.year }}</mat-card-title>
+              <mat-card-subtitle>Выручка, затраты и прибыль по организациям-заказчикам</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
-              <div class="table-container">
-                <table mat-table [dataSource]="statistics()?.organizationEarnings || []" class="mat-elevation-z8">
+              <div *ngIf="!statistics()?.organizationEarnings || statistics()!.organizationEarnings.length === 0" class="empty-state">
+                <mat-icon>info_outline</mat-icon>
+                <p>Нет данных за выбранный период</p>
+                <p class="hint">Данные появятся после создания отчетов о работе по заказам</p>
+              </div>
+              <div *ngIf="statistics()?.organizationEarnings && statistics()!.organizationEarnings.length > 0" class="table-container">
+                <table mat-table [dataSource]="statistics()?.organizationEarnings || []" class="mat-elevation-z8 financial-table">
                   <!-- Organization Name Column -->
                   <ng-container matColumnDef="organizationName">
-                    <th mat-header-cell *matHeaderCellDef>Название организации</th>
-                    <td mat-cell *matCellDef="let element">{{ element.organizationName }}</td>
+                    <th mat-header-cell *matHeaderCellDef>Организация</th>
+                    <td mat-cell *matCellDef="let element" class="org-name">{{ element.organizationName }}</td>
                   </ng-container>
 
-                  <!-- Total Earnings Column -->
-                  <ng-container matColumnDef="totalEarnings">
-                    <th mat-header-cell *matHeaderCellDef>Общий доход</th>
-                    <td mat-cell *matCellDef="let element">{{ formatCurrency(element.totalEarnings) }}</td>
+                  <!-- Total Revenue Column -->
+                  <ng-container matColumnDef="totalRevenue">
+                    <th mat-header-cell *matHeaderCellDef>Выручка (₽)</th>
+                    <td mat-cell *matCellDef="let element" class="revenue">
+                      {{ formatCurrency(element.totalRevenue) }}
+                    </td>
+                  </ng-container>
+
+                  <!-- Total Costs Column -->
+                  <ng-container matColumnDef="totalCosts">
+                    <th mat-header-cell *matHeaderCellDef>Затраты (₽)</th>
+                    <td mat-cell *matCellDef="let element" class="costs">
+                      {{ formatCurrency(element.totalCosts) }}
+                    </td>
+                  </ng-container>
+
+                  <!-- Total Profit Column -->
+                  <ng-container matColumnDef="totalProfit">
+                    <th mat-header-cell *matHeaderCellDef>Прибыль (₽)</th>
+                    <td mat-cell *matCellDef="let element" class="profit">
+                      <span [style.color]="getProfitColor(element.totalProfit)" [style.font-weight]="'600'">
+                        {{ formatCurrency(element.totalProfit) }}
+                      </span>
+                    </td>
+                  </ng-container>
+
+                  <!-- Profit Margin Column -->
+                  <ng-container matColumnDef="profitMargin">
+                    <th mat-header-cell *matHeaderCellDef>Маржа (%)</th>
+                    <td mat-cell *matCellDef="let element" class="margin">
+                      <span [style.color]="getProfitMarginColor(element.profitMargin)" [style.font-weight]="'600'">
+                        {{ formatPercentage(element.profitMargin) }}
+                      </span>
+                    </td>
                   </ng-container>
 
                   <!-- Total Orders Column -->
                   <ng-container matColumnDef="totalOrders">
-                    <th mat-header-cell *matHeaderCellDef>Всего заказов</th>
+                    <th mat-header-cell *matHeaderCellDef>Заказов</th>
                     <td mat-cell *matCellDef="let element">{{ formatNumber(element.totalOrders) }}</td>
                   </ng-container>
 
-                  <!-- Average Order Value Column -->
-                  <ng-container matColumnDef="averageOrderValue">
-                    <th mat-header-cell *matHeaderCellDef>Средняя стоимость заказа</th>
-                    <td mat-cell *matCellDef="let element">{{ formatCurrency(element.averageOrderValue) }}</td>
+                  <!-- Total Hours Column -->
+                  <ng-container matColumnDef="totalHours">
+                    <th mat-header-cell *matHeaderCellDef>Часов</th>
+                    <td mat-cell *matCellDef="let element">{{ formatNumber(element.totalHours) }}</td>
                   </ng-container>
 
                   <tr mat-header-row *matHeaderRowDef="organizationEarningsColumns"></tr>

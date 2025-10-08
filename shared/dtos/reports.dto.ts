@@ -33,8 +33,12 @@ export interface AgentEarningsData {
 export interface OrganizationEarningsData {
   organizationId: number;
   organizationName: string;
-  totalEarnings: number;
+  totalRevenue: number; // Выручка от организации (часы × ставка организации)
+  totalCosts: number; // Затраты на инженеров (часы × ставка инженера)
+  totalProfit: number; // Прибыль (выручка - затраты)
+  profitMargin: number; // Маржа прибыли в процентах
   totalOrders: number;
+  totalHours: number;
   averageOrderValue: number;
 }
 

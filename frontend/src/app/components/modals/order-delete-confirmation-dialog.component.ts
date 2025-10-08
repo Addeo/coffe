@@ -45,9 +45,22 @@ export interface OrderDeleteConfirmationData {
           ><br />
           <small class="text-muted">Статус: {{ getStatusDisplay(data.order.status) }}</small>
         </div>
-        <p class="warning-text">
-          Это действие нельзя отменить. Можно удалять только заказы со статусом "Ожидание".
-        </p>
+        <div class="warning-box">
+          <mat-icon>warning</mat-icon>
+          <div>
+            <p class="warning-text">
+              <strong>Внимание!</strong> Это действие нельзя отменить.
+            </p>
+            <p class="warning-text" *ngIf="data.order && data.order.status !== 'waiting'">
+              При удалении заказа будут также удалены все связанные данные:
+            </p>
+            <ul class="cascade-list" *ngIf="data.order && data.order.status !== 'waiting'">
+              <li>Отчеты о выполненной работе</li>
+              <li>Логи активности</li>
+              <li>Прикрепленные файлы</li>
+            </ul>
+          </div>
+        </div>
       </mat-dialog-content>
 
       <mat-dialog-actions align="end">
@@ -56,7 +69,7 @@ export interface OrderDeleteConfirmationData {
           mat-raised-button
           color="warn"
           (click)="onConfirm()"
-          [disabled]="isLoading() || (data.order && data.order.status !== 'waiting')"
+          [disabled]="isLoading()"
         >
           <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
           <span *ngIf="!isLoading()">Удалить</span>
@@ -118,12 +131,45 @@ export interface OrderDeleteConfirmationData {
         margin-top: 4px;
       }
 
+      .warning-box {
+        display: flex;
+        gap: 12px;
+        background: #fff3e0;
+        border-left: 4px solid #ff9800;
+        border-radius: 4px;
+        padding: 16px;
+        margin: 0 24px 16px 24px;
+      }
+
+      .warning-box mat-icon {
+        color: #ff9800;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+      }
+
       .warning-text {
-        color: #d32f2f;
+        color: #e65100;
         font-weight: 500;
-        margin: 0 24px 0 0;
-        padding: 0 24px;
+        margin: 0 0 8px 0;
         font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .warning-text:last-child {
+        margin-bottom: 0;
+      }
+
+      .cascade-list {
+        margin: 8px 0 0 0;
+        padding-left: 20px;
+        color: #666;
+        font-size: 14px;
+      }
+
+      .cascade-list li {
+        margin-bottom: 4px;
       }
 
       mat-dialog-content {
@@ -216,7 +262,7 @@ export class OrderDeleteConfirmationDialogComponent {
   }
 
   onConfirm() {
-    if (!this.data.order || this.data.order.status !== 'waiting') {
+    if (!this.data.order) {
       return;
     }
 
@@ -224,12 +270,12 @@ export class OrderDeleteConfirmationDialogComponent {
 
     this.ordersService.deleteOrder(this.data.order.id).subscribe({
       next: () => {
-        this.toastService.success('Order deleted successfully');
+        this.toastService.success('Заказ успешно удален');
         this.dialogRef.close(true);
       },
       error: error => {
         console.error('Error deleting order:', error);
-        this.toastService.error('Error deleting order. Please try again.');
+        this.toastService.error('Ошибка удаления заказа. Попробуйте еще раз.');
         this.isLoading.set(false);
       },
     });

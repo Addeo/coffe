@@ -70,7 +70,22 @@ A modern admin panel built with Angular/Ionic frontend and NestJS backend, conta
    cd coffee-admin-panel
    ```
 
-2. **Start with Docker**:
+2. **Configure environment variables**:
+
+   ```bash
+   # Copy example environment file
+   cp env.example .env
+   
+   # Generate secure JWT secret
+   openssl rand -base64 64
+   
+   # Edit .env and set JWT_SECRET to the generated value
+   # JWT_SECRET=<your-generated-secret>
+   ```
+
+   ⚠️ **Important**: Never use default JWT_SECRET in production!
+
+3. **Start with Docker**:
 
    ```bash
    npm run dev
@@ -279,6 +294,7 @@ Detailed documentation is available in the [`docs/`](./docs/) directory:
 
 ### ⚙️ Configuration
 
+- **[JWT Security Setup](./docs/JWT_SECURITY_SETUP.md)** - JWT authentication configuration and security
 - **[Gmail Setup](./docs/GMAIL_SETUP.md)** - Email integration setup
 - **[Demo README](./docs/DEMO_README.md)** - Demo-specific instructions
 

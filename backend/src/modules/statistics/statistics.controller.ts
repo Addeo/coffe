@@ -57,6 +57,19 @@ export class StatisticsController {
     return this.statisticsService.getTotalEarningsByPeriod(start, end, userId);
   }
 
+  @Get('engineer/detailed')
+  async getEngineerDetailedStats(
+    @Request() req,
+    @Query('year', ParseIntPipe) year?: number,
+    @Query('month', ParseIntPipe) month?: number
+  ) {
+    const currentDate = new Date();
+    const targetYear = year || currentDate.getFullYear();
+    const targetMonth = month || (currentDate.getMonth() + 1);
+
+    return this.statisticsService.getEngineerDetailedStats(req.user.id, targetYear, targetMonth);
+  }
+
   @Get('monthly')
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   async getMonthlyStatistics(

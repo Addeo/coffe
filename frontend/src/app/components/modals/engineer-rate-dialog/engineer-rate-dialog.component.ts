@@ -91,94 +91,113 @@ export interface EngineerRateDialogData {
             </div>
           </div>
 
-          <mat-tab-group>
-            <!-- Basic Rates Tab -->
-            <mat-tab label="Базовые ставки">
-              <div class="tab-content">
-                <div class="form-row">
-                  <mat-form-field appearance="outline" class="form-field">
-                    <mat-label>Базовая ставка (руб/час)</mat-label>
-                    <input
-                      matInput
-                      formControlName="customBaseRate"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="Оставьте пустым для использования ставки по умолчанию"
-                    />
-                    <mat-hint
-                      >Индивидуальная базовая ставка для этого инженера в этой организации</mat-hint
-                    >
-                  </mat-form-field>
+          <!-- Rates Table -->
+          <div class="rates-table-container">
+            <table class="rates-table">
+              <thead>
+                <tr>
+                  <th>Тип ставки</th>
+                  <th>Значение (руб)</th>
+                  <th>Описание</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="rate-label">Базовая ставка</td>
+                  <td class="rate-input">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        formControlName="customBaseRate"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="По умолчанию"
+                      />
+                    </mat-form-field>
+                  </td>
+                  <td class="rate-description">Базовая ставка за час работы</td>
+                </tr>
 
-                  <mat-form-field appearance="outline" class="form-field">
-                    <mat-label>Ставка переработки (руб/час)</mat-label>
-                    <input
-                      matInput
-                      formControlName="customOvertimeRate"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="Оставьте пустым для использования ставки по умолчанию"
-                    />
-                    <mat-hint>Фиксированная ставка за переработку</mat-hint>
-                  </mat-form-field>
-                </div>
+                <tr>
+                  <td class="rate-label">Ставка переработки</td>
+                  <td class="rate-input">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        formControlName="customOvertimeRate"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="По умолчанию"
+                      />
+                    </mat-form-field>
+                  </td>
+                  <td class="rate-description">Фиксированная ставка за переработку</td>
+                </tr>
 
-              </div>
-            </mat-tab>
+                <tr class="zone-separator">
+                  <td colspan="3">
+                    <div class="zone-header">
+                      <mat-icon>location_on</mat-icon>
+                      <span>Зональные надбавки</span>
+                    </div>
+                  </td>
+                </tr>
 
+                <tr>
+                  <td class="rate-label">Надбавка за зону 1</td>
+                  <td class="rate-input">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        formControlName="customZone1Extra"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="По умолчанию"
+                      />
+                    </mat-form-field>
+                  </td>
+                  <td class="rate-description">Дополнительная оплата за зону 1</td>
+                </tr>
 
-            <!-- Zone Extras Tab -->
-            <mat-tab label="Зональные надбавки">
-              <div class="tab-content">
-                <p class="tab-description">
-                  Дополнительные выплаты за работу в отдаленных зонах (при расстоянии > 60 км)
-                </p>
+                <tr>
+                  <td class="rate-label">Надбавка за зону 2</td>
+                  <td class="rate-input">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        formControlName="customZone2Extra"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="По умолчанию"
+                      />
+                    </mat-form-field>
+                  </td>
+                  <td class="rate-description">Дополнительная оплата за зону 2</td>
+                </tr>
 
-                <div class="form-row">
-                  <mat-form-field appearance="outline" class="form-field">
-                    <mat-label>Надбавка за зону 1 (руб)</mat-label>
-                    <input
-                      matInput
-                      formControlName="customZone1Extra"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="Оставьте пустым для использования ставки по умолчанию"
-                    />
-                    <mat-hint>Дополнительная оплата за зону 1</mat-hint>
-                  </mat-form-field>
-
-                  <mat-form-field appearance="outline" class="form-field">
-                    <mat-label>Надбавка за зону 2 (руб)</mat-label>
-                    <input
-                      matInput
-                      formControlName="customZone2Extra"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="Оставьте пустым для использования ставки по умолчанию"
-                    />
-                    <mat-hint>Дополнительная оплата за зону 2</mat-hint>
-                  </mat-form-field>
-                </div>
-
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>Надбавка за зону 3 (руб)</mat-label>
-                  <input
-                    matInput
-                    formControlName="customZone3Extra"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="Оставьте пустым для использования ставки по умолчанию"
-                  />
-                  <mat-hint>Дополнительная оплата за зону 3</mat-hint>
-                </mat-form-field>
-              </div>
-            </mat-tab>
-          </mat-tab-group>
+                <tr>
+                  <td class="rate-label">Надбавка за зону 3</td>
+                  <td class="rate-input">
+                    <mat-form-field appearance="outline">
+                      <input
+                        matInput
+                        formControlName="customZone3Extra"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="По умолчанию"
+                      />
+                    </mat-form-field>
+                  </td>
+                  <td class="rate-description">Дополнительная оплата за зону 3</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <!-- Active status toggle -->
           <div class="form-row status-row">
@@ -254,19 +273,101 @@ export interface EngineerRateDialogData {
         }
       }
 
-      .tab-content {
-        padding: 20px 0;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
+      .rates-table-container {
+        margin-top: 20px;
+        overflow-x: auto;
       }
 
-      .tab-description {
-        color: #666;
+      .rates-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .rates-table thead {
+        background-color: #f5f5f5;
+      }
+
+      .rates-table th {
+        padding: 16px;
+        text-align: left;
+        font-weight: 600;
+        color: #1976d2;
         font-size: 14px;
-        margin: 0;
-        padding-bottom: 16px;
+        border-bottom: 2px solid #e0e0e0;
+      }
+
+      .rates-table tbody tr {
+        transition: background-color 0.2s;
+      }
+
+      .rates-table tbody tr:not(.zone-separator):hover {
+        background-color: #f9f9f9;
+      }
+
+      .rates-table tbody tr:not(:last-child):not(.zone-separator) td {
         border-bottom: 1px solid #e0e0e0;
+      }
+
+      .rates-table td {
+        padding: 12px 16px;
+        vertical-align: middle;
+      }
+
+      .rate-label {
+        font-weight: 500;
+        color: #333;
+        min-width: 180px;
+      }
+
+      .rate-input {
+        width: 200px;
+      }
+
+      .rate-input mat-form-field {
+        width: 100%;
+        margin: 0;
+      }
+
+      .rate-input .mat-mdc-form-field {
+        margin-bottom: 0;
+      }
+
+      .rate-input .mat-mdc-text-field-wrapper {
+        padding: 0;
+      }
+
+      .rate-description {
+        color: #666;
+        font-size: 13px;
+      }
+
+      .zone-separator {
+        background-color: #f0f7ff !important;
+      }
+
+      .zone-separator td {
+        padding: 12px 16px;
+        border-top: 2px solid #e0e0e0;
+        border-bottom: 2px solid #e0e0e0;
+      }
+
+      .zone-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #1976d2;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .zone-header mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
       }
 
       .form-row {
@@ -346,14 +447,6 @@ export interface EngineerRateDialogData {
         margin-top: 4px;
       }
 
-      mat-tab-group {
-        margin-top: 16px;
-      }
-
-      mat-tab-body {
-        overflow: visible;
-      }
-
       /* Responsive design */
       @media (max-width: 768px) {
         .engineer-rate-dialog {
@@ -387,8 +480,30 @@ export interface EngineerRateDialogData {
           min-width: unset;
         }
 
-        .tab-content {
-          padding: 16px 0;
+        .rates-table-container {
+          margin-top: 16px;
+        }
+
+        .rates-table {
+          font-size: 13px;
+        }
+
+        .rates-table th,
+        .rates-table td {
+          padding: 10px 12px;
+        }
+
+        .rate-label {
+          min-width: 140px;
+          font-size: 13px;
+        }
+
+        .rate-input {
+          width: 150px;
+        }
+
+        .rate-description {
+          font-size: 12px;
         }
       }
     `,

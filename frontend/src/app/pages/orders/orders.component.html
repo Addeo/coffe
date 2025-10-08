@@ -235,7 +235,6 @@
               <button
                 mat-icon-button
                 (click)="onDeleteOrder(order)"
-                [disabled]="order.status !== 'waiting'"
                 color="warn"
                 matTooltip="Удалить заказ" aria-label="Удалить"
                 *ngIf="canDeleteOrders"

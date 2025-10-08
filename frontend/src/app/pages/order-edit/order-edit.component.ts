@@ -549,7 +549,12 @@ export class OrderEditComponent implements OnInit {
       next: order => {
         this.toastService.success('Заказ обновлен успешно');
         this.clearFileData();
-        this.router.navigate(['/orders']);
+        // Reload order data to show updated information
+        if (this.orderId) {
+          this.loadOrder(this.orderId);
+        }
+        this.isLoading.set(false);
+        this.isUploadingFiles.set(false);
       },
       error: error => {
         console.error('Ошибка обновления заказа:', error);

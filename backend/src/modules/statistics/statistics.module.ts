@@ -7,9 +7,10 @@ import { Order } from '../../entities/order.entity';
 import { User } from '../../entities/user.entity';
 import { Organization } from '../../entities/organization.entity';
 import { WorkReport } from '../../entities/work-report.entity';
+import { Engineer } from '../../entities/engineer.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([EarningsStatistic, Order, User, Organization, WorkReport])],
+  imports: [TypeOrmModule.forFeature([EarningsStatistic, Order, User, Organization, WorkReport, Engineer])],
   controllers: [StatisticsController],
   providers: [StatisticsService],
   exports: [StatisticsService],

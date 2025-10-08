@@ -41,5 +41,22 @@ docker/mysql/data/
 *.tmp
 *.temp
 
+# Databases - КРИТИЧНО: НЕ ЗАГРУЖАТЬ В GIT!
+*.sqlite
+*.sqlite3
+*.db
+database.sqlite
+backend/database.sqlite
 
+# Uploads and user files - НЕ ЗАГРУЖАТЬ В GIT!
+uploads/
+backend/uploads/
+
+# Backups - НЕ ЗАГРУЖАТЬ В GIT!
+backups/
+backend/backups/
+*.backup
+*.bak
+
+# Angular
 .angular

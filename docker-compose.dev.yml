@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # MySQL для локальной разработки
+  mysql:
+    image: mysql:8.0
+    container_name: coffee_admin_mysql_dev
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_dev_password_change_me
+      MYSQL_DATABASE: coffee_admin
+      MYSQL_USER: coffee_user
+      MYSQL_PASSWORD: coffee_dev_password
+    ports:
+      - "3306:3306"
+    volumes:
+      # Persistent data
+      - mysql_dev_data:/var/lib/mysql
+      # Init scripts (если есть)
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command: 
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "coffee_user", "-pcoffee_dev_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Опционально: phpMyAdmin для удобного просмотра БД
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: coffee_admin_phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: coffee_user
+      PMA_PASSWORD: coffee_dev_password
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_dev_data:
+    driver: local
+
+networks:
+  default:
+    name: coffee_admin_network

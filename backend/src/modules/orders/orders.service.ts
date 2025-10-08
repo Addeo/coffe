@@ -9,6 +9,8 @@ import { WorkReport } from '../../entities/work-report.entity';
 import { File } from '../../entities/file.entity';
 import { Setting, SettingKey } from '../../entities/settings.entity';
 import { UserActivityLog, ActivityType } from '../../entities/user-activity-log.entity';
+import { StatisticsService } from '../statistics/statistics.service';
+import { CalculationService } from '../расчеты/calculation.service';
 // Temporarily define DTOs locally until shared package is fixed
 interface CreateOrderDto {
   organizationId: number;
@@ -63,9 +65,7 @@ interface ExtendedOrdersQueryDto extends OrdersQueryDto {
 import { WorkResult } from '../../entities/work-report.entity';
 import { UserRole } from '../../entities/user.entity';
 import { NotificationsService } from '../notifications/notifications.service';
-import { StatisticsService } from '../statistics/statistics.service';
 import { NotificationPriority } from '../../entities/notification.entity';
-import { CalculationService } from '../расчеты/calculation.service';
 
 export interface OrdersResponse {
   data: Order[];
@@ -94,9 +94,9 @@ export class OrdersService {
     private readonly settingsRepository: Repository<Setting>,
     @InjectRepository(UserActivityLog)
     private readonly activityLogRepository: Repository<UserActivityLog>,
-    private readonly notificationsService: NotificationsService
-    // private readonly statisticsService: StatisticsService,
-    // private readonly calculationService: CalculationService
+    private readonly notificationsService: NotificationsService,
+    private readonly statisticsService: StatisticsService,
+    private readonly calculationService: CalculationService
   ) {}
 
   async create(createOrderDto: CreateOrderDto, userId: number): Promise<Order> {
@@ -435,15 +435,51 @@ export class OrdersService {
       await this.sendStatusChangeNotifications(updatedOrder, user.id);
     }
 
-    // If order is completed, recalculate earnings statistics
-    // if (updateOrderDto.status === OrderStatus.COMPLETED && oldStatus !== OrderStatus.COMPLETED) {
-    //   const completionDate = updatedOrder.completionDate || new Date();
-    //   await this.statisticsService.calculateMonthlyEarnings(
-    //     updatedOrder.assignedEngineerId,
-    //     completionDate.getMonth() + 1,
-    //     completionDate.getFullYear()
-    //   );
-    // }
+    // Recalculate earnings statistics if order status changed to/from completed
+    // or if assigned engineer changed (to update both old and new engineer's stats)
+    const shouldUpdateStats = 
+      (updateOrderDto.status === OrderStatus.COMPLETED && oldStatus !== OrderStatus.COMPLETED) ||
+      (oldStatus === OrderStatus.COMPLETED && updateOrderDto.status && updateOrderDto.status !== OrderStatus.COMPLETED) ||
+      (updateOrderDto.assignedEngineerId && updateOrderDto.assignedEngineerId !== order.assignedEngineerId);
+
+    if (shouldUpdateStats) {
+      const completionDate = updatedOrder.completionDate || new Date();
+      const engineersToUpdate = new Set<number>();
+
+      // Add current assigned engineer
+      if (updatedOrder.assignedEngineerId) {
+        const engineer = await this.engineersRepository.findOne({
+          where: { id: updatedOrder.assignedEngineerId },
+        });
+        if (engineer) {
+          engineersToUpdate.add(engineer.userId);
+        }
+      }
+
+      // Add old assigned engineer if it changed
+      if (order.assignedEngineerId && order.assignedEngineerId !== updatedOrder.assignedEngineerId) {
+        const oldEngineer = await this.engineersRepository.findOne({
+          where: { id: order.assignedEngineerId },
+        });
+        if (oldEngineer) {
+          engineersToUpdate.add(oldEngineer.userId);
+        }
+      }
+
+      // Update statistics for all affected engineers
+      for (const engineerUserId of engineersToUpdate) {
+        try {
+          await this.statisticsService.calculateMonthlyEarnings(
+            engineerUserId,
+            completionDate.getMonth() + 1,
+            completionDate.getFullYear()
+          );
+          console.log(`Statistics updated for engineer ${engineerUserId} after order update`);
+        } catch (error) {
+          console.error(`Failed to update statistics for engineer ${engineerUserId}:`, error);
+        }
+      }
+    }
 
     // Return updated order with attached files
     return this.findOne(id, user);
@@ -546,16 +582,18 @@ export class OrdersService {
         `Order found: ${order.id}, status: ${order.status}, createdBy: ${order.createdById}`
       );
 
-      // Only allow deletion of waiting orders
-      if (order.status !== OrderStatus.WAITING) {
-        console.log(`Cannot delete order: status is ${order.status}, not WAITING`);
-        throw new BadRequestException('Can only delete waiting orders');
-      }
-
-      // Only creator or admin can delete
-      if (user.role !== UserRole.ADMIN && order.createdById !== user.id) {
-        console.log(`User ${user.id} cannot delete order created by ${order.createdById}`);
-        throw new BadRequestException('Insufficient permissions to delete this order');
+      // Check permissions: Admin can delete any order, others can only delete waiting orders they created
+      if (user.role !== UserRole.ADMIN) {
+        // Non-admins can only delete waiting orders they created
+        if (order.status !== OrderStatus.WAITING) {
+          console.log(`Cannot delete order: status is ${order.status}, not WAITING`);
+          throw new BadRequestException('Can only delete waiting orders');
+        }
+        
+        if (order.createdById !== user.id) {
+          console.log(`User ${user.id} cannot delete order created by ${order.createdById}`);
+          throw new BadRequestException('Insufficient permissions to delete this order');
+        }
       }
 
       console.log(
@@ -571,17 +609,58 @@ export class OrdersService {
       const filesCount = await this.filesRepository.count({ where: { orderId: id } });
       console.log(`Found ${filesCount} files for order ${id}`);
 
-      // Manually delete related entities first
+      // Manually delete related entities first (cascade deletion)
       console.log('Deleting related files...');
       await this.filesRepository.delete({ orderId: id });
+
+      // Get work reports before deletion to update statistics
+      const workReportsToDelete = await this.workReportsRepository.find({ 
+        where: { orderId: id },
+        relations: ['engineer']
+      });
 
       console.log('Deleting related work reports...');
       await this.workReportsRepository.delete({ orderId: id });
 
+      // Update statistics for affected engineers
+      if (workReportsToDelete.length > 0) {
+        const affectedEngineers = new Set<number>();
+        const reportDates = new Map<number, Date>();
+
+        for (const report of workReportsToDelete) {
+          if (report.engineer?.userId) {
+            affectedEngineers.add(report.engineer.userId);
+            reportDates.set(report.engineer.userId, report.submittedAt || new Date());
+          }
+        }
+
+        // Update statistics for each affected engineer
+        for (const engineerUserId of affectedEngineers) {
+          const reportDate = reportDates.get(engineerUserId) || new Date();
+          try {
+            await this.statisticsService.calculateMonthlyEarnings(
+              engineerUserId,
+              reportDate.getMonth() + 1,
+              reportDate.getFullYear()
+            );
+            console.log(`Statistics updated for engineer ${engineerUserId} after deleting work reports`);
+          } catch (error) {
+            console.error(`Failed to update statistics for engineer ${engineerUserId}:`, error);
+          }
+        }
+      }
+
+      console.log('Deleting related activity logs...');
+      await this.activityLogRepository
+        .createQueryBuilder()
+        .delete()
+        .where("metadata->>'orderId' = :orderId", { orderId: id.toString() })
+        .execute();
+
       // Now delete the order
       console.log('Deleting order...');
       await this.ordersRepository.delete(id);
-      console.log(`Order ${id} successfully deleted`);
+      console.log(`Order ${id} successfully deleted with all related data`);
     } catch (error) {
       console.error(`Error deleting order ${id}:`, error);
       throw error;
@@ -929,6 +1008,26 @@ export class OrdersService {
     // Общее количество часов
     const totalHours = workReportData.regularHours + workReportData.overtimeHours;
 
+    // Получаем ставки инженера для организации (с учётом кастомных ставок)
+    let rates;
+    try {
+      rates = await this.calculationService.getEngineerRatesForOrganization(engineer, order.organization);
+    } catch (error) {
+      // Если индивидуальные ставки не установлены, используем базовые ставки инженера
+      console.warn(`Using default rates for engineer ${engineer.id} and organization ${order.organizationId}:`, error.message);
+      rates = {
+        baseRate: engineer.baseRate || 700,
+        overtimeRate: engineer.overtimeRate || engineer.baseRate || 700,
+        fixedSalary: engineer.fixedSalary,
+        fixedCarAmount: engineer.fixedCarAmount,
+      };
+    }
+
+    // Рассчитываем оплату с учётом индивидуальных ставок
+    const regularPayment = workReportData.regularHours * rates.baseRate;
+    const overtimePayment = workReportData.overtimeHours * (rates.overtimeRate || rates.baseRate);
+    const totalPayment = regularPayment + overtimePayment;
+
     // Создаем отчет о работе
     const now = new Date();
     const workReport = this.workReportsRepository.create({
@@ -943,19 +1042,9 @@ export class OrdersService {
       photoUrl: workReportData.photoUrl,
       notes: workReportData.notes,
       workResult: WorkResult.COMPLETED,
-      calculatedAmount: 0, // Будет рассчитано ниже
+      calculatedAmount: totalPayment,
       carUsageAmount: workReportData.carPayment,
     });
-
-    // Рассчитываем оплату на основе данных инженера
-    const baseRate = engineer.baseRate || 700;
-    const overtimeRate = engineer.overtimeRate || 700;
-
-    const regularPayment = workReportData.regularHours * baseRate;
-    const overtimePayment = workReportData.overtimeHours * overtimeRate;
-    const totalPayment = regularPayment + overtimePayment;
-
-    workReport.calculatedAmount = totalPayment;
 
     // Сохраняем отчет
     const savedReport = await this.workReportsRepository.save(workReport);
@@ -977,6 +1066,20 @@ export class OrdersService {
       },
       engineer.userId
     );
+
+    // Обновляем статистику заработка инженера
+    const reportDate = savedReport.submittedAt || new Date();
+    try {
+      await this.statisticsService.calculateMonthlyEarnings(
+        engineer.userId, // Используем userId, не engineer.id!
+        reportDate.getMonth() + 1,
+        reportDate.getFullYear()
+      );
+      console.log('Statistics updated for engineer', engineer.userId);
+    } catch (error) {
+      console.error('Failed to update statistics for engineer', engineer.userId, error);
+      // Не блокируем сохранение отчета если статистика не обновилась
+    }
 
     return savedReport;
   }

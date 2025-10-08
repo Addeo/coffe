@@ -71,6 +71,42 @@
     color: #666;
     margin-bottom: 24px;
   }
+
+  .info-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    background-color: #e3f2fd;
+    border-left: 4px solid #1976d2;
+    border-radius: 8px;
+
+    mat-icon {
+      color: #1976d2;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      margin-top: 2px;
+    }
+
+    .info-content {
+      flex: 1;
+
+      strong {
+        display: block;
+        color: #1976d2;
+        font-size: 16px;
+        margin-bottom: 4px;
+      }
+
+      p {
+        margin: 0;
+        color: #555;
+        font-size: 14px;
+      }
+    }
+  }
 }
 
 .work-report-form {

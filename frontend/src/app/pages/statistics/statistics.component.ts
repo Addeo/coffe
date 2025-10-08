@@ -67,7 +67,15 @@ export class StatisticsComponent implements OnInit {
 
   // Table columns
   agentEarningsColumns = ['agentName', 'totalEarnings', 'completedOrders', 'averageOrderValue'];
-  organizationEarningsColumns = ['organizationName', 'totalEarnings', 'totalOrders', 'averageOrderValue'];
+  organizationEarningsColumns = [
+    'organizationName',
+    'totalRevenue',
+    'totalCosts',
+    'totalProfit',
+    'profitMargin',
+    'totalOrders',
+    'totalHours'
+  ];
   overtimeColumns = ['agentName', 'overtimeHours', 'regularHours', 'totalHours', 'overtimePercentage'];
 
   ngOnInit() {
@@ -118,5 +126,22 @@ export class StatisticsComponent implements OnInit {
 
   getProgressBarWidth(percentage: number): string {
     return `${Math.min(percentage, 100)}%`;
+  }
+
+  formatPercentage(value: number): string {
+    return `${value.toFixed(2)}%`;
+  }
+
+  getProfitColor(profit: number): string {
+    if (profit > 0) return '#4caf50'; // green for profit
+    if (profit < 0) return '#f44336'; // red for loss
+    return '#666'; // gray for zero
+  }
+
+  getProfitMarginColor(margin: number): string {
+    if (margin >= 20) return '#4caf50'; // green for good margin
+    if (margin >= 10) return '#ff9800'; // orange for ok margin
+    if (margin > 0) return '#ffeb3b'; // yellow for low margin
+    return '#f44336'; // red for negative margin
   }
 }
