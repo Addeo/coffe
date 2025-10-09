@@ -21,7 +21,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # Copy built files from build stage
-COPY --from=build /app/dist/coffee-admin/browser /usr/share/nginx/html
+COPY --from=build /app/dist/coffee-admin /usr/share/nginx/html
 
 # Copy nginx configuration
 COPY ./frontend/nginx.conf /etc/nginx/conf.d/default.conf
