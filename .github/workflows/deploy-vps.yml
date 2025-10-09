@@ -69,9 +69,9 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
             cd ~/coffe &&
-            docker compose -f docker-compose.prod.yml down &&
-            docker compose -f docker-compose.prod.yml up -d --build &&
-            docker compose -f docker-compose.prod.yml ps
+            docker-compose -f docker-compose.prod.yml down &&
+            docker-compose -f docker-compose.prod.yml up -d --build &&
+            docker-compose -f docker-compose.prod.yml ps
           "
 
       - name: 🧹 Cleanup old Docker images
