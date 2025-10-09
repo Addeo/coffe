@@ -67,8 +67,8 @@ services:
   # Angular Frontend with SSR for SberCloud
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./frontend/Dockerfile
     container_name: coffee_frontend_prod
     restart: unless-stopped
     ports:
