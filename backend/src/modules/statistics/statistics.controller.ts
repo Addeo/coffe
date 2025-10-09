@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../аутентификация/jwt-auth.guard';
 import { RolesGuard } from '../аутентификация/roles.guard';
 import { Roles } from '../аутентификация/roles.decorator';
 import { UserRole } from '../../entities/user.entity';
-import { MonthlyStatisticsDto, StatisticsQueryDto } from '@dtos/reports.dto';
+import { MonthlyStatisticsDto, StatisticsQueryDto } from '../../../shared/dtos/reports.dto';
 
 @Controller('statistics')
 @UseGuards(JwtAuthGuard, RolesGuard)
