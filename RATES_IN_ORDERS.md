@@ -6,9 +6,9 @@
 
 ```typescript
 // Детальная разбивка расчётов (для аудита и отчётности)
-engineerBaseRate: number;           // базовая ставка инженера (₽/час)
-engineerOvertimeRate: number;       // ставка переработки инженера (₽/час)
-organizationBaseRate: number;       // базовая ставка организации (₽/час)
+engineerBaseRate: number; // базовая ставка инженера (₽/час)
+engineerOvertimeRate: number; // ставка переработки инженера (₽/час)
+organizationBaseRate: number; // базовая ставка организации (₽/час)
 organizationOvertimeMultiplier: number; // коэффициент переработки организации
 ```
 
@@ -32,28 +32,32 @@ organizationOvertimeMultiplier: number; // коэффициент перераб
 ## 🎯 Зачем Это Нужно?
 
 ### Проблема:
+
 Если ставки изменятся в будущем, мы не сможем понять, по каким ставкам был рассчитан старый заказ.
 
 ### Решение:
+
 **Сохраняем snapshot ставок** в момент завершения работы!
 
 ### Пример:
+
 ```json
 {
   "id": 6,
   "regularHours": 8,
   "overtimeHours": 2,
   "calculatedAmount": 5600,
-  
+
   // ✨ Теперь также:
-  "engineerBaseRate": 600,        // ₽/час обычная работа
-  "engineerOvertimeRate": 900,    // ₽/час переработка
-  "organizationBaseRate": 800,    // ₽/час от организации
-  "organizationOvertimeMultiplier": 1.5  // коэффициент
+  "engineerBaseRate": 600, // ₽/час обычная работа
+  "engineerOvertimeRate": 900, // ₽/час переработка
+  "organizationBaseRate": 800, // ₽/час от организации
+  "organizationOvertimeMultiplier": 1.5 // коэффициент
 }
 ```
 
 **Расчёт проверяется:**
+
 - 8 часов × 600₽ = 4,800₽ (обычные)
 - 2 часа × 900₽ = 1,800₽ (переработка)
 - **Итого:** 6,600₽ ❌ Но в базе 5,600₽
@@ -72,7 +76,7 @@ organizationOvertimeMultiplier: number; // коэффициент перераб
   "calculatedAmount": 21600,
   "carUsageAmount": 4000,
   "organizationPayment": 30150,
-  
+
   // ✨ Ставки для аудита:
   "engineerBaseRate": 600,
   "engineerOvertimeRate": 900,
@@ -84,32 +88,36 @@ organizationOvertimeMultiplier: number; // коэффициент перераб
 ## 🔧 Изменения в Коде
 
 ### 1. Order Entity
+
 **File:** `backend/src/entities/order.entity.ts`
 
 Добавлены поля (уже были):
+
 - `engineerBaseRate`
 - `engineerOvertimeRate`
 - `organizationBaseRate`
 - `organizationOvertimeMultiplier`
 
 ### 2. Complete Work Method
+
 **File:** `backend/src/modules/orders/orders.service.ts`
 
 ```typescript
 async completeWork(orderId, engineerId, workData) {
   // ...расчёты...
-  
+
   // 🔥 СОХРАНЯЕМ СТАВКИ
   order.engineerBaseRate = rates.baseRate;
   order.engineerOvertimeRate = rates.overtimeRate;
   order.organizationBaseRate = organization.baseRate;
   order.organizationOvertimeMultiplier = organization.overtimeMultiplier;
-  
+
   await this.ordersRepository.save(order);
 }
 ```
 
 ### 3. API Endpoint
+
 **File:** `backend/src/modules/orders/orders.controller.ts`
 
 ```typescript
@@ -139,7 +147,7 @@ async completeWork(@Param('id') orderId, @Body() workData, @Request() req) {
   regularHours: 8,
   overtimeHours: 2,
   calculatedAmount: 6600,
-  
+
   // ✨ Автоматически сохранены:
   engineerBaseRate: 600,
   engineerOvertimeRate: 900,
@@ -151,7 +159,7 @@ async completeWork(@Param('id') orderId, @Body() workData, @Request() req) {
 ## 📊 SQL для Проверки
 
 ```sql
-SELECT 
+SELECT
   id,
   title,
   regularHours,
@@ -161,7 +169,7 @@ SELECT
   engineerOvertimeRate,
   -- Проверка расчёта:
   (regularHours * engineerBaseRate + overtimeHours * engineerOvertimeRate) as calculated_check
-FROM orders 
+FROM orders
 WHERE status = 'completed'
   AND engineerBaseRate IS NOT NULL;
 ```
@@ -178,6 +186,7 @@ WHERE status = 'completed'
 **Теперь в каждом заказе сохраняется полная информация о расчётах!**
 
 Можно в любой момент:
+
 - Проверить, правильно ли посчитана оплата
 - Увидеть, какие ставки действовали на момент работы
 - Построить отчёт по изменению ставок

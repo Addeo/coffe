@@ -104,6 +104,9 @@ export class OrdersService {
       notes?: string;
     }
   ): Observable<OrderDto> {
-    return this.http.post<OrderDto>(`${environment.apiUrl}/orders/${orderId}/complete-work`, workData);
+    return this.http.post<OrderDto>(
+      `${environment.apiUrl}/orders/${orderId}/complete-work`,
+      workData
+    );
   }
 }
