@@ -561,7 +561,8 @@ export class OrderEditComponent implements OnInit {
 
     // Get work report data if filled
     const workReportValue = this.workReportForm.value;
-    const hasWorkData = workReportValue.regularHours !== null || workReportValue.overtimeHours !== null;
+    const hasWorkData =
+      workReportValue.regularHours !== null || workReportValue.overtimeHours !== null;
 
     const orderData: UpdateOrderDto = {
       title: formValue.title,
@@ -577,10 +578,10 @@ export class OrderEditComponent implements OnInit {
       completionDate: formValue.completionDate || undefined,
       files: allFileIds.length > 0 ? allFileIds : undefined,
       // Work data from workReportForm
-      regularHours: hasWorkData ? (workReportValue.regularHours || 0) : undefined,
-      overtimeHours: hasWorkData ? (workReportValue.overtimeHours || 0) : undefined,
-      carUsageAmount: hasWorkData ? (workReportValue.carPayment || 0) : undefined,
-      workNotes: hasWorkData ? (workReportValue.notes || undefined) : undefined,
+      regularHours: hasWorkData ? workReportValue.regularHours || 0 : undefined,
+      overtimeHours: hasWorkData ? workReportValue.overtimeHours || 0 : undefined,
+      carUsageAmount: hasWorkData ? workReportValue.carPayment || 0 : undefined,
+      workNotes: hasWorkData ? workReportValue.notes || undefined : undefined,
     };
 
     console.log('📊 Order update data:', {
@@ -666,7 +667,6 @@ export class OrderEditComponent implements OnInit {
     };
     return labels[territoryType] || territoryType;
   }
-
 
   formatDate(date: Date | string | undefined): string {
     if (!date) return 'Не указано';

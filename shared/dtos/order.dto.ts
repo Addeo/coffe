@@ -119,20 +119,20 @@ export interface OrderDto {
   organizationPayment?: number;
   workNotes?: string;
   workPhotoUrl?: string;
-  
+
   // Rates breakdown (for audit)
   engineerBaseRate?: number;
   engineerOvertimeRate?: number;
   organizationBaseRate?: number;
   organizationOvertimeMultiplier?: number;
-  
+
   // Payment breakdown (for detailed reporting)
   regularPayment?: number;
   overtimePayment?: number;
   organizationRegularPayment?: number;
   organizationOvertimePayment?: number;
   profit?: number;
-  
+
   files?: FileResponseDto[];
   createdAt: Date;
   updatedAt: Date;
