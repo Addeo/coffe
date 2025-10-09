@@ -16,7 +16,7 @@ import {
   CreateProductDto,
   UpdateProductDto,
   ProductsQueryDto,
-} from '../../../shared/dtos/product.dto';
+} from '../../shared/dtos/product.dto';
 
 @Controller('products')
 @UseGuards(JwtAuthGuard)

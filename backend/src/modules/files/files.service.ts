@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { File } from '../../entities/file.entity';
 import { User } from '../../entities/user.entity';
 import { Order } from '../../entities/order.entity';
-import { FileQueryDto, FileType } from '../../../shared/dtos/file.dto';
+import { FileQueryDto, FileType } from '../../shared/dtos/file.dto';
 import * as fs from 'fs';
 import * as path from 'path';
 

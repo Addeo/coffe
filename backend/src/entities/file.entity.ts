@@ -9,7 +9,7 @@ import {
 import { Exclude } from 'class-transformer';
 import { User } from './user.entity';
 import { Order } from './order.entity';
-import { FileType } from '../../shared/dtos/file.dto';
+import { FileType } from '../shared/dtos/file.dto';
 
 @Entity('files')
 export class File {

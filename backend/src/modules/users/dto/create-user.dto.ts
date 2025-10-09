@@ -9,7 +9,7 @@ import {
   Min,
 } from 'class-validator';
 import { UserRole } from '../../../entities/user.entity';
-import { EngineerType } from '../../../../shared/interfaces/order.interface';
+import { EngineerType } from '../../../shared/interfaces/order.interface';
 
 export class CreateUserDto {
   @IsEmail()
