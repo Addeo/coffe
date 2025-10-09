@@ -1,0 +1,88 @@
+name: Deploy to VPS (Cloud.ru)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔐 Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: 📦 Copy files to VPS
+        run: |
+          rsync -avz --delete \
+            --exclude 'node_modules' \
+            --exclude '.git' \
+            --exclude 'backend/dist' \
+            --exclude 'backend/database.sqlite' \
+            --exclude 'backend/uploads' \
+            --exclude 'frontend/dist' \
+            --exclude 'frontend/node_modules' \
+            -e "ssh -o StrictHostKeyChecking=no" \
+            ./ ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/home/${{ secrets.VPS_USER }}/coffe
+
+      - name: 📝 Create .env file on VPS
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            cd ~/coffe &&
+            cat > .env << 'EOF'
+          NODE_ENV=production
+          PORT=3001
+          
+          # Database (MySQL)
+          DB_HOST=mysql
+          DB_PORT=3306
+          DB_USERNAME=${{ secrets.MYSQL_USER }}
+          DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          DB_DATABASE=${{ secrets.MYSQL_DATABASE }}
+          DB_SSL=false
+          
+          # JWT
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          
+          # Email
+          SMTP_HOST=${{ secrets.SMTP_HOST }}
+          SMTP_PORT=${{ secrets.SMTP_PORT }}
+          SMTP_USER=${{ secrets.SMTP_USER }}
+          SMTP_PASS=${{ secrets.SMTP_PASS }}
+          
+          # MySQL Root Password
+          MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER=${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          EOF
+          "
+
+      - name: 🐳 Deploy with Docker Compose
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            cd ~/coffe &&
+            docker compose -f docker-compose.prod.yml down &&
+            docker compose -f docker-compose.prod.yml up -d --build &&
+            docker compose -f docker-compose.prod.yml ps
+          "
+
+      - name: 🧹 Cleanup old Docker images
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            docker image prune -af
+          "
+
+      - name: ✅ Deployment complete
+        run: |
+          echo "🎉 Deployment successful!"
+          echo "Backend: http://${{ secrets.VPS_HOST }}:3001"
+          echo "Frontend: http://${{ secrets.VPS_HOST }}:4000"
+

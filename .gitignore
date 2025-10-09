@@ -60,3 +60,9 @@ backend/backups/
 
 # Angular
 .angular
+id_rsa
+
+# Secret files - НЕ ЗАГРУЖАТЬ В GIT!
+GITHUB_SECRETS_VALUES.txt
+YOUR_GITHUB_SECRETS.txt
+*_SECRETS.txt
