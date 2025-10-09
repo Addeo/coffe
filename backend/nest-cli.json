@@ -7,10 +7,8 @@
     "webpack": false,
     "tsConfigPath": "tsconfig.json",
     "assets": ["**/*.json"],
-    "watchAssets": true,
-    "outDir": "dist"
+    "watchAssets": true
   },
-  "entryFile": "backend/src/main",
   "generateOptions": {
     "spec": false
   }
