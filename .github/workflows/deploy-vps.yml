@@ -70,7 +70,9 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
             cd ~/coffe &&
             docker-compose -f docker-compose.prod.yml down &&
-            docker-compose -f docker-compose.prod.yml up -d --build &&
+            docker system prune -af --volumes &&
+            docker-compose -f docker-compose.prod.yml build --no-cache &&
+            docker-compose -f docker-compose.prod.yml up -d &&
             docker-compose -f docker-compose.prod.yml ps
           "
 
