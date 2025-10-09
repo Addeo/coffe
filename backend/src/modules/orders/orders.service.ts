@@ -498,7 +498,8 @@ export class OrdersService {
           updateOrderDto['overtimePayment'] = overtimePayment;
           updateOrderDto['organizationRegularPayment'] = organizationRegularPayment;
           updateOrderDto['organizationOvertimePayment'] = organizationOvertimePayment;
-          updateOrderDto['profit'] = updateOrderDto.organizationPayment - updateOrderDto.calculatedAmount;
+          updateOrderDto['profit'] =
+            updateOrderDto.organizationPayment - updateOrderDto.calculatedAmount;
 
           console.log('💰 Auto-calculated payments with details:', {
             regularHours,
@@ -1069,19 +1070,21 @@ export class OrdersService {
     order.calculatedAmount = (order.calculatedAmount || 0) + totalPayment;
     order.carUsageAmount = (order.carUsageAmount || 0) + workData.carPayment;
     order.organizationPayment = (order.organizationPayment || 0) + organizationPayment;
-    
+
     // 🔥 SAVE RATES for audit
     order.engineerBaseRate = rates.baseRate;
     order.engineerOvertimeRate = rates.overtimeRate || rates.baseRate;
     order.organizationBaseRate = order.organization.baseRate;
     order.organizationOvertimeMultiplier = order.organization.overtimeMultiplier;
-    
+
     // 🔥 SAVE PAYMENT BREAKDOWN for detailed reporting
     order.regularPayment = (order.regularPayment || 0) + regularPayment;
     order.overtimePayment = (order.overtimePayment || 0) + overtimePayment;
-    order.organizationRegularPayment = (order.organizationRegularPayment || 0) + organizationRegularPayment;
-    order.organizationOvertimePayment = (order.organizationOvertimePayment || 0) + organizationOvertimePayment;
-    
+    order.organizationRegularPayment =
+      (order.organizationRegularPayment || 0) + organizationRegularPayment;
+    order.organizationOvertimePayment =
+      (order.organizationOvertimePayment || 0) + organizationOvertimePayment;
+
     // Calculate profit
     const currentProfit = organizationPayment - totalPayment;
     order.profit = (order.profit || 0) + currentProfit;

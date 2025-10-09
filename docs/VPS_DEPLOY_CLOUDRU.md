@@ -3,6 +3,7 @@
 ## 🎯 Обзор
 
 Автоматический деплой приложения на VPS с использованием:
+
 - 🐳 **Docker Compose** - оркестрация контейнеров
 - 🔄 **GitHub Actions** - CI/CD автоматизация
 - 🗄️ **MySQL 8** - база данных
@@ -58,20 +59,20 @@ cat ~/.ssh/id_ed25519
 
 Добавьте следующие секреты:
 
-| Название | Значение | Пример |
-|----------|----------|--------|
-| `VPS_HOST` | IP адрес вашего VPS | `185.123.45.67` |
-| `VPS_USER` | Имя пользователя SSH | `ubuntu` или `root` |
-| `VPS_SSH_KEY` | Приватный SSH ключ | Весь вывод `cat ~/.ssh/id_ed25519` |
-| `JWT_SECRET` | Секретный ключ JWT | `your-super-secret-jwt-key-min-32-chars` |
-| `MYSQL_ROOT_PASSWORD` | Пароль root MySQL | `strong-root-password-123` |
-| `MYSQL_DATABASE` | Имя базы данных | `coffee_admin` |
-| `MYSQL_USER` | Пользователь MySQL | `coffee_user` |
-| `MYSQL_PASSWORD` | Пароль пользователя MySQL | `strong-user-password-456` |
-| `SMTP_HOST` | SMTP сервер | `smtp.gmail.com` |
-| `SMTP_PORT` | SMTP порт | `587` |
-| `SMTP_USER` | Email для отправки | `your-email@gmail.com` |
-| `SMTP_PASS` | Пароль приложения Gmail | `xxxx xxxx xxxx xxxx` |
+| Название              | Значение                  | Пример                                   |
+| --------------------- | ------------------------- | ---------------------------------------- |
+| `VPS_HOST`            | IP адрес вашего VPS       | `185.123.45.67`                          |
+| `VPS_USER`            | Имя пользователя SSH      | `ubuntu` или `root`                      |
+| `VPS_SSH_KEY`         | Приватный SSH ключ        | Весь вывод `cat ~/.ssh/id_ed25519`       |
+| `JWT_SECRET`          | Секретный ключ JWT        | `your-super-secret-jwt-key-min-32-chars` |
+| `MYSQL_ROOT_PASSWORD` | Пароль root MySQL         | `strong-root-password-123`               |
+| `MYSQL_DATABASE`      | Имя базы данных           | `coffee_admin`                           |
+| `MYSQL_USER`          | Пользователь MySQL        | `coffee_user`                            |
+| `MYSQL_PASSWORD`      | Пароль пользователя MySQL | `strong-user-password-456`               |
+| `SMTP_HOST`           | SMTP сервер               | `smtp.gmail.com`                         |
+| `SMTP_PORT`           | SMTP порт                 | `587`                                    |
+| `SMTP_USER`           | Email для отправки        | `your-email@gmail.com`                   |
+| `SMTP_PASS`           | Пароль приложения Gmail   | `xxxx xxxx xxxx xxxx`                    |
 
 ### Генерация JWT_SECRET:
 
@@ -159,6 +160,7 @@ docker-compose -f docker-compose.prod.yml logs -f frontend
 ### После настройки секретов:
 
 1. **Сделайте commit и push в `main` ветку:**
+
    ```bash
    git add .
    git commit -m "Setup VPS deployment"
@@ -378,6 +380,7 @@ docker-compose -f docker-compose.prod.yml up -d
 ## 🔄 12. Обновление приложения
 
 ### Автоматическое (через GitHub):
+
 ```bash
 # Просто сделайте push в main ветку
 git push origin main
@@ -386,6 +389,7 @@ git push origin main
 ```
 
 ### Ручное (на VPS):
+
 ```bash
 cd ~/coffe
 git pull origin main
@@ -411,10 +415,12 @@ docker-compose -f docker-compose.prod.yml up -d --build
 ## 🎉 14. Первый запуск
 
 ### Шаг 1: Настроить секреты в GitHub
+
 1. Перейти в **Settings → Secrets and variables → Actions**
 2. Добавить все секреты из списка выше
 
 ### Шаг 2: Запушить код
+
 ```bash
 git add .
 git commit -m "Setup VPS deployment with GitHub Actions"
@@ -422,11 +428,13 @@ git push origin main
 ```
 
 ### Шаг 3: Проверить деплой
+
 1. Перейти в **GitHub → Actions**
 2. Дождаться завершения workflow
 3. Открыть `http://YOUR_VPS_IP:4000`
 
 ### Шаг 4: Создать первого админа
+
 ```bash
 # На VPS:
 ssh user@YOUR_VPS_IP
@@ -450,6 +458,7 @@ VALUES (
 ## 📊 15. Мониторинг и логи
 
 ### Просмотр логов:
+
 ```bash
 # Все сервисы
 docker-compose -f docker-compose.prod.yml logs -f
@@ -462,6 +471,7 @@ docker-compose -f docker-compose.prod.yml logs --tail=100 backend
 ```
 
 ### Мониторинг ресурсов:
+
 ```bash
 # Использование CPU/RAM
 docker stats
@@ -480,6 +490,7 @@ docker system df -v
 ### Рекомендации:
 
 1. **Firewall (UFW):**
+
    ```bash
    sudo ufw allow 22/tcp    # SSH
    sudo ufw allow 80/tcp    # HTTP
@@ -516,13 +527,13 @@ docker system df -v
 ✅ **Масштабируемость** - Легко добавить новые сервисы  
 ✅ **Откат** - Легко вернуться к предыдущей версии  
 ✅ **Мониторинг** - Централизованные логи  
-✅ **Безопасность** - Секреты не в коде  
+✅ **Безопасность** - Секреты не в коде
 
 ### Ваши файлы уже готовы:
+
 - ✅ `docker-compose.prod.yml` - настроен для MySQL
 - ✅ `backend/Dockerfile` - готов
 - ✅ `frontend/Dockerfile` - готов с SSR
 - ✅ `.github/workflows/deploy-vps.yml` - создан
 
 **Осталось только добавить секреты в GitHub и сделать push!** 🚀
-

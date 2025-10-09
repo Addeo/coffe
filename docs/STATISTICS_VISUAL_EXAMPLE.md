@@ -136,8 +136,9 @@
 ## 🔍 SQL-ЗАПРОСЫ ДЛЯ ПРОВЕРКИ
 
 ### Проверка статистики Иванова:
+
 ```sql
-SELECT 
+SELECT
   SUM(calculatedAmount + carUsageAmount) as earnings,
   SUM(regularHours + overtimeHours) as hours,
   COUNT(*) as orders
@@ -151,8 +152,9 @@ WHERE assignedEngineerId = 1
 ```
 
 ### Проверка общей статистики:
+
 ```sql
-SELECT 
+SELECT
   COUNT(*) as total_orders,
   SUM(calculatedAmount + carUsageAmount) as total_engineer,
   SUM(organizationPayment + carUsageAmount) as total_org,
@@ -162,7 +164,7 @@ WHERE status = 'completed'
   AND completionDate >= '2025-10-01'
   AND completionDate < '2025-11-01';
 
--- Ожидается: 
+-- Ожидается:
 -- total_orders=5
 -- total_engineer=44050
 -- total_org=50700
@@ -170,8 +172,9 @@ WHERE status = 'completed'
 ```
 
 ### Проверка прибыли по организациям:
+
 ```sql
-SELECT 
+SELECT
   org.name,
   COUNT(o.id) as orders,
   SUM(o.profit) as profit
@@ -201,7 +204,6 @@ ORDER BY profit DESC;
 ✅ Всегда актуальные данные  
 ✅ Полная детализация расчётов  
 ✅ Прозрачность для аудита  
-✅ Простая поддержка  
+✅ Простая поддержка
 
 **Одна таблица → Одна истина!** 🎯
-

@@ -7,35 +7,40 @@
 ## Поля расчётов в Order
 
 ### Основные данные о работе
+
 ```typescript
-regularHours: number;        // Обычные часы работы (ч)
-overtimeHours: number;       // Часы переработки (ч)
-carUsageAmount: number;      // Доплата за использование машины (₽)
+regularHours: number; // Обычные часы работы (ч)
+overtimeHours: number; // Часы переработки (ч)
+carUsageAmount: number; // Доплата за использование машины (₽)
 ```
 
 ### Ставки (для аудита)
+
 ```typescript
-engineerBaseRate: number;              // Базовая ставка инженера (₽/ч)
-engineerOvertimeRate: number;          // Ставка переработки инженера (₽/ч)
-organizationBaseRate: number;          // Базовая ставка организации (₽/ч)
+engineerBaseRate: number; // Базовая ставка инженера (₽/ч)
+engineerOvertimeRate: number; // Ставка переработки инженера (₽/ч)
+organizationBaseRate: number; // Базовая ставка организации (₽/ч)
 organizationOvertimeMultiplier: number; // Коэффициент переработки организации
 ```
 
 ### Детальная разбивка оплаты инженеру
+
 ```typescript
-regularPayment: number;   // Оплата за обычные часы = regularHours × engineerBaseRate
-overtimePayment: number;  // Оплата за переработку = overtimeHours × engineerOvertimeRate
+regularPayment: number; // Оплата за обычные часы = regularHours × engineerBaseRate
+overtimePayment: number; // Оплата за переработку = overtimeHours × engineerOvertimeRate
 calculatedAmount: number; // ИТОГО инженеру = regularPayment + overtimePayment
 ```
 
 ### Детальная разбивка оплаты от организации
+
 ```typescript
-organizationRegularPayment: number;  // За обычные часы = regularHours × organizationBaseRate
+organizationRegularPayment: number; // За обычные часы = regularHours × organizationBaseRate
 organizationOvertimePayment: number; // За переработку = overtimeHours × organizationBaseRate × organizationOvertimeMultiplier
-organizationPayment: number;         // ИТОГО от организации = organizationRegularPayment + organizationOvertimePayment
+organizationPayment: number; // ИТОГО от организации = organizationRegularPayment + organizationOvertimePayment
 ```
 
 ### Финансовый результат
+
 ```typescript
 profit: number; // Прибыль = organizationPayment - calculatedAmount
 ```
@@ -43,6 +48,7 @@ profit: number; // Прибыль = organizationPayment - calculatedAmount
 ## Пример расчёта
 
 ### Исходные данные
+
 - **Инженер:** Иванов И.И.
 - **Организация:** ООО "Тест"
 - **Обычные часы:** 8 ч
@@ -50,14 +56,17 @@ profit: number; // Прибыль = organizationPayment - calculatedAmount
 - **Доплата за машину:** 500 ₽
 
 ### Ставки инженера
+
 - **Базовая ставка:** 700 ₽/ч
 - **Ставка переработки:** 1050 ₽/ч (1.5×)
 
 ### Ставки организации
+
 - **Базовая ставка:** 900 ₽/ч
 - **Коэффициент переработки:** 1.5
 
 ### Расчёт оплаты инженеру
+
 ```
 regularPayment = 8 ч × 700 ₽/ч = 5,600 ₽
 overtimePayment = 2 ч × 1,050 ₽/ч = 2,100 ₽
@@ -67,6 +76,7 @@ calculatedAmount = 5,600 + 2,100 = 7,700 ₽
 ```
 
 ### Расчёт оплаты от организации
+
 ```
 organizationRegularPayment = 8 ч × 900 ₽/ч = 7,200 ₽
 organizationOvertimePayment = 2 ч × 900 ₽/ч × 1.5 = 2,700 ₽
@@ -76,6 +86,7 @@ organizationPayment = 7,200 + 2,700 = 9,900 ₽
 ```
 
 ### Финансовый результат
+
 ```
 profit = organizationPayment - calculatedAmount = 9,900 - 7,700 = 2,200 ₽
 + carUsageAmount (транзитом) = 500 ₽
@@ -93,6 +104,7 @@ profit = organizationPayment - calculatedAmount = 9,900 - 7,700 = 2,200 ₽
 4. Сохраняет результаты в Order
 
 ### Пример запроса
+
 ```http
 PATCH /api/orders/123
 Authorization: Bearer <token>
@@ -108,6 +120,7 @@ Content-Type: application/json
 ```
 
 ### Автоматически будут рассчитаны и сохранены
+
 ```json
 {
   "engineerBaseRate": 700,
@@ -129,20 +142,22 @@ Content-Type: application/json
 Все статистические отчёты используют эти поля для расчёта:
 
 ### Для инженеров
+
 ```sql
-SELECT 
+SELECT
   SUM(calculatedAmount + carUsageAmount) as totalEarnings,
   SUM(regularHours + overtimeHours) as totalHours,
   COUNT(*) as completedOrders
 FROM orders
-WHERE assignedEngineerId = ? 
+WHERE assignedEngineerId = ?
   AND status = 'completed'
   AND completionDate BETWEEN ? AND ?
 ```
 
 ### Для администраторов (прибыль)
+
 ```sql
-SELECT 
+SELECT
   assignedEngineerId,
   SUM(calculatedAmount + carUsageAmount) as engineerEarnings,
   SUM(organizationPayment + carUsageAmount) as organizationPayments,
@@ -156,12 +171,14 @@ GROUP BY assignedEngineerId
 ## Аудит и отчётность
 
 ### Преимущества детальной разбивки:
+
 ✅ **Прозрачность** - все расчёты хранятся и доступны для проверки
 ✅ **Аудит** - можно проверить правильность любого расчёта
 ✅ **Отчётность** - детальные отчёты для бухгалтерии
 ✅ **Аналитика** - анализ прибыльности по разным параметрам
 
 ### Пример отчёта для бухгалтерии
+
 ```
 Заказ #123
 Дата: 08.10.2025
@@ -195,4 +212,3 @@ GROUP BY assignedEngineerId
   ПРИБЫЛЬ:                    2,200 ₽
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
-
