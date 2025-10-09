@@ -347,3 +347,5 @@ admin@coffee.com
 admin123
 
 ssh user1@192.144.12.102
+ bash check-deployment.sh
+ https://github.com/Addeo/coffe-deploy/actions
