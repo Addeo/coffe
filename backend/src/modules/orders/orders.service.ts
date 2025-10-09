@@ -53,10 +53,9 @@ interface UpdateOrderDto {
   workPhotoUrl?: string;
 }
 
-import { AssignEngineerDto, OrdersQueryDto } from '../../../shared/dtos/order.dto';
-// Temporarily import OrderSource locally until shared package is fixed
+import { AssignEngineerDto, OrdersQueryDto } from '../../shared/dtos/order.dto';
 import { OrderSource } from '../../entities/order.entity';
-import { OrderStatus, TerritoryType } from '../../../shared/interfaces/order.interface';
+import { OrderStatus, TerritoryType } from '../../shared/interfaces/order.interface';
 
 // Extended OrdersQueryDto with additional filters
 interface ExtendedOrdersQueryDto extends OrdersQueryDto {

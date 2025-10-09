@@ -5,7 +5,7 @@ import { Engineer } from '../../entities/engineer.entity';
 import { Organization } from '../../entities/organization.entity';
 import { Order } from '../../entities/order.entity';
 import { EngineerOrganizationRate } from '../../entities/engineer-organization-rate.entity';
-import { EngineerType, TerritoryType } from '../../../shared/interfaces/order.interface';
+import { EngineerType, TerritoryType } from '../../shared/interfaces/order.interface';
 
 export interface EngineerRates {
   baseRate: number;

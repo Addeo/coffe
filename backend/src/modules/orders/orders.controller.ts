@@ -21,10 +21,9 @@ import {
   UpdateOrderDto,
   AssignEngineerDto,
   OrdersQueryDto,
-} from '../../../shared/dtos/order.dto';
-// Temporarily import OrderSource locally until shared package is fixed
+} from '../../shared/dtos/order.dto';
 import { OrderSource } from '../../entities/order.entity';
-import { TerritoryType } from '../../../shared/interfaces/order.interface';
+import { TerritoryType } from '../../shared/interfaces/order.interface';
 
 // Extended OrdersQueryDto with additional filters
 interface ExtendedOrdersQueryDto extends OrdersQueryDto {

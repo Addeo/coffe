@@ -6,7 +6,7 @@ import {
   CreateProductDto,
   UpdateProductDto,
   ProductsQueryDto,
-} from '../../../shared/dtos/product.dto';
+} from '../../shared/dtos/product.dto';
 
 export interface ProductsResponse {
   data: Product[];

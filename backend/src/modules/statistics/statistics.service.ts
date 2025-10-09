@@ -10,7 +10,7 @@ import {
   AgentEarningsData,
   OrganizationEarningsData,
   OvertimeStatisticsData,
-} from '@dtos/reports.dto';
+} from '../../dtos/reports.dto';
 
 @Injectable()
 export class StatisticsService {

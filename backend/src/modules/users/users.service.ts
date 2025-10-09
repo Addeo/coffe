@@ -11,8 +11,8 @@ import { Order } from '../../entities/order.entity';
 import { Notification } from '../../entities/notification.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UsersQueryDto } from '../../../shared/dtos/user.dto';
-import { EngineerType, OrderStatus } from '../../../shared/interfaces/order.interface';
+import { UsersQueryDto } from '../../shared/dtos/user.dto';
+import { EngineerType, OrderStatus } from '../../shared/interfaces/order.interface';
 import { UserDeletionException, UserDeletionConflict } from './exceptions/user-deletion.exception';
 
 export interface UsersResponse {

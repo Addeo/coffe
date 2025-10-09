@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
-import { EngineerType } from '../../shared/interfaces/order.interface';
+import { EngineerType } from '../shared/interfaces/order.interface';
 
 @Entity('engineers')
 export class Engineer {

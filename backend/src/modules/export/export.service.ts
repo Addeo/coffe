@@ -6,7 +6,7 @@ import { Response } from 'express';
 import { Order } from '../../entities/order.entity';
 import { User } from '../../entities/user.entity';
 import { UserRole } from '../../entities/user.entity';
-import { OrderStatus } from '../../../shared/interfaces/order.interface';
+import { OrderStatus } from '../../shared/interfaces/order.interface';
 
 @Injectable()
 export class ExportService {

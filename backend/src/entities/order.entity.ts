@@ -21,7 +21,7 @@ export enum OrderSource {
   API = 'api', // создан через API
 }
 
-import { OrderStatus, TerritoryType } from '../../shared/interfaces/order.interface';
+import { OrderStatus, TerritoryType } from '../shared/interfaces/order.interface';
 
 @Entity('orders')
 @Index(['assignedEngineerId', 'status'])
