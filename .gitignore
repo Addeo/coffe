@@ -40,6 +40,7 @@ docker/mysql/data/
 # Temporary files
 *.tmp
 *.temp
+.tmp-deploy/
 
 # Databases - КРИТИЧНО: НЕ ЗАГРУЖАТЬ В GIT!
 *.sqlite
