@@ -34,7 +34,7 @@ jobs:
         run: |
           cat > frontend/Dockerfile << 'DOCKERFILE'
           # Stage 1: Build the application
-          FROM node:18-alpine AS build
+          FROM node:20-alpine AS build
           WORKDIR /app
           
           COPY package*.json ./
@@ -45,7 +45,7 @@ jobs:
           # Stage 2: Serve with Nginx
           FROM nginx:alpine
           
-          COPY --from=build /app/dist/coffee-admin-frontend /usr/share/nginx/html
+          COPY --from=build /app/dist/coffee-admin /usr/share/nginx/html
           
           # Create nginx config directly
           RUN cat > /etc/nginx/conf.d/default.conf << 'NGINXEOF'
