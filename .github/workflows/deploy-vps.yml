@@ -116,11 +116,13 @@ jobs:
       - name: 🐳 Deploy with Docker Compose
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd ~/coffe && 
-            echo '=== Force rebuilding frontend ===' && 
-            docker-compose -f docker-compose.prod.yml down && 
+            echo '=== Stopping and removing old containers ===' && 
+            docker-compose -f docker-compose.prod.yml down --remove-orphans || true &&
+            docker rm -f coffee_mysql_prod coffee_backend_prod coffee_frontend_prod 2>/dev/null || true &&
+            echo '=== Cleaning up ===' && 
             docker system prune -af --volumes && 
-            docker rmi \$(docker images 'coffe_frontend*' -q) 2>/dev/null || true && 
-            docker-compose -f docker-compose.prod.yml build --no-cache --pull frontend && 
+            echo '=== Building and starting services ===' && 
+            docker-compose -f docker-compose.prod.yml build --no-cache --pull && 
             docker-compose -f docker-compose.prod.yml up -d && 
             docker-compose -f docker-compose.prod.yml ps"
 
