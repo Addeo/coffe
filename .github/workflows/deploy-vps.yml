@@ -113,19 +113,17 @@ jobs:
           MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
           ENVEOF"
 
-          - name: 🐳 Deploy with Docker Compose
-          run: |
-            ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd ~/coffe && 
-              echo '=== Force rebuilding frontend ===' && 
-              docker-compose -f docker-compose.prod.yml down && 
-              docker system prune -af --volumes && 
-              # Удаляем старые образы фронтенда
-              docker rmi \$(docker images 'coffe_frontend*' -q) 2>/dev/null || true && 
-              # Собираем с полным очищением кэша
-              docker-compose -f docker-compose.prod.yml build --no-cache --pull frontend && 
-              docker-compose -f docker-compose.prod.yml up -d && 
-              docker-compose -f docker-compose.prod.yml ps"
-              
+      - name: 🐳 Deploy with Docker Compose
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd ~/coffe && 
+            echo '=== Force rebuilding frontend ===' && 
+            docker-compose -f docker-compose.prod.yml down && 
+            docker system prune -af --volumes && 
+            docker rmi \$(docker images 'coffe_frontend*' -q) 2>/dev/null || true && 
+            docker-compose -f docker-compose.prod.yml build --no-cache --pull frontend && 
+            docker-compose -f docker-compose.prod.yml up -d && 
+            docker-compose -f docker-compose.prod.yml ps"
+
       - name: ✅ Deployment complete
         run: |
           echo "🎉 Deployment successful!"
