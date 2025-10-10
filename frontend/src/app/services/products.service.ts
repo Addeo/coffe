@@ -7,8 +7,8 @@ import {
   CreateProductDto,
   UpdateProductDto,
   ProductsQueryDto,
-} from '../../../../../shared/dtos/product.dto';
-import { PaginatedResponse } from '../../../../../shared/types/api.types';
+} from '@shared/dtos/product.dto';
+import { PaginatedResponse } from '@shared/types/api.types';
 
 @Injectable({
   providedIn: 'root',

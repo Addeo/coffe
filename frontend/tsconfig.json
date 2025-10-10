@@ -23,8 +23,8 @@
     "lib": ["ES2022", "dom"],
     "paths": {
       "@/*": ["src/*"],
-      "@shared": ["../shared"],
-      "@shared/*": ["../shared/*"]
+      "@shared": ["./shared"],
+      "@shared/*": ["./shared/*"]
     }
   },
   "angularCompilerOptions": {

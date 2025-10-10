@@ -14,7 +14,7 @@ import {
   CreateOrganizationDto,
   UpdateOrganizationDto,
   OrganizationDto,
-} from '../../../../../shared/dtos/organization.dto';
+} from '@shared/dtos/organization.dto';
 
 export interface OrganizationDialogData {
   organization?: OrganizationDto;

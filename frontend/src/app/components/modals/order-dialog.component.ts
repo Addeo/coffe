@@ -21,14 +21,14 @@ import { OrdersService } from '../../services/orders.service';
 import { OrganizationsService } from '../../services/organizations.service';
 import { FilesService } from '../../services/files.service';
 import { ToastService } from '../../services/toast.service';
-import { CreateOrderDto, UpdateOrderDto, OrderDto } from '../../../../../shared/dtos/order.dto';
+import { CreateOrderDto, UpdateOrderDto, OrderDto } from '@shared/dtos/order.dto';
 import {
   TerritoryType,
   OrderStatus,
   OrderSource,
-} from '../../../../../shared/interfaces/order.interface';
-import { OrganizationDto } from '../../../../../shared/dtos/organization.dto';
-import { FileResponseDto, FileType } from '../../../../../shared/dtos/file.dto';
+} from '@shared/interfaces/order.interface';
+import { OrganizationDto } from '@shared/dtos/organization.dto';
+import { FileResponseDto, FileType } from '@shared/dtos/file.dto';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog.component';
 
 interface FileUploadProgress {

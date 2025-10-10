@@ -12,9 +12,9 @@ import { MatCardModule } from '@angular/material/card';
 import { OrdersService } from '../../services/orders.service';
 import { UsersService } from '../../services/users.service';
 import { ToastService } from '../../services/toast.service';
-import { OrderDto, AssignEngineerDto } from '../../../../../shared/dtos/order.dto';
-import { UserDto } from '../../../../../shared/dtos/user.dto';
-import { UserRole } from '../../../../../shared/interfaces/user.interface';
+import { OrderDto, AssignEngineerDto } from '@shared/dtos/order.dto';
+import { UserDto } from '@shared/dtos/user.dto';
+import { UserRole } from '@shared/interfaces/user.interface';
 
 export interface AssignEngineerDialogData {
   order: OrderDto;
