@@ -23,6 +23,22 @@ jobs:
           echo "=== nginx.conf content ==="
           cat frontend/nginx.conf
 
+      - name: 🐳 Deploy with Docker Compose
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+            cd ~/coffe &&
+            echo '=== Checking files on VPS ===' &&
+            ls -la frontend/ &&
+            echo '=== Dockerfile content ===' &&
+            cat frontend/Dockerfile &&
+            echo '=== Building and deploying ===' &&
+            docker-compose -f docker-compose.prod.yml down &&
+            docker system prune -af --volumes &&
+            docker-compose -f docker-compose.prod.yml build --no-cache frontend &&
+            docker-compose -f docker-compose.prod.yml up -d &&
+            docker-compose -f docker-compose.prod.yml ps
+          "
+
       - name: 🛠️ Ensure nginx.conf exists
         run: |
           if [ ! -f "frontend/nginx.conf" ]; then
