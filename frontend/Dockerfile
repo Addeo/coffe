@@ -20,11 +20,11 @@ FROM nginx:alpine
 # Copy built app to nginx
 COPY --from=build /app/dist/coffee-admin-frontend /usr/share/nginx/html
 
-# Debug: List files to verify nginx.conf exists
-RUN echo "=== Current directory files ===" && ls -la
+# Debug: Check current directory in build context
+RUN echo "=== Build context files ===" && ls -la
 
-# Copy nginx configuration - используем явный путь
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx configuration (nginx.conf должен быть в той же директории что и Dockerfile)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Verify nginx config was copied
 RUN echo "=== Nginx config verification ===" && \
