@@ -62,14 +62,14 @@ jobs:
           
               # Angular SPA routing
               location / {
-                  try_files \$uri \$uri/ /index.html =404;
+                  try_files $$uri $$uri/ /index.html =404;
               }
           
               # Cache static assets
-              location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+              location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$$ {
                   expires 1y;
                   add_header Cache-Control "public, immutable";
-                  try_files \$uri =404;
+                  try_files $$uri =404;
               }
           
               # Disable caching for index.html
