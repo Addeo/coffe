@@ -67,12 +67,12 @@ services:
   # Angular Frontend with SSR for SberCloud
   frontend:
     build:
-      context: .
-      dockerfile: ./frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: coffee_frontend_prod
     restart: unless-stopped
     ports:
-      - "4000:4000"
+      - "4000:80"
     environment:
       NODE_ENV: production
     depends_on:
@@ -80,7 +80,7 @@ services:
     networks:
       - coffee_prod_network
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:4000 || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:80 || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 10

@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 WORKDIR /app
 
 # Copy package files
@@ -18,7 +18,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # Copy built app to nginx
-COPY --from=build /app/dist/coffee-admin-frontend /usr/share/nginx/html
+COPY --from=build /app/dist/coffee-admin /usr/share/nginx/html
 
 # Debug: Check current directory in build context
 RUN echo "=== Build context files ===" && ls -la
