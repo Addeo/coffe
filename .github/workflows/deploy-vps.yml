@@ -35,37 +35,37 @@ jobs:
           if [ ! -f "frontend/nginx.conf" ]; then
             echo "⚠️ nginx.conf not found, creating one..."
             cat > frontend/nginx.conf << 'EOF'
-server {
-    listen 80;
-    server_name localhost;
-    root /usr/share/nginx/html;
-    index index.html index.htm;
+          server {
+              listen 80;
+              server_name localhost;
+              root /usr/share/nginx/html;
+              index index.html index.htm;
 
-    # Handle Angular routing
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
+              # Handle Angular routing
+              location / {
+                  try_files $uri $uri/ /index.html;
+              }
 
-    # Cache static assets
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
+              # Cache static assets
+              location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+                  expires 1y;
+                  add_header Cache-Control "public, immutable";
+              }
 
-    error_page 500 502 503 504 /50x.html;
-    location = /50x.html {
-        root /usr/share/nginx/html;
-    }
-}
-EOF
+              error_page 500 502 503 504 /50x.html;
+              location = /50x.html {
+                  root /usr/share/nginx/html;
+              }
+          }
+          EOF
           fi
           echo "✅ nginx.conf ready"
 
       - name: 📦 Copy files to VPS
         run: |
           scp -o StrictHostKeyChecking=no -r \
-            --exclude 'node_modules' \
-            --exclude '.git' \
+            --exclude node_modules \
+            --exclude .git \
             --exclude 'backend/dist' \
             --exclude 'backend/database.sqlite' \
             --exclude 'backend/uploads' \
@@ -75,52 +75,37 @@ EOF
 
       - name: 📝 Create .env file on VPS
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            cd ~/coffe
-            cat > .env << 'ENVEOF'
-NODE_ENV=production
-PORT=3001
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd ~/coffe && cat > .env << 'ENVEOF'
+          NODE_ENV=production
+          PORT=3001
 
-# Database (MySQL)
-DB_HOST=mysql
-DB_PORT=3306
-DB_USERNAME=${{ secrets.MYSQL_USER }}
-DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
-DB_DATABASE=${{ secrets.MYSQL_DATABASE }}
-DB_SSL=false
+          # Database (MySQL)
+          DB_HOST=mysql
+          DB_PORT=3306
+          DB_USERNAME=${{ secrets.MYSQL_USER }}
+          DB_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          DB_DATABASE=${{ secrets.MYSQL_DATABASE }}
+          DB_SSL=false
 
-# JWT
-JWT_SECRET=${{ secrets.JWT_SECRET }}
+          # JWT
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
 
-# Email
-SMTP_HOST=${{ secrets.SMTP_HOST }}
-SMTP_PORT=${{ secrets.SMTP_PORT }}
-SMTP_USER=${{ secrets.SMTP_USER }}
-SMTP_PASS=${{ secrets.SMTP_PASS }}
+          # Email
+          SMTP_HOST=${{ secrets.SMTP_HOST }}
+          SMTP_PORT=${{ secrets.SMTP_PORT }}
+          SMTP_USER=${{ secrets.SMTP_USER }}
+          SMTP_PASS=${{ secrets.SMTP_PASS }}
 
-# MySQL Root Password
-MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
-MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
-MYSQL_USER=${{ secrets.MYSQL_USER }}
-MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
-ENVEOF
-          EOF
+          # MySQL Root Password
+          MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER=${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          ENVEOF"
 
       - name: 🐳 Deploy with Docker Compose
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            cd ~/coffe
-            echo '=== Checking files on VPS ==='
-            ls -la frontend/
-            echo '=== Dockerfile content ==='
-            cat frontend/Dockerfile
-            echo '=== Building and deploying ==='
-            docker-compose -f docker-compose.prod.yml down
-            docker system prune -af --volumes
-            docker-compose -f docker-compose.prod.yml build --no-cache frontend
-            docker-compose -f docker-compose.prod.yml up -d
-            docker-compose -f docker-compose.prod.yml ps
-          EOF
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd ~/coffe && echo '=== Checking files on VPS ===' && ls -la frontend/ && echo '=== Dockerfile content ===' && cat frontend/Dockerfile && echo '=== Building and deploying ===' && docker-compose -f docker-compose.prod.yml down && docker system prune -af --volumes && docker-compose -f docker-compose.prod.yml build --no-cache frontend && docker-compose -f docker-compose.prod.yml up -d && docker-compose -f docker-compose.prod.yml ps"
 
       - name: 🧹 Cleanup old Docker images
         run: |
