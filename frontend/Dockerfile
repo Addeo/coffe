@@ -1,33 +1,15 @@
-FROM node:18-alpine as build
-
+# Stage 1: Build Angular app
+FROM node:18-alpine AS build
 WORKDIR /app
-
-# Copy shared folder first (required for @shared imports)
-COPY ./shared /shared
-
-# Copy package files
-COPY ./frontend/package*.json ./
-
-# Install dependencies with legacy peer deps to resolve Angular version conflicts
+COPY package*.json ./
 RUN npm install --legacy-peer-deps
-
-# Copy frontend source code
-COPY ./frontend .
-
-# Build for production
+COPY . .
 RUN npm run build
 
-# Production stage with nginx
+# Stage 2: Serve with Nginx
 FROM nginx:alpine
+COPY --from=build /app/dist/coffee-admin-frontend /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy built files from build stage
-COPY --from=build /app/dist/coffee-admin /usr/share/nginx/html
-
-# Copy nginx configuration
-COPY ./frontend/nginx.conf /etc/nginx/conf.d/default.conf
-
-# Expose port
-EXPOSE 4000
-
-# Start nginx
+EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
