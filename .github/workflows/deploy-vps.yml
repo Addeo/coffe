@@ -63,9 +63,9 @@ jobs:
 
       - name: 📦 Copy files to VPS
         run: |
-          scp -o StrictHostKeyChecking=no -r \
-            --exclude node_modules \
-            --exclude .git \
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no" \
+            --exclude 'node_modules' \
+            --exclude '.git' \
             --exclude 'backend/dist' \
             --exclude 'backend/database.sqlite' \
             --exclude 'backend/uploads' \
