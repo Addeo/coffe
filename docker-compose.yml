@@ -52,17 +52,15 @@ services:
 
   # Angular/Ionic Frontend
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: coffee_frontend
-    restart: unless-stopped
-    ports:
-      - "4000:80"          # Nginx слушает порт 80, наружу отдаём 4000
-    networks:
-      - coffee_network
-    depends_on:
-      - backend
+  build:
+    context: ./frontend
+    dockerfile: Dockerfile
+  container_name: coffee_frontend
+  restart: unless-stopped
+  ports:
+    - "4000:80"   # наружу отдаём 4000, внутри Nginx слушает 80
+  networks:
+    - coffee_network
 
 
 volumes:
