@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # Allows manual trigger
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -22,6 +22,37 @@ jobs:
           ls -la frontend/
           echo "=== nginx.conf content ==="
           cat frontend/nginx.conf
+
+      - name: 🛠️ Ensure nginx.conf exists
+        run: |
+          if [ ! -f "frontend/nginx.conf" ]; then
+            echo "⚠️ nginx.conf not found, creating one..."
+            cat > frontend/nginx.conf << 'EOF'
+          server {
+              listen 80;
+              server_name localhost;
+              root /usr/share/nginx/html;
+              index index.html index.htm;
+
+              # Handle Angular routing
+              location / {
+                  try_files $uri $uri/ /index.html;
+              }
+
+              # Cache static assets
+              location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+                  expires 1y;
+                  add_header Cache-Control "public, immutable";
+              }
+
+              error_page 500 502 503 504 /50x.html;
+              location = /50x.html {
+                  root /usr/share/nginx/html;
+              }
+          }
+          EOF
+          fi
+          echo "✅ nginx.conf ready"
 
       - name: 🔐 Setup SSH
         uses: webfactory/ssh-agent@v0.9.0
@@ -78,6 +109,9 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
             cd ~/coffe &&
+            echo '=== Checking files on VPS ===' &&
+            ls -la frontend/ &&
+            echo '=== Building and deploying ===' &&
             docker-compose -f docker-compose.prod.yml down &&
             docker system prune -af --volumes &&
             docker-compose -f docker-compose.prod.yml build --no-cache &&
@@ -96,4 +130,3 @@ jobs:
           echo "🎉 Deployment successful!"
           echo "Backend: http://${{ secrets.VPS_HOST }}:3001"
           echo "Frontend: http://${{ secrets.VPS_HOST }}:4000"
-
