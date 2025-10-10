@@ -48,6 +48,7 @@ ON DUPLICATE KEY UPDATE
   overtime_multiplier = VALUES(overtime_multiplier),
   has_overtime = VALUES(has_overtime),
   is_active = VALUES(is_active);
+  
 
 -- =====================================================
 -- SETTINGS TABLE
