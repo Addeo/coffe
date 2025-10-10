@@ -22,14 +22,14 @@ import {
   UpdateUserDto,
   UserDto,
   EngineerDto,
-} from '../../../../../shared/dtos/user.dto';
+} from '@shared/dtos/user.dto';
 import {
   EngineerOrganizationRateDto,
   UpdateEngineerOrganizationRateDto,
-} from '../../../../../shared/dtos/engineer-organization-rate.dto';
-import { OrganizationDto } from '../../../../../shared/dtos/organization.dto';
-import { UserRole } from '../../../../../shared/interfaces/user.interface';
-import { EngineerType } from '../../../../../shared/interfaces/order.interface';
+} from '@shared/dtos/engineer-organization-rate.dto';
+import { OrganizationDto } from '@shared/dtos/organization.dto';
+import { UserRole } from '@shared/interfaces/user.interface';
+import { EngineerType } from '@shared/interfaces/order.interface';
 
 export interface UserDialogData {
   user?: UserDto;
