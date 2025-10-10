@@ -53,15 +53,24 @@ jobs:
               listen 80;
               server_name localhost;
               root /usr/share/nginx/html;
-              index index.html index.htm;
+              index index.html;
           
+              # Angular SPA routing
               location / {
-                  try_files \$uri \$uri/ /index.html;
+                  try_files \$uri \$uri/ /index.html =404;
               }
           
-              location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+              # Cache static assets
+              location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
                   expires 1y;
                   add_header Cache-Control "public, immutable";
+                  try_files \$uri =404;
+              }
+          
+              # Disable caching for index.html
+              location = /index.html {
+                  add_header Cache-Control "no-cache, no-store, must-revalidate";
+                  expires 0;
               }
           
               error_page 500 502 503 504 /50x.html;
@@ -116,14 +125,21 @@ jobs:
       - name: 🐳 Deploy with Docker Compose
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd ~/coffe && 
-            echo '=== Stopping and removing old containers ===' && 
-            docker-compose -f docker-compose.prod.yml down --remove-orphans || true &&
-            docker rm -f coffee_mysql_prod coffee_backend_prod coffee_frontend_prod 2>/dev/null || true &&
-            echo '=== Cleaning up ===' && 
-            docker system prune -af --volumes && 
-            echo '=== Building and starting services ===' && 
-            docker-compose -f docker-compose.prod.yml build --no-cache --pull && 
-            docker-compose -f docker-compose.prod.yml up -d && 
+            echo '=== Stopping all containers ===' && 
+            docker-compose -f docker-compose.prod.yml down --remove-orphans -v || true &&
+            echo '=== Force removing coffee containers ===' &&
+            docker rm -f \$(docker ps -aq --filter 'name=coffee_') 2>/dev/null || true &&
+            echo '=== Removing MySQL volume to reinitialize DB ===' &&
+            docker volume rm coffe_mysql_data 2>/dev/null || true &&
+            echo '=== Cleaning up system ===' && 
+            docker system prune -af --volumes &&
+            echo '=== Building images ===' && 
+            docker-compose -f docker-compose.prod.yml build --no-cache --pull &&
+            echo '=== Starting services ===' && 
+            docker-compose -f docker-compose.prod.yml up -d &&
+            echo '=== Waiting for containers to start ===' &&
+            sleep 15 &&
+            echo '=== Status check ===' &&
             docker-compose -f docker-compose.prod.yml ps"
 
       - name: ✅ Deployment complete
