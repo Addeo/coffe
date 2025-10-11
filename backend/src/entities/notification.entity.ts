@@ -40,7 +40,7 @@ export class Notification {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column()
+  @Column({ name: 'user_id' })
   userId: number;
 
   @Column({

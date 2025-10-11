@@ -49,14 +49,14 @@ export class File {
   @JoinColumn({ name: 'uploaded_by' })
   uploadedBy: User;
 
-  @Column()
+  @Column({ name: 'uploaded_by' })
   uploadedById: number;
 
   @ManyToOne(() => Order, { nullable: true })
   @JoinColumn({ name: 'order_id' })
   order: Order;
 
-  @Column({ nullable: true })
+  @Column({ name: 'order_id', nullable: true })
   orderId: number;
 
   @CreateDateColumn({ name: 'uploaded_at' })

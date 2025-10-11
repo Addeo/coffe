@@ -23,7 +23,7 @@ export class Product {
   @Column({ nullable: true })
   category: string;
 
-  @Column({ default: true })
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
   @Column({ name: 'stock_quantity', default: 0 })

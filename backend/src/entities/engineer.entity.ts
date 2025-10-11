@@ -19,7 +19,7 @@ export class Engineer {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column()
+  @Column({ name: 'user_id' })
   userId: number;
 
   @Column({
@@ -28,25 +28,25 @@ export class Engineer {
   })
   type: EngineerType;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { name: 'base_rate', precision: 10, scale: 2 })
   baseRate: number; // базовая ставка руб/час
 
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  @Column('decimal', { name: 'overtime_rate', precision: 10, scale: 2, nullable: true })
   overtimeRate: number; // ставка за переработку руб/час
 
-  @Column({ default: 160 })
+  @Column({ name: 'plan_hours_month', default: 160 })
   planHoursMonth: number; // плановые часы в месяц
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  @Column('decimal', { name: 'home_territory_fixed_amount', precision: 10, scale: 2, default: 0 })
   homeTerritoryFixedAmount: number; // фиксированная сумма за домашнюю территорию
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  @Column('decimal', { name: 'fixed_salary', precision: 10, scale: 2, default: 0 })
   fixedSalary: number; // фиксированная зарплата (оклад)
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  @Column('decimal', { name: 'fixed_car_amount', precision: 10, scale: 2, default: 0 })
   fixedCarAmount: number; // фиксированная оплата за эксплуатацию автомобиля
 
-  @Column({ default: true })
+  @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
   @CreateDateColumn({ name: 'created_at' })
