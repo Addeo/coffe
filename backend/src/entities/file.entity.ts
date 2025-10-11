@@ -59,7 +59,7 @@ export class File {
   @Column({ nullable: true })
   orderId: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'uploaded_at' })
   uploadedAt: Date;
 
   // Custom JSON serialization to exclude fileData

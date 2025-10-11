@@ -56,6 +56,6 @@ export class UserActivityLog {
   @Column({ nullable: true })
   performedById: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 }
