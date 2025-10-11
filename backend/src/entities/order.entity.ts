@@ -36,28 +36,28 @@ export class Order {
   @JoinColumn({ name: 'organization_id' })
   organization: Organization;
 
-  @Column()
+  @Column({ name: 'organization_id' })
   organizationId: number;
 
   @ManyToOne(() => Engineer, { nullable: true })
   @JoinColumn({ name: 'assigned_engineer_id' })
   assignedEngineer: Engineer;
 
-  @Column({ nullable: true })
+  @Column({ name: 'assigned_engineer_id', nullable: true })
   assignedEngineerId: number;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'created_by' })
   createdBy: User;
 
-  @Column()
+  @Column({ name: 'created_by' })
   createdById: number;
 
   @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'assigned_by' })
   assignedBy: User;
 
-  @Column({ nullable: true })
+  @Column({ name: 'assigned_by', nullable: true })
   assignedById: number;
 
   @Column()
@@ -69,10 +69,11 @@ export class Order {
   @Column()
   location: string;
 
-  @Column('decimal', { precision: 8, scale: 2, nullable: true })
+  @Column('decimal', { name: 'distance_km', precision: 8, scale: 2, nullable: true })
   distanceKm: number; // расстояние до объекта
 
   @Column({
+    name: 'territory_type',
     type: 'varchar',
     length: 20,
     nullable: true,
@@ -93,63 +94,63 @@ export class Order {
   })
   source: OrderSource;
 
-  @Column({ type: 'date', nullable: true })
+  @Column({ name: 'planned_start_date', type: 'date', nullable: true })
   plannedStartDate: Date;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ name: 'actual_start_date', type: 'datetime', nullable: true })
   actualStartDate: Date;
 
-  @Column({ type: 'datetime', nullable: true })
+  @Column({ name: 'completion_date', type: 'datetime', nullable: true })
   completionDate: Date;
 
   // Work details (previously in WorkReport)
-  @Column('decimal', { precision: 5, scale: 2, nullable: true, default: 0 })
+  @Column('decimal', { name: 'regular_hours', precision: 5, scale: 2, nullable: true, default: 0 })
   regularHours: number; // обычные часы работы
 
-  @Column('decimal', { precision: 5, scale: 2, nullable: true, default: 0 })
+  @Column('decimal', { name: 'overtime_hours', precision: 5, scale: 2, nullable: true, default: 0 })
   overtimeHours: number; // часы переработки
 
-  @Column('decimal', { precision: 10, scale: 2, nullable: true, default: 0 })
+  @Column('decimal', { name: 'calculated_amount', precision: 10, scale: 2, nullable: true, default: 0 })
   calculatedAmount: number; // рассчитанная оплата инженеру за работу
 
-  @Column('decimal', { precision: 10, scale: 2, nullable: true, default: 0 })
+  @Column('decimal', { name: 'car_usage_amount', precision: 10, scale: 2, nullable: true, default: 0 })
   carUsageAmount: number; // доплата за использование машины
 
-  @Column('decimal', { precision: 10, scale: 2, nullable: true, default: 0 })
+  @Column('decimal', { name: 'organization_payment', precision: 10, scale: 2, nullable: true, default: 0 })
   organizationPayment: number; // сумма, которую платит организация
 
   // Детальная разбивка расчётов (для аудита и отчётности)
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  @Column('decimal', { name: 'engineer_base_rate', precision: 10, scale: 2, nullable: true })
   engineerBaseRate: number; // базовая ставка инженера (₽/час)
 
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  @Column('decimal', { name: 'engineer_overtime_rate', precision: 10, scale: 2, nullable: true })
   engineerOvertimeRate: number; // ставка переработки инженера (₽/час)
 
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  @Column('decimal', { name: 'organization_base_rate', precision: 10, scale: 2, nullable: true })
   organizationBaseRate: number; // базовая ставка организации (₽/час)
 
-  @Column('decimal', { precision: 5, scale: 2, nullable: true })
+  @Column('decimal', { name: 'organization_overtime_multiplier', precision: 5, scale: 2, nullable: true })
   organizationOvertimeMultiplier: number; // коэффициент переработки организации
 
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  @Column('decimal', { name: 'regular_payment', precision: 10, scale: 2, nullable: true })
   regularPayment: number; // оплата за обычные часы (инженеру)
 
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  @Column('decimal', { name: 'overtime_payment', precision: 10, scale: 2, nullable: true })
   overtimePayment: number; // оплата за переработку (инженеру)
 
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  @Column('decimal', { name: 'organization_regular_payment', precision: 10, scale: 2, nullable: true })
   organizationRegularPayment: number; // оплата за обычные часы (от организации)
 
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  @Column('decimal', { name: 'organization_overtime_payment', precision: 10, scale: 2, nullable: true })
   organizationOvertimePayment: number; // оплата за переработку (от организации)
 
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
   profit: number; // прибыль (organizationPayment - calculatedAmount)
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ name: 'work_notes', type: 'text', nullable: true })
   workNotes: string; // примечания о выполненной работе
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ name: 'work_photo_url', type: 'varchar', length: 255, nullable: true })
   workPhotoUrl: string; // фото выполненной работы
 
   @OneToMany(() => File, file => file.order)

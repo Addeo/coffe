@@ -14,16 +14,16 @@ export class Organization {
   @Column({ unique: true })
   name: string;
 
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column('decimal', { name: 'base_rate', precision: 10, scale: 2 })
   baseRate: number; // руб/час
 
-  @Column('decimal', { precision: 3, scale: 1, nullable: true })
+  @Column('decimal', { name: 'overtime_multiplier', precision: 3, scale: 1, nullable: true })
   overtimeMultiplier: number; // коэффициент внеурочного времени
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ name: 'has_overtime', type: 'boolean', default: false })
   hasOvertime: boolean; // предусмотрено ли внеурочное время
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
 
   @CreateDateColumn({ name: 'created_at' })

@@ -26,7 +26,7 @@ export class SalaryCalculation {
   @JoinColumn({ name: 'engineer_id' })
   engineer: Engineer;
 
-  @Column()
+  @Column({ name: 'engineer_id' })
   engineerId: number;
 
   @Column()
@@ -35,43 +35,43 @@ export class SalaryCalculation {
   @Column()
   year: number;
 
-  @Column({ default: 160 })
+  @Column({ name: 'planned_hours', default: 160 })
   plannedHours: number;
 
-  @Column('decimal', { precision: 8, scale: 2, default: 0 })
+  @Column('decimal', { name: 'actual_hours', precision: 8, scale: 2, default: 0 })
   actualHours: number; // фактически отработанные часы
 
-  @Column('decimal', { precision: 8, scale: 2, default: 0 })
+  @Column('decimal', { name: 'overtime_hours', precision: 8, scale: 2, default: 0 })
   overtimeHours: number; // часы переработки
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  @Column('decimal', { name: 'base_amount', precision: 10, scale: 2, default: 0 })
   baseAmount: number; // оплата по базовой ставке
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  @Column('decimal', { name: 'overtime_amount', precision: 10, scale: 2, default: 0 })
   overtimeAmount: number; // оплата за переработку
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  @Column('decimal', { name: 'bonus_amount', precision: 10, scale: 2, default: 0 })
   bonusAmount: number; // премия
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  @Column('decimal', { name: 'car_usage_amount', precision: 10, scale: 2, default: 0 })
   carUsageAmount: number; // эксплуатация автомобиля
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  @Column('decimal', { name: 'fixed_salary', precision: 10, scale: 2, default: 0 })
   fixedSalary: number; // фиксированная зарплата (оклад)
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  @Column('decimal', { name: 'fixed_car_amount', precision: 10, scale: 2, default: 0 })
   fixedCarAmount: number; // фиксированная оплата за автомобиль
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  @Column('decimal', { name: 'additional_earnings', precision: 10, scale: 2, default: 0 })
   additionalEarnings: number; // дополнительный заработок сверх фиксированной зарплаты
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  @Column('decimal', { name: 'total_amount', precision: 10, scale: 2, default: 0 })
   totalAmount: number; // итого к выплате
 
-  @Column('decimal', { precision: 12, scale: 2, default: 0 })
+  @Column('decimal', { name: 'client_revenue', precision: 12, scale: 2, default: 0 })
   clientRevenue: number; // сумма от заказчиков
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  @Column('decimal', { name: 'profit_margin', precision: 10, scale: 2, default: 0 })
   profitMargin: number; // прибыль (client_revenue - total_amount)
 
   @Column({
@@ -85,7 +85,7 @@ export class SalaryCalculation {
   @JoinColumn({ name: 'calculated_by' })
   calculatedBy: User;
 
-  @Column({ nullable: true })
+  @Column({ name: 'calculated_by', nullable: true })
   calculatedById: number;
 
   @CreateDateColumn({ name: 'created_at' })
