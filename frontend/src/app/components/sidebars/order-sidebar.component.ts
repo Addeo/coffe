@@ -17,11 +17,7 @@ import { OrganizationsService } from '../../services/organizations.service';
 import { FilesService } from '../../services/files.service';
 import { ToastService } from '../../services/toast.service';
 import { CreateOrderDto, UpdateOrderDto, OrderDto } from '@shared/dtos/order.dto';
-import {
-  TerritoryType,
-  OrderStatus,
-  OrderSource,
-} from '@shared/interfaces/order.interface';
+import { TerritoryType, OrderStatus, OrderSource } from '@shared/interfaces/order.interface';
 import { OrganizationDto } from '@shared/dtos/organization.dto';
 import { FileResponseDto, FileType } from '@shared/dtos/file.dto';
 

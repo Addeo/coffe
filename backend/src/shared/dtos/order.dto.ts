@@ -160,4 +160,3 @@ export interface OrdersQueryDto {
   completionDateTo?: Date;
   assignedById?: number;
 }
-
