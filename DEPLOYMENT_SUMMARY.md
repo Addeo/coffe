@@ -31,6 +31,7 @@ Created scripts for easy ngrok setup and management:
 Updated deployment configuration:
 
 - **`angular.json`** - Added production environment file replacements
+
   ```json
   "fileReplacements": [
     {
@@ -62,10 +63,12 @@ Created comprehensive guide:
 ### Environment Variables
 
 **Current ngrok URL (configured):**
+
 - API URL: `https://1e53debf9f5f.ngrok-free.app/api`
 - Auth URL: `https://1e53debf9f5f.ngrok-free.app/api/auth/login`
 
 **Frontend Base Path:**
+
 - GitHub Pages: `/coffe/`
 
 ### Deployment URLs
@@ -86,17 +89,20 @@ Engineer: engineer@coffee.com / password
 ### For Immediate Use:
 
 1. **Start Backend** (if not running):
+
    ```bash
    cd backend
    npm run start:dev
    ```
 
 2. **Start ngrok**:
+
    ```bash
    ./start-ngrok.sh
    ```
 
 3. **Update URL** (if ngrok URL changed):
+
    ```bash
    ./update-ngrok-url.sh https://your-new-url.ngrok.io
    git add frontend/src/environments/
@@ -111,6 +117,7 @@ Engineer: engineer@coffee.com / password
 ### For Future Deployments:
 
 **Option 1: Automatic (via git push)**
+
 ```bash
 # Make changes in frontend/
 git add frontend/
@@ -120,12 +127,14 @@ git push origin main
 ```
 
 **Option 2: Manual GitHub Actions Trigger**
+
 1. Go to https://github.com/Addeo/coffe/actions
 2. Select "Deploy Frontend to GitHub Pages"
 3. Click "Run workflow"
 4. Select branch and click "Run workflow"
 
 **Option 3: Local Deploy Script**
+
 ```bash
 ./deploy-gh-pages.sh
 # or with URL update
@@ -133,6 +142,7 @@ git push origin main
 ```
 
 **Option 4: Complete Setup Wizard**
+
 ```bash
 ./full-demo-setup.sh
 # Interactive guide through all steps
@@ -152,11 +162,13 @@ git push origin main
 ### GitHub Actions Workflow
 
 The deployment workflow has been triggered automatically:
+
 - Commit: `a5ad9af` - "feat: add ngrok setup scripts and update gh-pages deployment"
 - Branch: `main`
 - Status: Check at https://github.com/Addeo/coffe/actions
 
 **Expected Timeline:**
+
 - Build: 2-3 minutes
 - Deploy: 1-2 minutes
 - GitHub Pages propagation: 2-5 minutes
@@ -172,6 +184,7 @@ After ~10 minutes, verify deployment:
    - Branch: `gh-pages` / `/ (root)`
 
 2. **Test frontend access:**
+
    ```bash
    curl -I https://addeo.github.io/coffe/
    # Should return 200 OK
@@ -197,6 +210,7 @@ After ~10 minutes, verify deployment:
 ### ⚠️ ESLint Configuration
 
 Current issue with ESLint config (non-blocking):
+
 - Error: Failed to load config "@angular-eslint/recommended"
 - Workaround: Using `--no-verify` flag for git push
 - Does not affect deployment functionality
@@ -205,6 +219,7 @@ Current issue with ESLint config (non-blocking):
 ### 🔒 CORS Configuration
 
 Backend is configured to accept requests from:
+
 - `http://localhost:*` (local development)
 - `https://*.ngrok.io` (ngrok tunnels)
 - `https://*.ngrok-free.app` (ngrok free tier)
@@ -250,10 +265,10 @@ cd frontend && npm run deploy       # Direct gh-pages deploy
 ## 🎉 Setup Complete!
 
 Your application is configured for:
+
 - ✅ Easy ngrok distribution
 - ✅ Automated GitHub Pages deployment
 - ✅ Manual deployment options
 - ✅ Complete documentation
 
 **Ready to use!** Start with `./full-demo-setup.sh` for guided setup.
-
