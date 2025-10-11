@@ -36,6 +36,16 @@ export class UsersController {
     return this.usersService.findAll(req.user, query);
   }
 
+  @Get('profile')
+  getProfile(@Request() req) {
+    return this.usersService.findOne(req.user.id, req.user);
+  }
+
+  @Patch('profile')
+  updateProfile(@Body() updateUserDto: UpdateUserDto, @Request() req) {
+    return this.usersService.update(req.user.id, updateUserDto, req.user);
+  }
+
   @Get(':id')
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   findOne(@Param('id') id: string, @Request() req) {

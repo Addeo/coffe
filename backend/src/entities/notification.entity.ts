@@ -72,7 +72,7 @@ export class Notification {
   @Column({ type: 'json', nullable: true })
   metadata: any; // Дополнительные данные (ID заказа, пользователя и т.д.)
 
-  @Column({ default: false })
+  @Column({ name: 'email_sent', default: false })
   emailSent: boolean;
 
   @CreateDateColumn({ name: 'created_at' })
