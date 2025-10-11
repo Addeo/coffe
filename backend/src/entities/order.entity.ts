@@ -155,9 +155,9 @@ export class Order {
   @OneToMany(() => File, file => file.order)
   files: File[];
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }

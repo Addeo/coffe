@@ -29,9 +29,9 @@ export class Product {
   @Column({ name: 'stock_quantity', default: 0 })
   stockQuantity: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
