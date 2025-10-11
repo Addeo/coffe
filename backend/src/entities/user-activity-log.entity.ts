@@ -34,10 +34,11 @@ export class UserActivityLog {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @Column()
+  @Column({ name: 'user_id' })
   userId: number;
 
   @Column({
+    name: 'activity_type',
     type: 'varchar',
     length: 50,
   })
@@ -53,7 +54,7 @@ export class UserActivityLog {
   @JoinColumn({ name: 'performed_by' })
   performedBy: User;
 
-  @Column({ nullable: true })
+  @Column({ name: 'performed_by', nullable: true })
   performedById: number;
 
   @CreateDateColumn({ name: 'created_at' })
