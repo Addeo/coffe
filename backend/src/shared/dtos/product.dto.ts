@@ -41,4 +41,3 @@ export interface ProductsQueryDto {
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
 }
-

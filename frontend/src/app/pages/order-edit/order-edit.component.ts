@@ -20,11 +20,7 @@ import { FilesService } from '../../services/files.service';
 import { ToastService } from '../../services/toast.service';
 import { AuthService } from '../../services/auth.service';
 import { CreateOrderDto, UpdateOrderDto, OrderDto } from '@shared/dtos/order.dto';
-import {
-  TerritoryType,
-  OrderStatus,
-  OrderSource,
-} from '@shared/interfaces/order.interface';
+import { TerritoryType, OrderStatus, OrderSource } from '@shared/interfaces/order.interface';
 import { UserRole } from '@shared/interfaces/user.interface';
 import { OrganizationDto } from '@shared/dtos/organization.dto';
 import { FileResponseDto, FileType } from '@shared/dtos/file.dto';

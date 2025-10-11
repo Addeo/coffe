@@ -6,13 +6,15 @@ This guide will help you set up ngrok for backend distribution and deploy the fr
 
 1. **Node.js** installed (v18 or higher)
 2. **ngrok** installed ([download here](https://ngrok.com/download))
+
    ```bash
    # macOS
    brew install ngrok/ngrok/ngrok
-   
+
    # Linux
    snap install ngrok
    ```
+
 3. **Git** configured with push access to the repository
 
 ## 🎯 Quick Start
@@ -26,6 +28,7 @@ Run the complete setup script that will guide you through all steps:
 ```
 
 This script will:
+
 - ✅ Check if backend is running (start if needed)
 - ✅ Prompt you to start ngrok
 - ✅ Update environment variables
@@ -66,6 +69,7 @@ Copy the HTTPS URL from ngrok output (e.g., `https://abc123.ngrok.io`)
 ```
 
 This will update:
+
 - `frontend/src/environments/environment.ts`
 - `frontend/src/environments/environment.prod.ts`
 
@@ -84,24 +88,32 @@ Or with ngrok URL update:
 ## 🔧 Available Scripts
 
 ### `./start-ngrok.sh [port]`
+
 Starts ngrok tunnel for the backend.
+
 - Default port: 3002
 - Checks if backend is running
 - Displays helpful instructions
 
 ### `./update-ngrok-url.sh <url>`
+
 Updates environment files with new ngrok URL.
+
 - Updates both development and production environments
-- Creates backup files (*.bak)
+- Creates backup files (\*.bak)
 
 ### `./deploy-gh-pages.sh [ngrok-url]`
+
 Deploys frontend to GitHub Pages.
+
 - Optionally updates ngrok URL first
 - Builds production bundle
 - Deploys to gh-pages branch
 
 ### `./full-demo-setup.sh`
+
 Complete automated setup wizard.
+
 - Interactive step-by-step process
 - Handles all configuration
 - Provides helpful status messages
@@ -128,16 +140,19 @@ The repository includes automatic deployment via GitHub Actions:
 ### Workflow: `deploy-frontend.yml`
 
 Automatically triggers on:
+
 - Push to `main` branch (when frontend files change)
 - Manual workflow dispatch
 
 To trigger manual deployment:
+
 1. Go to GitHub repository
 2. Click "Actions" tab
 3. Select "Deploy Frontend to GitHub Pages"
 4. Click "Run workflow"
 
 The workflow will:
+
 1. Install dependencies
 2. Build production bundle
 3. Deploy to gh-pages branch
@@ -157,11 +172,13 @@ The workflow will:
 ### CORS Configuration
 
 The backend is configured to accept requests from:
+
 - `http://localhost:4202` (local development)
 - `https://*.ngrok.io` (ngrok tunnels)
 - `https://*.github.io` (GitHub Pages)
 
 If you encounter CORS errors:
+
 1. Check ngrok URL is correct in environment files
 2. Verify backend is running and accessible
 3. Check browser console for specific error messages
@@ -169,6 +186,7 @@ If you encounter CORS errors:
 ### GitHub Pages Configuration
 
 Make sure GitHub Pages is enabled:
+
 1. Go to repository Settings
 2. Click "Pages" in sidebar
 3. Source: Deploy from branch `gh-pages`
@@ -190,11 +208,13 @@ npm run start:dev
 If you see "authentication failed" or IP restrictions:
 
 **Alternative 1: LocalTunnel**
+
 ```bash
 npx localtunnel --port 3002
 ```
 
 **Alternative 2: Cloudflare Tunnel**
+
 ```bash
 cloudflared tunnel --url http://localhost:3002
 ```
@@ -211,6 +231,7 @@ npm run build
 ### Deployment Failed
 
 Check:
+
 1. Git credentials are configured
 2. You have push access to the repository
 3. gh-pages branch exists
@@ -252,6 +273,7 @@ coffe/
 ## 🎉 Success!
 
 Your application should now be:
+
 - ✅ Backend running locally with ngrok tunnel
 - ✅ Frontend deployed on GitHub Pages
 - ✅ Ready for demonstration
@@ -273,4 +295,3 @@ Your application should now be:
 ---
 
 🎯 **Ready to deploy?** Run `./full-demo-setup.sh` to get started!
-

@@ -77,4 +77,3 @@ export interface UsersQueryDto {
   sortBy?: string;
   sortOrder?: 'ASC' | 'DESC';
 }
-

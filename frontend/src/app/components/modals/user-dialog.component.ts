@@ -17,12 +17,7 @@ import { EngineerOrganizationRatesService } from '../../services/engineer-organi
 import { OrganizationsService } from '../../services/organizations.service';
 import { UsersService } from '../../services/users.service';
 import { ToastService } from '../../services/toast.service';
-import {
-  CreateUserDto,
-  UpdateUserDto,
-  UserDto,
-  EngineerDto,
-} from '@shared/dtos/user.dto';
+import { CreateUserDto, UpdateUserDto, UserDto, EngineerDto } from '@shared/dtos/user.dto';
 import {
   EngineerOrganizationRateDto,
   UpdateEngineerOrganizationRateDto,
