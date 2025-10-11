@@ -110,13 +110,31 @@ export class Order {
   @Column('decimal', { name: 'overtime_hours', precision: 5, scale: 2, nullable: true, default: 0 })
   overtimeHours: number; // часы переработки
 
-  @Column('decimal', { name: 'calculated_amount', precision: 10, scale: 2, nullable: true, default: 0 })
+  @Column('decimal', {
+    name: 'calculated_amount',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: 0,
+  })
   calculatedAmount: number; // рассчитанная оплата инженеру за работу
 
-  @Column('decimal', { name: 'car_usage_amount', precision: 10, scale: 2, nullable: true, default: 0 })
+  @Column('decimal', {
+    name: 'car_usage_amount',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: 0,
+  })
   carUsageAmount: number; // доплата за использование машины
 
-  @Column('decimal', { name: 'organization_payment', precision: 10, scale: 2, nullable: true, default: 0 })
+  @Column('decimal', {
+    name: 'organization_payment',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+    default: 0,
+  })
   organizationPayment: number; // сумма, которую платит организация
 
   // Детальная разбивка расчётов (для аудита и отчётности)
@@ -129,7 +147,12 @@ export class Order {
   @Column('decimal', { name: 'organization_base_rate', precision: 10, scale: 2, nullable: true })
   organizationBaseRate: number; // базовая ставка организации (₽/час)
 
-  @Column('decimal', { name: 'organization_overtime_multiplier', precision: 5, scale: 2, nullable: true })
+  @Column('decimal', {
+    name: 'organization_overtime_multiplier',
+    precision: 5,
+    scale: 2,
+    nullable: true,
+  })
   organizationOvertimeMultiplier: number; // коэффициент переработки организации
 
   @Column('decimal', { name: 'regular_payment', precision: 10, scale: 2, nullable: true })
@@ -138,10 +161,20 @@ export class Order {
   @Column('decimal', { name: 'overtime_payment', precision: 10, scale: 2, nullable: true })
   overtimePayment: number; // оплата за переработку (инженеру)
 
-  @Column('decimal', { name: 'organization_regular_payment', precision: 10, scale: 2, nullable: true })
+  @Column('decimal', {
+    name: 'organization_regular_payment',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
   organizationRegularPayment: number; // оплата за обычные часы (от организации)
 
-  @Column('decimal', { name: 'organization_overtime_payment', precision: 10, scale: 2, nullable: true })
+  @Column('decimal', {
+    name: 'organization_overtime_payment',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
   organizationOvertimePayment: number; // оплата за переработку (от организации)
 
   @Column('decimal', { precision: 10, scale: 2, nullable: true })
