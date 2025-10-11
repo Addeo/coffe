@@ -31,7 +31,7 @@ export class File {
   @Column({ nullable: true })
   path: string;
 
-  @Column('blob', { nullable: true, select: false }) // Don't select by default to reduce response size
+  @Column('blob', { name: 'file_data', nullable: true, select: false }) // Don't select by default to reduce response size
   @Exclude() // Exclude fileData from serialization by default
   fileData: Buffer;
 
