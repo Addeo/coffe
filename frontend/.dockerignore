@@ -1,0 +1,12 @@
+node_modules
+dist
+.angular
+.git
+*.log
+.env
+coverage
+.vscode
+.idea
+android
+ios
+
