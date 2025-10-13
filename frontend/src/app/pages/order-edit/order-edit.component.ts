@@ -19,6 +19,8 @@ import { OrganizationsService } from '../../services/organizations.service';
 import { FilesService } from '../../services/files.service';
 import { ToastService } from '../../services/toast.service';
 import { AuthService } from '../../services/auth.service';
+import { WorkSessionListComponent } from '../../components/work-session-list/work-session-list.component';
+import { WorkSessionFormComponent } from '../../components/work-session-form/work-session-form.component';
 import { CreateOrderDto, UpdateOrderDto, OrderDto } from '@shared/dtos/order.dto';
 import { TerritoryType, OrderStatus, OrderSource } from '@shared/interfaces/order.interface';
 import { UserRole } from '@shared/interfaces/user.interface';
@@ -50,6 +52,8 @@ interface FileUploadProgress {
     MatProgressBarModule,
     MatTabsModule,
     MatCardModule,
+    WorkSessionListComponent,
+    WorkSessionFormComponent,
   ],
   templateUrl: './order-edit.component.html',
   styleUrl: './order-edit.component.scss',
@@ -62,14 +66,14 @@ export class OrderEditComponent implements OnInit {
   private organizationsService = inject(OrganizationsService);
   private filesService = inject(FilesService);
   private toastService = inject(ToastService);
-  private authService = inject(AuthService);
+  authService = inject(AuthService);
 
   isLoading = signal(false);
   organizations = signal<OrganizationDto[]>([]);
   TerritoryType = TerritoryType;
   OrderStatus = OrderStatus;
   OrderSource = OrderSource;
-  UserRole = UserRole; // Добавляем UserRole для проверки роли пользователя
+  UserRole = UserRole;
 
   orderId: number | null = null;
   isEdit = false;
@@ -689,5 +693,19 @@ export class OrderEditComponent implements OnInit {
   // Check if current user is admin or manager
   isAdminOrManager(): boolean {
     return this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
+  }
+
+  // Work Sessions handlers
+  onWorkSessionCreated(): void {
+    this.toastService.showSuccess('Рабочая сессия успешно создана', 'success');
+    // Перезагрузка данных заказа не требуется, компоненты сами обновятся
+  }
+
+  onWorkSessionUpdated(session: any): void {
+    this.toastService.showSuccess('Рабочая сессия обновлена', 'success');
+  }
+
+  onWorkSessionDeleted(sessionId: number): void {
+    this.toastService.showSuccess('Рабочая сессия удалена', 'success');
   }
 }

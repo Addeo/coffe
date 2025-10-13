@@ -15,6 +15,7 @@ import { Setting, SettingKey } from '../../entities/settings.entity';
 import { UserActivityLog, ActivityType } from '../../entities/user-activity-log.entity';
 import { StatisticsService } from '../statistics/statistics.service';
 import { CalculationService } from '../расчеты/calculation.service';
+import { NotificationType } from '../../entities/notification.entity';
 // Temporarily define DTOs locally until shared package is fixed
 interface CreateOrderDto {
   organizationId: number;
@@ -1203,5 +1204,71 @@ export class OrdersService {
     } else {
       console.log('ℹ️  No files to attach (empty array)');
     }
+  }
+
+  /**
+   * Завершить заказ (отдельно от создания рабочей сессии)
+   */
+  async completeOrder(orderId: number, userId: number): Promise<Order> {
+    const order = await this.ordersRepository.findOne({
+      where: { id: orderId },
+      relations: ['workSessions'],
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with id ${orderId} not found`);
+    }
+
+    // Проверяем, что есть хотя бы одна рабочая сессия
+    if (!order.workSessions || order.workSessions.length === 0) {
+      throw new BadRequestException(
+        'Cannot complete order without work sessions. Please create at least one work session first.',
+      );
+    }
+
+    // Завершаем заказ
+    order.status = OrderStatus.COMPLETED;
+    order.completionDate = new Date();
+
+    const savedOrder = await this.ordersRepository.save(order);
+
+    console.log('✅ Order completed:', {
+      orderId,
+      totalSessions: order.workSessions.length,
+      completionDate: order.completionDate,
+    });
+
+    // Логируем активность
+    await this.logActivity(
+      orderId,
+      ActivityType.ORDER_STATUS_CHANGED,
+      `Order "${order.title}" completed with ${order.workSessions.length} work session(s)`,
+      {
+        totalSessions: order.workSessions.length,
+        status: OrderStatus.COMPLETED,
+      },
+      userId,
+    );
+
+    // Отправляем уведомление
+    if (order.assignedEngineerId) {
+      const engineer = await this.engineersRepository.findOne({
+        where: { id: order.assignedEngineerId },
+        relations: ['user'],
+      });
+
+      if (engineer) {
+        await this.notificationsService.createNotification(
+          engineer.userId,
+          NotificationType.ORDER_STATUS_CHANGED,
+          `Заказ "${order.title}" успешно завершён`,
+          'info',
+          NotificationPriority.MEDIUM,
+          orderId,
+        );
+      }
+    }
+
+    return savedOrder;
   }
 }

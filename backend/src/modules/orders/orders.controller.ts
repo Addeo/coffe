@@ -12,6 +12,7 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
+import { WorkSessionsService, CreateWorkSessionDto } from '../work-sessions/work-sessions.service';
 import { JwtAuthGuard } from '../аутентификация/jwt-auth.guard';
 import { RolesGuard } from '../аутентификация/roles.guard';
 import { Roles } from '../аутентификация/roles.decorator';
@@ -45,7 +46,10 @@ interface ExtendedOrdersQueryDto extends OrdersQueryDto {
 @Controller('orders')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly workSessionsService: WorkSessionsService,
+  ) {}
 
   @Post()
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
@@ -138,6 +142,43 @@ export class OrdersController {
     @Request() req
   ) {
     return this.ordersService.completeWork(orderId, req.user.id, workData);
+  }
+
+  /**
+   * Создать рабочую сессию (выезд) для заказа
+   * POST /orders/:id/work-sessions
+   */
+  @Post(':id/work-sessions')
+  @Roles(UserRole.USER, UserRole.MANAGER, UserRole.ADMIN)
+  createWorkSession(
+    @Param('id', ParseIntPipe) orderId: number,
+    @Body() createWorkSessionDto: CreateWorkSessionDto,
+    @Request() req,
+  ) {
+    return this.workSessionsService.createWorkSession(
+      orderId,
+      req.user.id,
+      createWorkSessionDto,
+    );
+  }
+
+  /**
+   * Получить все рабочие сессии по заказу
+   * GET /orders/:id/work-sessions
+   */
+  @Get(':id/work-sessions')
+  getOrderWorkSessions(@Param('id', ParseIntPipe) orderId: number) {
+    return this.workSessionsService.getOrderWorkSessions(orderId);
+  }
+
+  /**
+   * Завершить заказ (после создания всех рабочих сессий)
+   * POST /orders/:id/complete
+   */
+  @Post(':id/complete')
+  @Roles(UserRole.MANAGER, UserRole.ADMIN)
+  completeOrder(@Param('id', ParseIntPipe) orderId: number, @Request() req) {
+    return this.ordersService.completeOrder(orderId, req.user.id);
   }
 
   // Temporary test endpoint
