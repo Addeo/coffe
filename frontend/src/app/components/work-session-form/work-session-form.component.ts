@@ -9,7 +9,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { CreateWorkSessionDto } from '../../../../../shared/dtos/work-session.dto';
+import { CreateWorkSessionDto } from '@shared/dtos/work-session.dto';
 import { WorkSessionsService } from '../../services/work-sessions.service';
 
 @Component({
