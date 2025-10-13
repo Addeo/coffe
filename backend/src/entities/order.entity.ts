@@ -13,6 +13,7 @@ import { Organization } from './organization.entity';
 import { Engineer } from './engineer.entity';
 import { User } from './user.entity';
 import { File } from './file.entity';
+import { WorkSession } from './work-session.entity';
 // Temporarily define OrderSource locally until shared package is fixed
 export enum OrderSource {
   MANUAL = 'manual', // создан вручную
@@ -188,6 +189,10 @@ export class Order {
 
   @OneToMany(() => File, file => file.order)
   files: File[];
+
+  // ⭐ Связь с рабочими сессиями (новая архитектура)
+  @OneToMany(() => WorkSession, session => session.order)
+  workSessions: WorkSession[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

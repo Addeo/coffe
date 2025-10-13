@@ -12,8 +12,7 @@ import { File } from '../../entities/file.entity';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { StatisticsModule } from '../statistics/statistics.module';
 import { CalculationsModule } from '../расчеты/calculations.module';
-// import { StatisticsModule } from '../statistics/statistics.module';
-// import { CalculationsModule } from '../расчеты/calculations.module';
+import { WorkSessionsModule } from '../work-sessions/work-sessions.module';
 
 @Module({
   imports: [
@@ -21,6 +20,7 @@ import { CalculationsModule } from '../расчеты/calculations.module';
     NotificationsModule,
     StatisticsModule,
     CalculationsModule,
+    WorkSessionsModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

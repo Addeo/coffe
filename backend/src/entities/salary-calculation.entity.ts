@@ -3,12 +3,14 @@ import {
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Engineer } from './engineer.entity';
 import { User } from './user.entity';
+import { SalaryPayment } from './salary-payment.entity';
 
 export enum CalculationStatus {
   DRAFT = 'draft',
@@ -87,6 +89,9 @@ export class SalaryCalculation {
 
   @Column({ name: 'calculated_by', nullable: true })
   calculatedById: number;
+
+  @OneToMany(() => SalaryPayment, payment => payment.salaryCalculation)
+  payments: SalaryPayment[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

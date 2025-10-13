@@ -721,6 +721,32 @@
           </div>
         </div>
       </mat-tab>
+
+      <!-- Таб рабочих сессий (для редактирования существующего заказа) -->
+      <mat-tab label="Рабочие сессии" *ngIf="isEdit && orderId">
+        <div class="work-sessions-tab-content">
+          <h3>Учёт работы по заказу</h3>
+          <p class="tab-description">
+            Здесь отображаются все выезды и рабочие сессии по этому заказу.
+            Каждая сессия фиксирует время работы и будет учтена в расчёте зарплаты в соответствующем месяце.
+          </p>
+
+          <!-- Форма создания новой сессии -->
+          <app-work-session-form
+            *ngIf="order?.status !== OrderStatus.COMPLETED && canEditOrder && orderId"
+            [orderId]="orderId!"
+            (sessionCreated)="onWorkSessionCreated()"
+          ></app-work-session-form>
+
+          <!-- Список существующих сессий -->
+          <app-work-session-list
+            *ngIf="orderId"
+            [orderId]="orderId!"
+            [canEdit]="canEditOrder"
+            [canDelete]="canEditOrder && (authService.currentUser()?.role === UserRole.ADMIN)"
+          ></app-work-session-list>
+        </div>
+      </mat-tab>
     </mat-tab-group>
 
     <div class="form-actions">

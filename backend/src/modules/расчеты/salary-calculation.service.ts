@@ -6,6 +6,7 @@ import { SalaryCalculation, CalculationStatus } from '../../entities/salary-calc
 import { Engineer } from '../../entities/engineer.entity';
 import { Organization } from '../../entities/organization.entity';
 import { Order } from '../../entities/order.entity';
+import { WorkSession } from '../../entities/work-session.entity';
 import { CalculationService } from './calculation.service';
 import { EmailService } from '../email/email.service';
 
@@ -33,6 +34,8 @@ export class SalaryCalculationService {
     private organizationRepository: Repository<Organization>,
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
+    @InjectRepository(WorkSession)
+    private workSessionRepository: Repository<WorkSession>,
     private calculationService: CalculationService,
     private emailService: EmailService
   ) {}
@@ -91,7 +94,7 @@ export class SalaryCalculationService {
   }
 
   /**
-   * Расчет зарплаты для одного инженера
+   * Расчет зарплаты для одного инженера (обновлено для работы с WorkSession)
    */
   private async calculateEngineerSalary(
     engineer: Engineer,
@@ -99,59 +102,66 @@ export class SalaryCalculationService {
     year: number,
     calculatedById?: number
   ): Promise<SalaryCalculation> {
-    // Получаем завершённые заказы за месяц
+    // ⭐ Получаем рабочие сессии за месяц (по workDate!)
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
-    const orders = await this.orderRepository
-      .createQueryBuilder('order')
+    const workSessions = await this.workSessionRepository
+      .createQueryBuilder('session')
+      .leftJoinAndSelect('session.order', 'order')
       .leftJoinAndSelect('order.organization', 'organization')
-      .where('order.assignedEngineerId = :engineerId', { engineerId: engineer.id })
-      .andWhere('order.status = :status', { status: 'completed' })
-      .andWhere('order.completionDate >= :startDate', { startDate })
-      .andWhere('order.completionDate < :endDate', { endDate })
+      .where('session.engineerId = :engineerId', { engineerId: engineer.id })
+      .andWhere('session.status = :status', { status: 'completed' })
+      .andWhere('session.workDate >= :startDate', { startDate })
+      .andWhere('session.workDate < :endDate', { endDate })
+      .andWhere('session.canBeInvoiced = :canBeInvoiced', { canBeInvoiced: true })
       .getMany();
 
-    // Используем новый метод расчета месячной зарплаты
-    const monthlyCalculation = await this.calculationService.calculateMonthlySalary(
-      engineer,
-      orders,
-      engineer.planHoursMonth
-    );
-
-    // Расчет выручки от заказчика (для аналитики)
+    // Суммируем данные из сессий
+    let actualHours = 0;
+    let overtimeHours = 0;
+    let baseAmount = 0;
+    let overtimeAmount = 0;
+    let carUsageAmount = 0;
     let clientRevenue = 0;
-    for (const order of orders) {
-      if (order.organization) {
-        const totalHours = (Number(order.regularHours) || 0) + (Number(order.overtimeHours) || 0);
-        clientRevenue += totalHours * order.organization.baseRate;
-      }
+
+    for (const session of workSessions) {
+      actualHours += session.regularHours;
+      overtimeHours += session.overtimeHours;
+      baseAmount += session.regularPayment;
+      overtimeAmount += session.overtimePayment;
+      carUsageAmount += session.carUsageAmount;
+      clientRevenue += session.organizationPayment;
     }
 
-    const profitMargin = clientRevenue - monthlyCalculation.totalAmount;
+    const totalAmount = baseAmount + overtimeAmount + carUsageAmount;
+    const profitMargin = clientRevenue - totalAmount;
 
-    // Сохраняем расчет с новой структурой по требованиям:
-    // Фиксированная зарплата всегда выплачивается + дополнительная оплата + оплата за автомобиль
+    // Сохраняем расчет (упрощённая структура, так как данные уже суммированы в сессиях)
     const calculation = this.salaryCalculationRepository.create({
       engineerId: engineer.id,
       month,
       year,
       plannedHours: engineer.planHoursMonth,
-      actualHours: monthlyCalculation.actualHours,
-      overtimeHours: monthlyCalculation.overtimeHours,
-      baseAmount: monthlyCalculation.baseAmount,
-      overtimeAmount: monthlyCalculation.overtimeAmount,
-      bonusAmount: monthlyCalculation.bonusAmount,
-      carUsageAmount: monthlyCalculation.totalCarAmount, // Теперь храним общую сумму за автомобиль
-      fixedSalary: monthlyCalculation.fixedSalary,
-      fixedCarAmount: monthlyCalculation.fixedCarAmount,
-      additionalEarnings: monthlyCalculation.earnedAmount, // Теперь это заработанная сумма
-      totalAmount: monthlyCalculation.totalAmount,
+      actualHours,
+      overtimeHours,
+      baseAmount,
+      overtimeAmount,
+      bonusAmount: 0, // Премии рассчитываются отдельно
+      carUsageAmount,
+      fixedSalary: 0, // Для совместимости
+      fixedCarAmount: 0, // Для совместимости
+      additionalEarnings: totalAmount, // Общая заработанная сумма
+      totalAmount,
       clientRevenue,
       profitMargin,
       status: CalculationStatus.CALCULATED,
       calculatedById,
     });
+
+    this.logger.log(
+      `✅ Salary calculated for engineer ${engineer.id}: ${workSessions.length} sessions, ${actualHours}h regular + ${overtimeHours}h overtime = ${totalAmount}₽`,
+    );
 
     return await this.salaryCalculationRepository.save(calculation);
   }

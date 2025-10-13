@@ -14,6 +14,9 @@ import { UserActivityLog } from './entities/user-activity-log.entity';
 import { Notification } from './entities/notification.entity';
 import { SalaryCalculation } from './entities/salary-calculation.entity';
 import { EngineerOrganizationRate } from './entities/engineer-organization-rate.entity';
+import { WorkSession } from './entities/work-session.entity';
+import { SalaryPayment } from './entities/salary-payment.entity';
+import { EngineerBalance } from './entities/engineer-balance.entity';
 import { AuthModule } from './modules/аутентификация/auth.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -29,6 +32,8 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
 import { CalculationsModule } from './modules/расчеты/calculations.module';
 import { EngineerOrganizationRatesModule } from './modules/engineer-organization-rates/engineer-organization-rates.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { WorkSessionsModule } from './modules/work-sessions/work-sessions.module';
+import { PaymentsModule } from './modules/payments/payments.module';
 import { TestController } from './test.controller';
 
 @Module({
@@ -62,6 +67,9 @@ import { TestController } from './test.controller';
               Notification,
               SalaryCalculation,
               EngineerOrganizationRate,
+              WorkSession,
+              SalaryPayment,
+              EngineerBalance,
             ],
             synchronize: false, // NEVER use in production!
             ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
@@ -89,6 +97,9 @@ import { TestController } from './test.controller';
               Notification,
               SalaryCalculation,
               EngineerOrganizationRate,
+              WorkSession,
+              SalaryPayment,
+              EngineerBalance,
             ],
             synchronize: true,
             logging: false,
@@ -112,6 +123,8 @@ import { TestController } from './test.controller';
     CalculationsModule,
     EngineerOrganizationRatesModule,
     ReportsModule,
+    WorkSessionsModule,
+    PaymentsModule,
   ],
   controllers: [TestController],
   providers: [],

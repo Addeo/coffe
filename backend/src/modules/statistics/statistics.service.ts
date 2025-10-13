@@ -5,6 +5,7 @@ import { Order } from '../../entities/order.entity';
 import { User, UserRole } from '../../entities/user.entity';
 import { Organization } from '../../entities/organization.entity';
 import { Engineer } from '../../entities/engineer.entity';
+import { WorkSession } from '../../entities/work-session.entity';
 import {
   MonthlyStatisticsDto,
   AgentEarningsData,
@@ -22,7 +23,9 @@ export class StatisticsService {
     @InjectRepository(Organization)
     private organizationRepository: Repository<Organization>,
     @InjectRepository(Engineer)
-    private engineerRepository: Repository<Engineer>
+    private engineerRepository: Repository<Engineer>,
+    @InjectRepository(WorkSession)
+    private workSessionRepository: Repository<WorkSession>,
   ) {}
 
   async getUserEarningsStatistics(
@@ -57,7 +60,7 @@ export class StatisticsService {
       totalHours: number;
     }> = [];
 
-    // Рассчитываем статистику для каждого месяца из Order
+    // ⭐ Рассчитываем статистику для каждого месяца из WorkSession (по workDate!)
     for (let i = 0; i < months; i++) {
       const targetDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
       const targetMonth = targetDate.getMonth() + 1;
@@ -66,21 +69,24 @@ export class StatisticsService {
       const startDate = new Date(targetYear, targetMonth - 1, 1);
       const endDate = new Date(targetYear, targetMonth, 1);
 
-      const orders = await this.orderRepository
-        .createQueryBuilder('order')
-        .where('order.assignedEngineerId = :engineerId', { engineerId: engineer.id })
-        .andWhere('order.status = :status', { status: 'completed' })
-        .andWhere('order.completionDate >= :startDate', { startDate })
-        .andWhere('order.completionDate < :endDate', { endDate })
+      const sessions = await this.workSessionRepository
+        .createQueryBuilder('session')
+        .where('session.engineerId = :engineerId', { engineerId: engineer.id })
+        .andWhere('session.status = :status', { status: 'completed' })
+        .andWhere('session.workDate >= :startDate', { startDate })
+        .andWhere('session.workDate < :endDate', { endDate })
         .getMany();
 
       let totalEarnings = 0;
       let totalHours = 0;
+      const uniqueOrders = new Set<number>();
 
-      for (const order of orders) {
-        totalEarnings +=
-          (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
-        totalHours += (Number(order.regularHours) || 0) + (Number(order.overtimeHours) || 0);
+      for (const session of sessions) {
+        totalEarnings += (Number(session.calculatedAmount) || 0) + (Number(session.carUsageAmount) || 0);
+        totalHours += (Number(session.regularHours) || 0) + (Number(session.overtimeHours) || 0);
+        if (session.orderId) {
+          uniqueOrders.add(session.orderId);
+        }
       }
 
       statistics.push({
@@ -88,7 +94,7 @@ export class StatisticsService {
         month: targetMonth,
         year: targetYear,
         totalEarnings,
-        completedOrders: orders.length,
+        completedOrders: uniqueOrders.size, // Количество уникальных заказов
         totalHours,
       });
     }

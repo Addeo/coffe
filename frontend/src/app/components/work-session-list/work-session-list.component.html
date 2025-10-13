@@ -1,0 +1,155 @@
+<div class="work-sessions-container">
+  <div class="header">
+    <h3>Рабочие сессии (выезды)</h3>
+  </div>
+
+  <!-- Сводка -->
+  <mat-card *ngIf="summary && sessions.length > 0" class="summary-card">
+    <mat-card-content>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-label">Всего выездов</div>
+          <div class="summary-value">{{ summary.totalSessions }}</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Всего часов</div>
+          <div class="summary-value">{{ formatHours(summary.totalHours) }} ч</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Обычные часы</div>
+          <div class="summary-value">{{ formatHours(summary.totalRegularHours) }} ч</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Переработка</div>
+          <div class="summary-value">{{ formatHours(summary.totalOvertimeHours) }} ч</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Оплата</div>
+          <div class="summary-value highlight">{{ formatCurrency(summary.totalPayment) }}</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">За машину</div>
+          <div class="summary-value">{{ formatCurrency(summary.totalCarUsage) }}</div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Загрузка -->
+  <div *ngIf="loading" class="loading">Загрузка...</div>
+
+  <!-- Ошибка -->
+  <mat-card *ngIf="error" class="error-card">
+    <mat-card-content>
+      <mat-icon color="warn">error</mat-icon>
+      <span>{{ error }}</span>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Список сессий -->
+  <div *ngIf="!loading && sessions.length === 0" class="empty-state">
+    <mat-icon>event_busy</mat-icon>
+    <p>Нет рабочих сессий</p>
+    <p class="hint">Создайте первую сессию, чтобы зафиксировать выполненную работу</p>
+  </div>
+
+  <mat-card *ngFor="let session of sessions; trackBy: trackBySessionId" class="session-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>calendar_today</mat-icon>
+        {{ formatDate(session.workDate) }}
+      </mat-card-title>
+      <mat-card-subtitle *ngIf="session.engineer?.user">
+        Инженер: {{ session.engineer?.user?.firstName }} {{ session.engineer?.user?.lastName }}
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="session-details">
+        <!-- Время работы -->
+        <div class="detail-row">
+          <mat-icon>schedule</mat-icon>
+          <div class="detail-content">
+            <strong>Время работы:</strong>
+            <div class="time-breakdown">
+              <span *ngIf="session.regularHours > 0">
+                {{ formatHours(session.regularHours) }} ч (обычные)
+              </span>
+              <span *ngIf="session.overtimeHours > 0" class="overtime">
+                + {{ formatHours(session.overtimeHours) }} ч (переработка)
+              </span>
+              <span class="total">
+                = {{ formatHours(session.regularHours + session.overtimeHours) }} ч
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Оплата -->
+        <div class="detail-row">
+          <mat-icon>payments</mat-icon>
+          <div class="detail-content">
+            <strong>Оплата:</strong>
+            <div class="payment-breakdown">
+              <span>За работу: {{ formatCurrency(session.calculatedAmount) }}</span>
+              <span *ngIf="session.carUsageAmount > 0">
+                + За машину: {{ formatCurrency(session.carUsageAmount) }}
+              </span>
+              <span class="total highlight">
+                = {{ formatCurrency(getTotalPayment(session)) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Расстояние и территория -->
+        <div class="detail-row" *ngIf="session.distanceKm || session.territoryType">
+          <mat-icon>location_on</mat-icon>
+          <div class="detail-content">
+            <span *ngIf="session.distanceKm">{{ session.distanceKm }} км</span>
+            <span *ngIf="session.territoryType"> ({{ session.territoryType }})</span>
+          </div>
+        </div>
+
+        <!-- Примечания -->
+        <div class="detail-row" *ngIf="session.notes">
+          <mat-icon>note</mat-icon>
+          <div class="detail-content">
+            <strong>Примечания:</strong>
+            <p class="notes">{{ session.notes }}</p>
+          </div>
+        </div>
+
+        <!-- Статус -->
+        <div class="status-row">
+          <mat-chip [color]="session.canBeInvoiced ? 'primary' : 'warn'">
+            {{ session.canBeInvoiced ? 'Оплачиваемая' : 'Не оплачиваемая' }}
+          </mat-chip>
+          <mat-chip>{{ session.status === 'completed' ? 'Завершена' : 'Отменена' }}</mat-chip>
+        </div>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions *ngIf="canEdit || canDelete">
+      <button
+        *ngIf="canEdit"
+        mat-button
+        color="primary"
+        (click)="onEditSession(session)"
+      >
+        <mat-icon>edit</mat-icon>
+        Редактировать
+      </button>
+      <button
+        *ngIf="canDelete"
+        mat-button
+        color="warn"
+        (click)="onDeleteSession(session)"
+      >
+        <mat-icon>delete</mat-icon>
+        Удалить
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
+

@@ -10,6 +10,7 @@ import { SalaryCalculation } from '../../entities/salary-calculation.entity';
 import { Order } from '../../entities/order.entity';
 import { User } from '../../entities/user.entity';
 import { EngineerOrganizationRate } from '../../entities/engineer-organization-rate.entity';
+import { WorkSession } from '../../entities/work-session.entity';
 import { EmailModule } from '../email/email.module';
 
 @Module({
@@ -21,6 +22,7 @@ import { EmailModule } from '../email/email.module';
       Order,
       User,
       EngineerOrganizationRate,
+      WorkSession,
     ]),
     // ScheduleModule.forRoot(),
     EmailModule,
