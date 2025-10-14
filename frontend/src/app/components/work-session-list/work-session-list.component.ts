@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
-import { WorkSessionDto, WorkSessionSummaryDto } from '@shared/dtos/work-session.dto';
+import { WorkSessionDto, WorkSessionSummaryDto } from '../../../../shared/dtos/work-session.dto';
 import { WorkSessionsService } from '../../services/work-sessions.service';
 
 @Component({

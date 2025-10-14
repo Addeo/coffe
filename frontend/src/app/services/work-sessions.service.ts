@@ -7,7 +7,7 @@ import {
   CreateWorkSessionDto,
   UpdateWorkSessionDto,
   WorkSessionSummaryDto,
-} from '@shared/dtos/work-session.dto';
+} from '../../../shared/dtos/work-session.dto';
 
 @Injectable({
   providedIn: 'root',
