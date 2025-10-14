@@ -1,6 +1,8 @@
 -- Создание админ пользователя
+-- Email: admin@coffee.com
+-- Пароль: admin123
 INSERT INTO users (email, password, first_name, last_name, role, is_active)
-VALUES ('admin@coffee.com', '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin', 'User', 'admin', true)
+VALUES ('admin@coffee.com', '$2b$10$sLBzpTHEx6GiLNIYaqJ/.Oh2BvarSaGQSJJasnrAhXuzc/ZqAQ.Yi', 'Admin', 'User', 'admin', true)
 ON DUPLICATE KEY UPDATE
   first_name = VALUES(first_name),
   last_name = VALUES(last_name),

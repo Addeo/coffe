@@ -83,4 +83,3 @@ export interface WorkSessionSummaryDto {
   totalPayment: number;
   totalCarUsage: number;
 }
-
