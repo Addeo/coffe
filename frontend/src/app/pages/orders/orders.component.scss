@@ -228,6 +228,13 @@
     padding: 16px;
   }
 
+  // Мобильная версия stats-grid - одна колонка
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
   .header {
     margin-bottom: 24px;
 

@@ -156,6 +156,18 @@ a:hover {
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
   margin-bottom: 32px;
+
+  // Мобильная версия - одна колонка
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
 }
 
 .loading-container {

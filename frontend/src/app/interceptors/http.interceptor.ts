@@ -3,9 +3,11 @@ import { inject } from '@angular/core';
 import { throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { ToastService } from '../services/toast.service';
+import { AuthService } from '../services/auth.service';
 
 export const httpRequestInterceptor: HttpInterceptorFn = (req, next) => {
   const toastService = inject(ToastService);
+  const authService = inject(AuthService);
 
   console.log('🚀 HTTP Request:', {
     method: req.method,
@@ -44,8 +46,23 @@ export const httpRequestInterceptor: HttpInterceptorFn = (req, next) => {
       let errorMessage = 'Произошла ошибка при выполнении запроса';
 
       if (error.status === 401) {
-        errorMessage = 'Неверные учетные данные';
-        toastService.error(errorMessage);
+        // Проверяем, что это не сам запрос на логин
+        const isLoginRequest = req.url.includes('/auth/login');
+        
+        if (isLoginRequest) {
+          // Для запроса логина показываем ошибку о неверных учетных данных
+          errorMessage = 'Неверные учетные данные';
+          toastService.error(errorMessage);
+        } else {
+          // Для всех других запросов с 401 - выходим из системы
+          errorMessage = 'Сессия истекла. Пожалуйста, войдите снова.';
+          toastService.warning(errorMessage);
+          
+          // Выходим из системы и перенаправляем на страницу логина
+          setTimeout(() => {
+            authService.logout();
+          }, 500); // Небольшая задержка чтобы toast успел показаться
+        }
       } else if (error.status === 403) {
         errorMessage = 'Недостаточно прав доступа';
         toastService.warning(errorMessage);
