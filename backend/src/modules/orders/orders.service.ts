@@ -114,9 +114,14 @@ export class OrdersService {
       throw new NotFoundException('User not found');
     }
 
-    const { files, ...orderData } = createOrderDto;
     const order = this.ordersRepository.create({
-      ...orderData,
+      organizationId: createOrderDto.organizationId,
+      title: createOrderDto.title,
+      description: createOrderDto.description,
+      location: createOrderDto.location,
+      distanceKm: createOrderDto.distanceKm,
+      territoryType: createOrderDto.territoryType,
+      plannedStartDate: createOrderDto.plannedStartDate,
       createdBy: user,
       createdById: userId,
       status: OrderStatus.WAITING,
@@ -165,9 +170,14 @@ export class OrdersService {
       throw new NotFoundException('System user not found');
     }
 
-    const { files, ...orderData } = createOrderDto;
     const order = this.ordersRepository.create({
-      ...orderData,
+      organizationId: createOrderDto.organizationId,
+      title: createOrderDto.title,
+      description: createOrderDto.description,
+      location: createOrderDto.location,
+      distanceKm: createOrderDto.distanceKm,
+      territoryType: createOrderDto.territoryType,
+      plannedStartDate: createOrderDto.plannedStartDate,
       createdBy: user,
       createdById: systemUserId,
       status: OrderStatus.WAITING,
@@ -647,7 +657,7 @@ export class OrdersService {
     order.assignedById = user.id;
     order.status = OrderStatus.ASSIGNED; // ⭐ Waiting for engineer acceptance
 
-    const updatedOrder = await this.ordersRepository.save(order);
+    await this.ordersRepository.save(order);
 
     // Log engineer assignment
     await this.logActivity(
@@ -725,7 +735,7 @@ export class OrdersService {
     order.status = OrderStatus.WORKING;
     order.actualStartDate = new Date();
 
-    const updatedOrder = await this.ordersRepository.save(order);
+    await this.ordersRepository.save(order);
 
     // Log activity
     await this.logActivity(
@@ -743,18 +753,18 @@ export class OrdersService {
 
     // Send notification to order creator and admin
     if (order.createdBy) {
-      await this.notificationsService.create({
-        userId: order.createdById,
-        title: 'Order Accepted',
-        message: `Engineer ${engineer.user.firstName} ${engineer.user.lastName} has accepted order "${order.title}"`,
-        type: NotificationType.ORDER_STATUS,
-        priority: NotificationPriority.MEDIUM,
-        metadata: {
+      await this.notificationsService.createNotification(
+        order.createdById,
+        NotificationType.ORDER_STATUS_CHANGED,
+        'Order Accepted',
+        `Engineer ${engineer.user.firstName} ${engineer.user.lastName} has accepted order "${order.title}"`,
+        NotificationPriority.MEDIUM,
+        {
           orderId: order.id,
           engineerId: engineer.id,
           status: OrderStatus.WORKING,
-        },
-      });
+        }
+      );
     }
 
     console.log('✅ Order accepted successfully:', {

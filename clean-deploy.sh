@@ -46,3 +46,4 @@ echo "Для запуска с чистой базой данных выполн
 echo "docker-compose -f docker-compose.prod.yml up -d --build"
 
 
+

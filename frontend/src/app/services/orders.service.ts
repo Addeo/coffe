@@ -46,6 +46,12 @@ export class OrdersService {
     working: number;
     review: number;
     completed: number;
+    bySource: {
+      manual: number;
+      automatic: number;
+      email: number;
+      api: number;
+    };
   }> {
     return this.http.get<{
       total: number;
@@ -55,6 +61,12 @@ export class OrdersService {
       working: number;
       review: number;
       completed: number;
+      bySource: {
+        manual: number;
+        automatic: number;
+        email: number;
+        api: number;
+      };
     }>(`${environment.apiUrl}/orders/stats`);
   }
 

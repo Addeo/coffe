@@ -98,6 +98,60 @@
       </div>
     </section>
 
+    <!-- Orders by Source Statistics -->
+    <section class="stats-section">
+      <h2>Заказы по источникам</h2>
+      <div class="stats-grid source-stats">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">touch_app</mat-icon>
+              <div class="stat-info">
+                <h3>{{ orderStats().bySource.manual }}</h3>
+                <p>{{ getSourceDisplay('manual') }}</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">settings</mat-icon>
+              <div class="stat-info">
+                <h3>{{ orderStats().bySource.automatic }}</h3>
+                <p>{{ getSourceDisplay('automatic') }}</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">email</mat-icon>
+              <div class="stat-info">
+                <h3>{{ orderStats().bySource.email }}</h3>
+                <p>{{ getSourceDisplay('email') }}</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <mat-icon class="stat-icon">api</mat-icon>
+              <div class="stat-info">
+                <h3>{{ orderStats().bySource.api }}</h3>
+                <p>{{ getSourceDisplay('api') }}</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+
     <!-- User Statistics (Admin/Manager only) -->
     <!-- <section *ngIf="showUserStats()" class="stats-section">
       <h2>Управление пользователями</h2>

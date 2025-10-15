@@ -91,6 +91,72 @@
     </mat-card-content>
   </mat-card>
 
+  <!-- Source Statistics - Desktop -->
+  <div class="stats-grid desktop-stats source-stats-grid">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon">touch_app</mat-icon>
+          <div class="stat-info">
+            <h3>{{ orderStats().bySource.manual }}</h3>
+            <p>{{ getSourceDisplay('manual') }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon">settings</mat-icon>
+          <div class="stat-info">
+            <h3>{{ orderStats().bySource.automatic }}</h3>
+            <p>{{ getSourceDisplay('automatic') }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon">email</mat-icon>
+          <div class="stat-info">
+            <h3>{{ orderStats().bySource.email }}</h3>
+            <p>{{ getSourceDisplay('email') }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon class="stat-icon">api</mat-icon>
+          <div class="stat-info">
+            <h3>{{ orderStats().bySource.api }}</h3>
+            <p>{{ getSourceDisplay('api') }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Source Statistics - Mobile -->
+  <mat-card class="mobile-stats">
+    <mat-card-header>
+      <mat-card-title>По источникам</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="mobile-stats-simple">
+        <p><strong>{{ getSourceDisplay('manual') }}:</strong> {{ orderStats().bySource.manual }}</p>
+        <p><strong>{{ getSourceDisplay('automatic') }}:</strong> {{ orderStats().bySource.automatic }}</p>
+        <p><strong>{{ getSourceDisplay('email') }}:</strong> {{ orderStats().bySource.email }}</p>
+        <p><strong>{{ getSourceDisplay('api') }}:</strong> {{ orderStats().bySource.api }}</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
   <!-- Main Content -->
   <mat-card class="main-content">
     <mat-card-header>
