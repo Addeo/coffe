@@ -20,6 +20,7 @@ import { ModalService } from '../../services/modal.service';
 import { ToastService } from '../../services/toast.service';
 import { UserDto } from '@shared/dtos/user.dto';
 import { UserRole } from '@shared/interfaces/user.interface';
+import { EngineerType } from '@shared/interfaces/order.interface';
 import { UserDialogComponent } from '../../components/modals/user-dialog.component';
 import { DeleteConfirmationDialogComponent } from '../../components/modals/delete-confirmation-dialog.component';
 import { UserDeletionCheck, UserDeletionConflict } from '../../services/users.service';
@@ -58,6 +59,7 @@ export class UsersComponent implements OnInit {
     'lastName',
     'email',
     'role',
+    'engineerType',
     'isActive',
     'createdAt',
     'actions',
@@ -114,6 +116,22 @@ export class UsersComponent implements OnInit {
         return 'User';
       default:
         return role;
+    }
+  }
+
+  getEngineerTypeDisplay(type: EngineerType | undefined): string {
+    if (!type) {
+      return '—';
+    }
+    switch (type) {
+      case EngineerType.STAFF:
+        return 'Штатный';
+      case EngineerType.REMOTE:
+        return 'Удаленный';
+      case EngineerType.CONTRACT:
+        return 'Наемный';
+      default:
+        return type;
     }
   }
 

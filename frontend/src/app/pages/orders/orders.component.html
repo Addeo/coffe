@@ -1,6 +1,6 @@
 <div class="orders-container">
-  <!-- Statistics Cards -->
-  <div class="stats-grid">
+  <!-- Statistics Cards - Desktop версия -->
+  <div class="stats-grid desktop-stats">
     <mat-card class="stat-card">
       <mat-card-content>
         <div class="stat-content">
@@ -73,6 +73,23 @@
       </mat-card-content>
     </mat-card>
   </div>
+
+  <!-- Statistics Card - Мобильная версия (ВСЁ В ОДНОЙ КАРТОЧКЕ) -->
+  <mat-card class="mobile-stats">
+    <mat-card-header>
+      <mat-card-title>Статистика заказов</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="mobile-stats-simple">
+        <p><strong>Всего заказов:</strong> {{ orderStats().total }}</p>
+        <p><strong>Ожидают:</strong> {{ orderStats().waiting }}</p>
+        <p><strong>В обработке:</strong> {{ orderStats().processing }}</p>
+        <p><strong>В работе:</strong> {{ orderStats().working }}</p>
+        <p><strong>На проверке:</strong> {{ orderStats().review }}</p>
+        <p><strong>Завершено:</strong> {{ orderStats().completed }}</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
 
   <!-- Main Content -->
   <mat-card class="main-content">

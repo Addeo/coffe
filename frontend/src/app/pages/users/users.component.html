@@ -76,6 +76,19 @@
             </td>
           </ng-container>
 
+          <!-- Engineer Type Column -->
+          <ng-container matColumnDef="engineerType">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@users.engineerType">
+              Тип инженера
+            </th>
+            <td mat-cell *matCellDef="let user">
+              <mat-chip *ngIf="user.engineer" color="accent" selected>
+                {{ getEngineerTypeDisplay(user.engineer.type) }}
+              </mat-chip>
+              <span *ngIf="!user.engineer" class="no-engineer-label">—</span>
+            </td>
+          </ng-container>
+
           <!-- Status Column -->
           <ng-container matColumnDef="isActive">
             <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@users.status">Статус</th>
