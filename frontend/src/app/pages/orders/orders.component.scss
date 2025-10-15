@@ -7,12 +7,40 @@
   min-height: calc(100vh - 64px);
 }
 
-// Stats grid layout
-.stats-grid {
+// Stats grid layout - Desktop версия
+.stats-grid.desktop-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
   margin-bottom: 32px;
+}
+
+// Mobile stats - скрыта на desktop
+.mobile-stats {
+  display: none;
+  margin-bottom: 24px;
+}
+
+// Простой блок со статистикой для мобильной версии
+.mobile-stats-simple {
+  padding: 8px 0;
+
+  p {
+    margin: 0;
+    padding: 10px 0;
+    font-size: 1rem;
+    color: #333;
+    border-bottom: 1px solid #eee;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    strong {
+      color: #666;
+      font-weight: 500;
+    }
+  }
 }
 
 // Enhanced header styling
@@ -228,11 +256,14 @@
     padding: 16px;
   }
 
-  // Мобильная версия stats-grid - одна колонка
-  .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    margin-bottom: 24px;
+  // Скрыть desktop версию статистики
+  .stats-grid.desktop-stats {
+    display: none !important;
+  }
+
+  // Показать мобильную версию статистики (ВСЁ В ОДНОЙ КАРТОЧКЕ)
+  .mobile-stats {
+    display: block !important;
   }
 
   .header {
@@ -285,10 +316,9 @@
     padding: 12px;
   }
 
-  // Stack stats cards vertically on very small screens
-  .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
+  .mobile-stats-simple p {
+    font-size: 0.9rem;
+    padding: 8px 0;
   }
 
   // Further simplify table on very small screens
