@@ -227,3 +227,4 @@ docker exec -it coffee_backend_prod npm run migration:run
 - Не происходит автоматически
 
 
+

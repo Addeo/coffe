@@ -1,15 +1,17 @@
 import { User } from './user.interface';
 
 export enum OrderStatus {
-  WAITING = 'waiting', // в ожидании
+  WAITING = 'waiting', // в ожидании (не назначен)
+  ASSIGNED = 'assigned', // назначен инженеру (ожидает принятия)
   PROCESSING = 'processing', // в обработке
-  WORKING = 'working', // в работе
+  WORKING = 'working', // в работе (принят инженером)
   REVIEW = 'review', // на проверке
   COMPLETED = 'completed', // законченный
 }
 
 export enum OrderStatusLabel {
   WAITING = 'Waiting',
+  ASSIGNED = 'Assigned',
   PROCESSING = 'Processing',
   WORKING = 'In Progress',
   REVIEW = 'Under Review',

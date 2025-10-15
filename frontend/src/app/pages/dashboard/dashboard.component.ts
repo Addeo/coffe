@@ -41,6 +41,12 @@ export class DashboardComponent implements OnInit {
     working: 0,
     review: 0,
     completed: 0,
+    bySource: {
+      manual: 0,
+      automatic: 0,
+      email: 0,
+      api: 0,
+    },
   });
 
   userStats = signal({
@@ -177,6 +183,21 @@ export class DashboardComponent implements OnInit {
         return 'Законченный';
       default:
         return status;
+    }
+  }
+
+  getSourceDisplay(source: string): string {
+    switch (source) {
+      case 'manual':
+        return 'Вручную';
+      case 'automatic':
+        return 'Автоматически';
+      case 'email':
+        return 'Из Email';
+      case 'api':
+        return 'Через API';
+      default:
+        return source;
     }
   }
 
