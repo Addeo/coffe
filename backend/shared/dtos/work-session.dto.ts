@@ -84,3 +84,4 @@ export interface WorkSessionSummaryDto {
   totalCarUsage: number;
 }
 
+

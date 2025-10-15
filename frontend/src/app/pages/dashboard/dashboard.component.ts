@@ -36,6 +36,7 @@ export class DashboardComponent implements OnInit {
   orderStats = signal({
     total: 0,
     waiting: 0,
+    assigned: 0,
     processing: 0,
     working: 0,
     review: 0,
@@ -164,6 +165,8 @@ export class DashboardComponent implements OnInit {
     switch (status) {
       case 'waiting':
         return 'В ожидании';
+      case 'assigned':
+        return 'Назначен';
       case 'processing':
         return 'В обработке';
       case 'working':

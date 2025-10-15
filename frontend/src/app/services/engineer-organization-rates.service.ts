@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
+import { environment } from '../../environments/environment';
 import {
   EngineerOrganizationRateDto,
   CreateEngineerOrganizationRateDto,
@@ -13,7 +14,7 @@ import {
 })
 export class EngineerOrganizationRatesService {
   private http = inject(HttpClient);
-  private readonly apiUrl = '/api/engineer-organization-rates';
+  private readonly apiUrl = `${environment.apiUrl}/engineer-organization-rates`;
 
   getRates(
     query: EngineerOrganizationRatesQueryDto = {}

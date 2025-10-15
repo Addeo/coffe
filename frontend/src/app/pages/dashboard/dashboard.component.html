@@ -39,6 +39,18 @@
         <mat-card class="stat-card">
           <mat-card-content>
             <div class="stat-content">
+              <mat-icon class="stat-icon">assignment_ind</mat-icon>
+              <div class="stat-info">
+                <h3>{{ orderStats().assigned }}</h3>
+                <p>{{ getStatusDisplay('assigned') }}</p>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
               <mat-icon class="stat-icon">person_add</mat-icon>
               <div class="stat-info">
                 <h3>{{ orderStats().processing }}</h3>

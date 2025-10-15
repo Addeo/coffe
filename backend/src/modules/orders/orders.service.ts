@@ -645,7 +645,7 @@ export class OrdersService {
     const oldEngineerId = order.assignedEngineerId;
     order.assignedEngineerId = engineer.id; // ← Always save the actual engineer ID from the engineer table
     order.assignedById = user.id;
-    order.status = OrderStatus.PROCESSING;
+    order.status = OrderStatus.ASSIGNED; // ⭐ Waiting for engineer acceptance
 
     const updatedOrder = await this.ordersRepository.save(order);
 
@@ -671,6 +671,99 @@ export class OrdersService {
     );
 
     return this.findOne(id, user);
+  }
+
+  /**
+   * Accept order by engineer
+   * Engineer accepts the order assigned to them
+   */
+  async acceptOrder(orderId: number, user: User): Promise<Order> {
+    console.log('✅ acceptOrder called:', {
+      orderId,
+      userId: user.id,
+      userRole: user.role,
+    });
+
+    // Only engineers (USER role) can accept orders
+    if (user.role !== UserRole.USER) {
+      throw new ForbiddenException('Only engineers can accept orders');
+    }
+
+    // Find the engineer record for this user
+    const engineer = await this.engineersRepository.findOne({
+      where: { userId: user.id, isActive: true },
+      relations: ['user'],
+    });
+
+    if (!engineer) {
+      throw new NotFoundException('Engineer profile not found for this user');
+    }
+
+    // Find the order
+    const order = await this.ordersRepository.findOne({
+      where: { id: orderId },
+      relations: ['organization', 'assignedEngineer', 'assignedEngineer.user', 'createdBy'],
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with id ${orderId} not found`);
+    }
+
+    // Verify this order is assigned to this engineer
+    if (order.assignedEngineerId !== engineer.id) {
+      throw new ForbiddenException('This order is not assigned to you');
+    }
+
+    // Verify order is in ASSIGNED status
+    if (order.status !== OrderStatus.ASSIGNED) {
+      throw new BadRequestException(
+        `Order cannot be accepted in current status: ${order.status}. Expected: ${OrderStatus.ASSIGNED}`
+      );
+    }
+
+    // Update order status to WORKING
+    order.status = OrderStatus.WORKING;
+    order.actualStartDate = new Date();
+
+    const updatedOrder = await this.ordersRepository.save(order);
+
+    // Log activity
+    await this.logActivity(
+      orderId,
+      ActivityType.ORDER_STATUS_CHANGED,
+      `Engineer ${engineer.user.firstName} ${engineer.user.lastName} accepted order "${order.title}"`,
+      {
+        orderId,
+        engineerId: engineer.id,
+        oldStatus: OrderStatus.ASSIGNED,
+        newStatus: OrderStatus.WORKING,
+      },
+      user.id
+    );
+
+    // Send notification to order creator and admin
+    if (order.createdBy) {
+      await this.notificationsService.create({
+        userId: order.createdById,
+        title: 'Order Accepted',
+        message: `Engineer ${engineer.user.firstName} ${engineer.user.lastName} has accepted order "${order.title}"`,
+        type: NotificationType.ORDER_STATUS,
+        priority: NotificationPriority.MEDIUM,
+        metadata: {
+          orderId: order.id,
+          engineerId: engineer.id,
+          status: OrderStatus.WORKING,
+        },
+      });
+    }
+
+    console.log('✅ Order accepted successfully:', {
+      orderId,
+      engineerId: engineer.id,
+      newStatus: order.status,
+    });
+
+    return this.findOne(orderId, user);
   }
 
   async remove(id: number, user: User): Promise<void> {
@@ -727,6 +820,7 @@ export class OrdersService {
   async getOrderStats(user: User): Promise<{
     total: number;
     waiting: number;
+    assigned: number;
     processing: number;
     working: number;
     review: number;
@@ -756,6 +850,7 @@ export class OrdersService {
     const result = {
       total: 0,
       waiting: 0,
+      assigned: 0,
       processing: 0,
       working: 0,
       review: 0,
