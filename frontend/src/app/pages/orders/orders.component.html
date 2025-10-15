@@ -249,9 +249,18 @@
             </th>
             <td mat-cell *matCellDef="let order">
               <div class="engineer-info">
-                <span>{{ getEngineerName(order) }}</span>
-                <br />
-                <small class="text-muted">от</small> {{ getCreatorName(order) }}
+                <div class="assigned-engineer" *ngIf="order.assignedEngineer">
+                  <mat-icon class="engineer-icon">engineering</mat-icon>
+                  <span class="engineer-name">{{ getEngineerName(order) }}</span>
+                </div>
+                <div class="no-engineer" *ngIf="!order.assignedEngineer">
+                  <mat-icon class="no-engineer-icon">person_off</mat-icon>
+                  <span class="no-engineer-text">Не назначен</span>
+                </div>
+                <div class="creator-info">
+                  <mat-icon class="creator-icon">person_outline</mat-icon>
+                  <small class="text-muted">{{ getCreatorName(order) }}</small>
+                </div>
               </div>
             </td>
           </ng-container>

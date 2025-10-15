@@ -86,8 +86,14 @@ export interface OrderDto {
   assignedEngineerId?: number;
   assignedEngineer?: {
     id: number;
-    firstName: string;
-    lastName: string;
+    firstName?: string;
+    lastName?: string;
+    user?: {
+      id: number;
+      firstName: string;
+      lastName: string;
+      email: string;
+    };
   };
   createdById: number;
   createdBy: {
