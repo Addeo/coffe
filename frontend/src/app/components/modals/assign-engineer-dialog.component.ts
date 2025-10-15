@@ -58,7 +58,7 @@ export interface AssignEngineerDialogData {
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>{{ data.order.assignedEngineerId ? 'Выберите нового инженера' : 'Выберите инженера' }}</mat-label>
             <mat-select formControlName="engineerId" placeholder="Выберите инженера для назначения">
-              <mat-option *ngFor="let engineer of availableEngineers" [value]="engineer.id">
+              <mat-option *ngFor="let engineer of availableEngineers" [value]="engineer.engineer?.id || engineer.id">
                 {{ engineer.firstName }} {{ engineer.lastName }} ({{ engineer.email }})
               </mat-option>
             </mat-select>
@@ -339,12 +339,23 @@ export class AssignEngineerDialogComponent {
       return 'Не назначен';
     }
 
-    // Find the engineer name from available engineers
-    const engineer = this.availableEngineers.find(e => e.id === this.data.order.assignedEngineerId);
-    if (engineer) {
-      return `${engineer.firstName} ${engineer.lastName}`;
+    // First, try to get from assignedEngineer object if it exists
+    if (this.data.order.assignedEngineer) {
+      if (this.data.order.assignedEngineer.user) {
+        return `${this.data.order.assignedEngineer.user.firstName} ${this.data.order.assignedEngineer.user.lastName}`;
+      }
+      // Fallback to engineer object itself if it has firstName/lastName
+      if (this.data.order.assignedEngineer.firstName && this.data.order.assignedEngineer.lastName) {
+        return `${this.data.order.assignedEngineer.firstName} ${this.data.order.assignedEngineer.lastName}`;
+      }
     }
 
-    return `Инженер ${this.data.order.assignedEngineerId}`;
+    // Fallback: Find the engineer name from available engineers (users with engineer property)
+    const user = this.availableEngineers.find(u => u.engineer?.id === this.data.order.assignedEngineerId);
+    if (user) {
+      return `${user.firstName} ${user.lastName}`;
+    }
+
+    return `Инженер #${this.data.order.assignedEngineerId}`;
   }
 }

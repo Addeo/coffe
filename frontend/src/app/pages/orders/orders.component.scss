@@ -154,9 +154,74 @@
 
 // Engineer info styling
 .engineer-info {
-  .text-muted {
-    color: #666;
-    font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .assigned-engineer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background-color: #e3f2fd;
+    border-radius: 6px;
+    border-left: 3px solid #1976d2;
+
+    .engineer-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #1976d2;
+    }
+
+    .engineer-name {
+      font-weight: 500;
+      color: #1565c0;
+      font-size: 0.875rem;
+    }
+  }
+
+  .no-engineer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background-color: #fff3e0;
+    border-radius: 6px;
+    border-left: 3px solid #f57c00;
+
+    .no-engineer-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #f57c00;
+    }
+
+    .no-engineer-text {
+      font-weight: 500;
+      color: #e65100;
+      font-size: 0.875rem;
+      font-style: italic;
+    }
+  }
+
+  .creator-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: 4px;
+
+    .creator-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      color: #999;
+    }
+
+    .text-muted {
+      color: #666;
+      font-size: 0.75rem;
+    }
   }
 }
 
