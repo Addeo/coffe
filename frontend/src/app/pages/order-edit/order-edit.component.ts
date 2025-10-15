@@ -107,10 +107,14 @@ export class OrderEditComponent implements OnInit {
     if (currentUser.role === UserRole.USER && this.order) {
       if (this.order.assignedEngineerId === currentUser.id) {
         switch (this.order.status) {
+          case OrderStatus.ASSIGNED:
+            return [OrderStatus.ASSIGNED]; // Может только принять через кнопку, не через select
           case OrderStatus.PROCESSING:
             return [OrderStatus.PROCESSING, OrderStatus.WORKING];
           case OrderStatus.WORKING:
-            return [OrderStatus.WORKING, OrderStatus.COMPLETED];
+            return [OrderStatus.WORKING, OrderStatus.REVIEW];
+          case OrderStatus.REVIEW:
+            return [OrderStatus.REVIEW]; // Только админы могут завершать
           default:
             return [this.order.status]; // Текущий статус, если нельзя менять
         }
@@ -631,6 +635,41 @@ export class OrderEditComponent implements OnInit {
   onCancel() {
     this.clearFileData();
     this.router.navigate(['/orders']);
+  }
+
+  // Проверка, может ли инженер принять заказ
+  get canAcceptOrder(): boolean {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser || !this.order) return false;
+
+    return (
+      currentUser.role === UserRole.USER &&
+      this.order.status === OrderStatus.ASSIGNED &&
+      this.order.assignedEngineerId === currentUser.id
+    );
+  }
+
+  // Принять заказ (для инженеров)
+  async onAcceptOrder() {
+    if (!this.orderId || !this.canAcceptOrder) {
+      return;
+    }
+
+    this.isLoading.set(true);
+
+    try {
+      await this.ordersService.acceptOrder(this.orderId).toPromise();
+      this.toastService.success('Заказ принят успешно');
+      
+      // Reload order data
+      await this.loadOrder(this.orderId);
+      this.selectedTabIndex = 0; // Switch to main tab
+    } catch (error: any) {
+      console.error('Error accepting order:', error);
+      this.toastService.error(error.error?.message || 'Ошибка при принятии заказа');
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   // Work Report Methods

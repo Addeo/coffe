@@ -120,6 +120,17 @@ export class OrdersController {
     return this.ordersService.assignEngineer(id, assignEngineerDto, req.user);
   }
 
+  @Post(':id/accept')
+  @Roles(UserRole.USER) // Only engineers can accept orders
+  acceptOrder(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    console.log('✅ Controller: acceptOrder called', {
+      id,
+      userId: req.user?.id,
+      userRole: req.user?.role,
+    });
+    return this.ordersService.acceptOrder(id, req.user);
+  }
+
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number, @Request() req) {
     return this.ordersService.remove(id, req.user);

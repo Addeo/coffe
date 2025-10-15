@@ -313,6 +313,8 @@ export class OrdersComponent implements OnInit {
         return 'primary';
       case OrderStatus.WORKING:
         return 'accent';
+      case OrderStatus.ASSIGNED:
+        return 'warn';
       case OrderStatus.PROCESSING:
         return 'accent';
       case OrderStatus.REVIEW:
@@ -328,6 +330,8 @@ export class OrdersComponent implements OnInit {
     switch (status) {
       case OrderStatus.WAITING:
         return OrderStatusLabel.WAITING;
+      case OrderStatus.ASSIGNED:
+        return OrderStatusLabel.ASSIGNED;
       case OrderStatus.PROCESSING:
         return OrderStatusLabel.PROCESSING;
       case OrderStatus.WORKING:
@@ -345,6 +349,8 @@ export class OrdersComponent implements OnInit {
     switch (status) {
       case OrderStatus.WAITING:
         return 'schedule';
+      case OrderStatus.ASSIGNED:
+        return 'assignment_ind';
       case OrderStatus.PROCESSING:
         return 'person_add';
       case OrderStatus.WORKING:

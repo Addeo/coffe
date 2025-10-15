@@ -99,15 +99,17 @@
                   {{
                     status === OrderStatus.WAITING
                       ? 'Ожидает'
-                      : status === OrderStatus.PROCESSING
-                        ? 'В обработке'
-                        : status === OrderStatus.WORKING
-                          ? 'В работе'
-                          : status === OrderStatus.REVIEW
-                            ? 'На проверке'
-                            : status === OrderStatus.COMPLETED
-                              ? 'Завершен'
-                              : status
+                      : status === OrderStatus.ASSIGNED
+                        ? 'Назначен (ожидает принятия)'
+                        : status === OrderStatus.PROCESSING
+                          ? 'В обработке'
+                          : status === OrderStatus.WORKING
+                            ? 'В работе'
+                            : status === OrderStatus.REVIEW
+                              ? 'На проверке'
+                              : status === OrderStatus.COMPLETED
+                                ? 'Завершен'
+                                : status
                   }}
                 </mat-option>
               </mat-select>
@@ -751,6 +753,20 @@
 
     <div class="form-actions">
       <button mat-button (click)="onCancel()">Отмена</button>
+      
+      <!-- Кнопка принятия заказа для инженеров -->
+      <button
+        *ngIf="canAcceptOrder"
+        mat-raised-button
+        color="accent"
+        (click)="onAcceptOrder()"
+        [disabled]="isLoading()"
+        class="accept-order-button"
+      >
+        <mat-icon>check_circle</mat-icon>
+        <span>Принять заказ</span>
+      </button>
+      
       <button
         mat-raised-button
         color="primary"

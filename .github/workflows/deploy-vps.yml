@@ -99,15 +99,9 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd ~/coffe && 
             echo '=== Stopping all containers ===' && 
-            docker-compose -f docker-compose.prod.yml down --remove-orphans -v || true &&
-            echo '=== Force removing coffee containers ===' &&
-            docker rm -f \$(docker ps -aq --filter 'name=coffee_') 2>/dev/null || true &&
-            echo '=== Removing volumes ===' &&
-            docker volume rm coffe_mysql_data coffe_uploads_data 2>/dev/null || true &&
-            echo '=== Removing network ===' &&
-            docker network rm coffe_coffee_prod_network 2>/dev/null || true &&
-            echo '=== Cleaning up system ===' && 
-            docker system prune -af --volumes &&
+            docker-compose -f docker-compose.prod.yml down --remove-orphans || true &&
+            echo '=== Cleaning up unused images ===' && 
+            docker image prune -af &&
             echo '=== Building images ===' && 
             docker-compose -f docker-compose.prod.yml build --no-cache --pull &&
             echo '=== Starting services ===' && 

@@ -41,6 +41,7 @@ export class OrdersService {
   getOrderStats(): Observable<{
     total: number;
     waiting: number;
+    assigned: number;
     processing: number;
     working: number;
     review: number;
@@ -49,6 +50,7 @@ export class OrdersService {
     return this.http.get<{
       total: number;
       waiting: number;
+      assigned: number;
       processing: number;
       working: number;
       review: number;
@@ -69,6 +71,11 @@ export class OrdersService {
       `${environment.apiUrl}/orders/${id}/assign-engineer`,
       engineerData
     );
+  }
+
+  acceptOrder(id: number): Observable<OrderDto> {
+    console.log('✅ Frontend: Accepting order', id);
+    return this.http.post<OrderDto>(`${environment.apiUrl}/orders/${id}/accept`, {});
   }
 
   deleteOrder(id: number): Observable<void> {
