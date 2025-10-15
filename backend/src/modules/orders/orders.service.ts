@@ -587,20 +587,24 @@ export class OrdersService {
 
     const order = await this.findOne(id, user);
 
-    // Check if there's already an assigned engineer
-    if (order.assignedEngineerId && order.assignedEngineerId !== assignEngineerDto.engineerId) {
-      // Check if user wants to overwrite existing assignment
-      // Additional confirmation logic can be added here
-    }
-
     // Check if engineer exists and is active
-    const engineer = await this.engineersRepository.findOne({
+    // Try to find by engineer ID first, then by user ID
+    let engineer = await this.engineersRepository.findOne({
       where: { id: assignEngineerDto.engineerId, isActive: true },
       relations: ['user'],
     });
 
+    // If not found by engineer ID, try to find by user ID
+    if (!engineer) {
+      console.log('⚠️ Engineer not found by engineer ID, trying user ID...');
+      engineer = await this.engineersRepository.findOne({
+        where: { userId: assignEngineerDto.engineerId, isActive: true },
+        relations: ['user'],
+      });
+    }
+
     console.log('🔍 Engineer lookup result:', {
-      engineerId: assignEngineerDto.engineerId,
+      searchId: assignEngineerDto.engineerId,
       engineerFound: !!engineer,
       engineerData: engineer
         ? {
@@ -620,7 +624,14 @@ export class OrdersService {
     });
 
     if (!engineer) {
-      throw new NotFoundException('Engineer not found or is inactive');
+      throw new NotFoundException('Engineer not found or is inactive (checked both engineer ID and user ID)');
+    }
+
+    // Check if there's already a different assigned engineer
+    if (order.assignedEngineerId && order.assignedEngineerId !== engineer.id) {
+      console.log('⚠️ Reassigning order from engineer', order.assignedEngineerId, 'to', engineer.id);
+      // Check if user wants to overwrite existing assignment
+      // Additional confirmation logic can be added here
     }
 
     if (!engineer.user) {
@@ -632,7 +643,7 @@ export class OrdersService {
     }
 
     const oldEngineerId = order.assignedEngineerId;
-    order.assignedEngineerId = assignEngineerDto.engineerId;
+    order.assignedEngineerId = engineer.id; // ← Always save the actual engineer ID from the engineer table
     order.assignedById = user.id;
     order.status = OrderStatus.PROCESSING;
 
@@ -645,7 +656,7 @@ export class OrdersService {
       `Order "${order.title}" was assigned to engineer ${engineer.user.firstName} ${engineer.user.lastName}`,
       {
         orderId: id,
-        assignedEngineerId: assignEngineerDto.engineerId,
+        assignedEngineerId: engineer.id, // ← Log the actual engineer ID
         oldEngineerId,
       },
       user.id
@@ -655,7 +666,7 @@ export class OrdersService {
     await this.notificationsService.createOrderAssignedNotification(
       id,
       order.title,
-      assignEngineerDto.engineerId,
+      engineer.id, // ← Send notification using actual engineer ID
       user.id
     );
 
