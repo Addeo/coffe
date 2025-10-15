@@ -256,7 +256,7 @@ export class OrdersComponent implements OnInit {
     console.log('onAssignEngineer', order);
     const dialogRef = this.modalService.openDialog(AssignEngineerDialogComponent, {
       order,
-      title: 'Назначить инженера',
+      title: order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера',
     });
 
     dialogRef.subscribe((result: OrderDto | null) => {
@@ -267,7 +267,7 @@ export class OrdersComponent implements OnInit {
           this.dataSource.data[index] = result;
           this.dataSource._updateChangeSubscription();
         }
-        this.toastService.success('Инженер назначен на заказ');
+        // Success message is already shown in the dialog component
       }
     });
   }

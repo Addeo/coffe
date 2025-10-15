@@ -114,6 +114,14 @@ export class OrdersService {
       throw new NotFoundException('User not found');
     }
 
+    // Validate organization exists
+    const organization = await this.organizationsRepository.findOne({
+      where: { id: createOrderDto.organizationId },
+    });
+    if (!organization) {
+      throw new NotFoundException(`Organization with ID ${createOrderDto.organizationId} not found`);
+    }
+
     const order = this.ordersRepository.create({
       organizationId: createOrderDto.organizationId,
       title: createOrderDto.title,
@@ -145,9 +153,14 @@ export class OrdersService {
     );
 
     // Check if auto-distribution is enabled and try to assign the order
-    const autoDistributionEnabled = await this.getAutoDistributionEnabled();
-    if (autoDistributionEnabled) {
-      await this.autoAssignOrder(savedOrder, userId);
+    try {
+      const autoDistributionEnabled = await this.getAutoDistributionEnabled();
+      if (autoDistributionEnabled) {
+        await this.autoAssignOrder(savedOrder, userId);
+      }
+    } catch (error) {
+      console.error('Error during auto-assignment, continuing with order creation:', error);
+      // Don't throw - order creation should succeed even if auto-assignment fails
     }
 
     // Return order with attached files
@@ -989,9 +1002,6 @@ export class OrdersService {
 
   private async findAvailableEngineer(): Promise<User | null> {
     const maxOrders = await this.getMaxOrdersPerEngineer();
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth() + 1;
-    const currentYear = currentDate.getFullYear();
 
     // First, find engineers with active orders count less than maximum
     const engineersWithCapacity = await this.usersRepository
@@ -1011,56 +1021,9 @@ export class OrdersService {
       return null;
     }
 
-    // Among available engineers, select the one with the least earnings for the last month
-    const engineerIds = engineersWithCapacity.entities.map(e => e.id);
-
-    // Get earnings statistics for the last month
-    const earningsStats = await this.settingsRepository
-      .createQueryBuilder('setting')
-      .where('setting.key = :key', { key: 'earnings_statistics' })
-      .andWhere('JSON_EXTRACT(setting.value, "$.userId") IN (:userIds)', { userIds: engineerIds })
-      .andWhere('JSON_EXTRACT(setting.value, "$.month") = :month', { month: currentMonth })
-      .andWhere('JSON_EXTRACT(setting.value, "$.year") = :year', { year: currentYear })
-      .getMany();
-
-    // If no statistics available, select by active orders count
-    if (earningsStats.length === 0) {
-      return engineersWithCapacity.entities[0];
-    }
-
-    // Parse statistics and select engineer with minimum earnings
-    let minEarnings = Infinity;
-    let selectedEngineer = engineersWithCapacity.entities[0];
-
-    for (const engineer of engineersWithCapacity.entities) {
-      const stat = earningsStats.find(s => {
-        try {
-          const value = JSON.parse(s.value);
-          return value.userId === engineer.id;
-        } catch {
-          return false;
-        }
-      });
-
-      if (stat) {
-        try {
-          const statData = JSON.parse(stat.value);
-          if (statData.totalEarnings < minEarnings) {
-            minEarnings = statData.totalEarnings;
-            selectedEngineer = engineer;
-          }
-        } catch {
-          // If parsing failed, skip
-          continue;
-        }
-      } else {
-        // If no statistics available for this engineer, consider him priority
-        selectedEngineer = engineer;
-        break;
-      }
-    }
-
-    return selectedEngineer;
+    // Simplified: just return the engineer with the least active orders
+    // TODO: Implement earnings-based distribution later with proper cross-database support
+    return engineersWithCapacity.entities[0];
   }
 
   private async sendStatusChangeNotifications(order: Order, performedById: number): Promise<void> {
