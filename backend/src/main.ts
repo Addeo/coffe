@@ -1,5 +1,5 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { ClassSerializerInterceptor } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as express from 'express';
 
@@ -25,6 +25,19 @@ async function bootstrap() {
     });
 
     console.log('Middleware configured');
+
+    // Enable global validation pipe
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: false,
+        transform: true,
+        transformOptions: {
+          enableImplicitConversion: true,
+        },
+      }),
+    );
+    console.log('ValidationPipe enabled');
 
     // Enable class-transformer serialization globally
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));

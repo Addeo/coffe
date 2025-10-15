@@ -314,11 +314,11 @@
                 (click)="onAssignEngineer(order)"
                 [disabled]="order.status === 'completed'"
                 color="primary"
-                matTooltip="Назначить инженера"
-                aria-label="Назначить инженера"
-                *ngIf="canAssignEngineers && !order.assignedEngineerId"
+                [matTooltip]="order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера'"
+                [aria-label]="order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера'"
+                *ngIf="canAssignEngineers"
               >
-                <mat-icon>person_add</mat-icon>
+                <mat-icon>{{ order.assignedEngineerId ? 'swap_horiz' : 'person_add' }}</mat-icon>
               </button>
 
               <button

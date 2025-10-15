@@ -39,13 +39,20 @@ export class ErrorInterceptor implements NestInterceptor {
 
         // Если это не HttpException, преобразуем в стандартную ошибку
         if (!(error instanceof HttpException)) {
+          const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV !== 'production';
+          
           return throwError(
             () =>
               new HttpException(
                 {
                   statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                   message: 'Internal server error',
-                  error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+                  error: isDevelopment ? error.message : undefined,
+                  stack: isDevelopment ? error.stack : undefined,
+                  details: isDevelopment ? {
+                    name: error.name,
+                    ...error,
+                  } : undefined,
                 },
                 HttpStatus.INTERNAL_SERVER_ERROR
               )

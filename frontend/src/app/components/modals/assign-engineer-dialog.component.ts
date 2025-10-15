@@ -37,7 +37,9 @@ export interface AssignEngineerDialogData {
   ],
   template: `
     <div class="assign-engineer-dialog">
-      <h2 mat-dialog-title>Назначить инженера на заказ</h2>
+      <h2 mat-dialog-title>
+        {{ data.order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера на заказ' }}
+      </h2>
 
       <mat-dialog-content>
         <mat-card class="order-info">
@@ -45,7 +47,8 @@ export interface AssignEngineerDialogData {
             <h3>{{ data.order.title }}</h3>
             <p><strong>Организация:</strong> {{ getOrganizationName(data.order) }}</p>
             <p><strong>Статус:</strong> {{ getStatusText(data.order.status) }}</p>
-            <p *ngIf="data.order.assignedEngineerId">
+            <p *ngIf="data.order.assignedEngineerId" class="current-engineer">
+              <mat-icon>person</mat-icon>
               <strong>Текущий инженер:</strong> {{ getCurrentEngineerName() }}
             </p>
           </mat-card-content>
@@ -53,7 +56,7 @@ export interface AssignEngineerDialogData {
 
         <form [formGroup]="assignForm" class="assign-form">
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Выберите инженера</mat-label>
+            <mat-label>{{ data.order.assignedEngineerId ? 'Выберите нового инженера' : 'Выберите инженера' }}</mat-label>
             <mat-select formControlName="engineerId" placeholder="Выберите инженера для назначения">
               <mat-option *ngFor="let engineer of availableEngineers" [value]="engineer.id">
                 {{ engineer.firstName }} {{ engineer.lastName }} ({{ engineer.email }})
@@ -67,7 +70,7 @@ export interface AssignEngineerDialogData {
 
         <div *ngIf="isLoading" class="loading">
           <mat-spinner diameter="30"></mat-spinner>
-          <p>Назначаем инженера...</p>
+          <p>{{ data.order.assignedEngineerId ? 'Переназначаем' : 'Назначаем' }} инженера...</p>
         </div>
       </mat-dialog-content>
 
@@ -80,7 +83,7 @@ export interface AssignEngineerDialogData {
           [disabled]="assignForm.invalid || isLoading"
         >
           <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
-          <span *ngIf="!isLoading">Назначить</span>
+          <span *ngIf="!isLoading">{{ data.order.assignedEngineerId ? 'Переназначить' : 'Назначить' }}</span>
         </button>
       </mat-dialog-actions>
     </div>
@@ -123,6 +126,23 @@ export interface AssignEngineerDialogData {
         margin: 4px 0;
         color: #424242;
         font-size: 14px;
+      }
+
+      .current-engineer {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px;
+        background-color: #e3f2fd;
+        border-radius: 6px;
+        margin-top: 8px !important;
+      }
+
+      .current-engineer mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: #1976d2;
       }
 
       .assign-form {
@@ -278,12 +298,18 @@ export class AssignEngineerDialogComponent {
 
     this.ordersService.assignEngineer(this.data.order.id, assignData).subscribe({
       next: (updatedOrder: OrderDto) => {
-        this.toastService.success('Инженер успешно назначен на заказ');
+        const message = this.data.order.assignedEngineerId
+          ? 'Инженер успешно переназначен'
+          : 'Инженер успешно назначен на заказ';
+        this.toastService.success(message);
         this.dialogRef.close(updatedOrder);
       },
       error: (error: any) => {
         console.error('Error assigning engineer:', error);
-        this.toastService.error('Ошибка при назначении инженера');
+        const errorMessage = this.data.order.assignedEngineerId
+          ? 'Ошибка при переназначении инженера'
+          : 'Ошибка при назначении инженера';
+        this.toastService.error(errorMessage);
         this.isLoading = false;
       },
     });
