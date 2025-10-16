@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,8 +16,13 @@ import { MatInputModule } from '@angular/material/input';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 import * as XLSX from 'xlsx';
+import { ChartConfiguration, ChartData } from 'chart.js';
+import { BaseChartDirective } from 'ng2-charts';
 import { OrdersService } from '../../services/orders.service';
 import { AuthService } from '../../services/auth.service';
 import { ModalService } from '../../services/modal.service';
@@ -34,6 +40,7 @@ import { WorkCompletionDialogComponent } from '../../components/modals/work-comp
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
@@ -47,11 +54,15 @@ import { WorkCompletionDialogComponent } from '../../components/modals/work-comp
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatMenuModule,
+    MatButtonToggleModule,
+    MatProgressBarModule,
+    MatDividerModule,
+    BaseChartDirective,
     AssignEngineerDialogComponent,
     WorkCompletionDialogComponent,
   ],
   templateUrl: './orders.component.html',
-  styleUrls: ['./orders.component.scss'],
+  styleUrls: ['./orders.component.scss', './orders-stats.scss'],
 })
 export class OrdersComponent implements OnInit {
   private ordersService = inject(OrdersService);
@@ -411,7 +422,13 @@ export class OrdersComponent implements OnInit {
 
   getEngineerName(order: OrderDto): string {
     if (!order.assignedEngineer) return 'Не назначен';
-    return `${order.assignedEngineer.firstName} ${order.assignedEngineer.lastName}`;
+    
+    // Try to get name from user object first, then fallback to direct properties
+    const firstName = order.assignedEngineer.user?.firstName || order.assignedEngineer.firstName || '';
+    const lastName = order.assignedEngineer.user?.lastName || order.assignedEngineer.lastName || '';
+    
+    if (!firstName && !lastName) return 'Не назначен';
+    return `${firstName} ${lastName}`.trim();
   }
 
   getCreatorName(order: OrderDto): string {
@@ -504,6 +521,134 @@ export class OrdersComponent implements OnInit {
     this.loadOrderStats();
   }
 
+  // Stats view switcher
+  statsView: 'compact' | 'charts' | 'progress' = 'charts'; // По умолчанию графики
+
+  // Данные для графика статусов (Donut)
+  get statusChartData(): ChartData<'doughnut'> {
+    return {
+      labels: ['Ожидают', 'В обработке', 'В работе', 'На проверке', 'Завершено'],
+      datasets: [{
+        data: [
+          this.orderStats().waiting,
+          this.orderStats().processing,
+          this.orderStats().working,
+          this.orderStats().review,
+          this.orderStats().completed
+        ],
+        backgroundColor: [
+          '#FFA726', // Оранжевый - Ожидают
+          '#42A5F5', // Синий - В обработке
+          '#66BB6A', // Зелёный - В работе
+          '#FFCA28', // Жёлтый - На проверке
+          '#26A69A', // Бирюзовый - Завершено
+        ],
+        borderWidth: 0,
+        hoverOffset: 10
+      }]
+    };
+  }
+
+  // Данные для графика источников (Bar)
+  get sourceChartData(): ChartData<'bar'> {
+    return {
+      labels: ['Вручную', 'Автоматически', 'Email', 'API'],
+      datasets: [{
+        label: 'Количество заказов',
+        data: [
+          this.orderStats().bySource.manual,
+          this.orderStats().bySource.automatic,
+          this.orderStats().bySource.email,
+          this.orderStats().bySource.api
+        ],
+        backgroundColor: '#3f51b5',
+        borderRadius: 4,
+      }]
+    };
+  }
+
+  // Опции для Donut графика
+  doughnutChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'right',
+        labels: {
+          usePointStyle: true,
+          padding: 15,
+          font: {
+            size: 12
+          }
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.label || '';
+            const value = context.parsed || 0;
+            const total = (context.dataset.data as number[]).reduce((a: number, b: number) => a + b, 0);
+            const percentage = ((value / total) * 100).toFixed(1);
+            return `${label}: ${value} (${percentage}%)`;
+          }
+        }
+      }
+    }
+  };
+
+  // Опции для Bar графика
+  barChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            return `Заказов: ${context.parsed.y}`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1,
+          precision: 0
+        },
+        grid: {
+          display: true,
+          color: 'rgba(0, 0, 0, 0.05)'
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        }
+      }
+    }
+  };
+
+  // Статистика для бейджей под графиком
+  get statusStats() {
+    return [
+      { label: 'Ожидают', value: this.orderStats().waiting, color: '#FFA726' },
+      { label: 'В обработке', value: this.orderStats().processing, color: '#42A5F5' },
+      { label: 'В работе', value: this.orderStats().working, color: '#66BB6A' },
+      { label: 'На проверке', value: this.orderStats().review, color: '#FFCA28' },
+      { label: 'Завершено', value: this.orderStats().completed, color: '#26A69A' },
+    ];
+  }
+
+  // Расчёт процента для прогресс-баров
+  getProgressPercentage(value: number): number {
+    const total = this.orderStats().total;
+    return total > 0 ? (value / total) * 100 : 0;
+  }
+
   exportToExcel() {
     // Check if there is data to export
     if (!this.dataSource.data || this.dataSource.data.length === 0) {
@@ -580,5 +725,86 @@ export class OrdersComponent implements OnInit {
     XLSX.writeFile(workbook, filename);
 
     this.toastService.success('Данные успешно экспортированы в Excel');
+  }
+
+  exportStatisticsToExcel() {
+    const stats = this.orderStats();
+    
+    // Prepare statistics data for export
+    const statsData = [
+      {
+        'Категория': 'Всего заказов',
+        'Количество': stats.total,
+        'Описание': 'Общее количество заказов в системе'
+      },
+      {
+        'Категория': 'Ожидают назначения',
+        'Количество': stats.waiting,
+        'Описание': 'Заказы в статусе "Ожидают"'
+      },
+      {
+        'Категория': 'В обработке',
+        'Количество': stats.processing,
+        'Описание': 'Заказы в статусе "В обработке"'
+      },
+      {
+        'Категория': 'В работе',
+        'Количество': stats.working,
+        'Описание': 'Заказы в статусе "В работе"'
+      },
+      {
+        'Категория': 'На проверке',
+        'Количество': stats.review,
+        'Описание': 'Заказы в статусе "На проверке"'
+      },
+      {
+        'Категория': 'Завершено',
+        'Количество': stats.completed,
+        'Описание': 'Заказы в статусе "Завершено"'
+      },
+      {
+        'Категория': 'Ручное создание',
+        'Количество': stats.bySource.manual,
+        'Описание': 'Заказы, созданные вручную'
+      },
+      {
+        'Категория': 'Автоматическое создание',
+        'Количество': stats.bySource.automatic,
+        'Описание': 'Заказы, созданные автоматически'
+      },
+      {
+        'Категория': 'Из email',
+        'Количество': stats.bySource.email,
+        'Описание': 'Заказы, созданные из email'
+      },
+      {
+        'Категория': 'Через API',
+        'Количество': stats.bySource.api,
+        'Описание': 'Заказы, созданные через API'
+      }
+    ];
+
+    // Create worksheet for statistics
+    const statsWorksheet = XLSX.utils.json_to_sheet(statsData);
+    
+    // Set column widths
+    statsWorksheet['!cols'] = [
+      { wch: 25 },  // Категория
+      { wch: 15 },  // Количество
+      { wch: 40 }   // Описание
+    ];
+
+    // Create workbook with statistics
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, statsWorksheet, 'Статистика заказов');
+
+    // Generate filename with current date
+    const currentDate = new Date().toISOString().split('T')[0];
+    const filename = `orders_statistics_${currentDate}.xlsx`;
+
+    // Save file
+    XLSX.writeFile(workbook, filename);
+
+    this.toastService.success('Статистика успешно экспортирована в Excel');
   }
 }
