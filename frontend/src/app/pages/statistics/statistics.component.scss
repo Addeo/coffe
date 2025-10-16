@@ -3,6 +3,33 @@
   max-width: 1400px;
   margin: 0 auto;
 
+  // View mode toggle
+  .view-toggle {
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: center;
+
+    mat-button-toggle-group {
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    mat-button-toggle {
+      font-size: 14px;
+      padding: 8px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+
   .header {
     margin-bottom: 32px;
 
@@ -122,6 +149,55 @@
         .hint {
           font-size: 0.875rem;
           color: #999;
+        }
+      }
+
+      // Chart container styles
+      .chart-container {
+        .charts-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 32px;
+          margin-top: 24px;
+
+          @media (max-width: 960px) {
+            grid-template-columns: 1fr;
+          }
+
+          .chart-section {
+            h3 {
+              font-size: 16px;
+              font-weight: 500;
+              margin-bottom: 16px;
+              color: rgba(0, 0, 0, 0.7);
+            }
+
+            .chart-wrapper-large {
+              height: 400px;
+              position: relative;
+              background: rgba(0, 0, 0, 0.01);
+              border-radius: 8px;
+              padding: 20px;
+            }
+
+            .chart-wrapper-medium {
+              height: 300px;
+              position: relative;
+              background: rgba(0, 0, 0, 0.01);
+              border-radius: 8px;
+              padding: 20px;
+            }
+          }
+        }
+
+        // Single large chart
+        .chart-wrapper-large {
+          height: 400px;
+          position: relative;
+          background: rgba(0, 0, 0, 0.01);
+          border-radius: 8px;
+          padding: 20px;
+          margin-top: 16px;
         }
       }
 

@@ -9,7 +9,10 @@ import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ChartConfiguration, ChartData } from 'chart.js';
+import { BaseChartDirective } from 'ng2-charts';
 
 import { StatisticsService } from '../../services/statistics.service';
 import {
@@ -33,6 +36,8 @@ import {
     MatProgressSpinnerModule,
     MatIconModule,
     MatTabsModule,
+    MatButtonToggleModule,
+    BaseChartDirective,
   ],
   templateUrl: './statistics.component.html',
   styleUrls: ['./statistics.component.scss'],
@@ -65,6 +70,9 @@ export class StatisticsComponent implements OnInit {
     { value: 12, name: 'December' },
   ];
 
+  // View mode toggle
+  viewMode: 'charts' | 'tables' = 'charts';
+
   // Table columns
   agentEarningsColumns = ['agentName', 'totalEarnings', 'completedOrders', 'averageOrderValue'];
   organizationEarningsColumns = [
@@ -83,6 +91,212 @@ export class StatisticsComponent implements OnInit {
     'totalHours',
     'overtimePercentage',
   ];
+
+  // Chart data for Agent Earnings (Bar Chart)
+  get agentEarningsChartData(): ChartData<'bar'> {
+    const data = this.statistics()?.agentEarnings || [];
+    return {
+      labels: data.map(a => a.agentName),
+      datasets: [{
+        label: 'Начислено инженерам (₽)',
+        data: data.map(a => a.totalEarnings),
+        backgroundColor: '#3f51b5',
+        borderRadius: 6,
+      }]
+    };
+  }
+
+  // Chart data for Organization Earnings (Grouped Bar Chart)
+  get organizationEarningsChartData(): ChartData<'bar'> {
+    const data = this.statistics()?.organizationEarnings || [];
+    return {
+      labels: data.map(o => o.organizationName),
+      datasets: [
+        {
+          label: 'Выручка (₽)',
+          data: data.map(o => o.totalRevenue),
+          backgroundColor: '#4caf50',
+          borderRadius: 4,
+        },
+        {
+          label: 'Затраты (₽)',
+          data: data.map(o => o.totalCosts),
+          backgroundColor: '#ff9800',
+          borderRadius: 4,
+        },
+        {
+          label: 'Прибыль (₽)',
+          data: data.map(o => o.totalProfit),
+          backgroundColor: '#2196f3',
+          borderRadius: 4,
+        }
+      ]
+    };
+  }
+
+  // Chart data for Profit Margin (Line Chart)
+  get profitMarginChartData(): ChartData<'line'> {
+    const data = this.statistics()?.organizationEarnings || [];
+    return {
+      labels: data.map(o => o.organizationName),
+      datasets: [{
+        label: 'Маржа прибыли (%)',
+        data: data.map(o => o.profitMargin),
+        borderColor: '#e91e63',
+        backgroundColor: 'rgba(233, 30, 99, 0.1)',
+        tension: 0.4,
+        fill: true,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+      }]
+    };
+  }
+
+  // Chart data for Overtime (Doughnut Chart)
+  get overtimeChartData(): ChartData<'doughnut'> {
+    const data = this.statistics()?.overtimeStatistics || [];
+    const totalOvertime = data.reduce((sum, a) => sum + a.overtimeHours, 0);
+    const totalRegular = data.reduce((sum, a) => sum + a.regularHours, 0);
+    
+    return {
+      labels: ['Сверхурочные часы', 'Обычные часы'],
+      datasets: [{
+        data: [totalOvertime, totalRegular],
+        backgroundColor: ['#ff5722', '#66BB6A'],
+        borderWidth: 0,
+        hoverOffset: 10
+      }]
+    };
+  }
+
+  // Chart data for Agent Overtime Distribution (Bar Chart)
+  get agentOvertimeChartData(): ChartData<'bar'> {
+    const data = this.statistics()?.overtimeStatistics || [];
+    return {
+      labels: data.map(a => a.agentName),
+      datasets: [
+        {
+          label: 'Обычные часы',
+          data: data.map(a => a.regularHours),
+          backgroundColor: '#66BB6A',
+          borderRadius: 4,
+        },
+        {
+          label: 'Сверхурочные часы',
+          data: data.map(a => a.overtimeHours),
+          backgroundColor: '#ff5722',
+          borderRadius: 4,
+        }
+      ]
+    };
+  }
+
+  // Chart options
+  barChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.dataset.label || '';
+            const value = new Intl.NumberFormat('ru-RU', {
+              style: 'currency',
+              currency: 'RUB',
+            }).format(context.parsed?.y || 0);
+            return `${label}: ${value}`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => {
+            return new Intl.NumberFormat('ru-RU', {
+              notation: 'compact',
+              compactDisplay: 'short'
+            }).format(value as number) + ' ₽';
+          }
+        }
+      }
+    }
+  };
+
+  lineChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            return `Маржа: ${context.parsed?.y?.toFixed(2) || '0.00'}%`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => `${value}%`
+        }
+      }
+    }
+  };
+
+  doughnutChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const label = context.label || '';
+            const value = context.parsed;
+            const total = (context.dataset.data as number[]).reduce((a: number, b: number) => a + b, 0);
+            const percentage = ((value / total) * 100).toFixed(1);
+            return `${label}: ${value} ч (${percentage}%)`;
+          }
+        }
+      }
+    }
+  };
+
+  stackedBarChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+      },
+    },
+    scales: {
+      x: {
+        stacked: true,
+      },
+      y: {
+        stacked: true,
+        beginAtZero: true,
+        ticks: {
+          callback: (value) => `${value} ч`
+        }
+      }
+    }
+  };
 
   ngOnInit() {
     this.loadStatistics();

@@ -58,6 +58,8 @@ import { WorkCompletionDialogComponent } from '../../components/modals/work-comp
     MatProgressBarModule,
     MatDividerModule,
     BaseChartDirective,
+    OrderDialogComponent,
+    OrderDeleteConfirmationDialogComponent,
     AssignEngineerDialogComponent,
     WorkCompletionDialogComponent,
   ],
