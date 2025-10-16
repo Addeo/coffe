@@ -75,18 +75,36 @@
   </div>
 
   <!-- Statistics Card - Мобильная версия (ВСЁ В ОДНОЙ КАРТОЧКЕ) -->
-  <mat-card class="mobile-stats">
+  <mat-card class="mobile-stats mobile-stats-combined">
     <mat-card-header>
-      <mat-card-title>Статистика заказов</mat-card-title>
+      <mat-card-title>
+        <mat-icon>bar_chart</mat-icon>
+        Статистика
+      </mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <div class="mobile-stats-simple">
-        <p><strong>Всего заказов:</strong> {{ orderStats().total }}</p>
-        <p><strong>Ожидают:</strong> {{ orderStats().waiting }}</p>
-        <p><strong>В обработке:</strong> {{ orderStats().processing }}</p>
-        <p><strong>В работе:</strong> {{ orderStats().working }}</p>
-        <p><strong>На проверке:</strong> {{ orderStats().review }}</p>
-        <p><strong>Завершено:</strong> {{ orderStats().completed }}</p>
+      <!-- Статусы заказов -->
+      <div class="mobile-stats-section">
+        <h4>По статусам</h4>
+        <div class="mobile-stats-simple">
+          <p><strong>Всего заказов:</strong> <span class="stat-value">{{ orderStats().total }}</span></p>
+          <p><strong>Ожидают:</strong> <span class="stat-value">{{ orderStats().waiting }}</span></p>
+          <p><strong>В обработке:</strong> <span class="stat-value">{{ orderStats().processing }}</span></p>
+          <p><strong>В работе:</strong> <span class="stat-value">{{ orderStats().working }}</span></p>
+          <p><strong>На проверке:</strong> <span class="stat-value">{{ orderStats().review }}</span></p>
+          <p><strong>Завершено:</strong> <span class="stat-value">{{ orderStats().completed }}</span></p>
+        </div>
+      </div>
+
+      <!-- По источникам -->
+      <div class="mobile-stats-section">
+        <h4>По источникам</h4>
+        <div class="mobile-stats-simple">
+          <p><strong>{{ getSourceDisplay('manual') }}:</strong> <span class="stat-value">{{ orderStats().bySource.manual }}</span></p>
+          <p><strong>{{ getSourceDisplay('automatic') }}:</strong> <span class="stat-value">{{ orderStats().bySource.automatic }}</span></p>
+          <p><strong>{{ getSourceDisplay('email') }}:</strong> <span class="stat-value">{{ orderStats().bySource.email }}</span></p>
+          <p><strong>{{ getSourceDisplay('api') }}:</strong> <span class="stat-value">{{ orderStats().bySource.api }}</span></p>
+        </div>
       </div>
     </mat-card-content>
   </mat-card>
@@ -142,21 +160,6 @@
     </mat-card>
   </div>
 
-  <!-- Source Statistics - Mobile -->
-  <mat-card class="mobile-stats">
-    <mat-card-header>
-      <mat-card-title>По источникам</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="mobile-stats-simple">
-        <p><strong>{{ getSourceDisplay('manual') }}:</strong> {{ orderStats().bySource.manual }}</p>
-        <p><strong>{{ getSourceDisplay('automatic') }}:</strong> {{ orderStats().bySource.automatic }}</p>
-        <p><strong>{{ getSourceDisplay('email') }}:</strong> {{ orderStats().bySource.email }}</p>
-        <p><strong>{{ getSourceDisplay('api') }}:</strong> {{ orderStats().bySource.api }}</p>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
   <!-- Main Content -->
   <mat-card class="main-content">
     <mat-card-header>
@@ -201,6 +204,7 @@
             (click)="exportToExcel()"
             matTooltip="Экспортировать данные в Excel"
             aria-label="Экспортировать в Excel"
+            *ngIf="canExportOrders"
           >
             <mat-icon>download</mat-icon>
             <span>Скачать XLS</span>

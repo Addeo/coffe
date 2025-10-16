@@ -411,7 +411,12 @@ export class OrdersService {
     // Apply role-based access control
     if (user.role === UserRole.USER) {
       // Regular users can only see orders assigned to them
-      if (order.assignedEngineerId !== user.id) {
+      // Need to find engineer profile for this user first
+      const engineerProfile = await this.engineersRepository.findOne({
+        where: { userId: user.id, isActive: true },
+      });
+      
+      if (!engineerProfile || order.assignedEngineerId !== engineerProfile.id) {
         throw new NotFoundException('Order not found');
       }
     }
@@ -1106,6 +1111,23 @@ export class OrdersService {
       isFullyCompleted?: boolean; // New field: true = completed, false/undefined = working
     }
   ): Promise<Order> {
+    // Validate input data
+    if (workData.regularHours === undefined || workData.regularHours === null) {
+      throw new BadRequestException('regularHours is required');
+    }
+    if (workData.regularHours < 0) {
+      throw new BadRequestException('regularHours cannot be negative');
+    }
+    if (workData.overtimeHours !== undefined && workData.overtimeHours < 0) {
+      throw new BadRequestException('overtimeHours cannot be negative');
+    }
+    if (workData.carPayment < 0) {
+      throw new BadRequestException('carPayment cannot be negative');
+    }
+    if (workData.distanceKm !== undefined && workData.distanceKm < 0) {
+      throw new BadRequestException('distanceKm cannot be negative');
+    }
+
     // Get order with relations
     const order = await this.ordersRepository.findOne({
       where: { id: orderId },
@@ -1116,6 +1138,11 @@ export class OrdersService {
       throw new NotFoundException('Order not found');
     }
 
+    // Check order status - must be 'working'
+    if (order.status !== OrderStatus.WORKING) {
+      throw new BadRequestException(`Order must be in 'working' status to complete work. Current status: ${order.status}`);
+    }
+
     // Get engineer
     const engineer = await this.engineersRepository.findOne({
       where: { userId: engineerId },
@@ -1124,6 +1151,11 @@ export class OrdersService {
 
     if (!engineer) {
       throw new NotFoundException('Engineer not found');
+    }
+
+    // Verify this order is assigned to this engineer
+    if (order.assignedEngineerId !== engineer.id) {
+      throw new ForbiddenException('This order is not assigned to you');
     }
 
     // Get rates for this engineer-organization pair
