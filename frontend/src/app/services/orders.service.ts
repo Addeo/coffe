@@ -121,6 +121,7 @@ export class OrdersService {
       distanceKm?: number;
       territoryType?: string;
       notes?: string;
+      isFullyCompleted?: boolean;
     }
   ): Observable<OrderDto> {
     return this.http.post<OrderDto>(

@@ -1,0 +1,30 @@
+feat: Add Excel export functionality for orders
+
+Added comprehensive Excel export feature to the Orders page with detailed financial data.
+
+Changes:
+- Installed xlsx library (v0.18.5) for Excel file generation
+- Added exportToExcel() method to orders component
+- Added "Скачать XLS" button to orders page UI
+- Export includes 20 columns with complete order and financial data
+- Automatic calculations for total hours, engineer payments, and profit
+- Smart validation and error handling
+- Toast notifications for user feedback
+
+Export data includes:
+- Order information (ID, title, organization, engineer, status)
+- Rate details (organization & engineer base rates, overtime rates)
+- Work hours (regular, overtime, total)
+- Financial breakdown (organization payment, engineer payment, car allowance, profit)
+- Important dates (created, started, completed)
+
+Files modified:
+- frontend/package.json (added xlsx dependency)
+- frontend/src/app/pages/orders/orders.component.ts (added export method)
+- frontend/src/app/pages/orders/orders.component.html (added button)
+
+Documentation:
+- docs/XLS_EXPORT_FEATURE.md (technical documentation)
+- XLS_EXPORT_README.md (user guide in Russian)
+- CHANGES_SUMMARY.md (complete summary of changes)
+

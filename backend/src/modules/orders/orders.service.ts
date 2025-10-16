@@ -1091,6 +1091,7 @@ export class OrdersService {
 
   /**
    * Complete work on order - saves work data with rates for audit
+   * Supports partial and full completion
    */
   async completeWork(
     orderId: number,
@@ -1102,6 +1103,7 @@ export class OrdersService {
       distanceKm?: number;
       territoryType?: string;
       notes?: string;
+      isFullyCompleted?: boolean; // New field: true = completed, false/undefined = working
     }
   ): Promise<Order> {
     // Get order with relations
@@ -1178,26 +1180,41 @@ export class OrdersService {
     if (!order.actualStartDate) {
       order.actualStartDate = now;
     }
+    
+    // Update status based on isFullyCompleted flag
     if (order.status === 'working') {
-      order.completionDate = now;
-      order.status = 'completed' as any;
+      if (workData.isFullyCompleted === true) {
+        // Work is fully completed - mark as completed
+        order.completionDate = now;
+        order.status = 'completed' as any;
+        console.log('✅ Order marked as COMPLETED (isFullyCompleted = true)');
+      } else {
+        // Work continues - keep status as working
+        console.log('🔄 Order remains in WORKING status (isFullyCompleted = false/undefined)');
+      }
     }
 
     const savedOrder = await this.ordersRepository.save(order);
 
-    console.log('✅ Order completed with rates:', {
+    console.log('✅ Work data saved with rates:', {
       regularHours: order.regularHours,
       overtimeHours: order.overtimeHours,
       engineerBaseRate: order.engineerBaseRate,
       engineerOvertimeRate: order.engineerOvertimeRate,
       calculatedAmount: order.calculatedAmount,
+      status: order.status,
+      isFullyCompleted: workData.isFullyCompleted,
     });
 
     // Log activity
+    const activityDescription = workData.isFullyCompleted
+      ? `Work fully completed for order ${order.title} by engineer ${engineer.user.firstName} ${engineer.user.lastName}`
+      : `Work data saved for order ${order.title} by engineer ${engineer.user.firstName} ${engineer.user.lastName} (work continues)`;
+    
     await this.logActivity(
       orderId,
       ActivityType.ORDER_STATUS_CHANGED,
-      `Work completed for order ${order.title} by engineer ${engineer.user.firstName} ${engineer.user.lastName}`,
+      activityDescription,
       {
         regularHours: workData.regularHours,
         overtimeHours: workData.overtimeHours,
@@ -1208,6 +1225,8 @@ export class OrdersService {
         carPayment: workData.carPayment,
         baseRate: rates.baseRate,
         overtimeRate: rates.overtimeRate,
+        isFullyCompleted: workData.isFullyCompleted,
+        newStatus: order.status,
       },
       engineerId
     );

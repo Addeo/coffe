@@ -141,17 +141,24 @@ export class OrdersController {
   @Roles(UserRole.USER) // Only engineers can complete work
   async completeWork(
     @Param('id', ParseIntPipe) orderId: number,
-    @Body()
-    workData: {
+    @Body() workData: {
       regularHours: number;
       overtimeHours: number;
       carPayment: number;
       distanceKm?: number;
       territoryType?: string;
       notes?: string;
+      isFullyCompleted?: boolean; // New field
     },
     @Request() req
   ) {
+    console.log('🔧 Controller: completeWork called', {
+      orderId,
+      userId: req.user?.id,
+      isFullyCompleted: workData.isFullyCompleted,
+      regularHours: workData.regularHours,
+      overtimeHours: workData.overtimeHours,
+    });
     return this.ordersService.completeWork(orderId, req.user.id, workData);
   }
 
