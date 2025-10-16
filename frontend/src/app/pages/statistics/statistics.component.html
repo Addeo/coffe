@@ -4,6 +4,20 @@
     <p>Просмотр комплексной статистики по работе агентов и доходам</p>
   </div>
 
+  <!-- View Mode Toggle -->
+  <div class="view-toggle">
+    <mat-button-toggle-group [(ngModel)]="viewMode" aria-label="Режим отображения">
+      <mat-button-toggle value="charts">
+        <mat-icon>bar_chart</mat-icon>
+        Графики
+      </mat-button-toggle>
+      <mat-button-toggle value="tables">
+        <mat-icon>table_chart</mat-icon>
+        Таблицы
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
   <!-- Filters -->
   <div class="filters">
     <mat-form-field appearance="outline">
@@ -107,8 +121,25 @@
                 <p>Нет данных за выбранный период</p>
                 <p class="hint">Данные появятся после создания отчетов о работе агентами</p>
               </div>
+
+              <!-- Chart View -->
               <div
-                *ngIf="statistics()?.agentEarnings && statistics()!.agentEarnings.length > 0"
+                *ngIf="viewMode === 'charts' && statistics()?.agentEarnings && statistics()!.agentEarnings.length > 0"
+                class="chart-container"
+              >
+                <div class="chart-wrapper-large">
+                  <canvas
+                    baseChart
+                    [data]="agentEarningsChartData"
+                    [options]="barChartOptions"
+                    [type]="'bar'"
+                  ></canvas>
+                </div>
+              </div>
+
+              <!-- Table View -->
+              <div
+                *ngIf="viewMode === 'tables' && statistics()?.agentEarnings && statistics()!.agentEarnings.length > 0"
                 class="table-container"
               >
                 <table
@@ -180,11 +211,44 @@
                 <p>Нет данных за выбранный период</p>
                 <p class="hint">Данные появятся после создания отчетов о работе по заказам</p>
               </div>
+
+              <!-- Chart View -->
               <div
-                *ngIf="
-                  statistics()?.organizationEarnings &&
-                  statistics()!.organizationEarnings.length > 0
-                "
+                *ngIf="viewMode === 'charts' && statistics()?.organizationEarnings && statistics()!.organizationEarnings.length > 0"
+                class="chart-container"
+              >
+                <div class="charts-grid">
+                  <!-- Grouped Bar Chart: Выручка/Затраты/Прибыль -->
+                  <div class="chart-section">
+                    <h3>Финансовые показатели</h3>
+                    <div class="chart-wrapper-large">
+                      <canvas
+                        baseChart
+                        [data]="organizationEarningsChartData"
+                        [options]="barChartOptions"
+                        [type]="'bar'"
+                      ></canvas>
+                    </div>
+                  </div>
+
+                  <!-- Line Chart: Маржа прибыли -->
+                  <div class="chart-section">
+                    <h3>Маржа прибыли по организациям</h3>
+                    <div class="chart-wrapper-large">
+                      <canvas
+                        baseChart
+                        [data]="profitMarginChartData"
+                        [options]="lineChartOptions"
+                        [type]="'line'"
+                      ></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Table View -->
+              <div
+                *ngIf="viewMode === 'tables' && statistics()?.organizationEarnings && statistics()!.organizationEarnings.length > 0"
                 class="table-container"
               >
                 <table
@@ -278,7 +342,45 @@
               >
             </mat-card-header>
             <mat-card-content>
-              <div class="table-container">
+              <!-- Chart View -->
+              <div
+                *ngIf="viewMode === 'charts' && statistics()?.overtimeStatistics && statistics()!.overtimeStatistics.length > 0"
+                class="chart-container"
+              >
+                <div class="charts-grid">
+                  <!-- Doughnut Chart: Общее распределение часов -->
+                  <div class="chart-section">
+                    <h3>Общее распределение часов</h3>
+                    <div class="chart-wrapper-medium">
+                      <canvas
+                        baseChart
+                        [data]="overtimeChartData"
+                        [options]="doughnutChartOptions"
+                        [type]="'doughnut'"
+                      ></canvas>
+                    </div>
+                  </div>
+
+                  <!-- Stacked Bar Chart: Распределение по инженерам -->
+                  <div class="chart-section">
+                    <h3>Распределение по инженерам</h3>
+                    <div class="chart-wrapper-medium">
+                      <canvas
+                        baseChart
+                        [data]="agentOvertimeChartData"
+                        [options]="stackedBarChartOptions"
+                        [type]="'bar'"
+                      ></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Table View -->
+              <div
+                *ngIf="viewMode === 'tables'"
+                class="table-container"
+              >
                 <table
                   mat-table
                   [dataSource]="statistics()?.overtimeStatistics || []"

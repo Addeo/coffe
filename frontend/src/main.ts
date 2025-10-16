@@ -6,7 +6,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeRu from '@angular/common/locales/ru';
-import { Chart, ArcElement, DoughnutController, BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
+import { Chart, ArcElement, DoughnutController, BarController, BarElement, LineController, LineElement, PointElement, CategoryScale, LinearScale, Title, Tooltip, Legend, Filler } from 'chart.js';
 
 import { AppComponent } from './app/app.component';
 import { routes } from './app/app.routes';
@@ -23,11 +23,15 @@ Chart.register(
   DoughnutController,
   BarController,
   BarElement,
+  LineController,
+  LineElement,
+  PointElement,
   CategoryScale,
   LinearScale,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 bootstrapApplication(AppComponent, {
