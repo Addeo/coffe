@@ -1,6 +1,310 @@
 <div class="orders-container">
-  <!-- Statistics Cards - Desktop версия -->
-  <div class="stats-grid desktop-stats">
+  <!-- Переключатель вариантов статистики -->
+  <div class="stats-switcher">
+    <mat-button-toggle-group [(ngModel)]="statsView" aria-label="Вариант отображения статистики">
+      <mat-button-toggle value="compact">📊 Компактная</mat-button-toggle>
+      <mat-button-toggle value="charts">📈 С графиками</mat-button-toggle>
+      <mat-button-toggle value="progress">📉 С прогрессом</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <!-- ВАРИАНТ 1: Компактная таблица -->
+  <mat-card class="stats-card-unified" *ngIf="statsView === 'compact'">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>bar_chart</mat-icon>
+        Статистика заказов
+      </mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="stats-table">
+        <!-- Статусы заказов -->
+        <div class="stats-section">
+          <h3>По статусам</h3>
+          <div class="stats-row">
+            <div class="stat-item">
+              <mat-icon color="primary">assignment</mat-icon>
+              <span class="label">Всего:</span>
+              <span class="value">{{ orderStats().total }}</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>schedule</mat-icon>
+              <span class="label">Ожидают:</span>
+              <span class="value">{{ orderStats().waiting }}</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>person_add</mat-icon>
+              <span class="label">В обработке:</span>
+              <span class="value">{{ orderStats().processing }}</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>build</mat-icon>
+              <span class="label">В работе:</span>
+              <span class="value">{{ orderStats().working }}</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>visibility</mat-icon>
+              <span class="label">На проверке:</span>
+              <span class="value">{{ orderStats().review }}</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon style="color: #4caf50">check_circle</mat-icon>
+              <span class="label">Завершено:</span>
+              <span class="value">{{ orderStats().completed }}</span>
+            </div>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Источники заказов -->
+        <div class="stats-section">
+          <h3>По источникам</h3>
+          <div class="stats-row">
+            <div class="stat-item">
+              <mat-icon>touch_app</mat-icon>
+              <span class="label">Вручную:</span>
+              <span class="value">{{ orderStats().bySource.manual }}</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>settings</mat-icon>
+              <span class="label">Автоматически:</span>
+              <span class="value">{{ orderStats().bySource.automatic }}</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>email</mat-icon>
+              <span class="label">Из Email:</span>
+              <span class="value">{{ orderStats().bySource.email }}</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon>api</mat-icon>
+              <span class="label">Через API:</span>
+              <span class="value">{{ orderStats().bySource.api }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ВАРИАНТ 2: С графиками -->
+  <mat-card class="stats-card-charts" *ngIf="statsView === 'charts'">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>bar_chart</mat-icon>
+        Статистика заказов
+      </mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="charts-container">
+        <!-- График по статусам (Donut Chart) -->
+        <div class="chart-section">
+          <h3>Распределение по статусам</h3>
+          <div class="chart-wrapper">
+            <canvas
+              baseChart
+              [data]="statusChartData"
+              [options]="doughnutChartOptions"
+              [type]="'doughnut'"
+            ></canvas>
+          </div>
+          <div class="chart-stats">
+            <div class="stat-badge" *ngFor="let stat of statusStats">
+              <span class="badge-color" [style.background-color]="stat.color"></span>
+              <span class="badge-label">{{ stat.label }}:</span>
+              <span class="badge-value">{{ stat.value }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- График по источникам (Bar Chart) -->
+        <div class="chart-section">
+          <h3>Источники заказов</h3>
+          <div class="chart-wrapper">
+            <canvas
+              baseChart
+              [data]="sourceChartData"
+              [options]="barChartOptions"
+              [type]="'bar'"
+            ></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Итоговая статистика -->
+      <div class="total-stats">
+        <div class="total-item">
+          <mat-icon color="primary">assignment</mat-icon>
+          <div>
+            <div class="total-label">Всего заказов</div>
+            <div class="total-value">{{ orderStats().total }}</div>
+          </div>
+        </div>
+        <div class="total-item">
+          <mat-icon color="accent">build</mat-icon>
+          <div>
+            <div class="total-label">В работе</div>
+            <div class="total-value">{{ orderStats().working }}</div>
+          </div>
+        </div>
+        <div class="total-item">
+          <mat-icon style="color: #4caf50">check_circle</mat-icon>
+          <div>
+            <div class="total-label">Завершено</div>
+            <div class="total-value">{{ orderStats().completed }}</div>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ВАРИАНТ 3: С прогресс-барами -->
+  <mat-card class="stats-card-progress" *ngIf="statsView === 'progress'">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>bar_chart</mat-icon>
+        Статистика заказов
+      </mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <!-- Общий счётчик -->
+      <div class="total-counter">
+        <mat-icon>assignment</mat-icon>
+        <div class="counter-text">
+          <span class="counter-value">{{ orderStats().total }}</span>
+          <span class="counter-label">Всего заказов</span>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Прогресс-бары по статусам -->
+      <div class="progress-stats">
+        <div class="progress-item">
+          <div class="progress-header">
+            <div class="progress-label-group">
+              <mat-icon>schedule</mat-icon>
+              <span class="progress-label">Ожидают</span>
+            </div>
+            <span class="progress-value">{{ orderStats().waiting }}</span>
+          </div>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="getProgressPercentage(orderStats().waiting)"
+            color="warn"
+          ></mat-progress-bar>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <div class="progress-label-group">
+              <mat-icon>person_add</mat-icon>
+              <span class="progress-label">В обработке</span>
+            </div>
+            <span class="progress-value">{{ orderStats().processing }}</span>
+          </div>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="getProgressPercentage(orderStats().processing)"
+          ></mat-progress-bar>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <div class="progress-label-group">
+              <mat-icon>build</mat-icon>
+              <span class="progress-label">В работе</span>
+            </div>
+            <span class="progress-value">{{ orderStats().working }}</span>
+          </div>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="getProgressPercentage(orderStats().working)"
+            color="accent"
+          ></mat-progress-bar>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <div class="progress-label-group">
+              <mat-icon>visibility</mat-icon>
+              <span class="progress-label">На проверке</span>
+            </div>
+            <span class="progress-value">{{ orderStats().review }}</span>
+          </div>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="getProgressPercentage(orderStats().review)"
+            color="warn"
+          ></mat-progress-bar>
+        </div>
+
+        <div class="progress-item">
+          <div class="progress-header">
+            <div class="progress-label-group">
+              <mat-icon style="color: #4caf50">check_circle</mat-icon>
+              <span class="progress-label">Завершено</span>
+            </div>
+            <span class="progress-value">{{ orderStats().completed }}</span>
+          </div>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="getProgressPercentage(orderStats().completed)"
+            color="primary"
+          ></mat-progress-bar>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Источники компактно -->
+      <div class="sources-compact">
+        <h4>По источникам</h4>
+        <div class="sources-row">
+          <div class="source-chip">
+            <mat-icon>touch_app</mat-icon>
+            <span>Вручную: {{ orderStats().bySource.manual }}</span>
+          </div>
+          <div class="source-chip">
+            <mat-icon>settings</mat-icon>
+            <span>Авто: {{ orderStats().bySource.automatic }}</span>
+          </div>
+          <div class="source-chip">
+            <mat-icon>email</mat-icon>
+            <span>Email: {{ orderStats().bySource.email }}</span>
+          </div>
+          <div class="source-chip">
+            <mat-icon>api</mat-icon>
+            <span>API: {{ orderStats().bySource.api }}</span>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- OLD: Statistics Cards - Desktop версия (будет удалена) -->
+  <div class="stats-grid desktop-stats" *ngIf="false">
+    <!-- Export Statistics Button -->
+    <mat-card class="stat-card export-card" *ngIf="canExportOrders">
+      <mat-card-content>
+        <div class="stat-content export-content">
+          <mat-icon class="stat-icon export-icon">download</mat-icon>
+          <div class="stat-info">
+            <button 
+              mat-raised-button 
+              color="primary" 
+              (click)="exportStatisticsToExcel()"
+              class="export-stats-btn">
+              <mat-icon>file_download</mat-icon>
+              Скачать статистику
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
     <mat-card class="stat-card">
       <mat-card-content>
         <div class="stat-content">
@@ -74,13 +378,22 @@
     </mat-card>
   </div>
 
-  <!-- Statistics Card - Мобильная версия (ВСЁ В ОДНОЙ КАРТОЧКЕ) -->
-  <mat-card class="mobile-stats mobile-stats-combined">
+  <!-- Statistics Card - Мобильная версия (ВСЁ В ОДНОЙ КАРТОЧКЕ) - СКРЫТО -->
+  <mat-card class="mobile-stats mobile-stats-combined" *ngIf="false">
     <mat-card-header>
       <mat-card-title>
         <mat-icon>bar_chart</mat-icon>
         Статистика
       </mat-card-title>
+      <div class="mobile-export-btn" *ngIf="canExportOrders">
+        <button 
+          mat-icon-button 
+          color="primary" 
+          (click)="exportStatisticsToExcel()"
+          matTooltip="Скачать статистику">
+          <mat-icon>file_download</mat-icon>
+        </button>
+      </div>
     </mat-card-header>
     <mat-card-content>
       <!-- Статусы заказов -->
@@ -99,7 +412,7 @@
       <!-- По источникам -->
       <div class="mobile-stats-section">
         <h4>По источникам</h4>
-        <div class="mobile-stats-simple">
+      <div class="mobile-stats-simple">
           <p><strong>{{ getSourceDisplay('manual') }}:</strong> <span class="stat-value">{{ orderStats().bySource.manual }}</span></p>
           <p><strong>{{ getSourceDisplay('automatic') }}:</strong> <span class="stat-value">{{ orderStats().bySource.automatic }}</span></p>
           <p><strong>{{ getSourceDisplay('email') }}:</strong> <span class="stat-value">{{ orderStats().bySource.email }}</span></p>
@@ -109,8 +422,8 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Source Statistics - Desktop -->
-  <div class="stats-grid desktop-stats source-stats-grid">
+  <!-- Source Statistics - Desktop - СКРЫТО -->
+  <div class="stats-grid desktop-stats source-stats-grid" *ngIf="false">
     <mat-card class="stat-card">
       <mat-card-content>
         <div class="stat-content">
