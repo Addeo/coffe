@@ -21,24 +21,79 @@
   margin-bottom: 24px;
 }
 
+// Объединенная мобильная статистика
+.mobile-stats-combined {
+  mat-card-header {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    color: white;
+    padding: 16px;
+    
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.1rem;
+      margin: 0;
+      
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+    }
+  }
+
+  mat-card-content {
+    padding: 0 !important;
+  }
+}
+
+// Секции внутри мобильной статистики
+.mobile-stats-section {
+  padding: 16px;
+  
+  &:not(:last-child) {
+    border-bottom: 2px solid #e0e0e0;
+  }
+  
+  h4 {
+    margin: 0 0 12px 0;
+    font-size: 0.9rem;
+    color: #1976d2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+}
+
 // Простой блок со статистикой для мобильной версии
 .mobile-stats-simple {
-  padding: 8px 0;
-
   p {
     margin: 0;
-    padding: 10px 0;
-    font-size: 1rem;
+    padding: 8px 12px;
+    font-size: 0.95rem;
     color: #333;
-    border-bottom: 1px solid #eee;
+    border-radius: 6px;
+    background: #f8f9fa;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     &:last-child {
-      border-bottom: none;
+      margin-bottom: 0;
     }
 
     strong {
       color: #666;
       font-weight: 500;
+      flex: 1;
+    }
+    
+    .stat-value {
+      color: #1976d2;
+      font-weight: 600;
+      font-size: 1.1rem;
     }
   }
 }

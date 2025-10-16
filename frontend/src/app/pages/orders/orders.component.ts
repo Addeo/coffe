@@ -93,6 +93,7 @@ export class OrdersComponent implements OnInit {
   readonly canViewAllOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
   readonly canEditOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
   readonly canDeleteOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
+  readonly canExportOrders = this.authService.hasRole(UserRole.ADMIN);
 
   // Engineers can edit their assigned orders
   canEditOrder(order: OrderDto): boolean {
