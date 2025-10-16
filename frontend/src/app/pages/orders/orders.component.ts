@@ -16,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { Router } from '@angular/router';
+import * as XLSX from 'xlsx';
 import { OrdersService } from '../../services/orders.service';
 import { AuthService } from '../../services/auth.service';
 import { ModalService } from '../../services/modal.service';
@@ -26,6 +27,7 @@ import { UserRole } from '@shared/interfaces/user.interface';
 import { OrderDialogComponent } from '../../components/modals/order-dialog.component';
 import { OrderDeleteConfirmationDialogComponent } from '../../components/modals/order-delete-confirmation-dialog.component';
 import { AssignEngineerDialogComponent } from '../../components/modals/assign-engineer-dialog.component';
+import { WorkCompletionDialogComponent } from '../../components/modals/work-completion-dialog.component';
 
 @Component({
   selector: 'app-orders',
@@ -46,6 +48,7 @@ import { AssignEngineerDialogComponent } from '../../components/modals/assign-en
     MatProgressSpinnerModule,
     MatMenuModule,
     AssignEngineerDialogComponent,
+    WorkCompletionDialogComponent,
   ],
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss'],
@@ -96,7 +99,10 @@ export class OrdersComponent implements OnInit {
     const currentUser = this.authService.currentUser();
     if (!currentUser) return false;
 
-    // Admins and managers can always edit
+    // Don't show regular edit button for completed orders (use special 24h edit button instead)
+    if (order.status === OrderStatus.COMPLETED) return false;
+
+    // Admins and managers can always edit non-completed orders
     if (this.canEditOrders) return true;
 
     // Engineers can only edit their own assigned orders
@@ -300,6 +306,104 @@ export class OrdersComponent implements OnInit {
     });
   }
 
+  /**
+   * Engineer confirms order (assigned → working)
+   */
+  onAcceptOrder(order: OrderDto) {
+    this.ordersService.acceptOrder(order.id).subscribe({
+      next: (updatedOrder: OrderDto) => {
+        // Update the order in the dataSource
+        const index = this.dataSource.data.findIndex(o => o.id === updatedOrder.id);
+        if (index !== -1) {
+          this.dataSource.data[index] = updatedOrder;
+          this.dataSource._updateChangeSubscription();
+        }
+        this.toastService.success('Заявка подтверждена и перешла в работу');
+        this.loadOrderStats();
+      },
+      error: error => {
+        console.error('Error accepting order:', error);
+        this.toastService.error('Ошибка при подтверждении заявки');
+      },
+    });
+  }
+
+  /**
+   * Engineer completes work (opens form to enter work data)
+   */
+  onCompleteWork(order: OrderDto) {
+    const dialogRef = this.modalService.openDialog(WorkCompletionDialogComponent, {
+      order,
+      title: 'Внести данные о выполненной работе',
+    });
+
+    dialogRef.subscribe((updatedOrder: OrderDto | null) => {
+      if (updatedOrder) {
+        // Update the order in the dataSource
+        const index = this.dataSource.data.findIndex(o => o.id === updatedOrder.id);
+        if (index !== -1) {
+          this.dataSource.data[index] = updatedOrder;
+          this.dataSource._updateChangeSubscription();
+        }
+        this.loadOrderStats();
+      }
+    });
+  }
+
+  /**
+   * Check if engineer can accept order (assigned status)
+   */
+  canAcceptOrder(order: OrderDto): boolean {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser || currentUser.role !== UserRole.USER) {
+      return false;
+    }
+    // Engineer can accept only assigned orders that are assigned to them
+    return order.status === OrderStatus.ASSIGNED && 
+           order.assignedEngineerId !== undefined;
+  }
+
+  /**
+   * Check if engineer can complete work (working status)
+   */
+  canCompleteWork(order: OrderDto): boolean {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser || currentUser.role !== UserRole.USER) {
+      return false;
+    }
+    // Engineer can complete work only on working orders assigned to them
+    return order.status === OrderStatus.WORKING && 
+           order.assignedEngineerId !== undefined;
+  }
+
+  /**
+   * Check if admin/manager can edit completed order (within 24 hours)
+   */
+  canEditCompletedOrder(order: OrderDto): boolean {
+    const currentUser = this.authService.currentUser();
+    
+    // Only admins and managers
+    if (!currentUser || (currentUser.role !== UserRole.ADMIN && currentUser.role !== UserRole.MANAGER)) {
+      return false;
+    }
+
+    // Only completed orders
+    if (order.status !== OrderStatus.COMPLETED) {
+      return false;
+    }
+
+    // Check if within 24 hours
+    if (!order.completionDate) {
+      return false;
+    }
+
+    const completionTime = new Date(order.completionDate).getTime();
+    const now = new Date().getTime();
+    const hoursPassed = (now - completionTime) / (1000 * 60 * 60);
+
+    return hoursPassed <= 24;
+  }
+
   getOrganizationName(order: OrderDto): string {
     return order.organization?.name || 'N/A';
   }
@@ -397,5 +501,83 @@ export class OrdersComponent implements OnInit {
   refreshData() {
     this.loadOrders();
     this.loadOrderStats();
+  }
+
+  exportToExcel() {
+    // Check if there is data to export
+    if (!this.dataSource.data || this.dataSource.data.length === 0) {
+      this.toastService.error('Нет данных для экспорта');
+      return;
+    }
+
+    // Prepare data for export
+    const exportData = this.dataSource.data.map(order => {
+      const totalHours = (order.regularHours ?? 0) + (order.overtimeHours ?? 0);
+      const engineerPayment = (order.calculatedAmount ?? 0) + (order.carUsageAmount ?? 0);
+      
+      return {
+        'ID заказа': order.id,
+        'Название заказа': order.title,
+        'Организация-заказчик': order.organization?.name ?? 'N/A',
+        'Инженер': this.getEngineerName(order),
+        'Статус': this.getStatusDisplay(order.status),
+        'Ставка оплаты от организации (₽/час)': order.organizationBaseRate ?? 0,
+        'Коэффициент переработки организации': order.organizationOvertimeMultiplier ?? 0,
+        'Ставка оплаты инженера (₽/час)': order.engineerBaseRate ?? 0,
+        'Ставка переработки инженера (₽/час)': order.engineerOvertimeRate ?? 0,
+        'Обычные часы': order.regularHours ?? 0,
+        'Часы переработки': order.overtimeHours ?? 0,
+        'Всего часов': totalHours,
+        'Сумма к оплате от организации (₽)': order.organizationPayment ?? 0,
+        'Оплата инженеру за работу (₽)': order.calculatedAmount ?? 0,
+        'Доплата за автомобиль (₽)': order.carUsageAmount ?? 0,
+        'Всего к оплате инженеру (₽)': engineerPayment,
+        'ДОХОД (₽)': order.profit ?? ((order.organizationPayment ?? 0) - engineerPayment),
+        'Дата создания': order.createdAt ? new Date(order.createdAt).toLocaleDateString('ru-RU') : '',
+        'Дата начала работ': order.actualStartDate ? new Date(order.actualStartDate).toLocaleDateString('ru-RU') : '',
+        'Дата завершения': order.completionDate ? new Date(order.completionDate).toLocaleDateString('ru-RU') : '',
+      };
+    });
+
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    // Set column widths for better readability
+    const columnWidths = [
+      { wch: 10 },  // ID заказа
+      { wch: 30 },  // Название заказа
+      { wch: 25 },  // Организация-заказчик
+      { wch: 20 },  // Инженер
+      { wch: 15 },  // Статус
+      { wch: 25 },  // Ставка оплаты от организации
+      { wch: 30 },  // Коэффициент переработки
+      { wch: 25 },  // Ставка оплаты инженера
+      { wch: 30 },  // Ставка переработки инженера
+      { wch: 15 },  // Обычные часы
+      { wch: 18 },  // Часы переработки
+      { wch: 12 },  // Всего часов
+      { wch: 30 },  // Сумма к оплате от организации
+      { wch: 25 },  // Оплата инженеру за работу
+      { wch: 20 },  // Доплата за автомобиль
+      { wch: 25 },  // Всего к оплате инженеру
+      { wch: 15 },  // ДОХОД
+      { wch: 15 },  // Дата создания
+      { wch: 18 },  // Дата начала работ
+      { wch: 18 },  // Дата завершения
+    ];
+    worksheet['!cols'] = columnWidths;
+
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Заказы');
+
+    // Generate filename with current date
+    const currentDate = new Date().toISOString().split('T')[0];
+    const filename = `orders_export_${currentDate}.xlsx`;
+
+    // Save file
+    XLSX.writeFile(workbook, filename);
+
+    this.toastService.success('Данные успешно экспортированы в Excel');
   }
 }

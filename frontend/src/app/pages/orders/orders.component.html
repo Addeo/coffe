@@ -197,6 +197,17 @@
 
           <button
             mat-raised-button
+            color="accent"
+            (click)="exportToExcel()"
+            matTooltip="Экспортировать данные в Excel"
+            aria-label="Экспортировать в Excel"
+          >
+            <mat-icon>download</mat-icon>
+            <span>Скачать XLS</span>
+          </button>
+
+          <button
+            mat-raised-button
             color="primary"
             (click)="onCreateOrder()"
             *ngIf="canCreateOrders"
@@ -285,6 +296,30 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Действия</th>
             <td mat-cell *matCellDef="let order">
+              <!-- Engineer Actions -->
+              <button
+                mat-raised-button
+                color="accent"
+                (click)="onAcceptOrder(order)"
+                matTooltip="Подтвердить заявку и начать работу"
+                *ngIf="canAcceptOrder(order)"
+              >
+                <mat-icon>check_circle</mat-icon>
+                Подтвердить
+              </button>
+
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="onCompleteWork(order)"
+                matTooltip="Внести данные о выполненной работе"
+                *ngIf="canCompleteWork(order)"
+              >
+                <mat-icon>task_alt</mat-icon>
+                Выполнить
+              </button>
+
+              <!-- Admin/Manager Actions -->
               <button
                 mat-icon-button
                 (click)="onEditOrder(order)"
@@ -294,6 +329,18 @@
                 *ngIf="canEditOrder(order)"
               >
                 <mat-icon>edit</mat-icon>
+              </button>
+
+              <!-- Edit within 24h after completion -->
+              <button
+                mat-icon-button
+                (click)="onEditOrder(order)"
+                color="warn"
+                matTooltip="Редактировать завершенный заказ (доступно 24 часа)"
+                aria-label="Редактировать"
+                *ngIf="canEditCompletedOrder(order)"
+              >
+                <mat-icon>edit_note</mat-icon>
               </button>
 
               <button
