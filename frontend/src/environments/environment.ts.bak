@@ -1,4 +1,17 @@
 export const environment = {
+  production: true,
+  apiUrl: 'http://192.144.12.102:3001/api',
+  authUrl: 'http://192.144.12.102:3001/api/auth/login',
+  appName: 'Coffee Admin Mobile',
+  demo: false,
+};
+
+
+
+
+
+
+export const environment = {
   production: false,
   apiUrl: 'https://1c62341c744e.ngrok-free.app/api',
   authUrl: 'https://1c62341c744e.ngrok-free.app/api/auth/login',
