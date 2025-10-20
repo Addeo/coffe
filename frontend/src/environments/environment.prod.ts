@@ -2,10 +2,16 @@ export const environment = {
   production: true,
   apiUrl: 'http://192.144.12.102:3001/api',
   authUrl: 'http://192.144.12.102:3001/api/auth/login',
-  appName: 'Coffee Admin Panel',
+  appName: 'Coffee Admin Mobile',
   demo: false,
 };
 
+
+
+
+  
+  
+  
 // ВАЖНО: При сборке для Android/iOS убедитесь, что:
 // 1. Бэкенд запущен и доступен по указанному IP
 // 2. Порт 3001 открыт в firewall
