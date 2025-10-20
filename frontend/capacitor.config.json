@@ -3,7 +3,7 @@
   "appName": "Coffee Admin",
   "webDir": "dist/coffee-admin",
   "server": {
-    "androidScheme": "https"
+    "androidScheme": "http"
   },
   "plugins": {
     "SplashScreen": {
