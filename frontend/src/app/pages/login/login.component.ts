@@ -64,7 +64,7 @@ export class LoginComponent {
   constructor() {
     // Redirect if already authenticated
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/orders']);
     }
   }
 
@@ -102,7 +102,7 @@ export class LoginComponent {
           console.log('🎉 Login component received success response:', response);
           this.isLoading.set(false);
 
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/orders';
           console.log('🧭 Navigating to:', returnUrl);
           this.router.navigate([returnUrl]);
 
