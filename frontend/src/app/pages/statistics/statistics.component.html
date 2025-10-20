@@ -58,8 +58,8 @@
 
   <!-- Statistics Content -->
   <div *ngIf="!isLoading() && statistics()" class="statistics-content">
-    <!-- Summary Cards -->
-    <div class="summary-cards">
+    <!-- Desktop Summary Cards -->
+    <div class="summary-cards desktop-summary" *ngIf="!isMobileView()">
       <mat-card class="summary-card">
         <mat-card-header>
           <div class="card-icon">
@@ -95,7 +95,116 @@
           <div class="card-value">{{ formatNumber(statistics()!.totalOvertimeHours) }}</div>
         </mat-card-content>
       </mat-card>
+
+      <!-- User Statistics Cards -->
+      <mat-card class="summary-card">
+        <mat-card-header>
+          <div class="card-icon">
+            <mat-icon>people</mat-icon>
+          </div>
+          <mat-card-title>Всего пользователей</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="card-value">{{ userStats().totalUsers }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card">
+        <mat-card-header>
+          <div class="card-icon">
+            <mat-icon>person</mat-icon>
+          </div>
+          <mat-card-title>Активные пользователи</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="card-value">{{ userStats().activeUsers }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card">
+        <mat-card-header>
+          <div class="card-icon">
+            <mat-icon>person_add</mat-icon>
+          </div>
+          <mat-card-title>Новых в этом месяце</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="card-value">{{ userStats().newUsersThisMonth }}</div>
+        </mat-card-content>
+      </mat-card>
     </div>
+
+    <!-- Mobile Compact Summary -->
+    <mat-card class="mobile-summary-card" *ngIf="isMobileView()">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>dashboard</mat-icon>
+          Обзор статистики
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <!-- Основные метрики -->
+        <div class="mobile-summary-grid">
+          <div class="summary-item primary">
+            <div class="summary-icon">
+              <mat-icon>attach_money</mat-icon>
+            </div>
+            <div class="summary-content">
+              <div class="summary-value">{{ formatCurrency(statistics()!.totalEarnings) }}</div>
+              <div class="summary-label">Общий доход</div>
+            </div>
+          </div>
+
+          <div class="summary-item success">
+            <div class="summary-icon">
+              <mat-icon>shopping_cart</mat-icon>
+            </div>
+            <div class="summary-content">
+              <div class="summary-value">{{ formatNumber(statistics()!.totalOrders) }}</div>
+              <div class="summary-label">Всего заказов</div>
+            </div>
+          </div>
+
+          <div class="summary-item warning">
+            <div class="summary-icon">
+              <mat-icon>schedule</mat-icon>
+            </div>
+            <div class="summary-content">
+              <div class="summary-value">{{ formatNumber(statistics()!.totalOvertimeHours) }}</div>
+              <div class="summary-label">Сверхурочные часы</div>
+            </div>
+          </div>
+
+          <div class="summary-item info">
+            <div class="summary-icon">
+              <mat-icon>people</mat-icon>
+            </div>
+            <div class="summary-content">
+              <div class="summary-value">{{ userStats().totalUsers }}</div>
+              <div class="summary-label">Пользователей</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Дополнительная статистика -->
+        <div class="mobile-details">
+          <div class="details-section">
+            <h4>Пользователи</h4>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Активные:</span>
+                <span class="detail-value">{{ userStats().activeUsers }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Новых в месяце:</span>
+                <span class="detail-value">{{ userStats().newUsersThisMonth }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
     <!-- Statistics Tabs -->
     <mat-tab-group>
@@ -357,7 +466,19 @@
                         [data]="overtimeChartData"
                         [options]="doughnutChartOptions"
                         [type]="'doughnut'"
+                        [plugins]="chartPlugins"
                       ></canvas>
+                    </div>
+                    <!-- Дополнительная информация под диаграммой -->
+                    <div class="chart-summary" *ngIf="statistics()?.overtimeStatistics">
+                      <div class="summary-stats">
+                        <div class="stat-item" *ngFor="let stat of statistics()!.overtimeStatistics">
+                          <div class="stat-color" [style.background-color]="getOvertimeColor(stat)"></div>
+                          <span class="stat-label">{{ stat.agentName }}:</span>
+                          <span class="stat-value">{{ stat.overtimeHours }} ч</span>
+                          <span class="stat-percentage">({{ stat.overtimePercentage }}%)</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -431,6 +552,116 @@
                   <tr mat-header-row *matHeaderRowDef="overtimeColumns"></tr>
                   <tr mat-row *matRowDef="let row; columns: overtimeColumns"></tr>
                 </table>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- User Statistics Tab -->
+      <mat-tab label="Статистика пользователей">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Статистика пользователей</mat-card-title>
+              <mat-card-subtitle>Обзор пользователей системы по ролям и активности</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <!-- Chart View -->
+              <div *ngIf="viewMode === 'charts'" class="chart-container">
+                <div class="chart-wrapper-large">
+                  <canvas
+                    baseChart
+                    [data]="userStatsChartData"
+                    [options]="doughnutChartOptions"
+                    [type]="'doughnut'"
+                    [plugins]="chartPlugins"
+                  ></canvas>
+                </div>
+                <!-- Дополнительная информация под диаграммой пользователей -->
+                <div class="chart-summary">
+                  <div class="summary-stats">
+                    <div class="stat-item">
+                      <div class="stat-color" style="background-color: #f44336;"></div>
+                      <span class="stat-label">Администраторы:</span>
+                      <span class="stat-value">{{ userStats().usersByRole.admin }}</span>
+                    </div>
+                    <div class="stat-item">
+                      <div class="stat-color" style="background-color: #ff9800;"></div>
+                      <span class="stat-label">Менеджеры:</span>
+                      <span class="stat-value">{{ userStats().usersByRole.manager }}</span>
+                    </div>
+                    <div class="stat-item">
+                      <div class="stat-color" style="background-color: #4caf50;"></div>
+                      <span class="stat-label">Инженеры:</span>
+                      <span class="stat-value">{{ userStats().usersByRole.user }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Table View -->
+              <div *ngIf="viewMode === 'tables'" class="table-container">
+                <div class="user-stats-grid">
+                  <div class="user-stat-card">
+                    <mat-icon>people</mat-icon>
+                    <div class="stat-info">
+                      <h3>{{ userStats().totalUsers }}</h3>
+                      <p>Всего пользователей</p>
+                    </div>
+                  </div>
+                  
+                  <div class="user-stat-card">
+                    <mat-icon>person</mat-icon>
+                    <div class="stat-info">
+                      <h3>{{ userStats().activeUsers }}</h3>
+                      <p>Активные пользователи</p>
+                    </div>
+                  </div>
+                  
+                  <div class="user-stat-card">
+                    <mat-icon>person_add</mat-icon>
+                    <div class="stat-info">
+                      <h3>{{ userStats().newUsersThisMonth }}</h3>
+                      <p>Новых в этом месяце</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="role-breakdown">
+                  <h3>Распределение по ролям</h3>
+                  <div class="role-stats">
+                    <div class="role-item">
+                      <div class="role-icon admin">
+                        <mat-icon>admin_panel_settings</mat-icon>
+                      </div>
+                      <div class="role-info">
+                        <span class="role-name">Администраторы</span>
+                        <span class="role-count">{{ userStats().usersByRole.admin }}</span>
+                      </div>
+                    </div>
+                    
+                    <div class="role-item">
+                      <div class="role-icon manager">
+                        <mat-icon>manage_accounts</mat-icon>
+                      </div>
+                      <div class="role-info">
+                        <span class="role-name">Менеджеры</span>
+                        <span class="role-count">{{ userStats().usersByRole.manager }}</span>
+                      </div>
+                    </div>
+                    
+                    <div class="role-item">
+                      <div class="role-icon user">
+                        <mat-icon>engineering</mat-icon>
+                      </div>
+                      <div class="role-info">
+                        <span class="role-name">Инженеры</span>
+                        <span class="role-count">{{ userStats().usersByRole.user }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </mat-card-content>
           </mat-card>

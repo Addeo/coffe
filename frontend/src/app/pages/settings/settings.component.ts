@@ -37,9 +37,9 @@ export class SettingsComponent {
   isLoading = signal(false);
 
   themes = [
-    { value: 'light', label: 'Light' },
-    { value: 'dark', label: 'Dark' },
-    { value: 'auto', label: 'Auto' },
+    { value: 'light', label: 'Светлая' },
+    { value: 'dark', label: 'Темная' },
+    { value: 'auto', label: 'Авто' },
   ];
 
   languages = [
@@ -74,7 +74,7 @@ export class SettingsComponent {
       // Simulate API call
       setTimeout(() => {
         this.isLoading.set(false);
-        this.snackBar.open('Settings saved successfully', 'Close', { duration: 3000 });
+        this.snackBar.open('Настройки успешно сохранены', 'Закрыть', { duration: 3000 });
       }, 1000);
     }
   }
@@ -89,16 +89,16 @@ export class SettingsComponent {
       itemsPerPage: 10,
       timezone: 'UTC',
     });
-    this.snackBar.open('Settings reset to defaults', 'Close', { duration: 2000 });
+    this.snackBar.open('Настройки сброшены к умолчанию', 'Закрыть', { duration: 2000 });
   }
 
   exportSettings() {
     // TODO: Implement settings export
-    this.snackBar.open('Settings export functionality coming soon', 'Close', { duration: 2000 });
+    this.snackBar.open('Функция экспорта настроек скоро будет доступна', 'Закрыть', { duration: 2000 });
   }
 
   importSettings() {
     // TODO: Implement settings import
-    this.snackBar.open('Settings import functionality coming soon', 'Close', { duration: 2000 });
+    this.snackBar.open('Функция импорта настроек скоро будет доступна', 'Закрыть', { duration: 2000 });
   }
 }

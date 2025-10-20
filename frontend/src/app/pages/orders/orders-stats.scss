@@ -1,22 +1,89 @@
-// Переключатель вариантов статистики
+// Enhanced Stats Switcher
 .stats-switcher {
-  margin-bottom: 16px;
+  margin-bottom: 24px;
   display: flex;
   justify-content: center;
 
-  mat-button-toggle-group {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
+  .stats-toggle-group {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
     overflow: hidden;
-  }
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.08);
 
-  mat-button-toggle {
-    font-size: 14px;
-    padding: 0 16px;
+    .stats-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      min-width: 140px;
+      justify-content: center;
 
-    @media (max-width: 600px) {
-      font-size: 12px;
-      padding: 0 12px;
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.6s;
+      }
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.04);
+        transform: translateY(-1px);
+
+        &::before {
+          transform: translateX(100%);
+        }
+      }
+
+      &.mat-button-toggle-checked {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+
+        &:hover {
+          background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+      }
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        transition: transform 0.3s;
+      }
+
+      &:hover mat-icon {
+        transform: scale(1.1);
+      }
+
+      .toggle-text {
+        font-weight: 500;
+        letter-spacing: 0.3px;
+      }
+
+      @media (max-width: 600px) {
+        font-size: 12px;
+        padding: 10px 16px;
+        min-width: 120px;
+        gap: 6px;
+
+        mat-icon {
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
+        }
+      }
     }
   }
 }

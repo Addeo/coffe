@@ -1,10 +1,19 @@
 <div class="orders-container">
   <!-- Переключатель вариантов статистики -->
   <div class="stats-switcher">
-    <mat-button-toggle-group [(ngModel)]="statsView" aria-label="Вариант отображения статистики">
-      <mat-button-toggle value="compact">📊 Компактная</mat-button-toggle>
-      <mat-button-toggle value="charts">📈 С графиками</mat-button-toggle>
-      <mat-button-toggle value="progress">📉 С прогрессом</mat-button-toggle>
+    <mat-button-toggle-group [(ngModel)]="statsView" aria-label="Вариант отображения статистики" class="stats-toggle-group">
+      <mat-button-toggle value="compact" class="stats-toggle-btn">
+        <mat-icon>view_module</mat-icon>
+        <span class="toggle-text">Компактная</span>
+      </mat-button-toggle>
+      <mat-button-toggle value="charts" class="stats-toggle-btn">
+        <mat-icon>bar_chart</mat-icon>
+        <span class="toggle-text">С графиками</span>
+      </mat-button-toggle>
+      <mat-button-toggle value="progress" class="stats-toggle-btn">
+        <mat-icon>trending_up</mat-icon>
+        <span class="toggle-text">С прогрессом</span>
+      </mat-button-toggle>
     </mat-button-toggle-group>
   </div>
 
@@ -312,193 +321,109 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- OLD: Statistics Cards - Desktop версия (будет удалена) -->
-  <div class="stats-grid desktop-stats" *ngIf="false">
-    <!-- Export Statistics Button -->
-    <mat-card class="stat-card export-card" *ngIf="canExportOrders">
-      <mat-card-content>
-        <div class="stat-content export-content">
-          <mat-icon class="stat-icon export-icon">download</mat-icon>
-          <div class="stat-info">
-            <button 
-              mat-raised-button 
-              color="primary" 
-              (click)="exportStatisticsToExcel()"
-              class="export-stats-btn">
-              <mat-icon>file_download</mat-icon>
-              Скачать статистику
-            </button>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">assignment</mat-icon>
-          <div class="stat-info">
-            <h3>{{ orderStats().total }}</h3>
-            <p i18n="@@orders.totalOrders">Всего заказов</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">schedule</mat-icon>
-          <div class="stat-info">
-            <h3>{{ orderStats().waiting }}</h3>
-            <p i18n="@@orders.waiting">Ожидают</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">person_add</mat-icon>
-          <div class="stat-info">
-            <h3>{{ orderStats().processing }}</h3>
-            <p i18n="@@orders.processing">В обработке</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">build</mat-icon>
-          <div class="stat-info">
-            <h3>{{ orderStats().working }}</h3>
-            <p i18n="@@orders.inProgress">В работе</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">visibility</mat-icon>
-          <div class="stat-info">
-            <h3>{{ orderStats().review }}</h3>
-            <p i18n="@@orders.underReview">На проверке</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">check_circle</mat-icon>
-          <div class="stat-info">
-            <h3>{{ orderStats().completed }}</h3>
-            <p i18n="@@orders.completed">Завершено</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
-
-  <!-- Statistics Card - Мобильная версия (ВСЁ В ОДНОЙ КАРТОЧКЕ) - СКРЫТО -->
-  <mat-card class="mobile-stats mobile-stats-combined" *ngIf="false">
+  <!-- Компактная мобильная статистика -->
+  <mat-card class="mobile-summary-card" *ngIf="isMobileView()">
     <mat-card-header>
       <mat-card-title>
-        <mat-icon>bar_chart</mat-icon>
-        Статистика
+        <mat-icon>dashboard</mat-icon>
+        Обзор заказов
       </mat-card-title>
       <div class="mobile-export-btn" *ngIf="canExportOrders">
         <button 
           mat-icon-button 
           color="primary" 
           (click)="exportStatisticsToExcel()"
-          matTooltip="Скачать статистику">
+          matTooltip="Скачать статистику"
+          class="export-btn-mobile">
           <mat-icon>file_download</mat-icon>
         </button>
       </div>
     </mat-card-header>
+    
     <mat-card-content>
-      <!-- Статусы заказов -->
-      <div class="mobile-stats-section">
-        <h4>По статусам</h4>
-        <div class="mobile-stats-simple">
-          <p><strong>Всего заказов:</strong> <span class="stat-value">{{ orderStats().total }}</span></p>
-          <p><strong>Ожидают:</strong> <span class="stat-value">{{ orderStats().waiting }}</span></p>
-          <p><strong>В обработке:</strong> <span class="stat-value">{{ orderStats().processing }}</span></p>
-          <p><strong>В работе:</strong> <span class="stat-value">{{ orderStats().working }}</span></p>
-          <p><strong>На проверке:</strong> <span class="stat-value">{{ orderStats().review }}</span></p>
-          <p><strong>Завершено:</strong> <span class="stat-value">{{ orderStats().completed }}</span></p>
+      <!-- Основные метрики -->
+      <div class="mobile-summary-grid">
+        <div class="summary-item primary">
+          <div class="summary-icon">
+            <mat-icon>assignment</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats().total }}</div>
+            <div class="summary-label">Всего заказов</div>
+          </div>
+        </div>
+
+        <div class="summary-item success">
+          <div class="summary-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats().completed }}</div>
+            <div class="summary-label">Завершено</div>
+          </div>
+        </div>
+
+        <div class="summary-item warning">
+          <div class="summary-icon">
+            <mat-icon>build</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats().working }}</div>
+            <div class="summary-label">В работе</div>
+          </div>
+        </div>
+
+        <div class="summary-item info">
+          <div class="summary-icon">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats().waiting }}</div>
+            <div class="summary-label">Ожидают</div>
+          </div>
         </div>
       </div>
 
-      <!-- По источникам -->
-      <div class="mobile-stats-section">
-        <h4>По источникам</h4>
-      <div class="mobile-stats-simple">
-          <p><strong>{{ getSourceDisplay('manual') }}:</strong> <span class="stat-value">{{ orderStats().bySource.manual }}</span></p>
-          <p><strong>{{ getSourceDisplay('automatic') }}:</strong> <span class="stat-value">{{ orderStats().bySource.automatic }}</span></p>
-          <p><strong>{{ getSourceDisplay('email') }}:</strong> <span class="stat-value">{{ orderStats().bySource.email }}</span></p>
-          <p><strong>{{ getSourceDisplay('api') }}:</strong> <span class="stat-value">{{ orderStats().bySource.api }}</span></p>
+      <!-- Детальная статистика -->
+      <div class="mobile-details">
+        <div class="details-section">
+          <h4>По статусам</h4>
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="detail-label">В обработке:</span>
+              <span class="detail-value">{{ orderStats().processing }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">На проверке:</span>
+              <span class="detail-value">{{ orderStats().review }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="details-section">
+          <h4>По источникам</h4>
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Вручную:</span>
+              <span class="detail-value">{{ orderStats().bySource.manual }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Автоматически:</span>
+              <span class="detail-value">{{ orderStats().bySource.automatic }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Email:</span>
+              <span class="detail-value">{{ orderStats().bySource.email }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">API:</span>
+              <span class="detail-value">{{ orderStats().bySource.api }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </mat-card-content>
   </mat-card>
-
-  <!-- Source Statistics - Desktop - СКРЫТО -->
-  <div class="stats-grid desktop-stats source-stats-grid" *ngIf="false">
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">touch_app</mat-icon>
-          <div class="stat-info">
-            <h3>{{ orderStats().bySource.manual }}</h3>
-            <p>{{ getSourceDisplay('manual') }}</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">settings</mat-icon>
-          <div class="stat-info">
-            <h3>{{ orderStats().bySource.automatic }}</h3>
-            <p>{{ getSourceDisplay('automatic') }}</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">email</mat-icon>
-          <div class="stat-info">
-            <h3>{{ orderStats().bySource.email }}</h3>
-            <p>{{ getSourceDisplay('email') }}</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <mat-icon class="stat-icon">api</mat-icon>
-          <div class="stat-info">
-            <h3>{{ orderStats().bySource.api }}</h3>
-            <p>{{ getSourceDisplay('api') }}</p>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
 
   <!-- Main Content -->
   <mat-card class="main-content">
@@ -534,6 +459,7 @@
             (click)="refreshData()"
             matTooltip="Обновить данные"
             aria-label="Обновить"
+            class="header-btn refresh-btn"
           >
             <mat-icon>refresh</mat-icon>
           </button>
@@ -545,9 +471,10 @@
             matTooltip="Экспортировать данные в Excel"
             aria-label="Экспортировать в Excel"
             *ngIf="canExportOrders"
+            class="header-btn export-btn"
           >
             <mat-icon>download</mat-icon>
-            <span>Скачать XLS</span>
+            <span class="btn-text">Скачать XLS</span>
           </button>
 
           <button
@@ -555,9 +482,10 @@
             color="primary"
             (click)="onCreateOrder()"
             *ngIf="canCreateOrders"
+            class="header-btn create-btn"
           >
             <mat-icon>add</mat-icon>
-            <span>Создать заказ</span>
+            <span class="btn-text">Создать заказ</span>
           </button>
         </div>
       </div>
@@ -640,97 +568,119 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Действия</th>
             <td mat-cell *matCellDef="let order">
-              <!-- Engineer Actions -->
-              <button
-                mat-raised-button
-                color="accent"
-                (click)="onAcceptOrder(order)"
-                matTooltip="Подтвердить заявку и начать работу"
-                *ngIf="canAcceptOrder(order)"
-              >
-                <mat-icon>check_circle</mat-icon>
-                Подтвердить
-              </button>
+              <div class="actions-container">
+                <!-- Engineer Actions Group -->
+                <div class="action-group engineer-actions" *ngIf="canAcceptOrder(order) || canCompleteWork(order)">
+                  <button
+                    mat-raised-button
+                    color="accent"
+                    (click)="onAcceptOrder(order)"
+                    matTooltip="Подтвердить заявку и начать работу"
+                    *ngIf="canAcceptOrder(order)"
+                    class="action-btn primary-action"
+                  >
+                    <mat-icon>check_circle</mat-icon>
+                    <span class="btn-text">Подтвердить</span>
+                  </button>
 
-              <button
-                mat-raised-button
-                color="primary"
-                (click)="onCompleteWork(order)"
-                matTooltip="Внести данные о выполненной работе"
-                *ngIf="canCompleteWork(order)"
-              >
-                <mat-icon>task_alt</mat-icon>
-                Выполнить
-              </button>
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    (click)="onCompleteWork(order)"
+                    matTooltip="Внести данные о выполненной работе"
+                    *ngIf="canCompleteWork(order)"
+                    class="action-btn primary-action"
+                  >
+                    <mat-icon>task_alt</mat-icon>
+                    <span class="btn-text">Выполнить</span>
+                  </button>
+                </div>
 
-              <!-- Admin/Manager Actions -->
-              <button
-                mat-icon-button
-                (click)="onEditOrder(order)"
-                color="primary"
-                matTooltip="Редактировать заказ"
-                aria-label="Редактировать"
-                *ngIf="canEditOrder(order)"
-              >
-                <mat-icon>edit</mat-icon>
-              </button>
+                <!-- Admin/Manager Actions Group -->
+                <div class="action-group admin-actions">
+                  <!-- Edit Actions -->
+                  <div class="edit-actions" *ngIf="canEditOrder(order) || canEditCompletedOrder(order)">
+                    <button
+                      mat-icon-button
+                      (click)="onEditOrder(order)"
+                      color="primary"
+                      matTooltip="Редактировать заказ"
+                      aria-label="Редактировать"
+                      *ngIf="canEditOrder(order)"
+                      class="action-btn-icon edit-btn"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
 
-              <!-- Edit within 24h after completion -->
-              <button
-                mat-icon-button
-                (click)="onEditOrder(order)"
-                color="warn"
-                matTooltip="Редактировать завершенный заказ (доступно 24 часа)"
-                aria-label="Редактировать"
-                *ngIf="canEditCompletedOrder(order)"
-              >
-                <mat-icon>edit_note</mat-icon>
-              </button>
+                    <button
+                      mat-icon-button
+                      (click)="onEditOrder(order)"
+                      color="warn"
+                      matTooltip="Редактировать завершенный заказ (доступно 24 часа)"
+                      aria-label="Редактировать"
+                      *ngIf="canEditCompletedOrder(order)"
+                      class="action-btn-icon edit-completed-btn"
+                    >
+                      <mat-icon>edit_note</mat-icon>
+                    </button>
+                  </div>
 
-              <button
-                mat-button
-                [matMenuTriggerFor]="statusMenu"
-                color="accent"
-                matTooltip="Изменить статус"
-                aria-label="Изменить статус"
-                *ngIf="canUpdateOrderStatus(order)"
-              >
-                <mat-icon>edit</mat-icon>
-              </button>
-              <mat-menu #statusMenu="matMenu">
-                <button
-                  mat-menu-item
-                  *ngFor="let status of getAvailableStatuses(order)"
-                  [disabled]="order.status === status"
-                  (click)="onUpdateStatus(order, status)"
-                >
-                  <mat-icon>{{ getStatusIcon(status) }}</mat-icon>
-                  <span>{{ getStatusDisplay(status) }}</span>
-                </button>
-              </mat-menu>
+                  <!-- Status Management -->
+                  <div class="status-actions" *ngIf="canUpdateOrderStatus(order)">
+                    <button
+                      mat-icon-button
+                      [matMenuTriggerFor]="statusMenu"
+                      color="accent"
+                      matTooltip="Изменить статус"
+                      aria-label="Изменить статус"
+                      class="action-btn-icon status-btn"
+                    >
+                      <mat-icon>swap_vert</mat-icon>
+                    </button>
+                    <mat-menu #statusMenu="matMenu" class="status-menu">
+                      <button
+                        mat-menu-item
+                        *ngFor="let status of getAvailableStatuses(order)"
+                        [disabled]="order.status === status"
+                        (click)="onUpdateStatus(order, status)"
+                        class="status-menu-item"
+                      >
+                        <mat-icon [color]="getStatusColor(status)">{{ getStatusIcon(status) }}</mat-icon>
+                        <span>{{ getStatusDisplay(status) }}</span>
+                      </button>
+                    </mat-menu>
+                  </div>
 
-              <button
-                mat-icon-button
-                (click)="onAssignEngineer(order)"
-                [disabled]="order.status === 'completed'"
-                color="primary"
-                [matTooltip]="order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера'"
-                [attr.aria-label]="order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера'"
-                *ngIf="canAssignEngineers"
-              >
-                <mat-icon>{{ order.assignedEngineerId ? 'swap_horiz' : 'person_add' }}</mat-icon>
-              </button>
+                  <!-- Assignment Actions -->
+                  <div class="assignment-actions" *ngIf="canAssignEngineers">
+                    <button
+                      mat-icon-button
+                      (click)="onAssignEngineer(order)"
+                      [disabled]="order.status === 'completed'"
+                      color="primary"
+                      [matTooltip]="order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера'"
+                      [attr.aria-label]="order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера'"
+                      class="action-btn-icon assign-btn"
+                    >
+                      <mat-icon>{{ order.assignedEngineerId ? 'swap_horiz' : 'person_add' }}</mat-icon>
+                    </button>
+                  </div>
 
-              <button
-                mat-icon-button
-                (click)="onDeleteOrder(order)"
-                color="warn"
-                matTooltip="Удалить заказ"
-                aria-label="Удалить"
-                *ngIf="canDeleteOrders"
-              >
-                <mat-icon>delete</mat-icon>
-              </button>
+                  <!-- Danger Actions -->
+                  <div class="danger-actions" *ngIf="canDeleteOrders">
+                    <button
+                      mat-icon-button
+                      (click)="onDeleteOrder(order)"
+                      color="warn"
+                      matTooltip="Удалить заказ"
+                      aria-label="Удалить"
+                      class="action-btn-icon delete-btn"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </td>
           </ng-container>
 

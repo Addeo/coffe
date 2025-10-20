@@ -15,6 +15,7 @@ import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 
 import { StatisticsService } from '../../services/statistics.service';
+import { UsersService } from '../../services/users.service';
 import {
   MonthlyStatisticsDto,
   AgentEarningsData,
@@ -44,10 +45,26 @@ import {
 })
 export class StatisticsComponent implements OnInit {
   private statisticsService = inject(StatisticsService);
+  private usersService = inject(UsersService);
   private snackBar = inject(MatSnackBar);
+
+  // Плагины для диаграмм
+  chartPlugins = [];
 
   isLoading = signal(false);
   statistics = signal<MonthlyStatisticsDto | null>(null);
+  
+  // User statistics
+  userStats = signal({
+    totalUsers: 0,
+    activeUsers: 0,
+    newUsersThisMonth: 0,
+    usersByRole: {
+      admin: 0,
+      manager: 0,
+      user: 0,
+    }
+  });
 
   // Month and year selection
   selectedYear = signal(new Date().getFullYear());
@@ -72,6 +89,11 @@ export class StatisticsComponent implements OnInit {
 
   // View mode toggle
   viewMode: 'charts' | 'tables' = 'charts';
+
+  // Mobile view detection
+  isMobileView(): boolean {
+    return window.innerWidth <= 768;
+  }
 
   // Table columns
   agentEarningsColumns = ['agentName', 'totalEarnings', 'completedOrders', 'averageOrderValue'];
@@ -260,8 +282,44 @@ export class StatisticsComponent implements OnInit {
     plugins: {
       legend: {
         position: 'bottom',
+        labels: {
+          usePointStyle: true,
+          padding: 15,
+          font: {
+            size: 12
+          },
+          generateLabels: (chart) => {
+            const data = chart.data;
+            if (data.labels && data.datasets && data.datasets[0]) {
+              const dataset = data.datasets[0];
+              const total = (dataset.data as number[]).reduce((a: number, b: number) => a + b, 0);
+              
+              return data.labels.map((label, index) => {
+                const value = dataset.data[index] as number;
+                const percentage = ((value / total) * 100).toFixed(1);
+                const bgColor = Array.isArray(dataset.backgroundColor) 
+                  ? dataset.backgroundColor[index] 
+                  : dataset.backgroundColor;
+                const borderColor = Array.isArray(dataset.borderColor)
+                  ? dataset.borderColor[index]
+                  : dataset.borderColor;
+                return {
+                  text: `${label}: ${value} (${percentage}%)`,
+                  fillStyle: bgColor || '#000',
+                  strokeStyle: borderColor || '#000',
+                  lineWidth: 2,
+                  pointStyle: 'circle',
+                  hidden: false,
+                  index: index
+                };
+              });
+            }
+            return [];
+          }
+        }
       },
       tooltip: {
+        enabled: true,
         callbacks: {
           label: (context) => {
             const label = context.label || '';
@@ -272,6 +330,10 @@ export class StatisticsComponent implements OnInit {
           }
         }
       }
+    },
+    // Добавляем анимацию для лучшего восприятия
+    animation: {
+      duration: 1000
     }
   };
 
@@ -300,6 +362,7 @@ export class StatisticsComponent implements OnInit {
 
   ngOnInit() {
     this.loadStatistics();
+    this.loadUserStats();
   }
 
   loadStatistics() {
@@ -363,5 +426,70 @@ export class StatisticsComponent implements OnInit {
     if (margin >= 10) return '#ff9800'; // orange for ok margin
     if (margin > 0) return '#ffeb3b'; // yellow for low margin
     return '#f44336'; // red for negative margin
+  }
+
+  loadUserStats() {
+    this.usersService.getUsers().subscribe({
+      next: response => {
+        const users = response.data;
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        
+        const usersByRole = {
+          admin: 0,
+          manager: 0,
+          user: 0,
+        };
+        
+        users.forEach(user => {
+          switch (user.role) {
+            case 'admin':
+              usersByRole.admin++;
+              break;
+            case 'manager':
+              usersByRole.manager++;
+              break;
+            case 'user':
+              usersByRole.user++;
+              break;
+          }
+        });
+        
+        this.userStats.set({
+          totalUsers: users.length,
+          activeUsers: users.filter(u => u.isActive).length,
+          newUsersThisMonth: users.filter(u => {
+            const userDate = new Date(u.createdAt);
+            return userDate.getMonth() === currentMonth && userDate.getFullYear() === currentYear;
+          }).length,
+          usersByRole,
+        });
+      },
+      error: error => {
+        console.error('Failed to load user stats:', error);
+      },
+    });
+  }
+
+  // Chart data for User Statistics (Doughnut Chart)
+  get userStatsChartData(): ChartData<'doughnut'> {
+    const stats = this.userStats();
+    return {
+      labels: ['Администраторы', 'Менеджеры', 'Инженеры'],
+      datasets: [{
+        data: [stats.usersByRole.admin, stats.usersByRole.manager, stats.usersByRole.user],
+        backgroundColor: ['#f44336', '#ff9800', '#4caf50'],
+        borderWidth: 0,
+        hoverOffset: 10
+      }]
+    };
+  }
+
+  // Получение цвета для статистики сверхурочных
+  getOvertimeColor(stat: any): string {
+    const colors = ['#f44336', '#ff9800', '#4caf50', '#2196f3', '#9c27b0', '#00bcd4'];
+    const index = this.statistics()?.overtimeStatistics?.indexOf(stat) || 0;
+    return colors[index % colors.length];
   }
 }

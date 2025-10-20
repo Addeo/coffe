@@ -38,12 +38,12 @@ export class NotificationsComponent implements OnInit, AfterViewInit {
 
   // Column headers
   readonly columnHeaders = {
-    type: $localize`:@@notifications.type:Type`,
-    title: $localize`:@@notifications.titleColumn:Title`,
-    message: $localize`:@@notifications.message:Message`,
-    priority: $localize`:@@notifications.priority:Priority`,
-    created: $localize`:@@notifications.created:Created`,
-    actions: $localize`:@@notifications.actions:Actions`,
+    type: 'Тип',
+    title: 'Заголовок',
+    message: 'Сообщение',
+    priority: 'Приоритет',
+    created: 'Создано',
+    actions: 'Действия',
   };
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -255,7 +255,22 @@ export class NotificationsComponent implements OnInit, AfterViewInit {
   }
 
   getNotificationTypeDisplay(type: string): string {
-    return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    const typeMap: { [key: string]: string } = {
+      'order_assigned': 'Заказ назначен',
+      'order_completed': 'Заказ завершен',
+      'order_updated': 'Заказ обновлен',
+      'system': 'Система',
+      'user': 'Пользователь',
+      'admin': 'Администратор',
+      'reminder': 'Напоминание',
+      'alert': 'Предупреждение',
+      'info': 'Информация',
+      'success': 'Успех',
+      'error': 'Ошибка',
+      'warning': 'Предупреждение'
+    };
+    
+    return typeMap[type] || type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   }
 
   getUnreadCount(): number {
