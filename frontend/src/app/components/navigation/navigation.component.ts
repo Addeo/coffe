@@ -47,14 +47,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   // Computed navigation items based on user role
   navigationItems = computed<NavigationItem[]>(() => {
     const role = this.userRole();
-    const items: NavigationItem[] = [
-      {
-        label: 'Главная',
-        route: '/dashboard',
-        icon: 'dashboard',
-        i18nKey: '@@navigation.dashboard',
-      },
-    ];
+    const items: NavigationItem[] = [];
 
     if (role === UserRole.ADMIN || role === UserRole.MANAGER) {
       items.push(
@@ -64,12 +57,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
           route: '/organizations',
           icon: 'business',
           i18nKey: '@@navigation.organizations',
-        },
-        {
-          label: 'Ставки инженеров',
-          route: '/engineer-rates',
-          icon: 'account_balance_wallet',
-          i18nKey: '@@navigation.engineerRates',
         },
         {
           label: 'Статистика',
