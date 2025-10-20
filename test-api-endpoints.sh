@@ -14,7 +14,7 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Настройки
-BASE_URL="http://localhost:3000"
+BASE_URL="http://localhost:3001"
 
 # Счетчики
 TOTAL_TESTS=0
@@ -79,13 +79,13 @@ check_server() {
 test_public_endpoints() {
     log_info "=== ТЕСТИРОВАНИЕ ПУБЛИЧНЫХ ЭНДПОИНТОВ ==="
     
-    test_endpoint "GET" "/test/health" "200" "Health check"
-    test_endpoint "GET" "/test" "200" "Test endpoint"
-    test_endpoint "GET" "/test/simple" "200" "Simple test"
-    test_endpoint "GET" "/test/organizations" "200" "Organizations test"
-    test_endpoint "GET" "/test/organizations-static" "200" "Static organizations"
-    test_endpoint "GET" "/test/organizations-fixed" "200" "Fixed organizations"
-    test_endpoint "GET" "/organizations/public" "200" "Public organizations"
+    test_endpoint "GET" "/api/test/health" "200" "Health check"
+    test_endpoint "GET" "/api/test" "200" "Test endpoint"
+    test_endpoint "GET" "/api/test/simple" "200" "Simple test"
+    test_endpoint "GET" "/api/test/organizations" "200" "Organizations test"
+    test_endpoint "GET" "/api/test/organizations-static" "200" "Static organizations"
+    test_endpoint "GET" "/api/test/organizations-fixed" "200" "Fixed organizations"
+    test_endpoint "GET" "/api/organizations/public" "200" "Public organizations"
 }
 
 # Тестирование защищенных эндпоинтов (должны возвращать 401)
