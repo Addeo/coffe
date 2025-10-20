@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { MaterialModule } from '../../shared/material/material.module';
 
@@ -26,6 +27,7 @@ export class DashboardComponent implements OnInit {
   private ordersService = inject(OrdersService);
   private usersService = inject(UsersService);
   private statisticsService = inject(StatisticsService);
+  private snackBar = inject(MatSnackBar);
 
   // Reactive signals
   isLoading = signal(false);
@@ -264,5 +266,31 @@ export class DashboardComponent implements OnInit {
    */
   formatAmount(amount: number): string {
     return amount.toLocaleString('ru-RU') + ' ₽';
+  }
+
+  // Новые методы для улучшенного Dashboard
+  showDetailedStats = signal(false);
+
+  /**
+   * Переключает отображение детальной статистики
+   */
+  toggleStatsView(): void {
+    this.showDetailedStats.set(!this.showDetailedStats());
+  }
+
+  /**
+   * Обновляет данные панели управления
+   */
+  refreshData(): void {
+    this.loadDashboardData();
+    this.snackBar.open('Данные обновлены', 'Закрыть', { duration: 2000 });
+  }
+
+  /**
+   * Экспортирует данные панели управления
+   */
+  exportDashboard(): void {
+    // TODO: Реализовать экспорт данных
+    this.snackBar.open('Функция экспорта в разработке', 'Закрыть', { duration: 2000 });
   }
 }

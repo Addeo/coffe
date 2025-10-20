@@ -43,6 +43,220 @@
   }
 }
 
+// Mobile Summary Card - компактная версия для мобильных устройств
+.mobile-summary-card {
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+
+  mat-card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px 20px;
+    border-radius: 16px 16px 0 0;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+      margin: 0;
+
+      mat-icon {
+        color: white;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .mobile-export-btn {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+
+      .export-btn-mobile {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+        transition: all 0.3s;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.2);
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+
+  mat-card-content {
+    padding: 20px;
+  }
+
+  // Основные метрики в сетке 2x2
+  .mobile-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+
+    .summary-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 12px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.6s;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+        &::before {
+          transform: translateX(100%);
+        }
+      }
+
+      .summary-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        flex-shrink: 0;
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .summary-content {
+        flex: 1;
+        min-width: 0;
+
+        .summary-value {
+          font-size: 24px;
+          font-weight: 700;
+          line-height: 1;
+          margin-bottom: 4px;
+        }
+
+        .summary-label {
+          font-size: 12px;
+          font-weight: 500;
+          opacity: 0.8;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+
+      // Цветовые схемы для разных типов метрик
+      &.primary {
+        background: linear-gradient(135deg, #1976d2, #1565c0);
+        color: white;
+
+        .summary-icon {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      }
+
+      &.success {
+        background: linear-gradient(135deg, #4caf50, #388e3c);
+        color: white;
+
+        .summary-icon {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      }
+
+      &.warning {
+        background: linear-gradient(135deg, #ff9800, #f57c00);
+        color: white;
+
+        .summary-icon {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      }
+
+      &.info {
+        background: linear-gradient(135deg, #2196f3, #1976d2);
+        color: white;
+
+        .summary-icon {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      }
+    }
+  }
+
+  // Детальная статистика
+  .mobile-details {
+    .details-section {
+      margin-bottom: 16px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      h4 {
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.7);
+        margin: 0 0 12px 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+
+        .detail-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 12px;
+          background: rgba(0, 0, 0, 0.02);
+          border-radius: 8px;
+          font-size: 13px;
+
+          .detail-label {
+            color: rgba(0, 0, 0, 0.6);
+            font-weight: 500;
+          }
+
+          .detail-value {
+            color: #1976d2;
+            font-weight: 600;
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+}
+
 // Mobile stats - скрыта на desktop
 .mobile-stats {
   display: none;
@@ -170,8 +384,75 @@
       min-width: 200px;
     }
 
-    button {
-      margin-left: 8px;
+    .header-btn {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transform: translateX(-100%);
+        transition: transform 0.6s;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+        &::before {
+          transform: translateX(100%);
+        }
+      }
+
+      mat-icon {
+        transition: transform 0.3s;
+      }
+
+      &:hover mat-icon {
+        transform: scale(1.1);
+      }
+
+      .btn-text {
+        font-weight: 500;
+        margin-left: 4px;
+      }
+
+      &.refresh-btn {
+        background: linear-gradient(135deg, #607d8b, #455a64);
+        color: white;
+
+        &:hover {
+          background: linear-gradient(135deg, #455a64, #37474f);
+        }
+      }
+
+      &.export-btn {
+        background: linear-gradient(135deg, #ff9800, #f57c00);
+        color: white;
+        box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+
+        &:hover {
+          background: linear-gradient(135deg, #f57c00, #ef6c00);
+          box-shadow: 0 4px 16px rgba(255, 152, 0, 0.4);
+        }
+      }
+
+      &.create-btn {
+        background: linear-gradient(135deg, #4caf50, #388e3c);
+        color: white;
+        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+
+        &:hover {
+          background: linear-gradient(135deg, #388e3c, #2e7d32);
+          box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
+        }
+      }
     }
   }
 }
@@ -324,16 +605,170 @@
   }
 }
 
-// Actions column styling
-.mat-mdc-cell:last-child {
-  .mat-icon-button,
-  .mat-mdc-button {
-    margin-right: 4px;
+// Enhanced Actions Container
+.actions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
 
-    &:last-child {
-      margin-right: 0;
+  .action-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+
+    &.engineer-actions {
+      .action-btn {
+        min-width: 120px;
+        height: 36px;
+        font-size: 13px;
+        font-weight: 500;
+        border-radius: 18px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        mat-icon {
+          margin-right: 6px;
+          font-size: 18px;
+        }
+
+        .btn-text {
+          font-weight: 500;
+        }
+      }
+    }
+
+    &.admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+
+      .edit-actions,
+      .status-actions,
+      .assignment-actions,
+      .danger-actions {
+        display: flex;
+        gap: 4px;
+      }
+
+      .action-btn-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+          transform: translateX(-100%);
+          transition: transform 0.6s;
+        }
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+
+          &::before {
+            transform: translateX(100%);
+          }
+        }
+
+        mat-icon {
+          font-size: 18px;
+          transition: transform 0.3s;
+        }
+
+        &:hover mat-icon {
+          transform: scale(1.1);
+        }
+
+        &.edit-btn {
+          background: linear-gradient(135deg, #1976d2, #1565c0);
+          color: white;
+
+          &:hover {
+            background: linear-gradient(135deg, #1565c0, #0d47a1);
+          }
+        }
+
+        &.edit-completed-btn {
+          background: linear-gradient(135deg, #f57c00, #e65100);
+          color: white;
+
+          &:hover {
+            background: linear-gradient(135deg, #e65100, #d84315);
+          }
+        }
+
+        &.status-btn {
+          background: linear-gradient(135deg, #7b1fa2, #6a1b9a);
+          color: white;
+
+          &:hover {
+            background: linear-gradient(135deg, #6a1b9a, #4a148c);
+          }
+        }
+
+        &.assign-btn {
+          background: linear-gradient(135deg, #388e3c, #2e7d32);
+          color: white;
+
+          &:hover {
+            background: linear-gradient(135deg, #2e7d32, #1b5e20);
+          }
+        }
+
+        &.delete-btn {
+          background: linear-gradient(135deg, #d32f2f, #c62828);
+          color: white;
+
+          &:hover {
+            background: linear-gradient(135deg, #c62828, #b71c1c);
+          }
+        }
+      }
     }
   }
+}
+
+// Status Menu Styling
+.status-menu {
+  .status-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    transition: all 0.3s;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// Actions column styling
+.mat-mdc-cell:last-child {
+  padding: 12px;
+  min-width: 220px;
 }
 
 // Status chip styling
@@ -420,6 +855,18 @@
     padding: 16px;
   }
 
+  // Скрыть переключатель статистики на мобильных
+  .stats-switcher {
+    display: none !important;
+  }
+
+  // Скрыть все варианты статистики на мобильных
+  .stats-card-unified,
+  .stats-card-charts,
+  .stats-card-progress {
+    display: none !important;
+  }
+
   // Скрыть desktop версию статистики
   .stats-grid.desktop-stats {
     display: none !important;
@@ -427,6 +874,11 @@
 
   // Показать мобильную версию статистики (ВСЁ В ОДНОЙ КАРТОЧКЕ)
   .mobile-stats {
+    display: block !important;
+  }
+
+  // Показать компактную мобильную статистику
+  .mobile-summary-card {
     display: block !important;
   }
 
@@ -447,9 +899,48 @@
         min-width: 100%;
       }
 
-      button {
-        margin-left: 0;
+      .header-btn {
         width: 100%;
+        margin-left: 0;
+
+        .btn-text {
+          display: inline;
+        }
+      }
+    }
+  }
+
+  // Enhanced mobile actions
+  .actions-container {
+    min-width: auto;
+    gap: 6px;
+
+    .action-group {
+      &.engineer-actions {
+        .action-btn {
+          min-width: 100px;
+          height: 32px;
+          font-size: 12px;
+
+          .btn-text {
+            display: none;
+          }
+
+          mat-icon {
+            margin-right: 0;
+          }
+        }
+      }
+
+      &.admin-actions {
+        .action-btn-icon {
+          width: 32px;
+          height: 32px;
+
+          mat-icon {
+            font-size: 16px;
+          }
+        }
       }
     }
   }
@@ -478,6 +969,57 @@
 
   .main-content mat-card-content {
     padding: 12px;
+  }
+
+  // Компактная мобильная статистика для очень маленьких экранов
+  .mobile-summary-card {
+    .mobile-summary-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+
+      .summary-item {
+        padding: 12px;
+
+        .summary-icon {
+          width: 32px;
+          height: 32px;
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+        }
+
+        .summary-content {
+          .summary-value {
+            font-size: 20px;
+          }
+
+          .summary-label {
+            font-size: 11px;
+          }
+        }
+      }
+    }
+
+    .mobile-details {
+      .details-section {
+        .details-grid {
+          grid-template-columns: 1fr;
+          gap: 6px;
+
+          .detail-item {
+            padding: 6px 10px;
+            font-size: 12px;
+
+            .detail-value {
+              font-size: 13px;
+            }
+          }
+        }
+      }
+    }
   }
 
   .mobile-stats-simple p {

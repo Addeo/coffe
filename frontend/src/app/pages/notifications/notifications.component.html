@@ -111,7 +111,7 @@
                     <button
                       mat-icon-button
                       [matMenuTriggerFor]="menu"
-                      aria-label="Notification actions"
+                      aria-label="Действия с уведомлением"
                     >
                       <mat-icon>more_vert</mat-icon>
                     </button>
@@ -150,7 +150,7 @@
           </div>
         </mat-tab>
 
-        <mat-tab label="Unread">
+        <mat-tab label="Непрочитанные">
           <div class="tab-content">
             <table mat-table [dataSource]="unreadDataSource" matSort class="notifications-table">
               <!-- Same columns as above -->
@@ -206,7 +206,7 @@
                     <button
                       mat-icon-button
                       [matMenuTriggerFor]="menu"
-                      aria-label="Notification actions"
+                      aria-label="Действия с уведомлением"
                     >
                       <mat-icon>more_vert</mat-icon>
                     </button>
@@ -232,7 +232,7 @@
           </div>
         </mat-tab>
 
-        <mat-tab label="Read">
+        <mat-tab label="Прочитанные">
           <div class="tab-content">
             <table mat-table [dataSource]="readDataSource" matSort class="notifications-table">
               <!-- Same columns as above, but without unread indicator -->
@@ -285,7 +285,7 @@
                     <button
                       mat-icon-button
                       [matMenuTriggerFor]="menu"
-                      aria-label="Notification actions"
+                      aria-label="Действия с уведомлением"
                     >
                       <mat-icon>more_vert</mat-icon>
                     </button>

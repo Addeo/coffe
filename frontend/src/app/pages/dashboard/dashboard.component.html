@@ -1,96 +1,178 @@
 <div class="dashboard-container">
-  <h1 class="dashboard-title">{{ dashboardTitle() }}</h1>
+  <!-- Modern Header with Welcome Message -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="welcome-section">
+        <h1 class="dashboard-title">{{ dashboardTitle() }}</h1>
+        <p class="dashboard-subtitle">Добро пожаловать в панель управления</p>
+      </div>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" routerLink="/orders" class="quick-action-btn">
+          <mat-icon>add</mat-icon>
+          Новый заказ
+        </button>
+        <button mat-icon-button [matMenuTriggerFor]="refreshMenu" class="refresh-btn">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <mat-menu #refreshMenu="matMenu">
+          <button mat-menu-item (click)="refreshData()">
+            <mat-icon>refresh</mat-icon>
+            Обновить данные
+          </button>
+          <button mat-menu-item (click)="exportDashboard()">
+            <mat-icon>download</mat-icon>
+            Экспорт отчета
+          </button>
+        </mat-menu>
+      </div>
+    </div>
+  </div>
 
   <!-- Loading indicator -->
   <div *ngIf="isLoading()" class="loading-container">
-    <mat-spinner diameter="40"></mat-spinner>
-    <p>Загрузка данных панели управления...</p>
+    <div class="loading-content">
+      <mat-spinner diameter="50"></mat-spinner>
+      <h3>Загрузка данных панели управления...</h3>
+      <p>Пожалуйста, подождите</p>
+    </div>
   </div>
 
   <div *ngIf="!isLoading()" class="dashboard-content">
     <!-- Orders Statistics -->
     <section class="stats-section">
-      <h2>Обзор заказов</h2>
+      <div class="section-header">
+        <h2>
+          <mat-icon>dashboard</mat-icon>
+          Обзор заказов
+        </h2>
+        <div class="section-actions">
+          <button mat-icon-button (click)="toggleStatsView()" matTooltip="Переключить вид">
+            <mat-icon>{{ showDetailedStats() ? 'view_module' : 'view_list' }}</mat-icon>
+          </button>
+        </div>
+      </div>
       <div class="stats-grid">
-        <mat-card class="stat-card">
+        <mat-card class="stat-card primary">
           <mat-card-content>
             <div class="stat-content">
-              <mat-icon class="stat-icon">assignment</mat-icon>
+              <div class="stat-icon-wrapper">
+                <mat-icon class="stat-icon">assignment</mat-icon>
+              </div>
               <div class="stat-info">
                 <h3>{{ orderStats().total }}</h3>
                 <p>Всего заказов</p>
+                <div class="stat-trend" *ngIf="showDetailedStats()">
+                  <mat-icon class="trend-icon">trending_up</mat-icon>
+                  <span class="trend-text">+12% за месяц</span>
+                </div>
               </div>
             </div>
           </mat-card-content>
         </mat-card>
 
-        <mat-card class="stat-card">
+        <mat-card class="stat-card warning">
           <mat-card-content>
             <div class="stat-content">
-              <mat-icon class="stat-icon">schedule</mat-icon>
+              <div class="stat-icon-wrapper">
+                <mat-icon class="stat-icon">schedule</mat-icon>
+              </div>
               <div class="stat-info">
                 <h3>{{ orderStats().waiting }}</h3>
                 <p>{{ getStatusDisplay('waiting') }}</p>
+                <div class="stat-trend" *ngIf="showDetailedStats()">
+                  <mat-icon class="trend-icon">schedule</mat-icon>
+                  <span class="trend-text">Ожидают обработки</span>
+                </div>
               </div>
             </div>
           </mat-card-content>
         </mat-card>
 
-        <mat-card class="stat-card">
+        <mat-card class="stat-card info">
           <mat-card-content>
             <div class="stat-content">
-              <mat-icon class="stat-icon">assignment_ind</mat-icon>
+              <div class="stat-icon-wrapper">
+                <mat-icon class="stat-icon">assignment_ind</mat-icon>
+              </div>
               <div class="stat-info">
                 <h3>{{ orderStats().assigned }}</h3>
                 <p>{{ getStatusDisplay('assigned') }}</p>
+                <div class="stat-trend" *ngIf="showDetailedStats()">
+                  <mat-icon class="trend-icon">person</mat-icon>
+                  <span class="trend-text">Назначены инженерам</span>
+                </div>
               </div>
             </div>
           </mat-card-content>
         </mat-card>
 
-        <mat-card class="stat-card">
+        <mat-card class="stat-card processing">
           <mat-card-content>
             <div class="stat-content">
-              <mat-icon class="stat-icon">person_add</mat-icon>
+              <div class="stat-icon-wrapper">
+                <mat-icon class="stat-icon">person_add</mat-icon>
+              </div>
               <div class="stat-info">
                 <h3>{{ orderStats().processing }}</h3>
                 <p>{{ getStatusDisplay('processing') }}</p>
+                <div class="stat-trend" *ngIf="showDetailedStats()">
+                  <mat-icon class="trend-icon">work</mat-icon>
+                  <span class="trend-text">В процессе выполнения</span>
+                </div>
               </div>
             </div>
           </mat-card-content>
         </mat-card>
 
-        <mat-card class="stat-card">
+        <mat-card class="stat-card working">
           <mat-card-content>
             <div class="stat-content">
-              <mat-icon class="stat-icon">build</mat-icon>
+              <div class="stat-icon-wrapper">
+                <mat-icon class="stat-icon">build</mat-icon>
+              </div>
               <div class="stat-info">
                 <h3>{{ orderStats().working }}</h3>
                 <p>{{ getStatusDisplay('working') }}</p>
+                <div class="stat-trend" *ngIf="showDetailedStats()">
+                  <mat-icon class="trend-icon">engineering</mat-icon>
+                  <span class="trend-text">Активно выполняются</span>
+                </div>
               </div>
             </div>
           </mat-card-content>
         </mat-card>
 
-        <mat-card class="stat-card">
+        <mat-card class="stat-card review">
           <mat-card-content>
             <div class="stat-content">
-              <mat-icon class="stat-icon">visibility</mat-icon>
+              <div class="stat-icon-wrapper">
+                <mat-icon class="stat-icon">visibility</mat-icon>
+              </div>
               <div class="stat-info">
                 <h3>{{ orderStats().review }}</h3>
                 <p>{{ getStatusDisplay('review') }}</p>
+                <div class="stat-trend" *ngIf="showDetailedStats()">
+                  <mat-icon class="trend-icon">search</mat-icon>
+                  <span class="trend-text">На проверке</span>
+                </div>
               </div>
             </div>
           </mat-card-content>
         </mat-card>
 
-        <mat-card class="stat-card">
+        <mat-card class="stat-card success">
           <mat-card-content>
             <div class="stat-content">
-              <mat-icon class="stat-icon">check_circle</mat-icon>
+              <div class="stat-icon-wrapper">
+                <mat-icon class="stat-icon">check_circle</mat-icon>
+              </div>
               <div class="stat-info">
                 <h3>{{ orderStats().completed }}</h3>
                 <p>{{ getStatusDisplay('completed') }}</p>
+                <div class="stat-trend" *ngIf="showDetailedStats()">
+                  <mat-icon class="trend-icon">done_all</mat-icon>
+                  <span class="trend-text">Успешно завершены</span>
+                </div>
               </div>
             </div>
           </mat-card-content>

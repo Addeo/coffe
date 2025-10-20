@@ -526,6 +526,11 @@ export class OrdersComponent implements OnInit {
   // Stats view switcher
   statsView: 'compact' | 'charts' | 'progress' = 'charts'; // По умолчанию графики
 
+  // Mobile view detection
+  isMobileView(): boolean {
+    return window.innerWidth <= 768;
+  }
+
   // Данные для графика статусов (Donut)
   get statusChartData(): ChartData<'doughnut'> {
     return {
