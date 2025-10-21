@@ -16,7 +16,7 @@
             У вас есть непринятые заявки, ожидающие подтверждения.
           </span>
         </div>
-        <button mat-raised-button color="warn" (click)="onStatusFilterChange('assigned')">
+        <button mat-raised-button color="warn" (click)="onStatusFilterChange(assignedStatus)">
           Посмотреть
         </button>
       </div>
@@ -466,6 +466,8 @@
       </div>
     </mat-card-content>
   </mat-card>
+    </mat-card-content>
+  </mat-card>
 
   <!-- Main Content -->
   <mat-card class="main-content">
@@ -747,4 +749,3 @@
     </mat-card-content>
   </mat-card>
 </div>
-

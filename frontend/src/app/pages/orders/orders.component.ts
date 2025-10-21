@@ -166,6 +166,7 @@ export class OrdersComponent implements OnInit {
 
   statusOptions = Object.values(OrderStatus);
   selectedStatus = signal<OrderStatus | ''>('');
+  readonly assignedStatus = OrderStatus.ASSIGNED;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
