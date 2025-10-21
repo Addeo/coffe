@@ -35,11 +35,23 @@ export class AuthService {
   readonly isLoading = this.isLoadingSignal.asReadonly();
 
   // Computed signals for role management
-  readonly primaryRole = computed(() => this.currentUser()?.primaryRole || this.currentUser()?.role);
-  readonly activeRole = computed(() => this.currentUser()?.activeRole || this.primaryRole());
+  readonly primaryRole = computed(() => {
+    const user = this.currentUser();
+    const role = user?.primaryRole || user?.role;
+    console.log('🔐 primaryRole computed:', { user, role });
+    return role;
+  });
+  readonly activeRole = computed(() => {
+    const user = this.currentUser();
+    const active = user?.activeRole || this.primaryRole();
+    console.log('🔐 activeRole computed:', { user, active, primaryRole: this.primaryRole() });
+    return active;
+  });
   readonly availableRoles = computed(() => {
     const primary = this.primaryRole();
-    return primary ? getAvailableRoles(primary) : [];
+    const roles = primary ? getAvailableRoles(primary) : [];
+    console.log('🔐 availableRoles computed:', { primary, roles });
+    return roles;
   });
   readonly canSwitchRoles = computed(() => this.availableRoles().length > 1);
 
@@ -120,6 +132,11 @@ export class AuthService {
       try {
         const userData = JSON.parse(user);
         console.log('🔐 Parsed user data:', userData);
+        console.log('🔐 User role fields:', {
+          role: userData.role,
+          primaryRole: userData.primaryRole,
+          activeRole: userData.activeRole,
+        });
         this.currentUserSignal.set(userData);
         this.isAuthenticatedSignal.set(true);
         console.log('🔐 Auth status set to authenticated');
@@ -148,7 +165,16 @@ export class AuthService {
    */
   hasAnyRole(roles: UserRole[]): boolean {
     const active = this.activeRole();
-    return active ? roles.includes(active) : false;
+    const result = active ? roles.includes(active) : false;
+    
+    console.log('🔐 AuthService.hasAnyRole:', {
+      activeRole: active,
+      requiredRoles: roles,
+      result,
+      currentUser: this.currentUser(),
+    });
+    
+    return result;
   }
 
   /**

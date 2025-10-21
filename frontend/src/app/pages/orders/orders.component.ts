@@ -172,6 +172,10 @@ export class OrdersComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnInit() {
+    console.log('🚀 OrdersComponent initialized');
+    console.log('🚀 Initial selected status:', this.selectedStatus());
+    console.log('🚀 Status options:', this.statusOptions);
+    
     this.loadOrders();
     this.loadOrderStats();
   }
@@ -188,13 +192,23 @@ export class OrdersComponent implements OnInit {
       query.status = this.selectedStatus() as OrderStatus;
     }
 
+    console.log('🔍 Loading orders with query:', query);
+    console.log('🔍 Selected status:', this.selectedStatus());
+
     this.ordersService.getOrders(query).subscribe({
       next: response => {
-        this.dataSource.data = response.data;
+        console.log('📊 Orders API response:', response);
+        console.log('📊 Orders data:', response.data);
+        console.log('📊 Orders count:', response.data?.length);
+        
+        this.dataSource.data = response.data || [];
         this.isLoading.set(false);
+        
+        console.log('📊 DataSource data after update:', this.dataSource.data);
+        console.log('📊 DataSource data length:', this.dataSource.data.length);
       },
       error: error => {
-        console.error('Error loading orders:', error);
+        console.error('❌ Error loading orders:', error);
         this.toastService.error('Ошибка загрузки заказов');
         this.isLoading.set(false);
       },
@@ -213,6 +227,7 @@ export class OrdersComponent implements OnInit {
   }
 
   onStatusFilterChange(status: OrderStatus | '') {
+    console.log('🔄 Status filter changed to:', status);
     this.selectedStatus.set(status);
     this.loadOrders();
   }

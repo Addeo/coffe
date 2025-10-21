@@ -737,6 +737,10 @@
           <mat-icon>assignment</mat-icon>
           <h3>Заказы не найдены</h3>
           <p>Нет заказов, соответствующих критериям поиска, или заказы еще не были созданы.</p>
+          <p><strong>Debug info:</strong></p>
+          <p>Selected status: {{ selectedStatus() }}</p>
+          <p>DataSource data length: {{ dataSource.data.length }}</p>
+          <p>Total orders in stats: {{ orderStats().total }}</p>
         </div>
       </div>
 
