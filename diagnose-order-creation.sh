@@ -3,7 +3,7 @@
 # Diagnostic script for order creation 500 error
 # This script checks the common causes of the 500 Internal Server Error
 
-API_URL="http://192.144.12.102:3001/api"
+API_URL="http://192.168.0.10:3001/api"
 TOKEN="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGNvZmZlZS5jb20iLCJzdWIiOjEsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc2MDQ2MjU0NywiZXhwIjoxNzYwNTQ4OTQ3fQ.C1pD0hfV4eknojxJ5tv8epuOb3iKXC2A1xtytqPNo_c"
 
 echo "=========================================="

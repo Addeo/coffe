@@ -17,8 +17,8 @@ if [ "$VERSION" = "emulator" ]; then
     echo "📦 Версия: EMULATOR (localhost:3001)"
 else
     APK="CoffeeAdmin-fixed.apk"
-    BACKEND="192.144.12.102:3001"
-    echo "📦 Версия: PRODUCTION (192.144.12.102:3001)"
+    BACKEND="192.168.0.10:3001"
+    echo "📦 Версия: PRODUCTION (192.168.0.10:3001)"
 fi
 
 echo ""
