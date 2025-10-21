@@ -104,6 +104,37 @@ export class Order {
   @Column({ name: 'completion_date', type: 'datetime', nullable: true })
   completionDate: Date;
 
+  // New work execution details
+  @Column({ name: 'work_act_number', type: 'varchar', length: 100, nullable: true })
+  workActNumber: string; // Номер Акта выполненных работ
+
+  @Column({ name: 'work_start_time', type: 'datetime', nullable: true })
+  workStartTime: Date; // Время начала работ
+
+  @Column({ name: 'work_end_time', type: 'datetime', nullable: true })
+  workEndTime: Date; // Время окончания работ
+
+  @Column('decimal', { name: 'total_work_hours', precision: 5, scale: 2, nullable: true })
+  totalWorkHours: number; // Общее время на объекте (рассчитывается)
+
+  @Column({ name: 'is_overtime_rate', type: 'boolean', default: false })
+  isOvertimeRate: boolean; // Внеурочный тариф (флаг)
+
+  @Column({ name: 'is_repair_complete', type: 'boolean', nullable: true })
+  isRepairComplete: boolean; // Ремонт завершен (true = да, false = нет, null = не указано)
+
+  @Column({ name: 'equipment_info', type: 'text', nullable: true })
+  equipmentInfo: string; // Оборудование (название и серийный номер)
+
+  @Column({ type: 'text', nullable: true })
+  comments: string; // Дополнительная информация по заявке
+
+  @Column({ name: 'is_incomplete', type: 'boolean', default: false })
+  isIncomplete: boolean; // Отметка "!" для незавершенных работ
+
+  @Column({ name: 'completion_locked_at', type: 'datetime', nullable: true })
+  completionLockedAt: Date; // Дата блокировки редактирования (24 часа после завершения)
+
   // Work details (previously in WorkReport)
   @Column('decimal', { name: 'regular_hours', precision: 5, scale: 2, nullable: true, default: 0 })
   regularHours: number; // обычные часы работы

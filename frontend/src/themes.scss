@@ -1,0 +1,285 @@
+// Theme variables and styles for Coffee Admin Panel
+
+// ============================================
+// Light Theme (Default)
+// ============================================
+.light-theme {
+  // Background colors
+  --bg-primary: #fafafa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f5f5f5;
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-selected: rgba(0, 0, 0, 0.08);
+
+  // Text colors
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+  --text-disabled: #bdbdbd;
+  --text-inverse: #ffffff;
+
+  // Brand colors
+  --color-primary: #6f4e37;
+  --color-primary-light: #8d6e63;
+  --color-primary-dark: #3e2723;
+  --color-primary-contrast: #ffffff;
+
+  // Accent colors
+  --color-accent: #1976d2;
+  --color-accent-light: #42a5f5;
+  --color-accent-dark: #1565c0;
+
+  // Semantic colors
+  --color-success: #4caf50;
+  --color-success-light: #81c784;
+  --color-success-dark: #388e3c;
+
+  --color-warning: #ff9800;
+  --color-warning-light: #ffb74d;
+  --color-warning-dark: #f57c00;
+
+  --color-error: #f44336;
+  --color-error-light: #e57373;
+  --color-error-dark: #d32f2f;
+
+  --color-info: #2196f3;
+  --color-info-light: #64b5f6;
+  --color-info-dark: #1976d2;
+
+  // Border colors
+  --border-color: rgba(0, 0, 0, 0.12);
+  --border-color-light: rgba(0, 0, 0, 0.06);
+  --border-color-dark: rgba(0, 0, 0, 0.24);
+
+  // Shadow colors
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+  --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.20);
+
+  // Overlay
+  --overlay-bg: rgba(0, 0, 0, 0.32);
+  --overlay-backdrop: rgba(0, 0, 0, 0.6);
+}
+
+// ============================================
+// Dark Theme
+// ============================================
+.dark-theme {
+  // Background colors
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-tertiary: #2a2a2a;
+  --bg-hover: rgba(255, 255, 255, 0.08);
+  --bg-selected: rgba(255, 255, 255, 0.12);
+
+  // Text colors
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-tertiary: #808080;
+  --text-disabled: #606060;
+  --text-inverse: #121212;
+
+  // Brand colors (adjusted for dark theme)
+  --color-primary: #8d6e63;
+  --color-primary-light: #a1887f;
+  --color-primary-dark: #6f4e37;
+  --color-primary-contrast: #121212;
+
+  // Accent colors
+  --color-accent: #42a5f5;
+  --color-accent-light: #64b5f6;
+  --color-accent-dark: #1976d2;
+
+  // Semantic colors (adjusted for dark theme)
+  --color-success: #66bb6a;
+  --color-success-light: #81c784;
+  --color-success-dark: #4caf50;
+
+  --color-warning: #ffa726;
+  --color-warning-light: #ffb74d;
+  --color-warning-dark: #ff9800;
+
+  --color-error: #ef5350;
+  --color-error-light: #e57373;
+  --color-error-dark: #f44336;
+
+  --color-info: #42a5f5;
+  --color-info-light: #64b5f6;
+  --color-info-dark: #2196f3;
+
+  // Border colors
+  --border-color: rgba(255, 255, 255, 0.12);
+  --border-color-light: rgba(255, 255, 255, 0.06);
+  --border-color-dark: rgba(255, 255, 255, 0.24);
+
+  // Shadow colors (darker for dark theme)
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.32);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.40);
+  --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.48);
+
+  // Overlay
+  --overlay-bg: rgba(0, 0, 0, 0.48);
+  --overlay-backdrop: rgba(0, 0, 0, 0.8);
+}
+
+// ============================================
+// Apply theme variables to elements
+// ============================================
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+// Material components theming
+.dark-theme {
+  // Cards
+  .mat-mdc-card {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+  }
+
+  // Buttons
+  .mat-mdc-button,
+  .mat-mdc-raised-button,
+  .mat-mdc-flat-button {
+    color: var(--text-primary);
+  }
+
+  // Form fields
+  .mat-mdc-form-field {
+    .mat-mdc-text-field-wrapper {
+      background-color: var(--bg-tertiary);
+    }
+
+    .mat-mdc-input-element {
+      color: var(--text-primary);
+    }
+
+    .mat-mdc-form-field-label {
+      color: var(--text-secondary);
+    }
+  }
+
+  // Tables
+  .mat-mdc-table {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+
+    .mat-mdc-header-cell {
+      color: var(--text-primary);
+      background-color: var(--bg-tertiary);
+    }
+
+    .mat-mdc-cell {
+      color: var(--text-primary);
+    }
+
+    .mat-mdc-row:hover {
+      background-color: var(--bg-hover);
+    }
+  }
+
+  // Toolbar
+  .mat-toolbar {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
+  // Navigation
+  .navbar {
+    background-color: var(--bg-secondary);
+    box-shadow: var(--shadow-md);
+  }
+
+  // Dialogs
+  .mat-mdc-dialog-container {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+
+  // Snackbars
+  .mat-mdc-snack-bar-container {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+  }
+
+  // Menus
+  .mat-mdc-menu-panel {
+    background-color: var(--bg-secondary);
+
+    .mat-mdc-menu-item {
+      color: var(--text-primary);
+
+      &:hover {
+        background-color: var(--bg-hover);
+      }
+    }
+  }
+
+  // Chips
+  .mat-mdc-chip {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+  }
+
+  // Progress spinners
+  .mat-mdc-progress-spinner circle {
+    stroke: var(--color-accent);
+  }
+
+  // Links
+  a {
+    color: var(--color-accent);
+
+    &:hover {
+      color: var(--color-accent-light);
+    }
+  }
+
+  // Page containers
+  .page-container {
+    background-color: var(--bg-primary);
+  }
+
+  // Content cards
+  .content-card {
+    background-color: var(--bg-secondary);
+    box-shadow: var(--shadow-md);
+  }
+
+  // Scrollbars (webkit)
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+
+    &:hover {
+      background: var(--text-tertiary);
+    }
+  }
+}
+
+// Light theme specific overrides
+.light-theme {
+  // Ensure proper contrast for light theme
+  .mat-mdc-card {
+    background-color: #ffffff;
+    border: 1px solid var(--border-color-light);
+  }
+}
+

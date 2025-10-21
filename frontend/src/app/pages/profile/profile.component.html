@@ -136,6 +136,50 @@
               </div>
             </mat-card-content>
           </mat-card>
+
+          <!-- Preferences Section -->
+          <mat-card class="preferences-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon style="vertical-align: middle; margin-right: 8px;">palette</mat-icon>
+                Настройки оформления
+              </mat-card-title>
+              <mat-card-subtitle>Персонализация интерфейса приложения</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+              <!-- Theme Selection -->
+              <div class="preference-item">
+                <div class="preference-info">
+                  <mat-icon>{{ themes.find(t => t.value === currentTheme())?.icon || 'brightness_auto' }}</mat-icon>
+                  <div>
+                    <h4>Тема оформления</h4>
+                    <p>Выберите светлую, темную или автоматическую тему</p>
+                  </div>
+                </div>
+                <mat-form-field appearance="outline" class="theme-select">
+                  <mat-label>Тема</mat-label>
+                  <mat-select [value]="currentTheme()" (selectionChange)="onThemeChange($event.value)">
+                    <mat-option *ngFor="let theme of themes" [value]="theme.value">
+                      <mat-icon class="theme-option-icon">{{ theme.icon }}</mat-icon>
+                      <span>{{ theme.label }}</span>
+                    </mat-option>
+                  </mat-select>
+                  <mat-hint *ngIf="currentTheme() === 'auto'">
+                    Сейчас применена {{ effectiveTheme() === 'dark' ? 'темная' : 'светлая' }} тема
+                  </mat-hint>
+                </mat-form-field>
+              </div>
+
+              <!-- Current Theme Info -->
+              <div class="theme-preview" [class.dark-preview]="effectiveTheme() === 'dark'">
+                <div class="preview-box">
+                  <mat-icon>{{ effectiveTheme() === 'dark' ? 'dark_mode' : 'light_mode' }}</mat-icon>
+                  <span>{{ effectiveTheme() === 'dark' ? 'Темная тема активна' : 'Светлая тема активна' }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
         </div>
       </mat-tab>
 

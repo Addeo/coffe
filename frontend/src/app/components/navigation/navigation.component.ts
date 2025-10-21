@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { MaterialModule } from '../../shared/material/material.module';
 
 import { AuthService } from '../../services/auth.service';
+import { ThemeService } from '../../services/theme.service';
 import { NotificationsService, NotificationDto } from '../../services/notifications.service';
 import { UserRole } from '@shared/interfaces/user.interface';
 
@@ -26,6 +27,7 @@ interface NavigationItem {
 })
 export class NavigationComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
+  private themeService = inject(ThemeService);
   private router = inject(Router);
   private notificationsService = inject(NotificationsService);
   private subscriptions: Subscription[] = [];
@@ -35,6 +37,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
   recentNotifications = signal<NotificationDto[]>([]);
   isMobileMenuOpen = signal(false);
 
+  // Theme signals
+  currentTheme = this.themeService.currentTheme;
+  effectiveTheme = this.themeService.effectiveTheme;
+
   // Reactive computed values
   currentUser = this.authService.currentUser;
   isAuthenticated = this.authService.isAuthenticated;
@@ -42,6 +48,22 @@ export class NavigationComponent implements OnInit, OnDestroy {
   userName = computed(() => {
     const user = this.currentUser();
     return user ? `${user.firstName} ${user.lastName}` : '';
+  });
+
+  // Role management
+  primaryRole = this.authService.primaryRole;
+  activeRole = this.authService.activeRole;
+  availableRoles = this.authService.availableRoles;
+  canSwitchRoles = this.authService.canSwitchRoles;
+  isLoadingRoleSwitch = signal(false);
+
+  // Theme icon based on current theme
+  themeIcon = computed(() => {
+    const theme = this.currentTheme();
+    if (theme === 'auto') {
+      return 'brightness_auto';
+    }
+    return theme === 'dark' ? 'dark_mode' : 'light_mode';
   });
 
   // Computed navigation items based on user role
@@ -78,16 +100,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
         i18nKey: '@@navigation.notifications',
       }
     );
-
-    // Add Settings for admin only (Files and Backups hidden - for developers only)
-    if (role === UserRole.ADMIN) {
-      items.push({
-        label: 'Настройки',
-        route: '/settings',
-        icon: 'settings',
-        i18nKey: '@@navigation.settings',
-      });
-    }
 
     return items;
   });
@@ -184,16 +196,36 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   getRoleDisplayName(role: UserRole): string {
-    switch (role) {
-      case UserRole.ADMIN:
-        return 'Администратор';
-      case UserRole.MANAGER:
-        return 'Менеджер';
-      case UserRole.USER:
-        return 'Пользователь';
-      default:
-        return 'Пользователь';
-    }
+    return this.authService.getRoleDisplayName(role);
+  }
+
+  getRoleIcon(role: UserRole): string {
+    return this.authService.getRoleIcon(role);
+  }
+
+  switchRole(newRole: UserRole): void {
+    if (this.isLoadingRoleSwitch()) return;
+
+    this.isLoadingRoleSwitch.set(true);
+    
+    this.authService.switchRole(newRole).subscribe({
+      next: response => {
+        console.log('✅ Role switched successfully in navigation');
+        this.isLoadingRoleSwitch.set(false);
+        
+        // Reload the page to reflect new role permissions
+        window.location.reload();
+      },
+      error: error => {
+        console.error('❌ Failed to switch role:', error);
+        this.isLoadingRoleSwitch.set(false);
+        alert('Не удалось переключить роль. Попробуйте снова.');
+      },
+    });
+  }
+
+  isRoleActive(role: UserRole): boolean {
+    return this.activeRole() === role;
   }
 
   getPriorityColor(priority: string): string {
@@ -202,5 +234,19 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   getPriorityIcon(priority: string): string {
     return this.notificationsService.getPriorityIcon(priority);
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
+
+  getThemeTooltip(): string {
+    const theme = this.currentTheme();
+    const themeLabels: Record<string, string> = {
+      light: 'Переключить на темную тему',
+      dark: 'Переключить на светлую тему',
+      auto: 'Текущая тема: автоматическая',
+    };
+    return themeLabels[theme] || 'Переключить тему';
   }
 }

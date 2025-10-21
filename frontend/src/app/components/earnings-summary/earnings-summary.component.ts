@@ -1,0 +1,208 @@
+import { Component, inject, signal, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { StatisticsService, AdminEngineerStatistics } from '../../services/statistics.service';
+import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
+import { UserRole } from '@shared/interfaces/user.interface';
+
+interface EarningsSummary {
+  workEarnings: number;
+  carEarnings: number;
+  totalEarnings: number;
+  completedOrders: number;
+  totalHours: number;
+}
+
+@Component({
+  selector: 'app-earnings-summary',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule,
+  ],
+  templateUrl: './earnings-summary.component.html',
+  styleUrls: ['./earnings-summary.component.scss'],
+})
+export class EarningsSummaryComponent implements OnInit {
+  private statisticsService = inject(StatisticsService);
+  private authService = inject(AuthService);
+  private toastService = inject(ToastService);
+
+  @Input() collapsible = true;
+  @Output() monthChanged = new EventEmitter<{ month: number; year: number }>();
+
+  isLoading = signal(false);
+  isCollapsed = signal(false);
+  summary = signal<EarningsSummary>({
+    workEarnings: 0,
+    carEarnings: 0,
+    totalEarnings: 0,
+    completedOrders: 0,
+    totalHours: 0,
+  });
+
+  // Current month and year
+  currentYear = signal(new Date().getFullYear());
+  currentMonth = signal(new Date().getMonth() + 1);
+
+  // User role check
+  readonly isAdmin = this.authService.hasRole(UserRole.ADMIN);
+  readonly isManager = this.authService.hasRole(UserRole.MANAGER);
+  readonly isEngineer = this.authService.hasRole(UserRole.USER);
+  readonly currentUser = this.authService.currentUser();
+
+  // Touch event variables for swipe
+  private touchStartX = 0;
+  private touchEndX = 0;
+
+  ngOnInit() {
+    this.loadEarningsData();
+  }
+
+  loadEarningsData() {
+    this.isLoading.set(true);
+    const year = this.currentYear();
+    const month = this.currentMonth();
+
+    this.statisticsService.getAdminEngineerStatistics(year, month).subscribe({
+      next: (data: AdminEngineerStatistics) => {
+        const currentUser = this.currentUser();
+        
+        if (this.isEngineer && currentUser) {
+          // For engineer, show only their own statistics
+          const currentUserId = currentUser.id;
+          const engineerStats = data.engineers.find(e => e.engineerId === currentUserId);
+
+          if (engineerStats) {
+            this.summary.set({
+              workEarnings: engineerStats.engineerEarnings,
+              carEarnings: engineerStats.carUsageAmount,
+              totalEarnings: engineerStats.totalEarnings,
+              completedOrders: engineerStats.completedOrders,
+              totalHours: engineerStats.totalHours,
+            });
+          } else {
+            this.summary.set({
+              workEarnings: 0,
+              carEarnings: 0,
+              totalEarnings: 0,
+              completedOrders: 0,
+              totalHours: 0,
+            });
+          }
+        } else {
+          // For admin/manager, show totals for all engineers
+          this.summary.set({
+            workEarnings: data.totals.engineerEarnings,
+            carEarnings: data.totals.carUsageAmount,
+            totalEarnings: data.totals.totalEarnings,
+            completedOrders: data.totals.completedOrders,
+            totalHours: data.totals.totalHours,
+          });
+        }
+        this.isLoading.set(false);
+      },
+      error: error => {
+        console.error('Error loading earnings data:', error);
+        this.toastService.error('Ошибка загрузки статистики по заработку');
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  toggleCollapse() {
+    this.isCollapsed.set(!this.isCollapsed());
+  }
+
+  previousMonth() {
+    let month = this.currentMonth();
+    let year = this.currentYear();
+
+    if (month === 1) {
+      month = 12;
+      year--;
+    } else {
+      month--;
+    }
+
+    this.currentMonth.set(month);
+    this.currentYear.set(year);
+    this.loadEarningsData();
+    this.monthChanged.emit({ month, year });
+  }
+
+  nextMonth() {
+    let month = this.currentMonth();
+    let year = this.currentYear();
+
+    if (month === 12) {
+      month = 1;
+      year++;
+    } else {
+      month++;
+    }
+
+    this.currentMonth.set(month);
+    this.currentYear.set(year);
+    this.loadEarningsData();
+    this.monthChanged.emit({ month, year });
+  }
+
+  getCurrentMonthName(): string {
+    const months = [
+      'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
+    ];
+    return months[this.currentMonth() - 1];
+  }
+
+  formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: 'RUB',
+      maximumFractionDigits: 0,
+    }).format(amount);
+  }
+
+  // Swipe handlers for mobile
+  onTouchStart(event: TouchEvent) {
+    this.touchStartX = event.changedTouches[0].screenX;
+  }
+
+  onTouchEnd(event: TouchEvent) {
+    this.touchEndX = event.changedTouches[0].screenX;
+    this.handleSwipe();
+  }
+
+  private handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = this.touchStartX - this.touchEndX;
+
+    if (Math.abs(diff) < swipeThreshold) {
+      return;
+    }
+
+    if (diff > 0) {
+      // Swipe left - next month
+      this.nextMonth();
+    } else {
+      // Swipe right - previous month
+      this.previousMonth();
+    }
+  }
+
+  isMobileView(): boolean {
+    return window.innerWidth <= 768;
+  }
+}
+

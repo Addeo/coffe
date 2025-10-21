@@ -123,8 +123,7 @@ import {
                     (selectionChange)="onEngineerTypeChange()"
                   >
                     <mat-option [value]="EngineerType.STAFF">Штатный инженер</mat-option>
-                    <mat-option [value]="EngineerType.REMOTE">Удаленный инженер</mat-option>
-                    <mat-option [value]="EngineerType.CONTRACT">Контрактный инженер</mat-option>
+                    <mat-option [value]="EngineerType.CONTRACT">Контрактный (наемный) инженер</mat-option>
                   </mat-select>
                   <mat-error *ngIf="userForm.get('engineerType')?.hasError('required')">
                     Тип инженера обязателен
@@ -796,20 +795,6 @@ export class UserEditComponent implements OnInit {
         // Show fields specific to staff engineers
         this.userForm.get('planHoursMonth')?.enable();
         this.userForm.get('homeTerritoryFixedAmount')?.enable();
-        break;
-
-      case EngineerType.REMOTE:
-        // Удаленный инженер - базовая ставка 750 руб/час
-        this.userForm.patchValue({
-          baseRate: 750,
-          overtimeRate: 750,
-          planHoursMonth: null, // Не применимо
-          homeTerritoryFixedAmount: null, // Не применимо
-        });
-
-        // Hide fields not applicable to remote engineers
-        this.userForm.get('planHoursMonth')?.disable();
-        this.userForm.get('homeTerritoryFixedAmount')?.disable();
         break;
 
       case EngineerType.CONTRACT:

@@ -55,14 +55,25 @@ export interface UpdateOrderDto {
   distanceKm?: number;
   territoryType?: TerritoryType;
   status?: OrderStatus;
-  source?: OrderSource;
+  source?: OrderStatus;
   plannedStartDate?: Date;
   actualStartDate?: Date;
   completionDate?: Date;
   assignedEngineerId?: number;
   assignedById?: number;
   files?: string[]; // Array of file IDs to attach
-  // Work details
+  // Work execution details
+  workActNumber?: string;
+  workStartTime?: Date;
+  workEndTime?: Date;
+  totalWorkHours?: number;
+  isOvertimeRate?: boolean;
+  isRepairComplete?: boolean;
+  equipmentInfo?: string;
+  comments?: string;
+  isIncomplete?: boolean;
+  completionLockedAt?: Date;
+  // Work details (legacy)
   regularHours?: number;
   overtimeHours?: number;
   calculatedAmount?: number;
@@ -117,7 +128,18 @@ export interface OrderDto {
   plannedStartDate?: Date;
   actualStartDate?: Date;
   completionDate?: Date;
-  // Work details
+  // Work execution details
+  workActNumber?: string;
+  workStartTime?: Date;
+  workEndTime?: Date;
+  totalWorkHours?: number;
+  isOvertimeRate?: boolean;
+  isRepairComplete?: boolean;
+  equipmentInfo?: string;
+  comments?: string;
+  isIncomplete?: boolean;
+  completionLockedAt?: Date;
+  // Work details (legacy)
   regularHours?: number;
   overtimeHours?: number;
   calculatedAmount?: number;

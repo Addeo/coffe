@@ -519,7 +519,9 @@ export class StatisticsService {
         email: stat.email,
         completedOrders: Number(stat.completedOrders) || 0,
         totalHours: Number(stat.totalHours) || 0,
-        engineerEarnings: totalEngineerPayment, // Включаем доплату за машину
+        engineerEarnings: engineerEarnings, // Оплата за работу (без машины)
+        carUsageAmount: carUsageAmount, // Доплата за машину отдельно
+        totalEarnings: totalEngineerPayment, // Общая сумма (работа + машина)
         organizationPayments: totalOrganizationPayment, // Включаем доплату за машину
         profit,
         profitMargin,
@@ -532,6 +534,8 @@ export class StatisticsService {
         completedOrders: acc.completedOrders + stat.completedOrders,
         totalHours: acc.totalHours + stat.totalHours,
         engineerEarnings: acc.engineerEarnings + stat.engineerEarnings,
+        carUsageAmount: acc.carUsageAmount + stat.carUsageAmount,
+        totalEarnings: acc.totalEarnings + stat.totalEarnings,
         organizationPayments: acc.organizationPayments + stat.organizationPayments,
         profit: acc.profit + stat.profit,
       }),
@@ -539,6 +543,8 @@ export class StatisticsService {
         completedOrders: 0,
         totalHours: 0,
         engineerEarnings: 0,
+        carUsageAmount: 0,
+        totalEarnings: 0,
         organizationPayments: 0,
         profit: 0,
       }

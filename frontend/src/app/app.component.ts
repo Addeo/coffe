@@ -3,6 +3,7 @@ import { RouterOutlet, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { AuthService } from './services/auth.service';
+import { ThemeService } from './services/theme.service';
 import { NavigationComponent } from './components/navigation/navigation.component';
 import { OrderSidebarComponent } from './components/sidebars/order-sidebar.component';
 
@@ -12,11 +13,14 @@ import { OrderSidebarComponent } from './components/sidebars/order-sidebar.compo
   imports: [CommonModule, RouterOutlet, NavigationComponent],
   template: `
     <div class="app-container">
+      <!-- Skip to main content link for accessibility -->
+      <a href="#main-content" class="skip-to-main">Skip to main content</a>
+
       <!-- Navigation bar (only show when authenticated) -->
       <app-navigation *ngIf="isAuthenticated() && !isLoginRoute()"></app-navigation>
 
       <!-- Main content -->
-      <main class="main-content" [class.with-nav]="isAuthenticated() && !isLoginRoute()">
+      <main id="main-content" class="main-content" [class.with-nav]="isAuthenticated() && !isLoginRoute()" role="main" tabindex="-1">
         <router-outlet></router-outlet>
       </main>
     </div>
@@ -65,12 +69,14 @@ import { OrderSidebarComponent } from './components/sidebars/order-sidebar.compo
 })
 export class AppComponent {
   private authService = inject(AuthService);
+  private themeService = inject(ThemeService);
   private router = inject(Router);
 
   constructor() {
     console.log('🏠 AppComponent initialized');
     console.log('🏠 Initial auth state:', this.isAuthenticated());
     console.log('🏠 Current route:', this.router.url);
+    console.log('🎨 Theme service initialized:', this.themeService.currentTheme());
   }
 
   title = 'coffee-admin';

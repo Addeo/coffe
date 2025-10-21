@@ -1,0 +1,121 @@
+<div 
+  class="earnings-summary-container"
+  (touchstart)="onTouchStart($event)"
+  (touchend)="onTouchEnd($event)"
+>
+  <mat-card class="earnings-card">
+    <mat-card-header>
+      <div class="header-content">
+        <div class="title-section">
+          <mat-icon>payments</mat-icon>
+          <span class="title">Статистика заработка</span>
+        </div>
+
+        <div class="month-selector">
+          <button 
+            mat-icon-button 
+            (click)="previousMonth()"
+            matTooltip="Предыдущий месяц"
+            class="nav-btn"
+          >
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+
+          <span class="month-display">
+            {{ getCurrentMonthName() }} {{ currentYear() }}
+          </span>
+
+          <button 
+            mat-icon-button 
+            (click)="nextMonth()"
+            matTooltip="Следующий месяц"
+            class="nav-btn"
+          >
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+
+        <button 
+          *ngIf="collapsible"
+          mat-icon-button 
+          (click)="toggleCollapse()"
+          matTooltip="Свернуть/Развернуть"
+          class="collapse-btn"
+        >
+          <mat-icon>{{ isCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content *ngIf="!isCollapsed()">
+      <div class="loading-container" *ngIf="isLoading()">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Загрузка данных...</p>
+      </div>
+
+      <div class="earnings-grid" *ngIf="!isLoading()">
+        <!-- Work Earnings -->
+        <div class="earning-card work-earnings">
+          <div class="earning-icon">
+            <mat-icon>work</mat-icon>
+          </div>
+          <div class="earning-content">
+            <div class="earning-label">За работу</div>
+            <div class="earning-value">{{ formatCurrency(summary().workEarnings) }}</div>
+          </div>
+        </div>
+
+        <!-- Car Earnings -->
+        <div class="earning-card car-earnings">
+          <div class="earning-icon">
+            <mat-icon>directions_car</mat-icon>
+          </div>
+          <div class="earning-content">
+            <div class="earning-label">За авто</div>
+            <div class="earning-value">{{ formatCurrency(summary().carEarnings) }}</div>
+          </div>
+        </div>
+
+        <!-- Total Earnings -->
+        <div class="earning-card total-earnings">
+          <div class="earning-icon">
+            <mat-icon>account_balance_wallet</mat-icon>
+          </div>
+          <div class="earning-content">
+            <div class="earning-label">Всего</div>
+            <div class="earning-value">{{ formatCurrency(summary().totalEarnings) }}</div>
+          </div>
+        </div>
+
+        <!-- Completed Orders -->
+        <div class="earning-card orders-count">
+          <div class="earning-icon">
+            <mat-icon>assignment_turned_in</mat-icon>
+          </div>
+          <div class="earning-content">
+            <div class="earning-label">Заказов</div>
+            <div class="earning-value">{{ summary().completedOrders }}</div>
+          </div>
+        </div>
+
+        <!-- Total Hours (if admin/manager) -->
+        <div class="earning-card hours-count" *ngIf="isAdmin || isManager">
+          <div class="earning-icon">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <div class="earning-content">
+            <div class="earning-label">Часов</div>
+            <div class="earning-value">{{ summary().totalHours }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Swipe hint for mobile -->
+      <div class="swipe-hint" *ngIf="isMobileView()">
+        <mat-icon>swipe</mat-icon>
+        <span>Свайп для смены месяца</span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
