@@ -3,7 +3,7 @@
   padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
-  background-color: #fafafa;
+  background-color: var(--bg-primary);
   min-height: calc(100vh - 64px);
 }
 
@@ -573,6 +573,45 @@
       min-width: 200px;
     }
 
+    // Enhanced filter field styling
+    .filter-field {
+      .mat-mdc-form-field {
+        .mat-mdc-text-field-wrapper {
+          background-color: rgba(255, 255, 255, 0.9);
+          border-radius: 8px;
+          border: 1px solid rgba(0, 0, 0, 0.12);
+          transition: all 0.3s ease;
+        }
+
+        &.mat-focused .mat-mdc-text-field-wrapper {
+          border-color: #1976d2;
+          box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+        }
+
+        .mat-mdc-select {
+          .mat-mdc-select-trigger {
+            .mat-mdc-select-value {
+              color: #333;
+              font-weight: 500;
+            }
+
+            .mat-mdc-select-arrow {
+              color: #666;
+            }
+          }
+        }
+
+        .mat-mdc-form-field-label {
+          color: #666;
+          font-weight: 500;
+        }
+
+        &.mat-focused .mat-mdc-form-field-label {
+          color: #1976d2;
+        }
+      }
+    }
+
     .header-btn {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
@@ -651,10 +690,12 @@
   margin-bottom: 24px;
   border-radius: 12px;
   padding: 0;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
 
   mat-card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
+    background-color: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
     margin-bottom: 0;
     padding: 20px 24px;
 
@@ -673,28 +714,29 @@
   width: 100%;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
+  background-color: var(--bg-secondary);
 
   .mat-mdc-header-row {
-    background-color: #f8f9fa;
+    background-color: var(--bg-tertiary);
   }
 
   .mat-mdc-header-cell {
     font-weight: 600;
-    color: #495057;
+    color: var(--text-primary);
     font-size: 0.875rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 16px 12px;
-    border-bottom: 2px solid #dee2e6;
+    border-bottom: 2px solid var(--border-color);
   }
 
   .mat-mdc-row {
     transition: background-color 0.2s ease;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--border-color-light);
 
     &:hover {
-      background-color: #f8f9fa;
+      background-color: var(--bg-hover);
     }
 
     &:last-child {
@@ -704,12 +746,12 @@
 
   .mat-mdc-cell {
     padding: 16px 12px;
-    color: #495057;
-    border-bottom: 1px solid #e9ecef;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-color-light);
 
     &:first-child {
       font-weight: 600;
-      color: #1976d2;
+      color: var(--color-accent);
     }
   }
 }
@@ -1086,6 +1128,39 @@
       .filter-field,
       .search-field {
         min-width: 100%;
+      }
+
+      // Mobile filter field styling
+      .filter-field {
+        .mat-mdc-form-field {
+          .mat-mdc-text-field-wrapper {
+            background-color: white;
+            border-radius: 12px;
+            border: 2px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
+
+          &.mat-focused .mat-mdc-text-field-wrapper {
+            border-color: #1976d2;
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.2);
+          }
+
+          .mat-mdc-form-field-label {
+            font-size: 14px;
+            font-weight: 600;
+          }
+
+          .mat-mdc-select {
+            .mat-mdc-select-trigger {
+              padding: 12px 16px;
+              
+              .mat-mdc-select-value {
+                font-size: 16px;
+                font-weight: 500;
+              }
+            }
+          }
+        }
       }
 
       .header-btn {
