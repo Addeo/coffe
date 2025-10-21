@@ -48,8 +48,9 @@ async function bootstrap() {
     console.log('Global prefix set');
 
     const port = process.env.PORT || 3001;
-    await app.listen(port);
-    console.log(`Coffee Admin API is running on: http://localhost:${port}`);
+    const host = process.env.HOST || '0.0.0.0';
+    await app.listen(port, host);
+    console.log(`Coffee Admin API is running on: http://${host}:${port}`);
   } catch (error) {
     console.error('Error starting application:', error);
     process.exit(1);
