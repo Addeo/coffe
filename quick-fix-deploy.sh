@@ -9,7 +9,7 @@ echo "Quick Fix Deployment for Order Creation"
 echo "=========================================="
 echo ""
 
-VPS_HOST="192.144.12.102"
+VPS_HOST="192.168.0.10"
 VPS_USER="root"
 VPS_PATH="/root/backend"
 
