@@ -91,6 +91,23 @@ export class ProfileComponent implements OnInit {
     return role === UserRole.USER || !!this.currentUser();
   }
 
+  getCurrentThemeIcon(): string {
+    const theme = this.themes.find(t => t.value === this.currentTheme());
+    return theme?.icon || 'brightness_auto';
+  }
+
+  getEffectiveThemeLabel(): string {
+    return this.effectiveTheme() === 'dark' ? 'темная' : 'светлая';
+  }
+
+  getEffectiveThemeIcon(): string {
+    return this.effectiveTheme() === 'dark' ? 'dark_mode' : 'light_mode';
+  }
+
+  getEffectiveThemeText(): string {
+    return this.effectiveTheme() === 'dark' ? 'Темная тема активна' : 'Светлая тема активна';
+  }
+
   ngOnInit() {
     this.initializeForm();
     this.loadUserProfile();

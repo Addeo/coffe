@@ -151,7 +151,7 @@
               <!-- Theme Selection -->
               <div class="preference-item">
                 <div class="preference-info">
-                  <mat-icon>{{ themes.find(t => t.value === currentTheme())?.icon || 'brightness_auto' }}</mat-icon>
+                  <mat-icon>{{ getCurrentThemeIcon() }}</mat-icon>
                   <div>
                     <h4>Тема оформления</h4>
                     <p>Выберите светлую, темную или автоматическую тему</p>
@@ -166,7 +166,7 @@
                     </mat-option>
                   </mat-select>
                   <mat-hint *ngIf="currentTheme() === 'auto'">
-                    Сейчас применена {{ effectiveTheme() === 'dark' ? 'темная' : 'светлая' }} тема
+                    Сейчас применена {{ getEffectiveThemeLabel() }} тема
                   </mat-hint>
                 </mat-form-field>
               </div>
@@ -174,8 +174,8 @@
               <!-- Current Theme Info -->
               <div class="theme-preview" [class.dark-preview]="effectiveTheme() === 'dark'">
                 <div class="preview-box">
-                  <mat-icon>{{ effectiveTheme() === 'dark' ? 'dark_mode' : 'light_mode' }}</mat-icon>
-                  <span>{{ effectiveTheme() === 'dark' ? 'Темная тема активна' : 'Светлая тема активна' }}</span>
+                  <mat-icon>{{ getEffectiveThemeIcon() }}</mat-icon>
+                  <span>{{ getEffectiveThemeText() }}</span>
                 </div>
               </div>
             </mat-card-content>

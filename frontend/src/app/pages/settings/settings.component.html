@@ -20,7 +20,7 @@
 
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Тема оформления</mat-label>
-            <mat-icon matPrefix>{{ themes.find(t => t.value === currentTheme())?.icon || 'brightness_auto' }}</mat-icon>
+            <mat-icon matPrefix>{{ getCurrentThemeIcon() }}</mat-icon>
             <mat-select formControlName="theme">
               <mat-option *ngFor="let theme of themes" [value]="theme.value">
                 <mat-icon class="theme-option-icon">{{ theme.icon }}</mat-icon>
@@ -28,7 +28,7 @@
               </mat-option>
             </mat-select>
             <mat-hint *ngIf="currentTheme() === 'auto'">
-              Сейчас применена {{ effectiveTheme() === 'dark' ? 'темная' : 'светлая' }} тема
+              Сейчас применена {{ getEffectiveThemeLabel() }} тема
             </mat-hint>
           </mat-form-field>
 
@@ -100,9 +100,8 @@
               type="submit"
               [disabled]="isLoading() || settingsForm.invalid"
             >
-              <mat-icon *ngIf="isLoading()">refresh</mat-icon>
-              <mat-icon *ngIf="!isLoading()">save</mat-icon>
-              {{ isLoading() ? 'Сохранение...' : 'Сохранить настройки' }}
+              <mat-icon>{{ isLoading() ? 'refresh' : 'save' }}</mat-icon>
+              <span>{{ isLoading() ? 'Сохранение...' : 'Сохранить настройки' }}</span>
             </button>
 
             <button mat-button type="button" (click)="resetToDefaults()">

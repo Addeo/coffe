@@ -23,7 +23,7 @@ export enum TerritoryType {
   SUBURBAN = 'suburban',
   RURAL = 'rural',
   HOME = 'home', // домашняя территория (≤60 км)
-  ZONE_1 = 'zone_1', // 61-199 км (только для удаленного)
+  ZONE_1 = 'zone_1', // 61-199 км
   ZONE_2 = 'zone_2', // 200-250 км
   ZONE_3 = 'zone_3', // >250 км
 }
@@ -60,6 +60,19 @@ export interface Order {
   plannedStartDate?: Date;
   actualStartDate?: Date;
   completionDate?: Date;
+  
+  // Work execution details
+  workActNumber?: string; // Номер Акта выполненных работ
+  workStartTime?: Date; // Время начала работ
+  workEndTime?: Date; // Время окончания работ
+  totalWorkHours?: number; // Общее время на объекте (автоматически рассчитывается)
+  isOvertimeRate?: boolean; // Внеурочный тариф (флаг)
+  isRepairComplete?: boolean; // Ремонт завершен (true = галочка, false = крестик)
+  equipmentInfo?: string; // Оборудование (название и серийный номер)
+  comments?: string; // Дополнительная информация по заявке
+  isIncomplete?: boolean; // Отметка "!" для незавершенных работ
+  completionLockedAt?: Date; // Дата блокировки редактирования (24 часа после завершения)
+  
   createdAt: Date;
   updatedAt: Date;
 }
