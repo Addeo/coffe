@@ -59,7 +59,7 @@ export class EarningsSummaryComponent implements OnInit {
   readonly isAdmin = this.authService.hasRole(UserRole.ADMIN);
   readonly isManager = this.authService.hasRole(UserRole.MANAGER);
   readonly isEngineer = this.authService.hasRole(UserRole.USER);
-  readonly currentUser = this.authService.currentUser();
+  readonly currentUser = this.authService.currentUser;
 
   // Touch event variables for swipe
   private touchStartX = 0;

@@ -66,6 +66,19 @@ export interface AuthLoginResponse extends LoginResponse {}
 
 export interface AuthUserDto extends AuthUser {}
 
+export interface SwitchRoleDto {
+  newRole: UserRole;
+}
+
+export interface SwitchRoleResponse {
+  success: boolean;
+  activeRole: UserRole;
+  availableRoles: UserRole[];
+  message: string;
+  access_token?: string;
+  user?: AuthUserDto;
+}
+
 export interface UsersQueryDto {
   page?: number;
   limit?: number;

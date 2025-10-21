@@ -83,6 +83,15 @@ export class SettingsComponent implements OnInit {
     });
   }
 
+  getCurrentThemeIcon(): string {
+    const theme = this.themes.find(t => t.value === this.currentTheme());
+    return theme?.icon || 'brightness_auto';
+  }
+
+  getEffectiveThemeLabel(): string {
+    return this.effectiveTheme() === 'dark' ? 'темная' : 'светлая';
+  }
+
   saveSettings() {
     if (this.settingsForm.valid) {
       this.isLoading.set(true);
