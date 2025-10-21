@@ -9,7 +9,7 @@
     
     <!-- Specific domain configuration for your backend -->
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">192.168.0.10</domain>
+        <domain includeSubdomains="true">192.168.100.50</domain>
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">10.0.2.2</domain>
     </domain-config>
