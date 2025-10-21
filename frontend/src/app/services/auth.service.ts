@@ -1,9 +1,20 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError } from 'rxjs';
-import { AuthLoginDto, AuthLoginResponse, AuthUserDto } from '@shared/dtos/user.dto';
-import { UserRole, User } from '@shared/interfaces/user.interface';
+import {
+  AuthLoginDto,
+  AuthLoginResponse,
+  AuthUserDto,
+  SwitchRoleDto,
+  SwitchRoleResponse,
+} from '@shared/dtos/user.dto';
+import {
+  UserRole,
+  User,
+  getAvailableRoles,
+  hasRoleAccess,
+} from '@shared/interfaces/user.interface';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -22,6 +33,15 @@ export class AuthService {
   readonly currentUser = this.currentUserSignal.asReadonly();
   readonly isAuthenticated = this.isAuthenticatedSignal.asReadonly();
   readonly isLoading = this.isLoadingSignal.asReadonly();
+
+  // Computed signals for role management
+  readonly primaryRole = computed(() => this.currentUser()?.primaryRole || this.currentUser()?.role);
+  readonly activeRole = computed(() => this.currentUser()?.activeRole || this.primaryRole());
+  readonly availableRoles = computed(() => {
+    const primary = this.primaryRole();
+    return primary ? getAvailableRoles(primary) : [];
+  });
+  readonly canSwitchRoles = computed(() => this.availableRoles().length > 1);
 
   constructor() {
     this.checkAuthStatus();
@@ -116,14 +136,27 @@ export class AuthService {
     return localStorage.getItem('access_token');
   }
 
+  /**
+   * Check if current active role matches the specified role
+   */
   hasRole(role: UserRole): boolean {
-    const user = this.currentUserSignal();
-    return user?.role === role;
+    return this.activeRole() === role;
   }
 
+  /**
+   * Check if current active role is one of the specified roles
+   */
   hasAnyRole(roles: UserRole[]): boolean {
-    const user = this.currentUserSignal();
-    return user ? roles.includes(user.role) : false;
+    const active = this.activeRole();
+    return active ? roles.includes(active) : false;
+  }
+
+  /**
+   * Check if user has access to a specific role (based on hierarchy)
+   */
+  hasAccessToRole(requiredRole: UserRole): boolean {
+    const primary = this.primaryRole();
+    return primary ? hasRoleAccess(primary, requiredRole) : false;
   }
 
   isAdmin(): boolean {
@@ -136,5 +169,105 @@ export class AuthService {
 
   isUser(): boolean {
     return this.hasRole(UserRole.USER);
+  }
+
+  /**
+   * Switch to a different role within user's hierarchy
+   */
+  switchRole(newRole: UserRole): Observable<SwitchRoleResponse> {
+    this.isLoadingSignal.set(true);
+
+    console.log('🔄 Switching role to:', newRole);
+
+    return this.http
+      .post<SwitchRoleResponse>(`${environment.apiUrl}/auth/switch-role`, { newRole })
+      .pipe(
+        tap(response => {
+          console.log('✅ Role switched successfully:', response);
+
+          // Update token
+          if (response.access_token) {
+            localStorage.setItem('access_token', response.access_token);
+          }
+
+          // Update user with new active role
+          if (response.user) {
+            localStorage.setItem('user', JSON.stringify(response.user));
+            this.currentUserSignal.set(response.user);
+          }
+
+          this.isLoadingSignal.set(false);
+        }),
+        catchError(error => {
+          console.error('❌ Failed to switch role:', error);
+          this.isLoadingSignal.set(false);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /**
+   * Reset to primary role
+   */
+  resetRole(): Observable<SwitchRoleResponse> {
+    this.isLoadingSignal.set(true);
+
+    console.log('🔄 Resetting to primary role');
+
+    return this.http.post<SwitchRoleResponse>(`${environment.apiUrl}/auth/reset-role`, {}).pipe(
+      tap(response => {
+        console.log('✅ Role reset successfully:', response);
+
+        // Update token
+        if (response.access_token) {
+          localStorage.setItem('access_token', response.access_token);
+        }
+
+        // Update user
+        if (response.user) {
+          localStorage.setItem('user', JSON.stringify(response.user));
+          this.currentUserSignal.set(response.user);
+        }
+
+        this.isLoadingSignal.set(false);
+      }),
+      catchError(error => {
+        console.error('❌ Failed to reset role:', error);
+        this.isLoadingSignal.set(false);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Get display name for a role
+   */
+  getRoleDisplayName(role: UserRole): string {
+    switch (role) {
+      case UserRole.ADMIN:
+        return 'Администратор';
+      case UserRole.MANAGER:
+        return 'Менеджер';
+      case UserRole.USER:
+        return 'Инженер';
+      default:
+        return 'Пользователь';
+    }
+  }
+
+  /**
+   * Get icon for a role
+   */
+  getRoleIcon(role: UserRole): string {
+    switch (role) {
+      case UserRole.ADMIN:
+        return 'admin_panel_settings';
+      case UserRole.MANAGER:
+        return 'manage_accounts';
+      case UserRole.USER:
+        return 'engineering';
+      default:
+        return 'person';
+    }
   }
 }

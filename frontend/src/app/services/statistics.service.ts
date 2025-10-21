@@ -29,6 +29,8 @@ export interface AdminEngineerStats {
   completedOrders: number;
   totalHours: number;
   engineerEarnings: number;
+  carUsageAmount: number;
+  totalEarnings: number;
   organizationPayments: number;
   profit: number;
   profitMargin: number;
@@ -42,6 +44,8 @@ export interface AdminEngineerStatistics {
     completedOrders: number;
     totalHours: number;
     engineerEarnings: number;
+    carUsageAmount: number;
+    totalEarnings: number;
     organizationPayments: number;
     profit: number;
     profitMargin: number;

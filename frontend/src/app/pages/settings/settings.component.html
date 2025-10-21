@@ -19,12 +19,17 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>Тема</mat-label>
+            <mat-label>Тема оформления</mat-label>
+            <mat-icon matPrefix>{{ themes.find(t => t.value === currentTheme())?.icon || 'brightness_auto' }}</mat-icon>
             <mat-select formControlName="theme">
               <mat-option *ngFor="let theme of themes" [value]="theme.value">
-                {{ theme.label }}
+                <mat-icon class="theme-option-icon">{{ theme.icon }}</mat-icon>
+                <span>{{ theme.label }}</span>
               </mat-option>
             </mat-select>
+            <mat-hint *ngIf="currentTheme() === 'auto'">
+              Сейчас применена {{ effectiveTheme() === 'dark' ? 'темная' : 'светлая' }} тема
+            </mat-hint>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="form-field">

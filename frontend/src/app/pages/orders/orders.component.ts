@@ -34,6 +34,7 @@ import { OrderDialogComponent } from '../../components/modals/order-dialog.compo
 import { OrderDeleteConfirmationDialogComponent } from '../../components/modals/order-delete-confirmation-dialog.component';
 import { AssignEngineerDialogComponent } from '../../components/modals/assign-engineer-dialog.component';
 import { WorkCompletionDialogComponent } from '../../components/modals/work-completion-dialog.component';
+import { EarningsSummaryComponent } from '../../components/earnings-summary/earnings-summary.component';
 
 @Component({
   selector: 'app-orders',
@@ -62,6 +63,7 @@ import { WorkCompletionDialogComponent } from '../../components/modals/work-comp
     OrderDeleteConfirmationDialogComponent,
     AssignEngineerDialogComponent,
     WorkCompletionDialogComponent,
+    EarningsSummaryComponent,
   ],
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss', './orders-stats.scss'],
@@ -525,10 +527,39 @@ export class OrdersComponent implements OnInit {
 
   // Stats view switcher
   statsView: 'compact' | 'charts' | 'progress' = 'charts'; // По умолчанию графики
+  
+  // Order statistics collapse state
+  orderStatsCollapsed = signal(false);
 
   // Mobile view detection
   isMobileView(): boolean {
     return window.innerWidth <= 768;
+  }
+  
+  // Toggle order statistics visibility
+  toggleOrderStats() {
+    this.orderStatsCollapsed.set(!this.orderStatsCollapsed());
+  }
+  
+  // Get unaccepted orders count
+  getUnacceptedOrdersCount(): number {
+    return this.dataSource.data.filter(order => order.status === OrderStatus.ASSIGNED).length;
+  }
+  
+  // Check if current user has unaccepted orders
+  hasUnacceptedOrders(): boolean {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return false;
+    
+    if (this.canViewAllOrders) {
+      // Admin/Manager sees all unaccepted orders
+      return this.getUnacceptedOrdersCount() > 0;
+    } else {
+      // Engineer sees only their own unaccepted orders
+      return this.dataSource.data.some(
+        order => order.status === OrderStatus.ASSIGNED && order.assignedEngineerId === currentUser.id
+      );
+    }
   }
 
   // Данные для графика статусов (Donut)

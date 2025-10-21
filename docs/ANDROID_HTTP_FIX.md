@@ -193,3 +193,4 @@ curl http://localhost:3001/api
 4. `frontend/angular.json` - увеличен лимит бюджета CSS
 5. `frontend/src/app/pages/statistics/statistics.component.ts` - исправлены TypeScript ошибки
 
+

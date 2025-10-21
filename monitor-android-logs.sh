@@ -31,3 +31,4 @@ adb logcat | grep --line-buffered -iE "capacitor|console|coffee|error|http|xhr|f
     fi
 done
 
+

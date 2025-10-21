@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест Темы - Coffee Admin</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px;
+            background: #6f4e37;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        
+        .button:hover {
+            background: #5a3f2c;
+        }
+        
+        .icon {
+            font-size: 48px;
+            margin: 20px 0;
+        }
+        
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .checklist li {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+        
+        .checklist li:before {
+            content: "✓ ";
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Где Находится Переключатель Темы?</h1>
+    
+    <div class="info-box">
+        <h2>📍 Местоположение Переключателя</h2>
+        <p><strong>Переключатель темы находится в ПРАВОМ ВЕРХНЕМ УГЛУ навигационной панели</strong></p>
+    </div>
+
+    <h2>🖥️ Desktop Версия</h2>
+    
+    <div class="icon">
+        ☀️ 🌙 🔄
+    </div>
+    
+    <p>Ищите одну из этих иконок в правом верхнем углу:</p>
+    
+    <ul class="checklist">
+        <li>☀️ <strong>light_mode</strong> - если сейчас светлая тема</li>
+        <li>🌙 <strong>dark_mode</strong> - если сейчас темная тема</li>
+        <li>🔄 <strong>brightness_auto</strong> - если режим "авто"</li>
+    </ul>
+
+    <div class="success-box">
+        <h3>✅ Как Найти Кнопку:</h3>
+        <ol>
+            <li>Войдите в приложение (логин)</li>
+            <li>Посмотрите в <strong>правый верхний угол</strong></li>
+            <li>Найдите иконку солнца ☀️ или луны 🌙</li>
+            <li>Она находится <strong>СЛЕВА от колокольчика</strong> уведомлений 🔔</li>
+            <li>И <strong>СПРАВА от меню</strong> навигации</li>
+        </ol>
+    </div>
+
+    <h2>📱 Mobile Версия</h2>
+    
+    <div class="info-box">
+        <p>На мобильном устройстве:</p>
+        <ol>
+            <li>Нажмите на <strong>☰ (гамбургер меню)</strong> слева вверху</li>
+            <li>Откроется боковое меню</li>
+            <li>Прокрутите вниз</li>
+            <li>Найдите кнопку с иконкой темы <strong>НАД кнопкой "Выход"</strong></li>
+        </ol>
+    </div>
+
+    <h2>⚙️ Альтернативный Способ</h2>
+    
+    <div class="warning-box">
+        <h3>Через Настройки:</h3>
+        <p>Если не видите кнопку в навигации, используйте настройки:</p>
+        <ol>
+            <li>Откройте <strong>Настройки</strong> (Settings)</li>
+            <li>Найдите секцию <strong>"Общие настройки"</strong></li>
+            <li>Найдите поле <strong>"Тема оформления"</strong></li>
+            <li>Выберите: Светлая / Темная / Авто</li>
+        </ol>
+    </div>
+
+    <h2>🐛 Не Видите Кнопку?</h2>
+    
+    <div class="warning-box">
+        <h3>Возможные Причины:</h3>
+        <ul>
+            <li>❌ <strong>Не авторизованы</strong> - кнопка видна только после входа</li>
+            <li>❌ <strong>Старый кэш</strong> - обновите страницу: <code>Ctrl + F5</code> или <code>Cmd + Shift + R</code></li>
+            <li>❌ <strong>Узкий экран</strong> - разверните окно браузера</li>
+            <li>❌ <strong>Ошибка загрузки</strong> - проверьте консоль браузера (F12)</li>
+        </ul>
+    </div>
+
+    <h2>🎯 Быстрый Тест</h2>
+    
+    <p>Чтобы проверить, работает ли тема:</p>
+    
+    <ol>
+        <li>Откройте приложение Coffee Admin</li>
+        <li>Нажмите <code>F12</code> (откроется DevTools)</li>
+        <li>Перейдите на вкладку <strong>Console</strong></li>
+        <li>Введите:</li>
+    </ol>
+    
+    <div style="background: #263238; color: #aed581; padding: 15px; border-radius: 4px; margin: 15px 0;">
+        <code style="background: transparent; color: #aed581;">
+            document.body.className
+        </code>
+    </div>
+    
+    <p>Результат должен содержать:</p>
+    <ul>
+        <li><code>light-theme</code> - если светлая тема активна</li>
+        <li><code>dark-theme</code> - если темная тема активна</li>
+    </ul>
+
+    <h2>📸 Схема Расположения</h2>
+    
+    <div style="background: #263238; padding: 20px; border-radius: 8px; color: white; font-family: monospace; margin: 20px 0;">
+        <pre style="margin: 0;">
+┌────────────────────────────────────────────────────────┐
+│  NAVIGATION BAR                                        │
+│                                                        │
+│  [☕ Logo] [Меню]              [☀️] [🔔] [👤]        │
+│                                  ↑                     │
+│                         ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ             │
+└────────────────────────────────────────────────────────┘
+        </pre>
+    </div>
+
+    <h2>💡 Полезные Советы</h2>
+    
+    <ul class="checklist">
+        <li>При наведении курсора на кнопку появится <strong>подсказка</strong></li>
+        <li>При клике тема меняется <strong>мгновенно</strong></li>
+        <li>Ваш выбор <strong>сохраняется</strong> между сеансами</li>
+        <li>Режим "Авто" следует <strong>системным настройкам</strong></li>
+    </ul>
+
+    <div class="success-box">
+        <h3>✅ Готово!</h3>
+        <p>Теперь вы знаете, где искать переключатель темы.</p>
+        <p>Если у вас остались вопросы, проверьте:</p>
+        <ul>
+            <li>📄 <code>ДИЗАЙН_И_UX.md</code> - руководство пользователя</li>
+            <li>📄 <code>docs/DESIGN_IMPROVEMENTS.md</code> - техническая документация</li>
+            <li>📄 <code>КАК_НАЙТИ_ПЕРЕКЛЮЧАТЕЛЬ_ТЕМЫ.md</code> - подробная инструкция</li>
+        </ul>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px;">
+        <a href="http://localhost:4200" class="button">🚀 Открыть Coffee Admin</a>
+    </div>
+
+    <hr style="margin: 40px 0;">
+    
+    <footer style="text-align: center; color: #666; font-size: 14px;">
+        <p>Coffee Admin Panel - October 2025</p>
+        <p>☕ Сделано с любовью к кофе и хорошему UX</p>
+    </footer>
+</body>
+</html>
+

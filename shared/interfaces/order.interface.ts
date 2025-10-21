@@ -30,7 +30,6 @@ export enum TerritoryType {
 
 export enum EngineerType {
   STAFF = 'staff', // штатный
-  REMOTE = 'remote', // удаленный
   CONTRACT = 'contract', // наемный
 }
 
@@ -61,6 +60,19 @@ export interface Order {
   plannedStartDate?: Date;
   actualStartDate?: Date;
   completionDate?: Date;
+  
+  // Work execution details
+  workActNumber?: string; // Номер Акта выполненных работ
+  workStartTime?: Date; // Время начала работ
+  workEndTime?: Date; // Время окончания работ
+  totalWorkHours?: number; // Общее время на объекте (автоматически рассчитывается)
+  isOvertimeRate?: boolean; // Внеурочный тариф (флаг)
+  isRepairComplete?: boolean; // Ремонт завершен (true = галочка, false = крестик)
+  equipmentInfo?: string; // Оборудование (название и серийный номер)
+  comments?: string; // Дополнительная информация по заявке
+  isIncomplete?: boolean; // Отметка "!" для незавершенных работ
+  completionLockedAt?: Date; // Дата блокировки редактирования (24 часа после завершения)
+  
   createdAt: Date;
   updatedAt: Date;
 }

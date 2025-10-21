@@ -104,9 +104,6 @@ export class CalculationService {
           case EngineerType.STAFF:
             rate = this.applyStaffOvertimeMultiplier(rate, organization);
             break;
-          case EngineerType.REMOTE:
-            rate = this.applyRemoteOvertimeMultiplier(rate, organization);
-            break;
           case EngineerType.CONTRACT:
             rate = this.getContractOvertimeRate(organization);
             break;
@@ -132,12 +129,6 @@ export class CalculationService {
     return rate * multiplier;
   }
 
-  /**
-   * Коэффициенты внеурочного времени для удаленного инженера
-   */
-  private applyRemoteOvertimeMultiplier(rate: number, organization: Organization): number {
-    return this.applyStaffOvertimeMultiplier(rate, organization);
-  }
 
   /**
    * Фиксированные ставки внеурочного времени для наемного инженера
@@ -170,7 +161,7 @@ export class CalculationService {
       return distanceKm * kmRate;
     }
 
-    // Для штатного и удаленного инженеров
+    // Для штатного инженера
     let amount = rates.fixedCarAmount;
 
     // Добавочная стоимость за зоны (если расстояние > 60 км)
@@ -179,7 +170,7 @@ export class CalculationService {
         case TerritoryType.ZONE_1:
           if (rates.zone1Extra) {
             amount += rates.zone1Extra;
-          } else if (engineer.type === EngineerType.REMOTE) {
+          } else {
             amount += 1000; // Значение по умолчанию
           }
           break;
@@ -350,7 +341,7 @@ export class CalculationService {
    */
   getTerritoryType(distanceKm: number, engineerType: EngineerType): TerritoryType {
     if (distanceKm <= 60) return TerritoryType.HOME;
-    if (distanceKm <= 199 && engineerType === EngineerType.REMOTE) return TerritoryType.ZONE_1;
+    if (distanceKm <= 199) return TerritoryType.ZONE_1;
     if (distanceKm <= 250) return TerritoryType.ZONE_2;
     return TerritoryType.ZONE_3;
   }
@@ -402,9 +393,7 @@ export class CalculationService {
     // Дополнительные суммы за зоны
     switch (territoryType) {
       case TerritoryType.ZONE_1:
-        if (engineer.type === EngineerType.REMOTE) {
-          amount += 1000;
-        }
+        amount += 1000;
         break;
       case TerritoryType.ZONE_2:
         amount += 1500;

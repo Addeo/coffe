@@ -126,8 +126,6 @@ export class UsersComponent implements OnInit {
     switch (type) {
       case EngineerType.STAFF:
         return 'Штатный';
-      case EngineerType.REMOTE:
-        return 'Удаленный';
       case EngineerType.CONTRACT:
         return 'Наемный';
       default:

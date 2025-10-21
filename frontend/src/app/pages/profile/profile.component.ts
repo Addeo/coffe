@@ -16,7 +16,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AuthService } from '../../services/auth.service';
+import { ThemeService, Theme } from '../../services/theme.service';
 import { UsersService } from '../../services/users.service';
 import { EngineerOrganizationRatesService } from '../../services/engineer-organization-rates.service';
 import { UserRole } from '@shared/interfaces/user.interface';
@@ -37,6 +40,8 @@ import { UserDto } from '@shared/dtos/user.dto';
     MatProgressSpinnerModule,
     MatTableModule,
     MatTabsModule,
+    MatSelectModule,
+    MatSlideToggleModule,
   ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
@@ -44,6 +49,7 @@ import { UserDto } from '@shared/dtos/user.dto';
 export class ProfileComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private themeService = inject(ThemeService);
   private usersService = inject(UsersService);
   private snackBar = inject(MatSnackBar);
   private engineerRatesService = inject(EngineerOrganizationRatesService);
@@ -54,6 +60,16 @@ export class ProfileComponent implements OnInit {
   currentUser = this.authService.currentUser;
   fullUserProfile = signal<UserDto | null>(null);
   selectedTabIndex = signal(0);
+
+  // Theme settings
+  currentTheme = this.themeService.currentTheme;
+  effectiveTheme = this.themeService.effectiveTheme;
+
+  themes: { value: Theme; label: string; icon: string }[] = [
+    { value: 'light', label: 'Светлая', icon: 'light_mode' },
+    { value: 'dark', label: 'Темная', icon: 'dark_mode' },
+    { value: 'auto', label: 'Авто (Системная)', icon: 'brightness_auto' },
+  ];
 
   // Engineer rates data
   engineerRates = signal<EngineerOrganizationRateDto[]>([]);
@@ -204,5 +220,12 @@ export class ProfileComponent implements OnInit {
 
   getEngineerData() {
     return this.fullUserProfile()?.engineer;
+  }
+
+  onThemeChange(theme: Theme): void {
+    this.themeService.setTheme(theme);
+    this.snackBar.open(`Тема изменена на: ${this.themes.find(t => t.value === theme)?.label}`, 'OK', {
+      duration: 2000,
+    });
   }
 }

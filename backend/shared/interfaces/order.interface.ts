@@ -30,7 +30,6 @@ export enum TerritoryType {
 
 export enum EngineerType {
   STAFF = 'staff', // штатный
-  REMOTE = 'remote', // удаленный
   CONTRACT = 'contract', // наемный
 }
 

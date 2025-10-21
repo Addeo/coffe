@@ -1,0 +1,341 @@
+// ============================================
+// Accessibility Enhancements
+// ============================================
+
+// Focus styles for keyboard navigation
+*:focus-visible {
+  outline: 2px solid var(--color-accent, #1976d2);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+// Remove outline for mouse users (but keep for keyboard users)
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+// Skip to main content link
+.skip-to-main {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  z-index: 10000;
+  padding: 12px 20px;
+  background-color: var(--color-primary, #6f4e37);
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  border-radius: 0 0 8px 0;
+  transition: top 0.3s ease;
+
+  &:focus {
+    top: 0;
+  }
+}
+
+// Screen reader only content
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+// Ensure adequate color contrast
+.text-low-contrast {
+  color: var(--text-secondary, #666666);
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  * {
+    border-color: currentColor !important;
+  }
+
+  .mat-mdc-button,
+  .mat-mdc-raised-button {
+    border: 2px solid currentColor;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// Improved button accessibility
+button,
+a[role='button'] {
+  cursor: pointer;
+  user-select: none;
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+// Form field accessibility
+.mat-mdc-form-field {
+  // Ensure labels are properly associated
+  .mat-mdc-form-field-label {
+    font-weight: 500;
+  }
+
+  // Error messages should be clearly visible
+  .mat-mdc-form-field-error {
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+
+  // Required indicator
+  .mat-mdc-form-field-required-marker {
+    color: var(--color-error, #f44336);
+    font-weight: bold;
+  }
+}
+
+// Dialog accessibility improvements
+.mat-mdc-dialog-container {
+  // Ensure focus is trapped within dialog
+  &:focus {
+    outline: none;
+  }
+
+  // First focusable element should receive focus
+  [tabindex='0']:first-of-type {
+    outline: 2px solid var(--color-accent, #1976d2);
+    outline-offset: 2px;
+  }
+}
+
+// Table accessibility
+.mat-mdc-table {
+  // Ensure headers are properly marked
+  .mat-mdc-header-cell {
+    font-weight: 600;
+  }
+
+  // Row hover state for keyboard navigation
+  .mat-mdc-row {
+    &:focus-within {
+      background-color: var(--bg-hover, rgba(0, 0, 0, 0.04));
+      outline: 2px solid var(--color-accent, #1976d2);
+      outline-offset: -2px;
+    }
+  }
+}
+
+// Navigation accessibility
+nav {
+  // Current page indicator
+  [aria-current='page'] {
+    font-weight: 600;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: currentColor;
+    }
+  }
+
+  // Skip navigation links
+  a[href^='#'] {
+    &:focus {
+      outline: 2px solid var(--color-accent, #1976d2);
+      outline-offset: 4px;
+    }
+  }
+}
+
+// Interactive element states
+.interactive {
+  &:hover {
+    cursor: pointer;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent, #1976d2);
+    outline-offset: 2px;
+  }
+
+  &[aria-pressed='true'] {
+    background-color: var(--bg-selected, rgba(0, 0, 0, 0.08));
+  }
+
+  &[aria-expanded='true'] {
+    // Visual indicator for expanded state
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%) rotate(180deg);
+      transition: transform 0.3s ease;
+    }
+  }
+}
+
+// Status indicators
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: currentColor;
+  }
+
+  &[aria-label*='success'],
+  &[aria-label*='active'] {
+    color: var(--color-success, #4caf50);
+  }
+
+  &[aria-label*='error'],
+  &[aria-label*='failed'] {
+    color: var(--color-error, #f44336);
+  }
+
+  &[aria-label*='warning'],
+  &[aria-label*='pending'] {
+    color: var(--color-warning, #ff9800);
+  }
+
+  &[aria-label*='info'],
+  &[aria-label*='processing'] {
+    color: var(--color-info, #2196f3);
+  }
+}
+
+// Loading states
+[aria-busy='true'] {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.6;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--color-primary, #6f4e37);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+// Alert and notification accessibility
+[role='alert'],
+[role='status'] {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  border-left: 4px solid currentColor;
+
+  &[aria-live='assertive'] {
+    // High priority alerts
+    border-left-width: 6px;
+  }
+}
+
+// Tooltip accessibility
+[role='tooltip'] {
+  max-width: 300px;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  z-index: 10000;
+}
+
+// Ensure sufficient touch target size (44x44px minimum)
+@media (pointer: coarse) {
+  button,
+  a,
+  input[type='checkbox'],
+  input[type='radio'],
+  .interactive {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px;
+  }
+}
+
+// Dark theme accessibility adjustments
+.dark-theme {
+  // Ensure sufficient contrast in dark mode
+  --focus-outline-color: #64b5f6;
+
+  *:focus-visible {
+    outline-color: var(--focus-outline-color);
+  }
+
+  // Enhanced contrast for text
+  .text-low-contrast {
+    color: var(--text-secondary, #b0b0b0);
+  }
+
+  // Status indicators with better visibility
+  .status-indicator {
+    filter: brightness(1.2);
+  }
+}
+
+// Print styles for accessibility
+@media print {
+  // Ensure links are visible when printed
+  a[href]::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  // Hide non-essential elements
+  .no-print,
+  nav,
+  .mat-toolbar,
+  button:not(.print-only) {
+    display: none !important;
+  }
+
+  // Ensure good contrast for printing
+  * {
+    color: #000 !important;
+    background: #fff !important;
+  }
+}
+

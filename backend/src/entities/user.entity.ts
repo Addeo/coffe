@@ -36,7 +36,23 @@ export class User {
     length: 20,
     default: UserRole.USER,
   })
-  role: UserRole;
+  role: UserRole; // Legacy field for backward compatibility
+
+  @Column({
+    name: 'primary_role',
+    type: 'varchar',
+    length: 20,
+    default: UserRole.USER,
+  })
+  primaryRole: UserRole; // Highest role assigned to user
+
+  @Column({
+    name: 'active_role',
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
+  activeRole: UserRole | null; // Currently active role in session (null = use primaryRole)
 
   @Column({ name: 'is_active', default: true })
   isActive: boolean;

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -10,6 +10,8 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { ThemeService, Theme } from '../../services/theme.service';
 
 @Component({
   selector: 'app-settings',
@@ -29,17 +31,22 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.scss'],
 })
-export class SettingsComponent {
+export class SettingsComponent implements OnInit {
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
+  private themeService = inject(ThemeService);
 
   settingsForm!: FormGroup;
   isLoading = signal(false);
 
-  themes = [
-    { value: 'light', label: 'Светлая' },
-    { value: 'dark', label: 'Темная' },
-    { value: 'auto', label: 'Авто' },
+  // Reactive signals from theme service
+  currentTheme = this.themeService.currentTheme;
+  effectiveTheme = this.themeService.effectiveTheme;
+
+  themes: { value: Theme; label: string; icon: string }[] = [
+    { value: 'light', label: 'Светлая', icon: 'light_mode' },
+    { value: 'dark', label: 'Темная', icon: 'dark_mode' },
+    { value: 'auto', label: 'Авто (Системная)', icon: 'brightness_auto' },
   ];
 
   languages = [
@@ -51,11 +58,23 @@ export class SettingsComponent {
     this.initializeForm();
   }
 
+  ngOnInit(): void {
+    // Load current theme into form
+    this.settingsForm.patchValue({
+      theme: this.currentTheme(),
+    });
+
+    // Subscribe to theme changes from form
+    this.settingsForm.get('theme')?.valueChanges.subscribe((theme: Theme) => {
+      this.themeService.setTheme(theme);
+    });
+  }
+
   private initializeForm() {
     this.settingsForm = this.fb.group({
       siteName: ['Coffee Admin', [Validators.required]],
-      theme: ['light', [Validators.required]],
-      language: ['en', [Validators.required]],
+      theme: [this.themeService.currentTheme(), [Validators.required]],
+      language: ['ru', [Validators.required]],
       emailNotifications: [true],
       pushNotifications: [false],
       autoSave: [true],
