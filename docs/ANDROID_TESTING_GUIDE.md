@@ -314,3 +314,4 @@ adb install CoffeeAdmin-fixed.apk
 **Версия документа:** 1.0
 
 
+
