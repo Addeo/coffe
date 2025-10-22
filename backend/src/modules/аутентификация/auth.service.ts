@@ -38,6 +38,15 @@ export class AuthService {
       // Remove password from result for security
       const result = { ...user };
       delete result.password;
+      
+      console.log('🔐 AuthService.validateUser - User from DB:', {
+        id: result.id,
+        email: result.email,
+        role: result.role,
+        primaryRole: result.primaryRole,
+        activeRole: result.activeRole
+      });
+      
       return result;
     }
 
@@ -45,19 +54,27 @@ export class AuthService {
   }
 
   async login(user: any) {
-    // Ensure primaryRole is set (migration from old data)
-    if (!user.primaryRole) {
-      user.primaryRole = user.role;
-    }
+    // Debug logging
+    console.log('🔐 AuthService.login - User data:', {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      primaryRole: user.primaryRole,
+      activeRole: user.activeRole
+    });
 
-    // Use activeRole if set, otherwise use primaryRole
-    const effectiveRole = user.activeRole || user.primaryRole;
+    // Use user.role directly as the primary role
+    const primaryRole = user.role;
+    const effectiveRole = user.activeRole || user.role;
+
+    console.log('🔐 AuthService.login - Primary role:', primaryRole);
+    console.log('🔐 AuthService.login - Effective role:', effectiveRole);
 
     const payload = {
       email: user.email,
       sub: user.id,
       role: effectiveRole,
-      primaryRole: user.primaryRole,
+      primaryRole: primaryRole,
       activeRole: user.activeRole,
     };
 
