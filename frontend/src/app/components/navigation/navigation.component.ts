@@ -140,6 +140,8 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
+    console.log('🚪 Logout button clicked');
+    // alert('Logout clicked!'); // Temporary alert for testing
     this.authService.logout();
   }
 
@@ -248,5 +250,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
       auto: 'Текущая тема: автоматическая',
     };
     return themeLabels[theme] || 'Переключить тему';
+  }
+
+  navigateToProfile(): void {
+    console.log('👤 Profile button clicked');
+    // alert('Profile clicked!'); // Temporary alert for testing
+    this.router.navigate(['/profile']);
   }
 }

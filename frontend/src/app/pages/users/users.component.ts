@@ -219,7 +219,16 @@ export class UsersComponent implements OnInit {
   }
 
   onCreateUser() {
-    this.router.navigate(['/users/create']);
+    console.log('🔵 Create User button clicked');
+    console.log('🔵 canCreateUsers:', this.canCreateUsers);
+    console.log('🔵 isAdmin:', this.authService.isAdmin());
+    console.log('🔵 currentUser:', this.authService.currentUser());
+    console.log('🔵 Navigating to /users/create');
+    this.router.navigate(['/users/create']).then(success => {
+      console.log('🔵 Navigation result:', success);
+    }).catch(error => {
+      console.error('❌ Navigation error:', error);
+    });
   }
 
   onToggleUserStatus(user: UserDto) {

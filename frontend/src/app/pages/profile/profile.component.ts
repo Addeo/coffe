@@ -86,9 +86,7 @@ export class ProfileComponent implements OnInit {
   // Check if current user is an engineer
   get isEngineer(): boolean {
     const role = this.currentUser()?.role;
-    // For development/debugging - show engineer tabs for all authenticated users
-    // TODO: Remove this debug condition and use only: return role === UserRole.USER;
-    return role === UserRole.USER || !!this.currentUser();
+    return role === UserRole.USER;
   }
 
   getCurrentThemeIcon(): string {
@@ -137,6 +135,7 @@ export class ProfileComponent implements OnInit {
     // Load full user profile with engineer data
     this.usersService.getUserProfile().subscribe({
       next: fullProfile => {
+        console.log('Full user profile:', fullProfile);
         this.fullUserProfile.set(fullProfile);
       },
       error: error => {

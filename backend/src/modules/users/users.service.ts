@@ -208,6 +208,18 @@ export class UsersService {
       return null;
     }
 
+    // Users can always see their own profile
+    if (currentUser.id === id) {
+      // Include engineer data for USER role
+      if (user.role === UserRole.USER) {
+        const engineer = await this.engineerRepository.findOne({ where: { userId: id } });
+        if (engineer) {
+          (user as any).engineer = engineer;
+        }
+      }
+      return user;
+    }
+
     // Admin can see all users
     if (currentUser.role === UserRole.ADMIN) {
       // Include engineer data for USER role
@@ -230,7 +242,7 @@ export class UsersService {
       return user;
     }
 
-    // Regular users cannot see any users, or managers cannot see other managers/admins
+    // Regular users cannot see other users, or managers cannot see other managers/admins
     return null;
   }
 

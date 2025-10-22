@@ -20,11 +20,17 @@ export class ThemeService {
     if (isPlatformBrowser(this.platformId)) {
       this.initializeTheme();
       this.setupMediaQueryListener();
+      
+      // Force apply theme on initialization
+      setTimeout(() => {
+        this.applyTheme(this.currentTheme());
+      }, 0);
     }
 
     // Effect to apply theme when it changes
     effect(() => {
       const theme = this.currentTheme();
+      console.log('🎨 Theme effect triggered:', theme);
       this.applyTheme(theme);
     });
   }
@@ -83,6 +89,8 @@ export class ThemeService {
     const effectiveTheme = this.resolveEffectiveTheme(theme);
     this.effectiveTheme.set(effectiveTheme);
 
+    console.log('🎨 Applying theme:', { theme, effectiveTheme });
+
     const body = document.body;
     
     // Remove all theme classes
@@ -90,6 +98,8 @@ export class ThemeService {
     
     // Add the effective theme class
     body.classList.add(`${effectiveTheme}-theme`);
+    
+    console.log('🎨 Body classes after theme application:', body.classList.toString());
     
     // Update meta theme-color
     this.updateMetaThemeColor(effectiveTheme);
