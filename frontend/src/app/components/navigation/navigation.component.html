@@ -211,53 +211,15 @@
         </button>
 
         <mat-menu #userMenu="matMenu" class="user-dropdown">
-          <div class="user-info" mat-menu-item disabled>
-            <div class="user-details">
-              <div class="user-full-name">{{ userName() }}</div>
-              <div class="user-role">
-                <mat-icon class="role-icon">{{ getRoleIcon(activeRole()!) }}</mat-icon>
-                <span>{{ getRoleDisplayName(activeRole()!) }}</span>
-                @if (canSwitchRoles()) {
-                  <mat-icon class="switch-icon">sync_alt</mat-icon>
-                }
-              </div>
-              <div class="user-email">{{ currentUser()?.email }}</div>
-            </div>
-          </div>
-
-          <mat-divider></mat-divider>
-
-          <!-- Role Switcher Section -->
-          @if (canSwitchRoles()) {
-            <div class="role-switcher-section">
-              <div class="section-title" mat-menu-item disabled>
-                <span i18n="@@navigation.switchRole">Переключить роль</span>
-              </div>
-              @for (role of availableRoles(); track role) {
-                <button 
-                  mat-menu-item 
-                  (click)="switchRole(role)"
-                  [disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
-                  [class.active-role]="isRoleActive(role)">
-                  <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
-                  <span>{{ getRoleDisplayName(role) }}</span>
-                  @if (isRoleActive(role)) {
-                    <mat-icon class="check-icon">check</mat-icon>
-                  }
-                </button>
-              }
-            </div>
-            <mat-divider></mat-divider>
-          }
-
-          <button mat-menu-item [routerLink]="'/profile'">
+          <!-- Test with regular buttons -->
+          <button (click)="navigateToProfile()" style="width: 100%; text-align: left; padding: 12px 16px; border: none; background: none; cursor: pointer;">
             <mat-icon>person</mat-icon>
-            <span i18n="@@navigation.profile">Мой профиль</span>
+            <span>Мой профиль</span>
           </button>
 
-          <button mat-menu-item (click)="logout()">
+          <button (click)="logout()" style="width: 100%; text-align: left; padding: 12px 16px; border: none; background: none; cursor: pointer;">
             <mat-icon>logout</mat-icon>
-            <span i18n="@@navigation.logout">Выход</span>
+            <span>Выход</span>
           </button>
         </mat-menu>
       </div>

@@ -29,11 +29,13 @@ import { OrderSidebarComponent } from './components/sidebars/order-sidebar.compo
     `
       .app-container {
         min-height: 100vh;
-        background-color: #fafafa;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
         font-family: 'Roboto', 'Helvetica Neue', sans-serif;
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
 
       .main-content {
@@ -61,7 +63,7 @@ import { OrderSidebarComponent } from './components/sidebars/order-sidebar.compo
       /* Global loading state styling */
       ::ng-deep .mat-mdc-progress-spinner {
         circle {
-          stroke: #1976d2;
+          stroke: var(--color-accent);
         }
       }
     `,

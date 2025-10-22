@@ -15,6 +15,10 @@
         <mat-icon>add</mat-icon>
         <span i18n="@@users.addUser">Добавить пользователя</span>
       </button>
+      <!-- Debug info -->
+      <div *ngIf="!canCreateUsers" style="color: red; padding: 8px; background: #ffebee; border-radius: 4px;">
+        <small>⚠️ Кнопка скрыта: только для администраторов</small>
+      </div>
     </div>
   </div>
 
