@@ -35,15 +35,26 @@
           </button>
         </div>
 
-        <button 
-          *ngIf="collapsible"
-          mat-icon-button 
-          (click)="toggleCollapse()"
-          matTooltip="Свернуть/Развернуть"
-          class="collapse-btn"
-        >
-          <mat-icon>{{ isCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-        </button>
+        <div class="header-actions">
+          <button 
+            mat-icon-button 
+            (click)="exportStatisticsToExcel()"
+            matTooltip="Скачать статистику"
+            class="export-btn"
+          >
+            <mat-icon>file_download</mat-icon>
+          </button>
+          
+          <button 
+            *ngIf="collapsible"
+            mat-icon-button 
+            (click)="toggleCollapse()"
+            matTooltip="Свернуть/Развернуть"
+            class="collapse-btn"
+          >
+            <mat-icon>{{ isCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+          </button>
+        </div>
       </div>
     </mat-card-header>
 
@@ -54,6 +65,24 @@
       </div>
 
       <div class="earnings-grid" *ngIf="!isLoading()">
+        <!-- Unaccepted Orders Warning -->
+        <div class="earning-card warning-earnings" *ngIf="hasUnacceptedOrders()" (click)="onViewUnacceptedOrders()">
+          <div class="earning-icon">
+            <mat-icon>warning</mat-icon>
+          </div>
+          <div class="earning-content">
+            <div class="earning-label">Непринятые заявки!</div>
+            <div class="earning-value">
+              <span *ngIf="canViewAllOrders">
+                {{ getUnacceptedOrdersCount() }} 
+              </span>
+              <span *ngIf="!canViewAllOrders">
+                Есть непринятые заявки
+              </span>
+            </div>
+          </div>
+        </div>
+
         <!-- Work Earnings -->
         <div class="earning-card work-earnings">
           <div class="earning-icon">

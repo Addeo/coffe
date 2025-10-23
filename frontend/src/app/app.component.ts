@@ -1,6 +1,7 @@
-import { Component, inject, computed, signal } from '@angular/core';
-import { RouterOutlet, Router } from '@angular/router';
+import { Component, inject, computed, signal, OnInit, OnDestroy } from '@angular/core';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { filter } from 'rxjs/operators';
 
 import { AuthService } from './services/auth.service';
 import { ThemeService } from './services/theme.service';
@@ -69,17 +70,10 @@ import { OrderSidebarComponent } from './components/sidebars/order-sidebar.compo
     `,
   ],
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private themeService = inject(ThemeService);
   private router = inject(Router);
-
-  constructor() {
-    console.log('🏠 AppComponent initialized');
-    console.log('🏠 Initial auth state:', this.isAuthenticated());
-    console.log('🏠 Current route:', this.router.url);
-    console.log('🎨 Theme service initialized:', this.themeService.currentTheme());
-  }
 
   title = 'coffee-admin';
 
@@ -90,4 +84,35 @@ export class AppComponent {
   isLoginRoute = computed(() => {
     return this.router.url === '/login';
   });
+
+  constructor() {
+    console.log('🏠 AppComponent initialized');
+    console.log('🏠 Initial auth state:', this.isAuthenticated());
+    console.log('🏠 Current route:', this.router.url);
+    console.log('🎨 Theme service initialized:', this.themeService.currentTheme());
+  }
+
+  ngOnInit(): void {
+    // Listen for navigation events to ensure auth state is properly updated
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event) => {
+        const navigationEnd = event as NavigationEnd;
+        console.log('🏠 Navigation ended:', navigationEnd.url);
+        
+        // Force auth state refresh after navigation
+        setTimeout(() => {
+          console.log('🏠 Auth state after navigation:', this.isAuthenticated());
+          this.authService.refreshAuthState();
+          // Force change detection
+          setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+          }, 50);
+        }, 100);
+      });
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup if needed
+  }
 }

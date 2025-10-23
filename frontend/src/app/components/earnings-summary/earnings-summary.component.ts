@@ -5,11 +5,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import * as XLSX from 'xlsx';
 
 import { StatisticsService, AdminEngineerStatistics } from '../../services/statistics.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
-import { UserRole } from '@shared/interfaces/user.interface';
+import { OrdersService } from '../../services/orders.service';
+import { UserRole } from '../../../../shared/interfaces/user.interface';
+import { OrderDto } from '../../../../shared/dtos/order.dto';
+import { OrderStatus } from '../../../../shared/interfaces/order.interface';
 
 interface EarningsSummary {
   workEarnings: number;
@@ -37,12 +41,15 @@ export class EarningsSummaryComponent implements OnInit {
   private statisticsService = inject(StatisticsService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
+  private ordersService = inject(OrdersService);
 
   @Input() collapsible = true;
   @Output() monthChanged = new EventEmitter<{ month: number; year: number }>();
+  @Output() viewUnacceptedOrders = new EventEmitter<void>();
 
   isLoading = signal(false);
   isCollapsed = signal(false);
+  unacceptedOrders = signal<OrderDto[]>([]);
   summary = signal<EarningsSummary>({
     workEarnings: 0,
     carEarnings: 0,
@@ -59,6 +66,7 @@ export class EarningsSummaryComponent implements OnInit {
   readonly isAdmin = this.authService.hasRole(UserRole.ADMIN);
   readonly isManager = this.authService.hasRole(UserRole.MANAGER);
   readonly isEngineer = this.authService.hasRole(UserRole.USER);
+  readonly canViewAllOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
   readonly currentUser = this.authService.currentUser;
 
   // Touch event variables for swipe
@@ -67,6 +75,7 @@ export class EarningsSummaryComponent implements OnInit {
 
   ngOnInit() {
     this.loadEarningsData();
+    this.loadUnacceptedOrders();
   }
 
   loadEarningsData() {
@@ -203,6 +212,96 @@ export class EarningsSummaryComponent implements OnInit {
 
   isMobileView(): boolean {
     return window.innerWidth <= 768;
+  }
+
+  // Unaccepted orders methods
+  loadUnacceptedOrders() {
+    this.ordersService.getOrders({ status: OrderStatus.ASSIGNED }).subscribe({
+      next: response => {
+        const currentUser = this.currentUser();
+        if (!currentUser) return;
+
+        let filteredOrders = response.data || [];
+        
+        if (!this.canViewAllOrders) {
+          // For engineers, show only their own unaccepted orders
+          filteredOrders = filteredOrders.filter(order => order.assignedEngineerId === currentUser.id);
+        }
+        
+        this.unacceptedOrders.set(filteredOrders);
+      },
+      error: error => {
+        console.error('Error loading unaccepted orders:', error);
+      },
+    });
+  }
+
+  getUnacceptedOrdersCount(): number {
+    return this.unacceptedOrders().length;
+  }
+
+  hasUnacceptedOrders(): boolean {
+    return this.getUnacceptedOrdersCount() > 0;
+  }
+
+  onViewUnacceptedOrders() {
+    this.viewUnacceptedOrders.emit();
+  }
+
+  exportStatisticsToExcel() {
+    const stats = this.summary();
+    
+    // Prepare statistics data for export
+    const statsData = [
+      {
+        'Категория': 'Заработок за работу',
+        'Сумма': stats.workEarnings,
+        'Описание': 'Заработок за выполненную работу'
+      },
+      {
+        'Категория': 'Заработок за авто',
+        'Сумма': stats.carEarnings,
+        'Описание': 'Заработок за использование автомобиля'
+      },
+      {
+        'Категория': 'Общий заработок',
+        'Сумма': stats.totalEarnings,
+        'Описание': 'Общая сумма заработка'
+      },
+      {
+        'Категория': 'Завершенные заказы',
+        'Количество': stats.completedOrders,
+        'Описание': 'Количество завершенных заказов'
+      },
+      {
+        'Категория': 'Общее количество часов',
+        'Количество': stats.totalHours,
+        'Описание': 'Общее количество отработанных часов'
+      }
+    ];
+
+    // Create worksheet for statistics
+    const statsWorksheet = XLSX.utils.json_to_sheet(statsData);
+    
+    // Set column widths
+    statsWorksheet['!cols'] = [
+      { wch: 25 },  // Категория
+      { wch: 15 },  // Сумма/Количество
+      { wch: 40 }   // Описание
+    ];
+
+    // Create workbook with statistics
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, statsWorksheet, 'Статистика заработка');
+
+    // Generate filename with current date
+    const currentDate = new Date().toISOString().split('T')[0];
+    const filename = `earnings_statistics_${currentDate}.xlsx`;
+
+    // Save file
+    XLSX.writeFile(workbook, filename);
+
+    this.toastService.success('Статистика заработка успешно экспортирована в Excel');
   }
 }
 

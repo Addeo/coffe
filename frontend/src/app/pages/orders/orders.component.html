@@ -1,29 +1,11 @@
 <div class="orders-container">
   <!-- Earnings Summary Component -->
-  <app-earnings-summary [collapsible]="true"></app-earnings-summary>
-
-  <!-- Unaccepted Orders Warning -->
-  <mat-card class="warning-card" *ngIf="hasUnacceptedOrders()">
-    <mat-card-content>
-      <div class="warning-content">
-        <mat-icon class="warning-icon">warning</mat-icon>
-        <div class="warning-text">
-          <strong>Внимание!</strong>
-          <span *ngIf="canViewAllOrders">
-            У вас {{ getUnacceptedOrdersCount() }} непринятых заявок, ожидающих подтверждения.
-          </span>
-          <span *ngIf="!canViewAllOrders">
-            У вас есть непринятые заявки, ожидающие подтверждения.
-          </span>
-        </div>
-        <button mat-raised-button color="warn" (click)="onStatusFilterChange(assignedStatus)">
-          Посмотреть
-        </button>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Order Statistics Section (Collapsible) -->
+  <app-earnings-summary 
+    [collapsible]="true"
+    (viewUnacceptedOrders)="onStatusFilterChange(assignedStatus)">
+  </app-earnings-summary>
+  
+  <!--
   <mat-card class="order-stats-card">
     <mat-card-header (click)="toggleOrderStats()" class="clickable-header">
       <div class="stats-header-content">
@@ -38,7 +20,7 @@
     </mat-card-header>
 
     <mat-card-content *ngIf="!orderStatsCollapsed()">
-      <!-- Переключатель вариантов статистики -->
+     
       <div class="stats-switcher">
     <mat-button-toggle-group [(ngModel)]="statsView" aria-label="Вариант отображения статистики" class="stats-toggle-group">
       <mat-button-toggle value="compact" class="stats-toggle-btn">
@@ -56,7 +38,6 @@
     </mat-button-toggle-group>
   </div>
 
-  <!-- ВАРИАНТ 1: Компактная таблица -->
   <mat-card class="stats-card-unified" *ngIf="statsView === 'compact'">
     <mat-card-header>
       <mat-card-title>
@@ -76,7 +57,6 @@
     
     <mat-card-content>
       <div class="stats-table">
-        <!-- Статусы заказов -->
         <div class="stats-section">
           <h3>По статусам</h3>
           <div class="stats-row">
@@ -112,40 +92,9 @@
             </div>
           </div>
         </div>
-
-        <!-- mat-divider></mat-divider -->
-
-        <!-- Источники заказов - СКРЫТО -->
-        <!-- div class="stats-section">
-          <h3>По источникам</h3>
-          <div class="stats-row">
-            <div class="stat-item">
-              <mat-icon>touch_app</mat-icon>
-              <span class="label">Вручную:</span>
-              <span class="value">{{ orderStats().bySource.manual }}</span>
-            </div>
-            <div class="stat-item">
-              <mat-icon>settings</mat-icon>
-              <span class="label">Автоматически:</span>
-              <span class="value">{{ orderStats().bySource.automatic }}</span>
-            </div>
-            <div class="stat-item">
-              <mat-icon>email</mat-icon>
-              <span class="label">Из Email:</span>
-              <span class="value">{{ orderStats().bySource.email }}</span>
-            </div>
-            <div class="stat-item">
-              <mat-icon>api</mat-icon>
-              <span class="label">Через API:</span>
-              <span class="value">{{ orderStats().bySource.api }}</span>
-            </div>
-          </div>
-        </div -->
       </div>
     </mat-card-content>
   </mat-card>
-
-  <!-- ВАРИАНТ 2: С графиками -->
   <mat-card class="stats-card-charts" *ngIf="statsView === 'charts'">
     <mat-card-header>
       <mat-card-title>
@@ -165,7 +114,7 @@
     
     <mat-card-content>
       <div class="charts-container">
-        <!-- График по статусам (Donut Chart) -->
+    
         <div class="chart-section">
           <h3>Распределение по статусам</h3>
           <div class="chart-wrapper">
@@ -185,8 +134,7 @@
           </div>
         </div>
 
-        <!-- График по источникам (Bar Chart) - СКРЫТО -->
-        <!-- div class="chart-section">
+         div class="chart-section">
           <h3>Источники заказов</h3>
           <div class="chart-wrapper">
             <canvas
@@ -196,11 +144,8 @@
               [type]="'bar'"
             ></canvas>
           </div>
-        </div -->
-      </div>
-
-      <!-- Итоговая статистика -->
-      <div class="total-stats">
+        </div
+      </div>  <div class="total-stats">
         <div class="total-item">
           <mat-icon color="primary">assignment</mat-icon>
           <div>
@@ -222,11 +167,10 @@
             <div class="total-value">{{ orderStats().completed }}</div>
           </div>
         </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
+      </div> 
+ 
 
-  <!-- ВАРИАНТ 3: С прогресс-барами -->
+
   <mat-card class="stats-card-progress" *ngIf="statsView === 'progress'">
     <mat-card-header>
       <mat-card-title>
@@ -245,7 +189,6 @@
     </mat-card-header>
     
     <mat-card-content>
-      <!-- Общий счётчик -->
       <div class="total-counter">
         <mat-icon>assignment</mat-icon>
         <div class="counter-text">
@@ -256,7 +199,6 @@
 
       <mat-divider></mat-divider>
 
-      <!-- Прогресс-бары по статусам -->
       <div class="progress-stats">
         <div class="progress-item">
           <div class="progress-header">
@@ -333,9 +275,8 @@
         </div>
       </div>
 
-      <!-- mat-divider></mat-divider -->
+      mat-divider></mat-divider
 
-      <!-- Источники компактно - СКРЫТО
       <div class="sources-compact">
         <h4>По источникам</h4>
         <div class="sources-row">
@@ -357,11 +298,7 @@
           </div>
         </div>
       </div>
-      -->
-    </mat-card-content>
-  </mat-card>
 
-  <!-- Компактная мобильная статистика -->
   <mat-card class="mobile-summary-card" *ngIf="isMobileView()">
     <mat-card-header>
       <mat-card-title>
@@ -381,7 +318,7 @@
     </mat-card-header>
     
     <mat-card-content>
-      <!-- Основные метрики -->
+    
       <div class="mobile-summary-grid">
         <div class="summary-item primary">
           <div class="summary-icon">
@@ -424,7 +361,7 @@
         </div>
       </div>
 
-      <!-- Детальная статистика -->
+
       <div class="mobile-details">
         <div class="details-section">
           <h4>По статусам</h4>
@@ -440,7 +377,6 @@
           </div>
         </div>
 
-        <!--
         <div class="details-section">
           <h4>По источникам</h4>
           <div class="details-grid">
@@ -462,12 +398,9 @@
             </div>
           </div>
         </div>
-        -->
+
       </div>
-    </mat-card-content>
-  </mat-card>
-    </mat-card-content>
-  </mat-card>
+        -->
 
   <!-- Main Content -->
   <mat-card class="main-content">
@@ -752,4 +685,3 @@
       </mat-paginator>
     </mat-card-content>
   </mat-card>
-</div>

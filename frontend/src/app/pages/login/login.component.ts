@@ -104,7 +104,21 @@ export class LoginComponent {
 
           const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/orders';
           console.log('🧭 Navigating to:', returnUrl);
-          this.router.navigate([returnUrl]);
+          
+          // Force refresh auth state and navigate
+          this.authService.refreshAuthState();
+          
+          // Navigate with a small delay to ensure state is set
+          setTimeout(() => {
+            this.router.navigate([returnUrl]).then(() => {
+              // Force change detection after navigation
+              setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+                // Final auth state refresh
+                this.authService.refreshAuthState();
+              }, 100);
+            });
+          }, 100);
 
           this.toastService.success('Вход выполнен успешно!');
         },

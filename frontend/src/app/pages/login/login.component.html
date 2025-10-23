@@ -21,7 +21,7 @@
             [errorStateMatcher]="matcher"
             placeholder="Например: admin@coffee.com"
           />
-          <mat-hint i18n="@@form.errorsAppearInstantly">Ошибки появляются мгновенно!</mat-hint>
+          <mat-hint i18n="@@form.errorsAppearInstantly">Введите email</mat-hint>
           @if (emailFormControl.hasError('email') && !emailFormControl.hasError('required')) {
             <mat-error i18n="@@form.emailInvalid"
               >Пожалуйста, введите корректный email адрес</mat-error
