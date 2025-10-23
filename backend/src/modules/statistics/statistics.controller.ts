@@ -60,6 +60,32 @@ export class StatisticsController {
     return this.statisticsService.getMonthlyStatistics(targetYear, targetMonth);
   }
 
+  @Get('comprehensive')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  async getComprehensiveStatistics(
+    @Query('year', ParseIntPipe) year?: number,
+    @Query('month', ParseIntPipe) month?: number,
+    @Query('includeTimeBased') includeTimeBased: boolean = true,
+    @Query('includeFinancial') includeFinancial: boolean = true,
+    @Query('includeRankings') includeRankings: boolean = true,
+    @Query('includeForecast') includeForecast: boolean = true
+  ) {
+    const currentDate = new Date();
+    const targetYear = year || currentDate.getFullYear();
+    const targetMonth = month || currentDate.getMonth() + 1;
+
+    return this.statisticsService.getComprehensiveStatistics(
+      targetYear, 
+      targetMonth, 
+      {
+        includeTimeBased,
+        includeFinancial,
+        includeRankings,
+        includeForecast
+      }
+    );
+  }
+
   @Get('admin/engineers')
   @Roles(UserRole.ADMIN)
   async getAdminEngineerStatistics(
@@ -72,4 +98,5 @@ export class StatisticsController {
 
     return this.statisticsService.getAdminEngineerStatistics(targetYear, targetMonth);
   }
+
 }

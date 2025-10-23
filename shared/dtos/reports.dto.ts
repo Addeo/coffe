@@ -97,3 +97,93 @@ export interface EngineerDetailedStatsDto {
   hoursGrowth?: number; // в процентах
   earningsGrowth?: number; // в процентах
 }
+
+// Новые DTO для расширенной аналитики
+export interface TimeBasedDataPoint {
+  date: string;
+  value: number;
+}
+
+export interface EngineerTimeBasedData {
+  engineerId: number;
+  engineerName: string;
+  data: TimeBasedDataPoint[];
+}
+
+export interface FinancialBreakdownData {
+  engineerId: number;
+  engineerName: string;
+  fixedSalary: number;
+  additionalEarnings: number;
+  carPayment: number;
+  totalEarnings: number;
+}
+
+export interface RankingData {
+  engineerId: number;
+  engineerName: string;
+  value: number;
+  rank: number;
+}
+
+export interface EfficiencyData {
+  engineerId: number;
+  engineerName: string;
+  totalEarnings: number;
+  totalHours: number;
+  efficiency: number; // earnings per hour
+}
+
+export interface ForecastData {
+  currentWorkPace: number; // per day
+  monthEndForecast: number;
+  growthPotential: number;
+  actualData: TimeBasedDataPoint[];
+  forecastData: TimeBasedDataPoint[];
+}
+
+// Комплексная статистика - все данные в одном ответе
+export interface ComprehensiveStatisticsDto {
+  // Базовая статистика
+  year: number;
+  month: number;
+  monthName: string;
+  agentEarnings: AgentEarningsData[];
+  organizationEarnings: OrganizationEarningsData[];
+  overtimeStatistics: OvertimeStatisticsData[];
+  totalEarnings: number;
+  totalOrders: number;
+  totalOvertimeHours: number;
+
+  // Временная аналитика
+  timeBasedAnalytics?: {
+    salaryChart: EngineerTimeBasedData[];
+    hoursChart: EngineerTimeBasedData[];
+  };
+
+  // Детальная финансовая аналитика
+  financialAnalytics?: {
+    breakdown: FinancialBreakdownData[];
+    monthlyComparison: {
+      currentMonth: AgentEarningsData[];
+      previousMonth: AgentEarningsData[];
+    };
+  };
+
+  // Рейтинги и производительность
+  rankings?: {
+    topEarners: RankingData[];
+    topByHours: RankingData[];
+    efficiency: EfficiencyData[];
+  };
+
+  // Прогнозная аналитика
+  forecast?: ForecastData;
+}
+
+export interface ComprehensiveStatisticsOptions {
+  includeTimeBased: boolean;
+  includeFinancial: boolean;
+  includeRankings: boolean;
+  includeForecast: boolean;
+}

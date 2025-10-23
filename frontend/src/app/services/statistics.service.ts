@@ -10,6 +10,42 @@ import {
   EngineerDetailedStatsDto,
 } from '@shared/dtos/reports.dto';
 
+// Временный интерфейс до обновления shared модуля
+interface ComprehensiveStatisticsDto {
+  year: number;
+  month: number;
+  monthName: string;
+  agentEarnings: AgentEarningsData[];
+  organizationEarnings: OrganizationEarningsData[];
+  overtimeStatistics: OvertimeStatisticsData[];
+  totalEarnings: number;
+  totalOrders: number;
+  totalOvertimeHours: number;
+  timeBasedAnalytics?: {
+    salaryChart: any[];
+    hoursChart: any[];
+  };
+  financialAnalytics?: {
+    breakdown: any[];
+    monthlyComparison: {
+      currentMonth: AgentEarningsData[];
+      previousMonth: AgentEarningsData[];
+    };
+  };
+  rankings?: {
+    topEarners: any[];
+    topByHours: any[];
+    efficiency: any[];
+  };
+  forecast?: {
+    currentWorkPace: number;
+    monthEndForecast: number;
+    growthPotential: number;
+    actualData: any[];
+    forecastData: any[];
+  };
+}
+
 export interface EarningsComparison {
   currentMonth: {
     totalEarnings: number;
@@ -74,6 +110,36 @@ export class StatisticsService {
     }
 
     return this.http.get<MonthlyStatisticsDto>(`${environment.apiUrl}/statistics/monthly${params}`);
+  }
+
+  /**
+   * Получает комплексную статистику со всеми данными
+   * @param year Год для получения статистики
+   * @param month Месяц для получения статистики
+   * @param options Опции включения различных типов аналитики
+   * @returns Observable с комплексной статистикой
+   */
+  getComprehensiveStatistics(
+    year?: number, 
+    month?: number,
+    options?: {
+      includeTimeBased?: boolean;
+      includeFinancial?: boolean;
+      includeRankings?: boolean;
+      includeForecast?: boolean;
+    }
+  ): Observable<ComprehensiveStatisticsDto> {
+    let params = [];
+    if (year) params.push(`year=${year}`);
+    if (month) params.push(`month=${month}`);
+    if (options?.includeTimeBased !== undefined) params.push(`includeTimeBased=${options.includeTimeBased}`);
+    if (options?.includeFinancial !== undefined) params.push(`includeFinancial=${options.includeFinancial}`);
+    if (options?.includeRankings !== undefined) params.push(`includeRankings=${options.includeRankings}`);
+    if (options?.includeForecast !== undefined) params.push(`includeForecast=${options.includeForecast}`);
+    
+    const queryString = params.length > 0 ? '?' + params.join('&') : '';
+    
+    return this.http.get<ComprehensiveStatisticsDto>(`${environment.apiUrl}/statistics/comprehensive${queryString}`);
   }
 
   /**

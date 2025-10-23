@@ -11,6 +11,13 @@ import {
   AgentEarningsData,
   OrganizationEarningsData,
   OvertimeStatisticsData,
+  ComprehensiveStatisticsDto,
+  ComprehensiveStatisticsOptions,
+  EngineerTimeBasedData,
+  FinancialBreakdownData,
+  RankingData,
+  EfficiencyData,
+  ForecastData,
 } from '../../dtos/reports.dto';
 
 @Injectable()
@@ -683,5 +690,135 @@ export class StatisticsService {
         overtimePercentage: Number(overtimePercentage.toFixed(2)),
       };
     });
+  }
+
+  async getComprehensiveStatistics(
+    year: number,
+    month: number,
+    options: ComprehensiveStatisticsOptions
+  ): Promise<ComprehensiveStatisticsDto> {
+    // Получаем базовую статистику
+    const baseStats = await this.getMonthlyStatistics(year, month);
+    
+    const result: ComprehensiveStatisticsDto = {
+      ...baseStats,
+    };
+
+    // Временная аналитика
+    if (options.includeTimeBased) {
+      result.timeBasedAnalytics = {
+        salaryChart: await this.getSalaryTimeChart(year, month),
+        hoursChart: await this.getHoursTimeChart(year, month),
+      };
+    }
+
+    // Детальная финансовая аналитика
+    if (options.includeFinancial) {
+      result.financialAnalytics = {
+        breakdown: await this.getFinancialBreakdown(year, month),
+        monthlyComparison: {
+          currentMonth: baseStats.agentEarnings,
+          previousMonth: await this.getPreviousMonthEarnings(year, month),
+        },
+      };
+    }
+
+    // Рейтинги и производительность
+    if (options.includeRankings) {
+      result.rankings = {
+        topEarners: await this.getTopEarners(year, month, 10),
+        topByHours: await this.getTopByHours(year, month, 10),
+        efficiency: await this.getEfficiencyData(year, month),
+      };
+    }
+
+    // Прогнозная аналитика
+    if (options.includeForecast) {
+      result.forecast = await this.getForecastData(year, month);
+    }
+
+    return result;
+  }
+
+  // Вспомогательные методы для комплексной статистики
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async getSalaryTimeChart(_year: number, _month: number): Promise<EngineerTimeBasedData[]> {
+    // TODO: Реализовать получение данных по дням месяца
+    return [];
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async getHoursTimeChart(_year: number, _month: number): Promise<EngineerTimeBasedData[]> {
+    // TODO: Реализовать получение данных по дням месяца
+    return [];
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async getFinancialBreakdown(_year: number, _month: number): Promise<FinancialBreakdownData[]> {
+    // TODO: Реализовать детальную финансовую разбивку
+    return [];
+  }
+
+  private async getPreviousMonthEarnings(year: number, month: number): Promise<AgentEarningsData[]> {
+    const prevMonth = month === 1 ? 12 : month - 1;
+    const prevYear = month === 1 ? year - 1 : year;
+    
+    const prevStats = await this.getMonthlyStatistics(prevYear, prevMonth);
+    return prevStats.agentEarnings;
+  }
+
+  private async getTopEarners(year: number, month: number, limit: number): Promise<RankingData[]> {
+    const stats = await this.getMonthlyStatistics(year, month);
+    return stats.agentEarnings
+      .sort((a, b) => b.totalEarnings - a.totalEarnings)
+      .slice(0, limit)
+      .map((item, index) => ({
+        engineerId: item.agentId,
+        engineerName: item.agentName,
+        value: item.totalEarnings,
+        rank: index + 1,
+      }));
+  }
+
+  private async getTopByHours(year: number, month: number, limit: number): Promise<RankingData[]> {
+    const stats = await this.getMonthlyStatistics(year, month);
+    return stats.overtimeStatistics
+      .sort((a, b) => b.totalHours - a.totalHours)
+      .slice(0, limit)
+      .map((item, index) => ({
+        engineerId: item.agentId,
+        engineerName: item.agentName,
+        value: item.totalHours,
+        rank: index + 1,
+      }));
+  }
+
+  private async getEfficiencyData(year: number, month: number): Promise<EfficiencyData[]> {
+    const stats = await this.getMonthlyStatistics(year, month);
+    return stats.agentEarnings.map(earnings => {
+      const overtimeStats = stats.overtimeStatistics.find(s => s.agentId === earnings.agentId);
+      const totalHours = overtimeStats?.totalHours || 0;
+      const efficiency = totalHours > 0 ? earnings.totalEarnings / totalHours : 0;
+      
+      return {
+        engineerId: earnings.agentId,
+        engineerName: earnings.agentName,
+        totalEarnings: earnings.totalEarnings,
+        totalHours,
+        efficiency: Number(efficiency.toFixed(2)),
+      };
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async getForecastData(_year: number, _month: number): Promise<ForecastData> {
+    // TODO: Реализовать прогнозную аналитику
+    return {
+      currentWorkPace: 0,
+      monthEndForecast: 0,
+      growthPotential: 0,
+      actualData: [],
+      forecastData: [],
+    };
   }
 }
