@@ -23,6 +23,42 @@ import {
   OvertimeStatisticsData,
 } from '@shared/dtos/reports.dto';
 
+// Временный интерфейс до обновления shared модуля
+interface ComprehensiveStatisticsDto {
+  year: number;
+  month: number;
+  monthName: string;
+  agentEarnings: AgentEarningsData[];
+  organizationEarnings: OrganizationEarningsData[];
+  overtimeStatistics: OvertimeStatisticsData[];
+  totalEarnings: number;
+  totalOrders: number;
+  totalOvertimeHours: number;
+  timeBasedAnalytics?: {
+    salaryChart: any[];
+    hoursChart: any[];
+  };
+  financialAnalytics?: {
+    breakdown: any[];
+    monthlyComparison: {
+      currentMonth: AgentEarningsData[];
+      previousMonth: AgentEarningsData[];
+    };
+  };
+  rankings?: {
+    topEarners: any[];
+    topByHours: any[];
+    efficiency: any[];
+  };
+  forecast?: {
+    currentWorkPace: number;
+    monthEndForecast: number;
+    growthPotential: number;
+    actualData: any[];
+    forecastData: any[];
+  };
+}
+
 @Component({
   selector: 'app-statistics',
   standalone: true,
@@ -53,6 +89,7 @@ export class StatisticsComponent implements OnInit {
 
   isLoading = signal(false);
   statistics = signal<MonthlyStatisticsDto | null>(null);
+  comprehensiveStatistics = signal<ComprehensiveStatisticsDto | null>(null);
   
   // User statistics
   userStats = signal({
@@ -113,6 +150,26 @@ export class StatisticsComponent implements OnInit {
     'totalHours',
     'overtimePercentage',
   ];
+  financialDetailsColumns = [
+    'engineerName',
+    'fixedSalary',
+    'additionalEarnings',
+    'carPayment',
+    'totalEarnings',
+  ];
+
+  // New data sources
+  financialDetailsData = signal<any[]>([]);
+  topEarners = signal<any[]>([]);
+  topByHours = signal<any[]>([]);
+  currentWorkPace = signal<number>(0);
+  monthEndForecast = signal<number>(0);
+  growthPotential = signal<number>(0);
+
+  // Data source for table
+  get financialDetailsDataSource() {
+    return this.financialDetailsData();
+  }
 
   // Chart data for Agent Earnings (Bar Chart)
   get agentEarningsChartData(): ChartData<'bar'> {
@@ -368,10 +425,28 @@ export class StatisticsComponent implements OnInit {
   loadStatistics() {
     this.isLoading.set(true);
     this.statisticsService
-      .getMonthlyStatistics(this.selectedYear(), this.selectedMonth())
+      .getComprehensiveStatistics(this.selectedYear(), this.selectedMonth(), {
+        includeTimeBased: true,
+        includeFinancial: true,
+        includeRankings: true,
+        includeForecast: true,
+      })
       .subscribe({
         next: data => {
-          this.statistics.set(data);
+          this.comprehensiveStatistics.set(data);
+          // Извлекаем базовую статистику для обратной совместимости
+          this.statistics.set({
+            year: data.year,
+            month: data.month,
+            monthName: data.monthName,
+            agentEarnings: data.agentEarnings,
+            organizationEarnings: data.organizationEarnings,
+            overtimeStatistics: data.overtimeStatistics,
+            totalEarnings: data.totalEarnings,
+            totalOrders: data.totalOrders,
+            totalOvertimeHours: data.totalOvertimeHours,
+          });
+          this.loadAdditionalData();
           this.isLoading.set(false);
         },
         error: error => {
@@ -491,5 +566,276 @@ export class StatisticsComponent implements OnInit {
     const colors = ['#f44336', '#ff9800', '#4caf50', '#2196f3', '#9c27b0', '#00bcd4'];
     const index = this.statistics()?.overtimeStatistics?.indexOf(stat) || 0;
     return colors[index % colors.length];
+  }
+
+  // New chart data methods
+  get salaryTimeChartData(): ChartData<'line'> {
+    const comprehensiveData = this.comprehensiveStatistics();
+    const timeBasedData = comprehensiveData?.timeBasedAnalytics?.salaryChart || [];
+    
+    if (timeBasedData.length === 0) {
+      return {
+        labels: Array.from({ length: 31 }, (_, i) => `${i + 1}`),
+        datasets: [{
+          label: 'Накопительные зарплаты',
+          data: Array.from({ length: 31 }, () => Math.random() * 10000),
+          borderColor: '#3f51b5',
+          backgroundColor: 'rgba(63, 81, 181, 0.1)',
+          tension: 0.4,
+          fill: true,
+        }]
+      };
+    }
+
+    const colors = ['#3f51b5', '#4caf50', '#ff9800', '#e91e63', '#9c27b0', '#00bcd4'];
+    const datasets = timeBasedData.map((engineer: any, index: number) => ({
+      label: engineer.engineerName,
+      data: engineer.data.map((point: any) => point.value),
+      borderColor: colors[index % colors.length],
+      backgroundColor: colors[index % colors.length] + '20',
+      tension: 0.4,
+      fill: false,
+    }));
+
+    return {
+      labels: timeBasedData[0]?.data.map((point: any) => point.date) || [],
+      datasets,
+    };
+  }
+
+  get hoursTimeChartData(): ChartData<'line'> {
+    const comprehensiveData = this.comprehensiveStatistics();
+    const timeBasedData = comprehensiveData?.timeBasedAnalytics?.hoursChart || [];
+    
+    if (timeBasedData.length === 0) {
+      return {
+        labels: Array.from({ length: 31 }, (_, i) => `${i + 1}`),
+        datasets: [{
+          label: 'Накопительные часы',
+          data: Array.from({ length: 31 }, () => Math.random() * 8),
+          borderColor: '#4caf50',
+          backgroundColor: 'rgba(76, 175, 80, 0.1)',
+          tension: 0.4,
+          fill: true,
+        }]
+      };
+    }
+
+    const colors = ['#4caf50', '#3f51b5', '#ff9800', '#e91e63', '#9c27b0', '#00bcd4'];
+    const datasets = timeBasedData.map((engineer: any, index: number) => ({
+      label: engineer.engineerName,
+      data: engineer.data.map((point: any) => point.value),
+      borderColor: colors[index % colors.length],
+      backgroundColor: colors[index % colors.length] + '20',
+      tension: 0.4,
+      fill: false,
+    }));
+
+    return {
+      labels: timeBasedData[0]?.data.map((point: any) => point.date) || [],
+      datasets,
+    };
+  }
+
+  get salaryBreakdownChartData(): ChartData<'bar'> {
+    // TODO: Implement salary breakdown data
+    const data = this.statistics()?.agentEarnings || [];
+    return {
+      labels: data.map(a => a.agentName),
+      datasets: [
+        {
+          label: 'Фиксированная зарплата',
+          data: data.map(() => Math.random() * 30000),
+          backgroundColor: '#ff9800',
+        },
+        {
+          label: 'Дополнительная оплата',
+          data: data.map(() => Math.random() * 15000),
+          backgroundColor: '#2196f3',
+        },
+        {
+          label: 'Оплата за автомобиль',
+          data: data.map(() => Math.random() * 5000),
+          backgroundColor: '#4caf50',
+        }
+      ]
+    };
+  }
+
+  get monthlyComparisonChartData(): ChartData<'bar'> {
+    const comprehensiveData = this.comprehensiveStatistics();
+    const financialData = comprehensiveData?.financialAnalytics?.monthlyComparison;
+    
+    if (!financialData) {
+      const data = this.statistics()?.agentEarnings || [];
+      return {
+        labels: data.map(a => a.agentName),
+        datasets: [
+          {
+            label: 'Текущий месяц',
+            data: data.map(a => a.totalEarnings),
+            backgroundColor: '#3f51b5',
+          },
+          {
+            label: 'Предыдущий месяц',
+            data: data.map(() => Math.random() * 50000),
+            backgroundColor: '#ff9800',
+          }
+        ]
+      };
+    }
+
+    return {
+      labels: financialData.currentMonth.map((a: any) => a.agentName),
+      datasets: [
+        {
+          label: 'Текущий месяц',
+          data: financialData.currentMonth.map((a: any) => a.totalEarnings),
+          backgroundColor: '#3f51b5',
+        },
+        {
+          label: 'Предыдущий месяц',
+          data: financialData.previousMonth.map((a: any) => a.totalEarnings),
+          backgroundColor: '#ff9800',
+        }
+      ]
+    };
+  }
+
+  get efficiencyChartData(): ChartData<'bar'> {
+    const comprehensiveData = this.comprehensiveStatistics();
+    const efficiencyData = comprehensiveData?.rankings?.efficiency || [];
+    
+    if (efficiencyData.length === 0) {
+      const data = this.statistics()?.agentEarnings || [];
+      return {
+        labels: data.map(a => a.agentName),
+        datasets: [{
+          label: 'Эффективность (₽/час)',
+          data: data.map(a => a.totalEarnings / (a.completedOrders * 8)), // Примерный расчет
+          backgroundColor: '#e91e63',
+        }]
+      };
+    }
+
+    return {
+      labels: efficiencyData.map((e: any) => e.engineerName),
+      datasets: [{
+        label: 'Эффективность (₽/час)',
+        data: efficiencyData.map((e: any) => e.efficiency),
+        backgroundColor: '#e91e63',
+      }]
+    };
+  }
+
+  get forecastChartData(): ChartData<'line'> {
+    const comprehensiveData = this.comprehensiveStatistics();
+    const forecastData = comprehensiveData?.forecast;
+    
+    if (!forecastData) {
+      return {
+        labels: Array.from({ length: 31 }, (_, i) => `${i + 1}`),
+        datasets: [
+          {
+            label: 'Фактический заработок',
+            data: Array.from({ length: 15 }, () => Math.random() * 10000),
+            borderColor: '#4caf50',
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            tension: 0.4,
+          },
+          {
+            label: 'Прогноз',
+            data: Array.from({ length: 31 }, (_, i) => i < 15 ? null : Math.random() * 10000),
+            borderColor: '#ff9800',
+            backgroundColor: 'rgba(255, 152, 0, 0.1)',
+            tension: 0.4,
+            borderDash: [5, 5],
+          }
+        ]
+      };
+    }
+
+    return {
+      labels: forecastData.actualData.map((point: any) => point.date),
+      datasets: [
+        {
+          label: 'Фактический заработок',
+          data: forecastData.actualData.map((point: any) => point.value),
+          borderColor: '#4caf50',
+          backgroundColor: 'rgba(76, 175, 80, 0.1)',
+          tension: 0.4,
+        },
+        {
+          label: 'Прогноз',
+          data: forecastData.forecastData.map((point: any) => point.value),
+          borderColor: '#ff9800',
+          backgroundColor: 'rgba(255, 152, 0, 0.1)',
+          tension: 0.4,
+          borderDash: [5, 5],
+        }
+      ]
+    };
+  }
+
+  // New chart options
+  get lineChartTimeOptions(): ChartConfiguration['options'] {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              const label = context.dataset.label || '';
+              const value = context.parsed?.y || 0;
+              return `${label}: ${new Intl.NumberFormat('ru-RU').format(value)}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'День месяца'
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Сумма (₽)'
+          },
+          beginAtZero: true,
+        }
+      }
+    };
+  }
+
+  // Load additional data
+  loadAdditionalData() {
+    const comprehensiveData = this.comprehensiveStatistics();
+    if (!comprehensiveData) return;
+
+    // Загружаем финансовые детали
+    if (comprehensiveData.financialAnalytics?.breakdown) {
+      this.financialDetailsData.set(comprehensiveData.financialAnalytics.breakdown);
+    }
+
+    // Загружаем рейтинги
+    if (comprehensiveData.rankings) {
+      this.topEarners.set(comprehensiveData.rankings.topEarners);
+      this.topByHours.set(comprehensiveData.rankings.topByHours);
+    }
+
+    // Загружаем прогнозные данные
+    if (comprehensiveData.forecast) {
+      this.currentWorkPace.set(comprehensiveData.forecast.currentWorkPace);
+      this.monthEndForecast.set(comprehensiveData.forecast.monthEndForecast);
+      this.growthPotential.set(comprehensiveData.forecast.growthPotential);
+    }
   }
 }

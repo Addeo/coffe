@@ -1,11 +1,5 @@
 <mat-toolbar color="primary" class="navbar">
   <div class="navbar-content">
-    <!-- Logo/Brand -->
-    <div class="brand">
-      <mat-icon class="brand-icon">local_cafe</mat-icon>
-      <span class="brand-text" i18n="@@navigation.brand">Coffee Admin</span>
-    </div>
-
     <!-- Mobile Menu Button -->
     <button
       mat-icon-button
@@ -16,6 +10,12 @@
     >
       <mat-icon>{{ isMobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
     </button>
+
+    <!-- Logo/Brand -->
+    <div class="brand">
+      <mat-icon class="brand-icon">local_cafe</mat-icon>
+      <span class="brand-text" i18n="@@navigation.brand">Coffee Admin</span>
+    </div>
 
     <!-- Navigation Links -->
     <nav class="nav-links" *ngIf="isAuthenticated()">
@@ -126,7 +126,7 @@
     <!-- Right Section -->
     <div class="right-section" *ngIf="isAuthenticated()">
       <!-- Theme Toggle -->
-      <button
+      <!-- <button
         mat-icon-button
         (click)="toggleTheme()"
         [matTooltip]="getThemeTooltip()"
@@ -134,7 +134,7 @@
         aria-label="Toggle theme"
       >
         <mat-icon>{{ themeIcon() }}</mat-icon>
-      </button>
+      </button> -->
 
       <!-- Notifications -->
       <div class="notifications-menu">

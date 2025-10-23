@@ -431,39 +431,41 @@
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
 
-          <button
-            mat-icon-button
-            (click)="refreshData()"
-            matTooltip="Обновить данные"
-            aria-label="Обновить"
-            class="header-btn refresh-btn"
-          >
-            <mat-icon>refresh</mat-icon>
-          </button>
+          <div class="button-group">
+            <button
+              mat-icon-button
+              (click)="refreshData()"
+              matTooltip="Обновить данные"
+              aria-label="Обновить"
+              class="header-btn refresh-btn"
+            >
+              <mat-icon>refresh</mat-icon>
+            </button>
 
-          <button
-            mat-raised-button
-            color="accent"
-            (click)="exportToExcel()"
-            matTooltip="Экспортировать данные в Excel"
-            aria-label="Экспортировать в Excel"
-            *ngIf="canExportOrders"
-            class="header-btn export-btn"
-          >
-            <mat-icon>download</mat-icon>
-            <span class="btn-text">Скачать XLS</span>
-          </button>
+            <button
+              mat-raised-button
+              color="accent"
+              (click)="exportToExcel()"
+              matTooltip="Экспортировать данные в Excel"
+              aria-label="Экспортировать в Excel"
+              *ngIf="canExportOrders"
+              class="header-btn export-btn"
+            >
+              <mat-icon>download</mat-icon>
+              <span class="btn-text">Скачать XLS</span>
+            </button>
 
-          <button
-            mat-raised-button
-            color="primary"
-            (click)="onCreateOrder()"
-            *ngIf="canCreateOrders"
-            class="header-btn create-btn"
-          >
-            <mat-icon>add</mat-icon>
-            <span class="btn-text">Создать заказ</span>
-          </button>
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="onCreateOrder()"
+              *ngIf="canCreateOrders"
+              class="header-btn create-btn"
+            >
+              <mat-icon>add</mat-icon>
+              <span class="btn-text">Создать заказ</span>
+            </button>
+          </div>
         </div>
       </div>
     </mat-card-header>

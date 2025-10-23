@@ -86,49 +86,53 @@ import {
                 </mat-form-field>
               </div>
 
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Электронная почта</mat-label>
-                <input
-                  matInput
-                  formControlName="email"
-                  type="email"
-                  placeholder="Введите адрес электронной почты"
-                />
-                <mat-error *ngIf="userForm.get('email')?.hasError('required')">
-                  Электронная почта обязательна
-                </mat-error>
-                <mat-error *ngIf="userForm.get('email')?.hasError('email')">
-                  Пожалуйста, введите корректный email
-                </mat-error>
-              </mat-form-field>
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>Электронная почта</mat-label>
+                  <input
+                    matInput
+                    formControlName="email"
+                    type="email"
+                    placeholder="Введите адрес электронной почты"
+                  />
+                  <mat-error *ngIf="userForm.get('email')?.hasError('required')">
+                    Электронная почта обязательна
+                  </mat-error>
+                  <mat-error *ngIf="userForm.get('email')?.hasError('email')">
+                    Пожалуйста, введите корректный email
+                  </mat-error>
+                </mat-form-field>
 
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Роль</mat-label>
-                <mat-select formControlName="role" (selectionChange)="onRoleChange()">
-                  <mat-option [value]="UserRole.USER">Пользователь</mat-option>
-                  <mat-option [value]="UserRole.MANAGER">Менеджер</mat-option>
-                  <mat-option [value]="UserRole.ADMIN">Администратор</mat-option>
-                </mat-select>
-                <mat-error *ngIf="userForm.get('role')?.hasError('required')">
-                  Роль обязательна
-                </mat-error>
-              </mat-form-field>
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>Роль</mat-label>
+                  <mat-select formControlName="role" (selectionChange)="onRoleChange()">
+                    <mat-option [value]="UserRole.USER">Пользователь</mat-option>
+                    <mat-option [value]="UserRole.MANAGER">Менеджер</mat-option>
+                    <mat-option [value]="UserRole.ADMIN">Администратор</mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="userForm.get('role')?.hasError('required')">
+                    Роль обязательна
+                  </mat-error>
+                </mat-form-field>
+              </div>
 
               <!-- Engineer-specific fields (only show if role is USER) -->
               <div *ngIf="userForm.get('role')?.value === UserRole.USER">
-                <mat-form-field appearance="outline" class="form-field">
-                  <mat-label>Тип инженера</mat-label>
-                  <mat-select
-                    formControlName="engineerType"
-                    (selectionChange)="onEngineerTypeChange()"
-                  >
-                    <mat-option [value]="EngineerType.STAFF">Штатный инженер</mat-option>
-                    <mat-option [value]="EngineerType.CONTRACT">Контрактный (наемный) инженер</mat-option>
-                  </mat-select>
-                  <mat-error *ngIf="userForm.get('engineerType')?.hasError('required')">
-                    Тип инженера обязателен
-                  </mat-error>
-                </mat-form-field>
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="form-field">
+                    <mat-label>Тип инженера</mat-label>
+                    <mat-select
+                      formControlName="engineerType"
+                      (selectionChange)="onEngineerTypeChange()"
+                    >
+                      <mat-option [value]="EngineerType.STAFF">Штатный инженер</mat-option>
+                      <mat-option [value]="EngineerType.CONTRACT">Контрактный (наемный) инженер</mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="userForm.get('engineerType')?.hasError('required')">
+                      Тип инженера обязателен
+                    </mat-error>
+                  </mat-form-field>
+                </div>
 
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="form-field">
@@ -212,42 +216,46 @@ import {
               </div>
 
               <!-- Active status field -->
-              <mat-form-field appearance="outline" class="form-field" *ngIf="isEdit">
-                <mat-label>Статус</mat-label>
-                <mat-select formControlName="isActive">
-                  <mat-option [value]="true">Активный</mat-option>
-                  <mat-option [value]="false">Неактивный</mat-option>
-                </mat-select>
-              </mat-form-field>
+              <div class="form-row" *ngIf="isEdit">
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>Статус</mat-label>
+                  <mat-select formControlName="isActive">
+                    <mat-option [value]="true">Активный</mat-option>
+                    <mat-option [value]="false">Неактивный</mat-option>
+                  </mat-select>
+                </mat-form-field>
 
-              <!-- Engineer active status field (only for USER role) -->
-              <mat-form-field
-                appearance="outline"
-                class="form-field"
-                *ngIf="isEdit && userForm.get('role')?.value === UserRole.USER"
-              >
-                <mat-label>Статус инженера</mat-label>
-                <mat-select formControlName="engineerIsActive">
-                  <mat-option [value]="true">Активный инженер</mat-option>
-                  <mat-option [value]="false">Неактивный инженер</mat-option>
-                </mat-select>
-              </mat-form-field>
+                <!-- Engineer active status field (only for USER role) -->
+                <mat-form-field
+                  appearance="outline"
+                  class="form-field"
+                  *ngIf="userForm.get('role')?.value === UserRole.USER"
+                >
+                  <mat-label>Статус инженера</mat-label>
+                  <mat-select formControlName="engineerIsActive">
+                    <mat-option [value]="true">Активный инженер</mat-option>
+                    <mat-option [value]="false">Неактивный инженер</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
 
-              <mat-form-field appearance="outline" class="form-field" *ngIf="!isEdit">
-                <mat-label>Пароль</mat-label>
-                <input
-                  matInput
-                  formControlName="password"
-                  type="password"
-                  placeholder="Введите пароль"
-                />
-                <mat-error *ngIf="userForm.get('password')?.hasError('required')">
-                  Пароль обязателен
-                </mat-error>
-                <mat-error *ngIf="userForm.get('password')?.hasError('minlength')">
-                  Пароль должен содержать минимум 6 символов
-                </mat-error>
-              </mat-form-field>
+              <div class="form-row" *ngIf="!isEdit">
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>Пароль</mat-label>
+                  <input
+                    matInput
+                    formControlName="password"
+                    type="password"
+                    placeholder="Введите пароль"
+                  />
+                  <mat-error *ngIf="userForm.get('password')?.hasError('required')">
+                    Пароль обязателен
+                  </mat-error>
+                  <mat-error *ngIf="userForm.get('password')?.hasError('minlength')">
+                    Пароль должен содержать минимум 6 символов
+                  </mat-error>
+                </mat-form-field>
+              </div>
 
               <div class="form-row" *ngIf="isEdit">
                 <mat-form-field appearance="outline" class="form-field">
@@ -608,6 +616,10 @@ import {
           gap: 20px;
         }
 
+        .form-field {
+          width: 100% !important;
+        }
+
         .form-actions {
           flex-direction: column;
         }
@@ -619,6 +631,34 @@ import {
           td {
             padding: 8px 12px;
           }
+        }
+      }
+
+      @media (max-width: 480px) {
+        .user-edit-container {
+          padding: 12px;
+        }
+
+        .form-field {
+          width: 100% !important;
+          min-width: 100% !important;
+        }
+
+        .form-row {
+          gap: 16px;
+        }
+
+        .header h1 {
+          font-size: 1.25rem;
+        }
+
+        .info-box {
+          padding: 12px;
+          margin: 12px 0;
+        }
+
+        .info-box .info-text p {
+          font-size: 0.9em;
         }
       }
     `,

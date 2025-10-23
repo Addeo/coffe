@@ -803,13 +803,183 @@
               padding: 6px 10px;
               font-size: 12px;
 
-              .detail-value {
-                font-size: 13px;
-              }
+            .detail-value {
+              font-size: 13px;
             }
           }
         }
       }
     }
   }
+}
+
+// New styles for additional tabs
+.time-analytics-container {
+  .chart-section {
+    margin-bottom: 32px;
+    
+    h3 {
+      margin-bottom: 16px;
+      color: #333;
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+  }
+}
+
+.financial-analytics-container {
+  .chart-section {
+    margin-bottom: 32px;
+    
+    h3 {
+      margin-bottom: 16px;
+      color: #333;
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+  }
+
+  .financial-details-table {
+    margin-top: 32px;
+    
+    h3 {
+      margin-bottom: 16px;
+      color: #333;
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+
+    .total-earnings {
+      font-weight: 600;
+      color: #4caf50;
+    }
+  }
+}
+
+.rankings-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 32px;
+
+  .ranking-section {
+    h3 {
+      margin-bottom: 16px;
+      color: #333;
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+
+    .ranking-list {
+      .ranking-item {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        margin-bottom: 8px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #3f51b5;
+
+        .rank {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #3f51b5;
+          margin-right: 16px;
+          min-width: 40px;
+          text-align: center;
+        }
+
+        .engineer-info {
+          flex: 1;
+
+          .name {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 4px;
+          }
+
+          .amount, .hours {
+            color: #666;
+            font-size: 0.9rem;
+          }
+        }
+      }
+    }
+  }
+
+  .chart-section {
+    grid-column: 1 / -1;
+    
+    h3 {
+      margin-bottom: 16px;
+      color: #333;
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+  }
+}
+
+.forecast-container {
+  .chart-section {
+    margin-bottom: 32px;
+    
+    h3 {
+      margin-bottom: 16px;
+      color: #333;
+      font-size: 1.25rem;
+      font-weight: 500;
+    }
+  }
+
+  .forecast-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+
+    .forecast-card {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      border: 1px solid #e0e0e0;
+
+      h4 {
+        margin: 0 0 8px 0;
+        color: #666;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .forecast-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+  }
+}
+
+// Mobile responsive styles for new components
+@media (max-width: 768px) {
+  .rankings-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .forecast-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .ranking-item {
+    padding: 8px;
+    
+    .rank {
+      font-size: 1.25rem;
+      margin-right: 12px;
+      min-width: 30px;
+    }
+  }
+}
 }

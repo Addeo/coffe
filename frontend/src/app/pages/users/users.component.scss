@@ -2,6 +2,9 @@
   padding: 24px;
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 64px); // Вычитаем высоту header
 }
 
 .header {
@@ -25,6 +28,19 @@
 
   .search-field {
     width: 300px;
+  }
+}
+
+// Карточка должна занимать оставшееся пространство
+mat-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  
+  mat-card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 }
 
@@ -56,8 +72,43 @@
   width: 100%;
 }
 
+// Контейнер таблицы должен занимать доступное пространство
+.table-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  max-height: calc(100vh - 200px); // Ограничиваем высоту для прокрутки
+  
+  // Стили для прокрутки
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+    
+    &:hover {
+      background: #a8a8a8;
+    }
+  }
+}
+
 .mat-mdc-table {
   margin-bottom: 16px;
+}
+
+// Пагинатор должен быть прижат к низу
+mat-paginator {
+  margin-top: auto;
+  border-top: 1px solid #e0e0e0;
+  background-color: #fafafa;
 }
 
 .mat-mdc-header-cell {
@@ -121,12 +172,24 @@
 @media (max-width: 768px) {
   .users-container {
     padding: 16px;
+    min-height: calc(100vh - 56px); // Меньше отступ для мобильных
   }
 
   .header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+  }
+
+  .header-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+
+    .search-field {
+      width: 100%;
+    }
   }
 
   // Скрыть колонку типа инженера на мобильных
@@ -137,5 +200,16 @@
   // Скрыть колонку даты создания на мобильных
   .mat-column-createdAt {
     display: none;
+  }
+
+  // Адаптивные стили для пагинатора на мобильных
+  mat-paginator {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+  }
+
+  // Адаптивная высота для мобильных
+  .table-container {
+    max-height: calc(100vh - 150px);
   }
 }
