@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, throwError } from 'rxjs';
+import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import {
   AuthLoginDto,
   AuthLoginResponse,
@@ -103,10 +103,33 @@ export class AuthService {
   }
 
   private setSession(authResult: AuthLoginResponse): void {
+    console.log('🔐 Setting session:', authResult);
+    
+    // Store in localStorage
     localStorage.setItem('access_token', authResult.access_token);
     localStorage.setItem('user', JSON.stringify(authResult.user));
+    
+    // Update signals immediately
     this.currentUserSignal.set(authResult.user);
     this.isAuthenticatedSignal.set(true);
+    
+    console.log('🔐 Session set, auth state:', {
+      isAuthenticated: this.isAuthenticatedSignal(),
+      currentUser: this.currentUserSignal()
+    });
+    
+    // Force change detection with multiple attempts
+    setTimeout(() => {
+      this.currentUserSignal.set(authResult.user);
+      this.isAuthenticatedSignal.set(true);
+      console.log('🔐 First change detection update');
+    }, 0);
+    
+    setTimeout(() => {
+      this.currentUserSignal.set(authResult.user);
+      this.isAuthenticatedSignal.set(true);
+      console.log('🔐 Second change detection update');
+    }, 50);
   }
 
   private clearSession(): void {
@@ -151,6 +174,54 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem('access_token');
+  }
+
+  /**
+   * Force refresh auth state - useful after login to ensure UI updates
+   */
+  refreshAuthState(): void {
+    console.log('🔐 Forcing auth state refresh');
+    this.checkAuthStatus();
+  }
+
+  /**
+   * Retry authentication check - validates current session without API call
+   */
+  retryAuthCheck(): Observable<boolean> {
+    console.log('🔐 Retrying authentication check...');
+    
+    // Simply re-check the stored data and update signals
+    const token = this.getToken();
+    const userData = localStorage.getItem('user');
+    
+    if (!token || !userData) {
+      console.log('🔐 No token or user data found, setting unauthenticated');
+      this.isAuthenticatedSignal.set(false);
+      this.currentUserSignal.set(null);
+      return new Observable(observer => {
+        observer.next(false);
+        observer.complete();
+      });
+    }
+
+    try {
+      const user = JSON.parse(userData);
+      console.log('✅ Token and user data found, setting authenticated');
+      this.currentUserSignal.set(user);
+      this.isAuthenticatedSignal.set(true);
+      
+      return new Observable(observer => {
+        observer.next(true);
+        observer.complete();
+      });
+    } catch (error) {
+      console.error('❌ Failed to parse user data:', error);
+      this.clearSession();
+      return new Observable(observer => {
+        observer.next(false);
+        observer.complete();
+      });
+    }
   }
 
   /**

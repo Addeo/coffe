@@ -251,6 +251,11 @@
       position: relative;
       overflow: hidden;
 
+      &.refresh-btn {
+        min-width: 48px;
+        width: 48px;
+      }
+
       &::before {
         content: '';
         position: absolute;
@@ -604,8 +609,14 @@
       }
 
       .header-btn {
-        width: 100%;
+        width: auto;
+        min-width: 120px;
         margin-left: 0;
+
+        &.refresh-btn {
+          min-width: 48px;
+          width: 48px;
+        }
 
         .btn-text {
           display: inline;

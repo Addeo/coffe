@@ -8,7 +8,7 @@ import { MaterialModule } from '../../shared/material/material.module';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
 import { NotificationsService, NotificationDto } from '../../services/notifications.service';
-import { UserRole } from '@shared/interfaces/user.interface';
+import { UserRole } from '../../../../shared/interfaces/user.interface';
 
 interface NavigationItem {
   label: string;
@@ -105,10 +105,35 @@ export class NavigationComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    console.log('🧭 NavigationComponent initialized');
+    console.log('🧭 Initial auth state:', this.isAuthenticated());
+    console.log('🧭 Current user:', this.currentUser());
+    
+    // Load notifications if authenticated
     if (this.isAuthenticated()) {
       this.loadNotifications();
       this.loadUnreadCount();
     }
+    
+    // Force checks with delays to ensure auth state is properly set
+    setTimeout(() => {
+      console.log('🧭 Delayed auth state check:', this.isAuthenticated());
+      if (this.isAuthenticated()) {
+        this.loadNotifications();
+        this.loadUnreadCount();
+      }
+    }, 200);
+
+    // Additional check after longer delay
+    setTimeout(() => {
+      this.authService.retryAuthCheck().subscribe((isAuth) => {
+        console.log('🧭 Retry auth check in NavigationComponent:', isAuth);
+        if (isAuth) {
+          this.loadNotifications();
+          this.loadUnreadCount();
+        }
+      });
+    }, 500);
   }
 
   ngOnDestroy(): void {
