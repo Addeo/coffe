@@ -3,7 +3,6 @@
   max-width: 1400px;
   margin: 0 auto;
 
-  // View mode toggle
   .view-toggle {
     margin-bottom: 16px;
     display: flex;
@@ -121,7 +120,6 @@
       }
     }
 
-    // Mobile Summary Card - компактная версия для мобильных устройств
     .mobile-summary-card {
       margin-bottom: 24px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -156,7 +154,6 @@
         padding: 20px;
       }
 
-      // Основные метрики в сетке 2x2
       .mobile-summary-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -231,7 +228,6 @@
             }
           }
 
-          // Цветовые схемы для разных типов метрик
           &.primary {
             background: linear-gradient(135deg, #1976d2, #1565c0);
             color: white;
@@ -270,7 +266,6 @@
         }
       }
 
-      // Детальная статистика
       .mobile-details {
         .details-section {
           margin-bottom: 16px;
@@ -349,7 +344,6 @@
         }
       }
 
-      // Chart container styles
       .chart-container {
         .charts-grid {
           display: grid;
@@ -387,7 +381,6 @@
           }
         }
 
-        // Single large chart
         .chart-wrapper-large {
           height: 400px;
           position: relative;
@@ -397,7 +390,6 @@
           margin-top: 16px;
         }
 
-        // Дополнительная информация под диаграммами
         .chart-summary {
           margin-top: 20px;
           padding: 16px;
@@ -546,7 +538,6 @@
   }
 }
 
-// Responsive design
 @media (max-width: 768px) {
   .statistics-container {
     padding: 16px;
@@ -569,12 +560,10 @@
       }
     }
 
-    // Скрыть desktop версию на мобильных
     .summary-cards.desktop-summary {
       display: none !important;
     }
 
-    // Показать мобильную версию
     .mobile-summary-card {
       display: block !important;
     }
@@ -610,69 +599,41 @@
     }
   }
 
-  // User Statistics Styles
   .user-stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-    
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
   }
 
   .user-stat-card {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 16px;
+    padding: 12px;
     background: #f8f9fa;
     border-radius: 8px;
     border-left: 4px solid #3f51b5;
-
+    
     mat-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
       color: #3f51b5;
     }
-
+    
     .stat-info {
       h3 {
         margin: 0;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         font-weight: 600;
         color: #333;
       }
-
+      
       p {
         margin: 4px 0 0 0;
         color: #666;
-        font-size: 0.9rem;
-      }
-    }
-    
-    @media (max-width: 768px) {
-      padding: 12px;
-      gap: 10px;
-      
-      mat-icon {
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
-      }
-      
-      .stat-info {
-        h3 {
-          font-size: 1.2rem;
-        }
-        
-        p {
-          font-size: 0.8rem;
-        }
+        font-size: 0.8rem;
       }
     }
   }
@@ -757,7 +718,6 @@
   }
 }
 
-// Очень маленькие экраны
 @media (max-width: 480px) {
   .statistics-container {
     padding: 12px;
@@ -803,8 +763,9 @@
               padding: 6px 10px;
               font-size: 12px;
 
-            .detail-value {
-              font-size: 13px;
+              .detail-value {
+                font-size: 13px;
+              }
             }
           }
         }
@@ -813,8 +774,9 @@
   }
 }
 
-// New styles for additional tabs
-.time-analytics-container {
+// Additional tab styles
+.time-analytics-container,
+.financial-analytics-container {
   .chart-section {
     margin-bottom: 32px;
     
@@ -828,17 +790,6 @@
 }
 
 .financial-analytics-container {
-  .chart-section {
-    margin-bottom: 32px;
-    
-    h3 {
-      margin-bottom: 16px;
-      color: #333;
-      font-size: 1.25rem;
-      font-weight: 500;
-    }
-  }
-
   .financial-details-table {
     margin-top: 32px;
     
@@ -961,29 +912,6 @@
   }
 }
 
-// Mobile responsive styles for new components
-@media (max-width: 768px) {
-  .rankings-container {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .forecast-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .ranking-item {
-    padding: 8px;
-    
-    .rank {
-      font-size: 1.25rem;
-      margin-right: 12px;
-      min-width: 30px;
-    }
-  }
-}
-
-// Organization and Agent Analytics Styles
 .organization-analytics,
 .agent-analytics {
   .analytics-grid {
@@ -1041,28 +969,18 @@
   }
 }
 
-// Profit/Loss indicators
-.profit-positive {
-  color: #4caf50 !important;
-  font-weight: 600;
-}
-
-.profit-negative {
-  color: #f44336 !important;
-  font-weight: 600;
-}
-
+.profit-positive,
 .margin-positive {
   color: #4caf50 !important;
   font-weight: 600;
 }
 
+.profit-negative,
 .margin-negative {
   color: #f44336 !important;
   font-weight: 600;
 }
 
-// Engineer personal statistics styles
 .engineer-personal-stats {
   .stats-grid {
     display: grid;
@@ -1115,8 +1033,26 @@
   }
 }
 
-// Mobile styles for analytics
 @media (max-width: 768px) {
+  .rankings-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .forecast-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .ranking-item {
+    padding: 8px;
+    
+    .rank {
+      font-size: 1.25rem;
+      margin-right: 12px;
+      min-width: 30px;
+    }
+  }
+
   .organization-analytics,
   .agent-analytics {
     .analytics-grid {
@@ -1172,5 +1108,4 @@
       }
     }
   }
-}
 }
