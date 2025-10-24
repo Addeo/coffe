@@ -16,6 +16,8 @@ import { BaseChartDirective } from 'ng2-charts';
 
 import { StatisticsService } from '../../services/statistics.service';
 import { UsersService } from '../../services/users.service';
+import { AuthService } from '../../services/auth.service';
+import { UserRole } from '@shared/interfaces/user.interface';
 import {
   MonthlyStatisticsDto,
   AgentEarningsData,
@@ -82,6 +84,7 @@ interface ComprehensiveStatisticsDto {
 export class StatisticsComponent implements OnInit {
   private statisticsService = inject(StatisticsService);
   private usersService = inject(UsersService);
+  private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
 
   // Плагины для диаграмм
@@ -131,6 +134,13 @@ export class StatisticsComponent implements OnInit {
   isMobileView(): boolean {
     return window.innerWidth <= 768;
   }
+
+  // User role checks
+  readonly isAdmin = this.authService.hasRole(UserRole.ADMIN);
+  readonly isManager = this.authService.hasRole(UserRole.MANAGER);
+  readonly isEngineer = this.authService.hasRole(UserRole.USER);
+  readonly canViewAllData = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
+  readonly currentUser = this.authService.currentUser;
 
   // Table columns
   agentEarningsColumns = ['agentName', 'totalEarnings', 'completedOrders', 'averageOrderValue'];
@@ -539,6 +549,68 @@ export class StatisticsComponent implements OnInit {
 
   loadStatistics() {
     this.isLoading.set(true);
+    
+    // Для инженеров загружаем только их статистику
+    if (this.isEngineer) {
+      this.loadEngineerStatistics();
+    } else {
+      // Для админов/менеджеров загружаем общую статистику
+      this.loadAdminStatistics();
+    }
+  }
+
+  private loadEngineerStatistics() {
+    const currentUser = this.currentUser();
+    if (!currentUser) {
+      this.isLoading.set(false);
+      return;
+    }
+
+    this.statisticsService.getAdminEngineerStatistics(this.selectedYear(), this.selectedMonth()).subscribe({
+      next: (data: any) => {
+        // Фильтруем данные только для текущего инженера
+        const myEngineerData = data.engineers.find((engineer: any) => engineer.engineerId === currentUser.id);
+        
+        if (myEngineerData) {
+          // Создаем объект статистики только для этого инженера
+          const engineerStats = {
+            year: this.selectedYear(),
+            month: this.selectedMonth(),
+            monthName: this.getMonthName(this.selectedMonth()),
+            agentEarnings: [myEngineerData],
+            organizationEarnings: [],
+            overtimeStatistics: [],
+            totalEarnings: myEngineerData.totalEarnings,
+            totalOrders: myEngineerData.completedOrders,
+            totalOvertimeHours: myEngineerData.overtimeHours || 0,
+          };
+          
+          this.statistics.set(engineerStats);
+        } else {
+          // Если данных нет, создаем пустую статистику
+          this.statistics.set({
+            year: this.selectedYear(),
+            month: this.selectedMonth(),
+            monthName: this.getMonthName(this.selectedMonth()),
+            agentEarnings: [],
+            organizationEarnings: [],
+            overtimeStatistics: [],
+            totalEarnings: 0,
+            totalOrders: 0,
+            totalOvertimeHours: 0,
+          });
+        }
+        this.isLoading.set(false);
+      },
+      error: (error: any) => {
+        console.error('Error loading engineer statistics:', error);
+        this.snackBar.open('Ошибка загрузки статистики инженера', 'Закрыть', { duration: 3000 });
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  private loadAdminStatistics() {
     this.statisticsService
       .getComprehensiveStatistics(this.selectedYear(), this.selectedMonth(), {
         includeTimeBased: true,
@@ -565,8 +637,8 @@ export class StatisticsComponent implements OnInit {
           this.isLoading.set(false);
         },
         error: error => {
-          console.error('Error loading statistics:', error);
-          this.snackBar.open('Failed to load statistics', 'Close', { duration: 3000 });
+          console.error('Error loading admin statistics:', error);
+          this.snackBar.open('Ошибка загрузки статистики', 'Закрыть', { duration: 3000 });
           this.isLoading.set(false);
         },
       });
@@ -616,6 +688,55 @@ export class StatisticsComponent implements OnInit {
     if (margin >= 10) return '#ff9800'; // orange for ok margin
     if (margin > 0) return '#ffeb3b'; // yellow for low margin
     return '#f44336'; // red for negative margin
+  }
+
+  // Engineer personal statistics methods
+  getMyEarnings(): number {
+    if (!this.isEngineer || !this.statistics()) return 0;
+    const currentUser = this.currentUser();
+    if (!currentUser) return 0;
+    
+    const myAgentData = this.statistics()?.agentEarnings?.find(agent => 
+      agent.agentId === currentUser.id
+    );
+    return myAgentData?.totalEarnings || 0;
+  }
+
+  getMyOrders(): number {
+    if (!this.isEngineer || !this.statistics()) return 0;
+    const currentUser = this.currentUser();
+    if (!currentUser) return 0;
+    
+    const myAgentData = this.statistics()?.agentEarnings?.find(agent => 
+      agent.agentId === currentUser.id
+    );
+    return myAgentData?.completedOrders || 0;
+  }
+
+  getMyHours(): number {
+    if (!this.isEngineer || !this.statistics()) return 0;
+    const currentUser = this.currentUser();
+    if (!currentUser) return 0;
+    
+    const myAgentData = this.statistics()?.agentEarnings?.find(agent => 
+      agent.agentId === currentUser.id
+    );
+    // Предполагаем 8 часов на заказ
+    return myAgentData?.completedOrders ? myAgentData.completedOrders * 8 : 0;
+  }
+
+  getMyAverageOrder(): number {
+    const orders = this.getMyOrders();
+    if (orders === 0) return 0;
+    return this.getMyEarnings() / orders;
+  }
+
+  getMonthName(month: number): string {
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return monthNames[month - 1] || 'Unknown';
   }
 
   loadUserStats() {
