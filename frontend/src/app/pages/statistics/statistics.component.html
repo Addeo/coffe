@@ -58,8 +58,47 @@
 
   <!-- Statistics Content -->
   <div *ngIf="!isLoading() && statistics()" class="statistics-content">
-    <!-- Financial Summary Cards -->
-    <div class="financial-summary-cards desktop-summary" *ngIf="!isMobileView()">
+    <!-- Original Summary Cards -->
+    <div class="summary-cards desktop-summary" *ngIf="!isMobileView()">
+      <mat-card class="summary-card">
+        <mat-card-header>
+          <div class="card-icon">
+            <!-- <mat-icon>attach_money</mat-icon> -->
+          </div>
+          <mat-card-title>Общий доход</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="card-value">{{ formatCurrency(statistics()!.totalEarnings) }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card">
+        <mat-card-header>
+          <div class="card-icon">
+            <mat-icon>shopping_cart</mat-icon>
+          </div>
+          <mat-card-title>Всего заказов</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="card-value">{{ formatNumber(statistics()!.totalOrders) }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card">
+        <mat-card-header>
+          <div class="card-icon">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <mat-card-title>Всего сверхурочных часов</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="card-value">{{ formatNumber(statistics()!.totalOvertimeHours) }}</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Additional Financial Summary Cards (Admin/Manager only) -->
+    <div class="financial-summary-cards desktop-summary" *ngIf="!isMobileView() && canViewAllData">
       <mat-card class="summary-card">
         <mat-card-header>
           <div class="card-icon">
@@ -100,7 +139,7 @@
         <mat-card-header>
           <div class="card-icon">
             <mat-icon>trending_up</mat-icon>
-          </div>
+    </div>
           <mat-card-title>Компания заработала</mat-card-title>
         </mat-card-header>
         <mat-card-content>
@@ -135,7 +174,83 @@
       </mat-card>
     </div>
 
-    <!-- Mobile Financial Summary -->
+    <!-- Mobile Summary -->
+    <mat-card class="mobile-summary-card" *ngIf="isMobileView()">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>dashboard</mat-icon>
+          Обзор статистики
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <!-- Основные метрики -->
+        <div class="mobile-summary-grid">
+          <div class="summary-item primary">
+            <div class="summary-icon">
+              <mat-icon>attach_money</mat-icon>
+            </div>
+            <div class="summary-content">
+              <div class="summary-value">{{ formatCurrency(statistics()!.totalEarnings) }}</div>
+              <div class="summary-label">Общий доход</div>
+            </div>
+          </div>
+
+          <div class="summary-item success">
+            <div class="summary-icon">
+              <mat-icon>shopping_cart</mat-icon>
+            </div>
+            <div class="summary-content">
+              <div class="summary-value">{{ formatNumber(statistics()!.totalOrders) }}</div>
+              <div class="summary-label">Всего заказов</div>
+            </div>
+          </div>
+
+          <div class="summary-item warning">
+            <div class="summary-icon">
+              <mat-icon>schedule</mat-icon>
+            </div>
+            <div class="summary-content">
+              <div class="summary-value">{{ formatNumber(statistics()!.totalOvertimeHours) }}</div>
+              <div class="summary-label">Сверхурочные часы</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Дополнительные финансовые метрики -->
+        <div class="mobile-details">
+          <div class="details-section">
+            <h4>Финансовая сводка</h4>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Организации должны заплатить:</span>
+                <span class="detail-value">{{ totalOrganizationRevenue | currency:'RUB':'symbol':'1.0-0' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Организации заплатили:</span>
+                <span class="detail-value">{{ totalOrganizationPaid | currency:'RUB':'symbol':'1.0-0' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Инженеры заработали:</span>
+                <span class="detail-value">{{ totalAgentEarnings | currency:'RUB':'symbol':'1.0-0' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Нужно выплатить инженерам:</span>
+                <span class="detail-value">{{ totalAgentEarnings | currency:'RUB':'symbol':'1.0-0' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Прибыль компании:</span>
+                <span class="detail-value" [class.profit-positive]="companyProfit > 0" [class.profit-negative]="companyProfit < 0">
+                  {{ companyProfit | currency:'RUB':'symbol':'1.0-0' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Mobile Financial Summary (Additional) -->
     <mat-card class="mobile-summary-card" *ngIf="isMobileView()">
       <mat-card-header>
         <mat-card-title>
@@ -211,8 +326,65 @@
 
     <!-- Statistics Tabs -->
     <mat-tab-group>
-      <!-- Agent Earnings Tab -->
-      <mat-tab label="Доходы агентов">
+      <!-- Engineer Personal Statistics Tab (Engineer only) -->
+      <mat-tab label="Моя статистика" *ngIf="isEngineer">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Личная статистика за {{ statistics()?.monthName }} {{ statistics()?.year }}</mat-card-title>
+              <mat-card-subtitle>Ваши доходы, заказы и эффективность</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="engineer-personal-stats">
+                <div class="stats-grid">
+                  <div class="stat-card">
+                    <div class="stat-icon">
+                      <mat-icon>account_balance_wallet</mat-icon>
+                    </div>
+                    <div class="stat-content">
+                      <div class="stat-label">Мой заработок</div>
+                      <div class="stat-value">{{ getMyEarnings() | currency:'RUB':'symbol':'1.0-0' }}</div>
+                    </div>
+                  </div>
+                  
+                  <div class="stat-card">
+                    <div class="stat-icon">
+                      <mat-icon>assignment_turned_in</mat-icon>
+                    </div>
+                    <div class="stat-content">
+                      <div class="stat-label">Мои заказы</div>
+                      <div class="stat-value">{{ getMyOrders() }}</div>
+                    </div>
+                  </div>
+                  
+                  <div class="stat-card">
+                    <div class="stat-icon">
+                      <mat-icon>schedule</mat-icon>
+                    </div>
+                    <div class="stat-content">
+                      <div class="stat-label">Мои часы</div>
+                      <div class="stat-value">{{ getMyHours() }}</div>
+                    </div>
+                  </div>
+                  
+                  <div class="stat-card">
+                    <div class="stat-icon">
+                      <mat-icon>trending_up</mat-icon>
+                    </div>
+                    <div class="stat-content">
+                      <div class="stat-label">Средний чек</div>
+                      <div class="stat-value">{{ getMyAverageOrder() | currency:'RUB':'symbol':'1.0-0' }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Agent Earnings Tab (Admin/Manager only) -->
+      <mat-tab label="Доходы агентов" *ngIf="canViewAllData">
         <div class="tab-content">
           <mat-card>
             <mat-card-header>
@@ -561,8 +733,8 @@
         </div>
       </mat-tab>
 
-      <!-- Organization Analytics Tab -->
-      <mat-tab label="Аналитика организаций">
+      <!-- Organization Analytics Tab (Admin/Manager only) -->
+      <mat-tab label="Аналитика организаций" *ngIf="canViewAllData">
         <div class="tab-content">
           <mat-card>
             <mat-card-header>
@@ -655,8 +827,8 @@
         </div>
       </mat-tab>
 
-      <!-- Agent Analytics Tab -->
-      <mat-tab label="Аналитика агентов">
+      <!-- Agent Analytics Tab (Admin/Manager only) -->
+      <mat-tab label="Аналитика агентов" *ngIf="canViewAllData">
         <div class="tab-content">
           <mat-card>
             <mat-card-header>
@@ -755,15 +927,15 @@
                 <!-- Salary Chart -->
                 <div class="chart-section">
                   <h3>Накопительные зарплаты по дням</h3>
-                  <div class="chart-wrapper-large">
-                    <canvas
-                      baseChart
+                <div class="chart-wrapper-large">
+                  <canvas
+                    baseChart
                       [data]="salaryTimeChartData"
                       [options]="lineChartTimeOptions"
                       [type]="'line'"
-                    ></canvas>
-                  </div>
+                  ></canvas>
                 </div>
+                    </div>
 
                 <!-- Hours Chart -->
                 <div class="chart-section">
@@ -775,9 +947,9 @@
                       [options]="lineChartTimeOptions"
                       [type]="'line'"
                     ></canvas>
+                    </div>
+                    </div>
                   </div>
-                </div>
-              </div>
             </mat-card-content>
           </mat-card>
         </div>
@@ -803,8 +975,8 @@
                       [options]="stackedBarChartOptions"
                       [type]="'bar'"
                     ></canvas>
-                  </div>
                 </div>
+              </div>
 
                 <!-- Comparison with Previous Month -->
                 <div class="chart-section">
@@ -816,9 +988,9 @@
                       [options]="barChartOptions"
                       [type]="'bar'"
                     ></canvas>
+                    </div>
                   </div>
-                </div>
-
+                  
                 <!-- Financial Details Table -->
                 <div class="financial-details-table">
                   <h3>Детальная финансовая информация</h3>
@@ -853,11 +1025,11 @@
                     <tr mat-header-row *matHeaderRowDef="financialDetailsColumns"></tr>
                     <tr mat-row *matRowDef="let row; columns: financialDetailsColumns"></tr>
                   </table>
-                </div>
-              </div>
+                    </div>
+                  </div>
             </mat-card-content>
           </mat-card>
-        </div>
+                      </div>
       </mat-tab>
 
       <!-- Rankings and Performance Tab -->
@@ -895,9 +1067,9 @@
                         <div class="hours">{{ engineer.hours }} ч</div>
                       </div>
                     </div>
-                  </div>
-                </div>
-
+                      </div>
+                    </div>
+                    
                 <!-- Efficiency Chart -->
                 <div class="chart-section">
                   <h3>Эффективность (заработок/час)</h3>
@@ -908,9 +1080,9 @@
                       [options]="barChartOptions"
                       [type]="'bar'"
                     ></canvas>
-                  </div>
-                </div>
-              </div>
+                      </div>
+                      </div>
+                    </div>
             </mat-card-content>
           </mat-card>
         </div>
@@ -936,15 +1108,15 @@
                       [options]="lineChartTimeOptions"
                       [type]="'line'"
                     ></canvas>
-                  </div>
-                </div>
+                      </div>
+                      </div>
 
                 <!-- Forecast Summary -->
                 <div class="forecast-summary">
                   <div class="forecast-card">
                     <h4>Текущий темп работы</h4>
                     <div class="forecast-value">{{ currentWorkPace() }} ₽/день</div>
-                  </div>
+                    </div>
                   <div class="forecast-card">
                     <h4>Прогноз до конца месяца</h4>
                     <div class="forecast-value">{{ formatCurrency(monthEndForecast()) }}</div>
@@ -968,3 +1140,4 @@
     <p>Статистика недоступна для выбранного периода</p>
   </div>
 </div>
+
