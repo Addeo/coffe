@@ -608,26 +608,14 @@
                   <div class="status-actions" *ngIf="canUpdateOrderStatus(order)">
                     <button
                       mat-icon-button
-                      [matMenuTriggerFor]="statusMenu"
                       color="accent"
                       matTooltip="Изменить статус"
                       aria-label="Изменить статус"
                       class="action-btn-icon status-btn"
+                      (click)="onOpenStatusDialog(order)"
                     >
                       <mat-icon>swap_vert</mat-icon>
                     </button>
-                    <mat-menu #statusMenu="matMenu" class="status-menu">
-                      <button
-                        mat-menu-item
-                        *ngFor="let status of getAvailableStatuses(order)"
-                        [disabled]="order.status === status"
-                        (click)="onUpdateStatus(order, status)"
-                        class="status-menu-item"
-                      >
-                        <mat-icon [color]="getStatusColor(status)">{{ getStatusIcon(status) }}</mat-icon>
-                        <span>{{ getStatusDisplay(status) }}</span>
-                      </button>
-                    </mat-menu>
                   </div>
 
                   <!-- Assignment Actions -->

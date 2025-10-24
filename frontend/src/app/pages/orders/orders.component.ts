@@ -34,6 +34,7 @@ import { OrderDialogComponent } from '../../components/modals/order-dialog.compo
 import { OrderDeleteConfirmationDialogComponent } from '../../components/modals/order-delete-confirmation-dialog.component';
 import { AssignEngineerDialogComponent } from '../../components/modals/assign-engineer-dialog.component';
 import { WorkCompletionDialogComponent } from '../../components/modals/work-completion-dialog.component';
+import { OrderStatusDialogComponent } from '../../components/modals/order-status-dialog.component';
 import { EarningsSummaryComponent } from '../../components/earnings-summary/earnings-summary.component';
 
 @Component({
@@ -63,6 +64,7 @@ import { EarningsSummaryComponent } from '../../components/earnings-summary/earn
     OrderDeleteConfirmationDialogComponent,
     AssignEngineerDialogComponent,
     WorkCompletionDialogComponent,
+    OrderStatusDialogComponent,
     EarningsSummaryComponent,
   ],
   templateUrl: './orders.component.html',
@@ -128,10 +130,15 @@ export class OrdersComponent implements OnInit {
   // Engineers can update status of their assigned orders
   canUpdateOrderStatus(order: OrderDto): boolean {
     const currentUser = this.authService.currentUser();
-    if (!currentUser) return false;
+    
+    if (!currentUser) {
+      return false;
+    }
 
     // Admins and managers can always update
-    if (this.canEditOrders) return true;
+    if (this.canEditOrders) {
+      return true;
+    }
 
     // Engineers can only update their own assigned orders
     if (currentUser.role === UserRole.USER && order.assignedEngineerId === currentUser.id) {
@@ -145,7 +152,10 @@ export class OrdersComponent implements OnInit {
   // Get available status options for the current user and order
   getAvailableStatuses(order: OrderDto): OrderStatus[] {
     const currentUser = this.authService.currentUser();
-    if (!currentUser) return [];
+    
+    if (!currentUser) {
+      return [];
+    }
 
     // Admins and managers can set any status
     if (this.canEditOrders) {
@@ -259,6 +269,8 @@ export class OrdersComponent implements OnInit {
   }
 
   onUpdateStatus(order: OrderDto, newStatus: OrderStatus) {
+    console.log('🔄 onUpdateStatus called for order:', order.id, 'new status:', newStatus);
+    
     let updateObservable;
 
     switch (newStatus) {
@@ -287,6 +299,28 @@ export class OrdersComponent implements OnInit {
         console.error('Ошибка обновления статуса заказа:', error);
         this.toastService.error('Ошибка обновления статуса заказа');
       },
+    });
+  }
+
+  onOpenStatusDialog(order: OrderDto): void {
+    console.log('🔄 Opening status dialog for order:', order.id);
+    
+    const availableStatuses = this.getAvailableStatuses(order);
+    
+    const dialogRef = this.dialog.open(OrderStatusDialogComponent, {
+      data: {
+        order,
+        availableStatuses
+      },
+      width: '500px',
+      disableClose: false,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('🔄 Status dialog result:', result);
+      if (result) {
+        this.onUpdateStatus(order, result);
+      }
     });
   }
 
@@ -877,4 +911,5 @@ export class OrdersComponent implements OnInit {
     
     return (currentPage * pageSize) + index + 1;
   }
+
 }
