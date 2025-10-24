@@ -61,6 +61,14 @@ export interface MonthlyStatisticsDto {
   totalEarnings: number;
   totalOrders: number;
   totalOvertimeHours: number;
+  
+  // Финансовые метрики для отслеживания платежей
+  totalOrganizationRevenue: number; // Общая выручка от организаций
+  totalOrganizationPaid: number; // Сколько организации уже заплатили
+  totalAgentEarnings: number; // Общий заработок агентов
+  totalCompanyRevenue: number; // Общая выручка компании
+  totalAgentPayments: number; // Сколько уже выплатили агентам
+  companyProfit: number; // Прибыль компании (выручка - выплаты агентам)
 }
 
 export interface StatisticsQueryDto {

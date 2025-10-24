@@ -442,6 +442,16 @@ export class StatisticsService {
         0
       );
 
+      // Calculate financial metrics
+      const totalOrganizationRevenue = organizationEarnings.reduce((sum, org) => sum + org.totalRevenue, 0);
+      const totalAgentEarnings = agentEarnings.reduce((sum, agent) => sum + agent.totalEarnings, 0);
+      const totalCompanyRevenue = totalOrganizationRevenue;
+      
+      // Получаем реальные выплаты от организаций и инженерам из orders
+      const totalOrganizationPaid = await this.getTotalOrganizationPayments(startDate, endDate);
+      const totalAgentPayments = await this.getTotalAgentPayments(startDate, endDate);
+      const companyProfit = totalCompanyRevenue - totalAgentPayments;
+
       console.log('Monthly statistics calculated successfully');
       return {
         year,
@@ -453,6 +463,12 @@ export class StatisticsService {
         totalEarnings,
         totalOrders,
         totalOvertimeHours,
+        totalOrganizationRevenue,
+        totalOrganizationPaid,
+        totalAgentEarnings,
+        totalCompanyRevenue,
+        totalAgentPayments,
+        companyProfit,
       };
     } catch (error) {
       console.error('Error getting monthly statistics:', error);
@@ -468,6 +484,12 @@ export class StatisticsService {
         totalEarnings: 0,
         totalOrders: 0,
         totalOvertimeHours: 0,
+        totalOrganizationRevenue: 0,
+        totalOrganizationPaid: 0,
+        totalAgentEarnings: 0,
+        totalCompanyRevenue: 0,
+        totalAgentPayments: 0,
+        companyProfit: 0,
       };
     }
   }
@@ -820,5 +842,45 @@ export class StatisticsService {
       actualData: [],
       forecastData: [],
     };
+  }
+
+  /**
+   * Получает общую сумму выплат инженерам за период
+   */
+  private async getTotalAgentPayments(startDate: Date, endDate: Date): Promise<number> {
+    try {
+      const result = await this.orderRepository
+        .createQueryBuilder('order')
+        .select('SUM(order.regularPayment + order.overtimePayment)', 'totalPayments')
+        .where('order.completionDate >= :startDate', { startDate })
+        .andWhere('order.completionDate < :endDate', { endDate })
+        .andWhere('order.status = :status', { status: 'completed' })
+        .getRawOne();
+
+      return Number(result?.totalPayments) || 0;
+    } catch (error) {
+      console.error('Error getting total agent payments:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Получает общую сумму платежей от организаций за период
+   */
+  private async getTotalOrganizationPayments(startDate: Date, endDate: Date): Promise<number> {
+    try {
+      const result = await this.orderRepository
+        .createQueryBuilder('order')
+        .select('SUM(order.organizationRegularPayment + order.organizationOvertimePayment)', 'totalPayments')
+        .where('order.completionDate >= :startDate', { startDate })
+        .andWhere('order.completionDate < :endDate', { endDate })
+        .andWhere('order.status = :status', { status: 'completed' })
+        .getRawOne();
+
+      return Number(result?.totalPayments) || 0;
+    } catch (error) {
+      console.error('Error getting total organization payments:', error);
+      return 0;
+    }
   }
 }

@@ -463,6 +463,7 @@
         height: 36px;
         border-radius: 8px;
         transition: all 0.3s ease;
+        color: white;
 
         &:hover {
           transform: scale(1.1);
@@ -470,6 +471,21 @@
 
         &.edit-btn {
           background: linear-gradient(135deg, #ff9800, #f57c00);
+          color: white;
+        }
+
+        &.edit-completed-btn {
+          background: linear-gradient(135deg, #ff5722, #d84315);
+          color: white;
+        }
+
+        &.status-btn {
+          background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+          color: white;
+        }
+
+        &.assign-btn {
+          background: linear-gradient(135deg, #2196f3, #1976d2);
           color: white;
         }
 
@@ -749,5 +765,35 @@
 
   .orders-table {
     font-size: 0.875rem;
+  }
+}
+
+// Status menu styling
+.status-menu {
+  .status-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
+    
+    &:hover:not([disabled]) {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+    
+    &[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    
+    span {
+      font-weight: 500;
+    }
   }
 }
