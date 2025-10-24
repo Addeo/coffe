@@ -158,6 +158,29 @@ export class StatisticsComponent implements OnInit {
     'totalEarnings',
   ];
 
+  // Organization columns for detailed analytics
+  organizationColumns = [
+    'organizationName',
+    'totalRevenue',
+    'totalCosts',
+    'totalProfit',
+    'profitMargin',
+    'totalOrders',
+    'totalHours',
+    'averageOrderValue',
+  ];
+
+  // Agent columns for detailed analytics
+  agentColumns = [
+    'agentName',
+    'totalEarnings',
+    'completedOrders',
+    'averageOrderValue',
+    'hourlyRate',
+    'overtimeRate',
+    'companyDifference',
+  ];
+
   // New data sources
   financialDetailsData = signal<any[]>([]);
   topEarners = signal<any[]>([]);
@@ -169,6 +192,98 @@ export class StatisticsComponent implements OnInit {
   // Data source for table
   get financialDetailsDataSource() {
     return this.financialDetailsData();
+  }
+
+  get organizationDataSource() {
+    return this.statistics()?.organizationEarnings || [];
+  }
+
+  get agentDataSource() {
+    return this.statistics()?.agentEarnings || [];
+  }
+
+  // Organization analytics methods
+  getTotalOrganizationRevenue(): number {
+    const data = this.statistics()?.organizationEarnings || [];
+    return data.reduce((sum, org) => sum + org.totalRevenue, 0);
+  }
+
+  getAverageOrganizationRate(): number {
+    const data = this.statistics()?.organizationEarnings || [];
+    if (data.length === 0) return 0;
+    const totalHours = data.reduce((sum, org) => sum + org.totalHours, 0);
+    const totalRevenue = this.getTotalOrganizationRevenue();
+    return totalHours > 0 ? totalRevenue / totalHours : 0;
+  }
+
+  getTotalOrganizationOrders(): number {
+    const data = this.statistics()?.organizationEarnings || [];
+    return data.reduce((sum, org) => sum + org.totalOrders, 0);
+  }
+
+  // Agent analytics methods
+  getTotalAgentEarnings(): number {
+    const data = this.statistics()?.agentEarnings || [];
+    return data.reduce((sum, agent) => sum + agent.totalEarnings, 0);
+  }
+
+  getAverageAgentRate(): number {
+    const data = this.statistics()?.agentEarnings || [];
+    if (data.length === 0) return 0;
+    const totalOrders = data.reduce((sum, agent) => sum + agent.completedOrders, 0);
+    const totalEarnings = this.getTotalAgentEarnings();
+    // Предполагаем 8 часов на заказ
+    const totalHours = totalOrders * 8;
+    return totalHours > 0 ? totalEarnings / totalHours : 0;
+  }
+
+  getCompanyAgentDifference(): number {
+    const agentEarnings = this.getTotalAgentEarnings();
+    const organizationRevenue = this.getTotalOrganizationRevenue();
+    return organizationRevenue - agentEarnings;
+  }
+
+  getAgentHourlyRate(agent: any): number {
+    // Предполагаем 8 часов на заказ
+    const totalHours = agent.completedOrders * 8;
+    return totalHours > 0 ? agent.totalEarnings / totalHours : 0;
+  }
+
+  getAgentOvertimeRate(agent: any): number {
+    // Сверхурочная ставка обычно в 1.5 раза больше обычной
+    return this.getAgentHourlyRate(agent) * 1.5;
+  }
+
+  getAgentCompanyDifference(agent: any): number {
+    // Упрощенный расчет разницы между тем, что заработала компания и агентом
+    const agentEarnings = agent.totalEarnings;
+    const companyRevenue = agent.averageOrderValue * agent.completedOrders;
+    return companyRevenue - agentEarnings;
+  }
+
+  // Временные геттеры для новых полей до обновления shared модуля
+  get totalOrganizationRevenue(): number {
+    return this.getTotalOrganizationRevenue();
+  }
+
+  get totalOrganizationPaid(): number {
+    return this.getTotalOrganizationRevenue(); // Пока считаем что все заплатили
+  }
+
+  get totalAgentEarnings(): number {
+    return this.getTotalAgentEarnings();
+  }
+
+  get totalCompanyRevenue(): number {
+    return this.getTotalOrganizationRevenue();
+  }
+
+  get totalAgentPayments(): number {
+    return this.getTotalAgentEarnings(); // Пока считаем что все выплатили
+  }
+
+  get companyProfit(): number {
+    return this.getCompanyAgentDifference();
   }
 
   // Chart data for Agent Earnings (Bar Chart)

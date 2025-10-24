@@ -982,4 +982,115 @@
     }
   }
 }
+
+// Organization and Agent Analytics Styles
+.organization-analytics,
+.agent-analytics {
+  .analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  .analytics-card {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #3f51b5;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      margin-right: 16px;
+      color: #3f51b5;
+    }
+
+    .card-content {
+      flex: 1;
+
+      h4 {
+        margin: 0 0 8px 0;
+        font-size: 14px;
+        color: #666;
+        font-weight: 500;
+      }
+
+      .amount {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+        color: #333;
+      }
+    }
+  }
+
+  .organization-details-table,
+  .agent-details-table {
+    margin-top: 24px;
+
+    h3 {
+      margin-bottom: 16px;
+      color: #333;
+      font-size: 18px;
+      font-weight: 600;
+    }
+  }
+}
+
+// Profit/Loss indicators
+.profit-positive {
+  color: #4caf50 !important;
+  font-weight: 600;
+}
+
+.profit-negative {
+  color: #f44336 !important;
+  font-weight: 600;
+}
+
+.margin-positive {
+  color: #4caf50 !important;
+  font-weight: 600;
+}
+
+.margin-negative {
+  color: #f44336 !important;
+  font-weight: 600;
+}
+
+// Mobile styles for analytics
+@media (max-width: 768px) {
+  .organization-analytics,
+  .agent-analytics {
+    .analytics-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .analytics-card {
+      padding: 16px;
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        margin-right: 12px;
+      }
+
+      .card-content {
+        h4 {
+          font-size: 12px;
+        }
+
+        .amount {
+          font-size: 20px;
+        }
+      }
+    }
+  }
+}
 }

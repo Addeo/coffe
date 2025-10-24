@@ -87,6 +87,10 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    console.log('🏢 Organizations component initialized');
+    console.log('🏢 Current user:', this.currentUser());
+    console.log('🏢 canEdit():', this.canEdit());
+    console.log('🏢 canDelete():', this.canDelete());
     this.loadOrganizations();
   }
 
@@ -138,28 +142,62 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
   }
 
   onEditOrganization(organization: OrganizationDto): void {
-    const dialogRef = this.dialog.open(OrganizationDialogComponent, {
-      data: { organization, isEdit: true },
-      width: '600px',
-      disableClose: true,
-    });
+    console.log('✏️ onEditOrganization called for:', organization.name, 'User role:', this.currentUser()?.role);
+    console.log('✏️ canEdit():', this.canEdit());
+    
+    if (!this.canEdit()) {
+      console.log('✏️ User does not have edit permissions');
+      this.toastService.showError('У вас нет прав на редактирование организаций');
+      return;
+    }
+    
+    console.log('✏️ Opening edit dialog...');
+    let dialogRef;
+    try {
+      dialogRef = this.dialog.open(OrganizationDialogComponent, {
+        data: { organization, isEdit: true },
+        width: '600px',
+        disableClose: true,
+      });
+      console.log('✏️ Dialog opened successfully:', dialogRef);
+      
+      dialogRef.afterClosed().subscribe(result => {
+        console.log('✏️ Edit dialog closed with result:', result);
+        if (result) {
+          // Update organization in the list
+          const currentOrganizations = this.organizations() || [];
+          const updatedOrganizations = currentOrganizations.map(org =>
+            org.id === result.id ? result : org
+          );
+          this.organizations.set(updatedOrganizations);
+          this.dataSource.data = updatedOrganizations;
+        }
+      });
+    } catch (error) {
+      console.error('✏️ Error opening dialog:', error);
+      this.toastService.showError('Ошибка открытия диалога редактирования');
+    }
+  }
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        // Update organization in the list
-        const currentOrganizations = this.organizations() || [];
-        const updatedOrganizations = currentOrganizations.map(org =>
-          org.id === result.id ? result : org
-        );
-        this.organizations.set(updatedOrganizations);
-        this.dataSource.data = updatedOrganizations;
-      }
-    });
+  onEditOrganizationTest(organization: OrganizationDto): void {
+    console.log('🧪 Edit button clicked for:', organization.name);
+    this.onEditOrganization(organization);
   }
 
   onToggleStatus(organization: OrganizationDto): void {
+    console.log('🔄 onToggleStatus called for:', organization.name, 'User role:', this.currentUser()?.role);
+    console.log('🔄 canEdit():', this.canEdit());
+    
+    if (!this.canEdit()) {
+      console.log('🔄 User does not have edit permissions');
+      this.toastService.showError('У вас нет прав на изменение статуса организаций');
+      return;
+    }
+    
+    console.log('🔄 Toggling organization status...');
     this.organizationsService.toggleOrganizationStatus(organization.id).subscribe({
       next: updatedOrg => {
+        console.log('🔄 Status toggled successfully:', updatedOrg);
         // Update local data
         const currentOrganizations = this.organizations() || [];
         const updatedOrganizations = currentOrganizations.map(org =>
@@ -197,14 +235,22 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
     }
 
     console.log('🗑️ Opening delete confirmation dialog');
-    const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
-      data: {
-        title: 'Удалить организацию',
-        message: `Вы уверены, что хотите удалить "${organization.name}"? Это действие нельзя отменить.`,
-        confirmText: 'Удалить',
-        cancelText: 'Отмена',
-      },
-    });
+    let dialogRef;
+    try {
+      dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
+        data: {
+          title: 'Удалить организацию',
+          message: `Вы уверены, что хотите удалить "${organization.name}"? Это действие нельзя отменить.`,
+          confirmText: 'Удалить',
+          cancelText: 'Отмена',
+        },
+      });
+      console.log('🗑️ Delete dialog opened successfully:', dialogRef);
+    } catch (error) {
+      console.error('🗑️ Error opening delete dialog:', error);
+      this.toastService.showError('Ошибка открытия диалога удаления');
+      return;
+    }
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('🗑️ Delete confirmation dialog result:', result, typeof result);
@@ -286,5 +332,10 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
 
   getStatusText(isActive: boolean): string {
     return isActive ? 'Активна' : 'Неактивна';
+  }
+
+  testClick(): void {
+    console.log('🧪 TEST CLICK - обработчик событий работает!');
+    alert('Тест клика работает! Обработчики событий функционируют.');
   }
 }

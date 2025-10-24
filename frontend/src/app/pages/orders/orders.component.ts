@@ -281,7 +281,7 @@ export class OrdersComponent implements OnInit {
           this.dataSource._updateChangeSubscription();
         }
         this.loadOrderStats(); // Refresh stats
-        this.toastService.success(`Статус заказа изменен на ${newStatus}`);
+        this.toastService.success(`Статус заказа изменен на ${this.getStatusDisplay(newStatus)}`);
       },
       error: error => {
         console.error('Ошибка обновления статуса заказа:', error);
@@ -860,5 +860,21 @@ export class OrdersComponent implements OnInit {
     XLSX.writeFile(workbook, filename);
 
     this.toastService.success('Статистика успешно экспортирована в Excel');
+  }
+
+  /**
+   * Calculate the row index based on current page and page size
+   * @param index - The current row index on the page (0-based)
+   * @returns The sequential index number (1-based)
+   */
+  getRowIndex(index: number): number {
+    if (!this.paginator) {
+      return index + 1;
+    }
+    
+    const currentPage = this.paginator.pageIndex;
+    const pageSize = this.paginator.pageSize;
+    
+    return (currentPage * pageSize) + index + 1;
   }
 }

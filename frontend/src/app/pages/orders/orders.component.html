@@ -431,7 +431,7 @@
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
 
-          <div class="button-group">
+          <div class="button-group" style="display: flex; gap: 10px;">
             <button
               mat-icon-button
               (click)="refreshData()"
@@ -481,7 +481,7 @@
           <!-- ID Column -->
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.id">№</th>
-            <td mat-cell *matCellDef="let order">{{ order.id }}</td>
+            <td mat-cell *matCellDef="let order; let i = index">{{ getRowIndex(i) }}</td>
           </ng-container>
 
           <!-- Title Column -->

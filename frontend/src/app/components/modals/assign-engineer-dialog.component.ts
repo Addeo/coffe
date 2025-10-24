@@ -272,10 +272,17 @@ export class AssignEngineerDialogComponent {
   private loadAvailableEngineers() {
     this.usersService.getUsers().subscribe({
       next: (response: any) => {
-        // Filter only active engineers (users with role USER)
+        // Filter only active engineers (users with role USER) - exclude managers and admins
         this.availableEngineers = response.data.filter(
-          (user: UserDto) => user.role === UserRole.USER && user.isActive
+          (user: UserDto) => 
+            user.role === UserRole.USER && 
+            user.isActive
         );
+        
+        console.log('Available engineers:', this.availableEngineers);
+        console.log('Filtered out managers/admins:', response.data.filter(
+          (user: UserDto) => user.role === UserRole.MANAGER || user.role === UserRole.ADMIN
+        ));
       },
       error: (error: any) => {
         console.error('Error loading engineers:', error);
