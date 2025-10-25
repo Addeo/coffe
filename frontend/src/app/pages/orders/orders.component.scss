@@ -1,3 +1,4 @@
+// Orders container with responsive design
 .orders-container {
   padding: 24px;
   max-width: 1400px;
@@ -6,6 +7,7 @@
   min-height: calc(100vh - 64px);
 }
 
+// Warning card for unaccepted orders
 .warning-card {
   margin-bottom: 24px;
   border-radius: 12px;
@@ -87,6 +89,7 @@
   }
 }
 
+// Stats switcher
 .stats-switcher {
   margin-bottom: 24px;
   display: flex;
@@ -176,6 +179,7 @@
   }
 }
 
+// Enhanced header styling
 .header {
   display: flex;
   justify-content: space-between;
@@ -203,6 +207,7 @@
       min-width: 200px;
     }
 
+    // Enhanced filter field styling
     .filter-field {
       .mat-mdc-form-field {
         .mat-mdc-text-field-wrapper {
@@ -319,6 +324,7 @@
   }
 }
 
+// Main content card
 .main-content {
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
@@ -330,6 +336,7 @@
   }
 }
 
+// Orders table
 .orders-table {
   width: 100%;
   border-radius: 12px;
@@ -369,6 +376,7 @@
   }
 }
 
+// Status chips
 .status-chip {
   font-weight: 500;
   font-size: 12px;
@@ -408,6 +416,7 @@
   }
 }
 
+// Actions container
 .actions-container {
   display: flex;
   align-items: center;
@@ -489,6 +498,7 @@
   }
 }
 
+// Loading and empty states
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -532,6 +542,7 @@
   }
 }
 
+// Responsive design
 @media (max-width: 768px) {
   .orders-container {
     padding: 16px;
@@ -580,6 +591,7 @@
         min-width: 100%;
       }
 
+      // Mobile filter field styling
       .filter-field {
         .mat-mdc-form-field {
           .mat-mdc-text-field-wrapper {
@@ -629,6 +641,7 @@
     }
   }
 
+  // Enhanced mobile actions
   .actions-container {
     min-width: auto;
     gap: 6px;
@@ -663,6 +676,7 @@
     }
   }
 
+  // Hide less important columns on mobile
   .mat-column-organization,
   .mat-column-createdAt {
     display: none;
@@ -744,6 +758,7 @@
     padding: 8px 0;
   }
 
+  // Further simplify table on very small screens
   .mat-column-assignedEngineer {
     display: none;
   }
@@ -753,6 +768,7 @@
   }
 }
 
+// Status menu styling
 .status-menu {
   .status-menu-item {
     display: flex;

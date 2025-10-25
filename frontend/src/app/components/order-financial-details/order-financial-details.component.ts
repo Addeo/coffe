@@ -532,3 +532,4 @@ export class OrderFinancialDetailsComponent implements OnInit {
     this.summary.set(summary);
   }
 }
+
