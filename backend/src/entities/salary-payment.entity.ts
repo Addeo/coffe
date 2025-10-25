@@ -116,4 +116,3 @@ export class SalaryPayment {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
-

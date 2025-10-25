@@ -120,7 +120,7 @@ export class StatisticsService {
    * @returns Observable с комплексной статистикой
    */
   getComprehensiveStatistics(
-    year?: number, 
+    year?: number,
     month?: number,
     options?: {
       includeTimeBased?: boolean;
@@ -132,14 +132,20 @@ export class StatisticsService {
     let params = [];
     if (year) params.push(`year=${year}`);
     if (month) params.push(`month=${month}`);
-    if (options?.includeTimeBased !== undefined) params.push(`includeTimeBased=${options.includeTimeBased}`);
-    if (options?.includeFinancial !== undefined) params.push(`includeFinancial=${options.includeFinancial}`);
-    if (options?.includeRankings !== undefined) params.push(`includeRankings=${options.includeRankings}`);
-    if (options?.includeForecast !== undefined) params.push(`includeForecast=${options.includeForecast}`);
-    
+    if (options?.includeTimeBased !== undefined)
+      params.push(`includeTimeBased=${options.includeTimeBased}`);
+    if (options?.includeFinancial !== undefined)
+      params.push(`includeFinancial=${options.includeFinancial}`);
+    if (options?.includeRankings !== undefined)
+      params.push(`includeRankings=${options.includeRankings}`);
+    if (options?.includeForecast !== undefined)
+      params.push(`includeForecast=${options.includeForecast}`);
+
     const queryString = params.length > 0 ? '?' + params.join('&') : '';
-    
-    return this.http.get<ComprehensiveStatisticsDto>(`${environment.apiUrl}/statistics/comprehensive${queryString}`);
+
+    return this.http.get<ComprehensiveStatisticsDto>(
+      `${environment.apiUrl}/statistics/comprehensive${queryString}`
+    );
   }
 
   /**

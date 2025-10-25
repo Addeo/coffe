@@ -614,7 +614,7 @@
           .mat-mdc-select {
             .mat-mdc-select-trigger {
               padding: 12px 16px;
-              
+
               .mat-mdc-select-value {
                 font-size: 16px;
                 font-weight: 500;
@@ -776,22 +776,22 @@
     gap: 12px;
     padding: 8px 16px;
     transition: all 0.2s ease;
-    
+
     &:hover:not([disabled]) {
       background-color: rgba(0, 0, 0, 0.04);
     }
-    
+
     &[disabled] {
       opacity: 0.5;
       cursor: not-allowed;
     }
-    
+
     mat-icon {
       font-size: 18px;
       width: 18px;
       height: 18px;
     }
-    
+
     span {
       font-weight: 500;
     }

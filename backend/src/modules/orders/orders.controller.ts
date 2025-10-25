@@ -48,7 +48,7 @@ interface ExtendedOrdersQueryDto extends OrdersQueryDto {
 export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
-    private readonly workSessionsService: WorkSessionsService,
+    private readonly workSessionsService: WorkSessionsService
   ) {}
 
   @Post()
@@ -141,7 +141,8 @@ export class OrdersController {
   @Roles(UserRole.USER) // Only engineers can complete work
   async completeWork(
     @Param('id', ParseIntPipe) orderId: number,
-    @Body() workData: {
+    @Body()
+    workData: {
       regularHours: number;
       overtimeHours: number;
       carPayment: number;
@@ -171,13 +172,9 @@ export class OrdersController {
   createWorkSession(
     @Param('id', ParseIntPipe) orderId: number,
     @Body() createWorkSessionDto: CreateWorkSessionDto,
-    @Request() req,
+    @Request() req
   ) {
-    return this.workSessionsService.createWorkSession(
-      orderId,
-      req.user.id,
-      createWorkSessionDto,
-    );
+    return this.workSessionsService.createWorkSession(orderId, req.user.id, createWorkSessionDto);
   }
 
   /**

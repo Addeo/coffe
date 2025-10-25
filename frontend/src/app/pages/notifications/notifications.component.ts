@@ -256,20 +256,20 @@ export class NotificationsComponent implements OnInit, AfterViewInit {
 
   getNotificationTypeDisplay(type: string): string {
     const typeMap: { [key: string]: string } = {
-      'order_assigned': 'Заказ назначен',
-      'order_completed': 'Заказ завершен',
-      'order_updated': 'Заказ обновлен',
-      'system': 'Система',
-      'user': 'Пользователь',
-      'admin': 'Администратор',
-      'reminder': 'Напоминание',
-      'alert': 'Предупреждение',
-      'info': 'Информация',
-      'success': 'Успех',
-      'error': 'Ошибка',
-      'warning': 'Предупреждение'
+      order_assigned: 'Заказ назначен',
+      order_completed: 'Заказ завершен',
+      order_updated: 'Заказ обновлен',
+      system: 'Система',
+      user: 'Пользователь',
+      admin: 'Администратор',
+      reminder: 'Напоминание',
+      alert: 'Предупреждение',
+      info: 'Информация',
+      success: 'Успех',
+      error: 'Ошибка',
+      warning: 'Предупреждение',
     };
-    
+
     return typeMap[type] || type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   }
 

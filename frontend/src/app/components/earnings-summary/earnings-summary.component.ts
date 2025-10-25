@@ -86,7 +86,7 @@ export class EarningsSummaryComponent implements OnInit {
     this.statisticsService.getAdminEngineerStatistics(year, month).subscribe({
       next: (data: AdminEngineerStatistics) => {
         const currentUser = this.currentUser();
-        
+
         if (this.isEngineer && currentUser) {
           // For engineer, show only their own statistics
           const currentUserId = currentUser.id;
@@ -169,8 +169,18 @@ export class EarningsSummaryComponent implements OnInit {
 
   getCurrentMonthName(): string {
     const months = [
-      'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
+      'Январь',
+      'Февраль',
+      'Март',
+      'Апрель',
+      'Май',
+      'Июнь',
+      'Июль',
+      'Август',
+      'Сентябрь',
+      'Октябрь',
+      'Ноябрь',
+      'Декабрь',
     ];
     return months[this.currentMonth() - 1];
   }
@@ -222,12 +232,14 @@ export class EarningsSummaryComponent implements OnInit {
         if (!currentUser) return;
 
         let filteredOrders = response.data || [];
-        
+
         if (!this.canViewAllOrders) {
           // For engineers, show only their own unaccepted orders
-          filteredOrders = filteredOrders.filter(order => order.assignedEngineerId === currentUser.id);
+          filteredOrders = filteredOrders.filter(
+            order => order.assignedEngineerId === currentUser.id
+          );
         }
-        
+
         this.unacceptedOrders.set(filteredOrders);
       },
       error: error => {
@@ -250,44 +262,44 @@ export class EarningsSummaryComponent implements OnInit {
 
   exportStatisticsToExcel() {
     const stats = this.summary();
-    
+
     // Prepare statistics data for export
     const statsData = [
       {
-        'Категория': 'Заработок за работу',
-        'Сумма': stats.workEarnings,
-        'Описание': 'Заработок за выполненную работу'
+        Категория: 'Заработок за работу',
+        Сумма: stats.workEarnings,
+        Описание: 'Заработок за выполненную работу',
       },
       {
-        'Категория': 'Заработок за авто',
-        'Сумма': stats.carEarnings,
-        'Описание': 'Заработок за использование автомобиля'
+        Категория: 'Заработок за авто',
+        Сумма: stats.carEarnings,
+        Описание: 'Заработок за использование автомобиля',
       },
       {
-        'Категория': 'Общий заработок',
-        'Сумма': stats.totalEarnings,
-        'Описание': 'Общая сумма заработка'
+        Категория: 'Общий заработок',
+        Сумма: stats.totalEarnings,
+        Описание: 'Общая сумма заработка',
       },
       {
-        'Категория': 'Завершенные заказы',
-        'Количество': stats.completedOrders,
-        'Описание': 'Количество завершенных заказов'
+        Категория: 'Завершенные заказы',
+        Количество: stats.completedOrders,
+        Описание: 'Количество завершенных заказов',
       },
       {
-        'Категория': 'Общее количество часов',
-        'Количество': stats.totalHours,
-        'Описание': 'Общее количество отработанных часов'
-      }
+        Категория: 'Общее количество часов',
+        Количество: stats.totalHours,
+        Описание: 'Общее количество отработанных часов',
+      },
     ];
 
     // Create worksheet for statistics
     const statsWorksheet = XLSX.utils.json_to_sheet(statsData);
-    
+
     // Set column widths
     statsWorksheet['!cols'] = [
-      { wch: 25 },  // Категория
-      { wch: 15 },  // Сумма/Количество
-      { wch: 40 }   // Описание
+      { wch: 25 }, // Категория
+      { wch: 15 }, // Сумма/Количество
+      { wch: 40 }, // Описание
     ];
 
     // Create workbook with statistics
@@ -304,4 +316,3 @@ export class EarningsSummaryComponent implements OnInit {
     this.toastService.success('Статистика заработка успешно экспортирована в Excel');
   }
 }
-

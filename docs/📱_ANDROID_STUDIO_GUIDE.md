@@ -14,6 +14,7 @@ npx cap open android
 ```
 
 **Что произойдёт:**
+
 - ✅ Откроется Android Studio
 - ✅ Загрузится проект `frontend/android/`
 - ✅ Gradle синхронизируется
@@ -35,11 +36,13 @@ npx cap open android
 ### После открытия:
 
 **Запустить приложение:**
+
 1. Нажмите ▶️ (Run) или `Shift + F10`
 2. Выберите устройство (эмулятор или физическое)
 3. Приложение запустится автоматически
 
 **Собрать APK:**
+
 1. Build → Build Bundle(s) / APK(s) → Build APK(s)
 2. Дождитесь завершения
 3. Нажмите "locate" для поиска APK
@@ -85,6 +88,7 @@ npx cap open android
 ```
 
 **Можно:**
+
 - ✅ Просмотреть размер каждого файла
 - ✅ Увидеть структуру APK
 - ✅ Проверить AndroidManifest.xml
@@ -152,6 +156,7 @@ npx cap open android
 ### 2. Отладка через Chrome DevTools
 
 **Шаги:**
+
 1. Запустите приложение на устройстве/эмуляторе
 2. В Chrome откройте: `chrome://inspect`
 3. Найдите ваше приложение в списке
@@ -159,6 +164,7 @@ npx cap open android
 5. **Откроется DevTools** с консолью, Network, и т.д.
 
 **Можно:**
+
 - Смотреть console.log
 - Проверять Network requests
 - Отлаживать JavaScript
@@ -169,11 +175,13 @@ npx cap open android
 ### 3. Logcat (Android логи)
 
 **В Android Studio:**
+
 1. Запустите приложение
 2. Откройте вкладку **Logcat** (внизу)
 3. Фильтр: `package:com.coffee.admin`
 
 **Или через команду:**
+
 ```bash
 adb logcat | grep "Coffee"
 ```
@@ -183,11 +191,13 @@ adb logcat | grep "Coffee"
 ### 4. Profiler (анализ производительности)
 
 **В Android Studio:**
+
 1. Запустите приложение
 2. **View → Tool Windows → Profiler**
 3. Выберите процесс `com.coffee.admin`
 
 **Можно отслеживать:**
+
 - CPU usage
 - Memory usage
 - Network activity
@@ -200,6 +210,7 @@ adb logcat | grep "Coffee"
 ### Что можно проверить в APK Analyzer:
 
 **1. Размеры компонентов:**
+
 ```
 classes.dex:      ~2.1 MB (Java/Kotlin код)
 resources.arsc:   ~500 KB (ресурсы)
@@ -209,16 +220,19 @@ res/:             ~200 KB (иконки, layouts)
 ```
 
 **2. Методы и классы:**
+
 - Количество классов
 - Количество методов (DEX limit 64K)
 - Использование MultiDex
 
 **3. Ресурсы:**
+
 - Все иконки и изображения
 - Layouts XML файлы
 - Strings и другие values
 
 **4. Permissions:**
+
 ```xml
 <uses-permission android:name="android.permission.INTERNET" />
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -229,6 +243,7 @@ res/:             ~200 KB (иконки, layouts)
 ## 🔧 КОМАНДЫ ДЛЯ РАБОТЫ
 
 ### Открыть проект:
+
 ```bash
 # Через Capacitor CLI
 npx cap open android
@@ -238,16 +253,19 @@ open -a "Android Studio" /Users/sergejkosilov/WebstormProjects/new\ goal/coffe/f
 ```
 
 ### Пересобрать APK в Android Studio:
+
 ```
 Build → Build Bundle(s) / APK(s) → Build APK(s)
 ```
 
 ### Запустить на устройстве:
+
 ```
 Run → Run 'app' (или ▶️ кнопка)
 ```
 
 ### Очистить и пересобрать:
+
 ```
 Build → Clean Project
 Build → Rebuild Project
@@ -260,6 +278,7 @@ Build → Rebuild Project
 ### Проблема: Gradle sync failed
 
 **Решение:**
+
 ```bash
 cd frontend/android
 ./gradlew clean
@@ -269,6 +288,7 @@ cd frontend/android
 ### Проблема: SDK not found
 
 **Решение:**
+
 1. File → Project Structure → SDK Location
 2. Укажите путь к Android SDK:
    ```
@@ -279,6 +299,7 @@ cd frontend/android
 ### Проблема: Build configuration не найдена
 
 **Решение:**
+
 1. Build → Select Build Variant
 2. Выберите "debug" или "release"
 3. Пересоберите проект
@@ -286,6 +307,7 @@ cd frontend/android
 ### Проблема: Эмулятор не запускается
 
 **Решение:**
+
 1. Tools → Device Manager
 2. Создайте новый эмулятор:
    - Pixel 5 или 6
@@ -302,7 +324,6 @@ cd frontend/android
 1. **Включите режим разработчика на Android:**
    - Настройки → О телефоне
    - Нажмите 7 раз на "Номер сборки"
-   
 2. **Включите отладку по USB:**
    - Настройки → Параметры разработчика
    - Включите "Отладка по USB"
@@ -310,9 +331,11 @@ cd frontend/android
 3. **Подключите USB кабель**
 
 4. **Проверьте подключение:**
+
    ```bash
    adb devices
    ```
+
    Должно показать ваше устройство
 
 5. **В Android Studio:**
@@ -326,11 +349,13 @@ cd frontend/android
 ### Изменить иконку приложения:
 
 **Путь к иконкам:**
+
 ```
 frontend/android/app/src/main/res/mipmap-*/ic_launcher.png
 ```
 
 **Автоматическая генерация:**
+
 ```bash
 # 1. Поместите иконку 1024x1024 в frontend/resources/icon.png
 # 2. Установите инструмент
@@ -343,11 +368,13 @@ npx capacitor-assets generate --iconBackgroundColor='#ffffff' --iconBackgroundCo
 ### Изменить Splash Screen:
 
 **Путь:**
+
 ```
 frontend/android/app/src/main/res/drawable-*/splash.png
 ```
 
 **Генерация:**
+
 ```bash
 # Поместите splash.png (2732x2732) в frontend/resources/
 npx capacitor-assets generate
@@ -358,26 +385,31 @@ npx capacitor-assets generate
 ## 🔍 ПОЛЕЗНЫЕ ОКНА В ANDROID STUDIO
 
 ### 1. **Project** (слева)
+
 - Структура проекта
 - Файлы и папки
 - Gradle scripts
 
 ### 2. **Logcat** (внизу)
+
 - Логи приложения
 - Ошибки и warnings
 - System messages
 
 ### 3. **Build** (внизу)
+
 - Вывод Gradle
 - Ошибки компиляции
 - Build summary
 
 ### 4. **Device Manager** (справа)
+
 - Управление эмуляторами
 - Создание новых устройств
 - Запуск/остановка
 
 ### 5. **Profiler** (внизу)
+
 - CPU monitoring
 - Memory usage
 - Network activity
@@ -387,6 +419,7 @@ npx capacitor-assets generate
 ## 📊 APK ANALYZER - ЧТО МОЖНО УЗНАТЬ
 
 ### Общая информация:
+
 ```
 ✅ Package name: com.coffee.admin
 ✅ Version: 0.0.0
@@ -397,6 +430,7 @@ npx capacitor-assets generate
 ```
 
 ### Размер по компонентам:
+
 ```
 classes.dex:         2.1 MB (44%)
 assets/:             1.8 MB (38%)  ← Angular приложение здесь
@@ -405,6 +439,7 @@ lib/:                400 KB (8%)
 ```
 
 ### Методы и классы:
+
 ```
 Total methods:       ~15,000
 Total classes:       ~2,500
@@ -412,6 +447,7 @@ Multidex:            Enabled (если нужно)
 ```
 
 ### Permissions:
+
 ```
 INTERNET:                     ✅ Для API
 WRITE_EXTERNAL_STORAGE:       ✅ Для экспорта файлов
@@ -426,6 +462,7 @@ ACCESS_NETWORK_STATE:         ✅ Для проверки сети
 ### Запуск на эмуляторе:
 
 **В Android Studio:**
+
 ```
 1. Tools → Device Manager
 2. Выберите эмулятор (или создайте новый)
@@ -436,6 +473,7 @@ ACCESS_NETWORK_STATE:         ✅ Для проверки сети
 ```
 
 **Через командную строку:**
+
 ```bash
 # 1. Список эмуляторов
 emulator -list-avds
@@ -455,6 +493,7 @@ adb shell am start -n com.coffee.admin/.MainActivity
 ### Отладка JavaScript/TypeScript:
 
 **Способ A: Chrome DevTools**
+
 ```
 1. Запустите приложение на устройстве
 2. В Chrome: chrome://inspect
@@ -464,6 +503,7 @@ adb shell am start -n com.coffee.admin/.MainActivity
 ```
 
 **Способ B: Safari Web Inspector (для iOS)**
+
 ```
 1. Подключите iOS устройство
 2. Safari → Develop → [Your Device]
@@ -477,31 +517,37 @@ adb shell am start -n com.coffee.admin/.MainActivity
 ### В Terminal Android Studio:
 
 **Очистить проект:**
+
 ```bash
 ./gradlew clean
 ```
 
 **Собрать debug APK:**
+
 ```bash
 ./gradlew assembleDebug
 ```
 
 **Собрать release APK:**
+
 ```bash
 ./gradlew assembleRelease
 ```
 
 **Установить на подключённое устройство:**
+
 ```bash
 ./gradlew installDebug
 ```
 
 **Запустить тесты:**
+
 ```bash
 ./gradlew test
 ```
 
 **Информация о проекте:**
+
 ```bash
 ./gradlew projects
 ```
@@ -538,6 +584,7 @@ android/
 ### Что можно редактировать:
 
 **1. MainActivity.java**
+
 ```java
 package com.coffee.admin;
 
@@ -550,6 +597,7 @@ public class MainActivity extends BridgeActivity {
 ```
 
 **2. AndroidManifest.xml**
+
 ```xml
 <manifest>
     <application
@@ -561,11 +609,12 @@ public class MainActivity extends BridgeActivity {
 ```
 
 **3. build.gradle (app)**
+
 ```gradle
 android {
     namespace 'com.coffee.admin'
     compileSdk 33                        ← Версия SDK для компиляции
-    
+
     defaultConfig {
         applicationId "com.coffee.admin"
         minSdk 21                        ← Минимальная версия Android
@@ -577,6 +626,7 @@ android {
 ```
 
 **4. Ресурсы (res/)**
+
 - strings.xml - текстовые строки
 - colors.xml - цвета темы
 - styles.xml - стили приложения
@@ -586,11 +636,13 @@ android {
 ## 🚀 БЫСТРЫЕ ДЕЙСТВИЯ
 
 ### Открыть проект:
+
 ```bash
 npx cap open android
 ```
 
 ### Пересобрать после изменений в web:
+
 ```bash
 # 1. Обновите Angular
 npm run build
@@ -603,6 +655,7 @@ Build → Rebuild Project
 ```
 
 ### Создать подписанный APK:
+
 ```
 Build → Generate Signed Bundle / APK → APK
 → Выберите keystore
@@ -615,6 +668,7 @@ Build → Generate Signed Bundle / APK → APK
 ## 📱 СОЗДАНИЕ ЭМУЛЯТОРА
 
 **В Android Studio:**
+
 ```
 1. Tools → Device Manager
 2. Нажмите "+" (Create device)
@@ -629,6 +683,7 @@ Build → Generate Signed Bundle / APK → APK
 ```
 
 **Рекомендуемые эмуляторы:**
+
 - Pixel 5 (API 33) - современный
 - Pixel 3a (API 29) - средний
 - Nexus 5X (API 21) - минимальный
@@ -662,11 +717,11 @@ Build → Generate Signed Bundle / APK → APK
 
 ### 1. Используйте горячие клавиши:
 
-| Действие | macOS | Windows/Linux |
-|----------|-------|---------------|
-| Запустить | Ctrl + R | Shift + F10 |
-| Отладка | Ctrl + D | Shift + F9 |
-| Build | Cmd + F9 | Ctrl + F9 |
+| Действие    | macOS           | Windows/Linux    |
+| ----------- | --------------- | ---------------- |
+| Запустить   | Ctrl + R        | Shift + F10      |
+| Отладка     | Ctrl + D        | Shift + F9       |
+| Build       | Cmd + F9        | Ctrl + F9        |
 | Sync Gradle | Cmd + Shift + O | Ctrl + Shift + O |
 
 ### 2. Включите Auto Import:
@@ -703,6 +758,7 @@ Resources:           ~700 KB
 ### Как уменьшить:
 
 **1. В build.gradle:**
+
 ```gradle
 buildTypes {
     release {
@@ -711,9 +767,11 @@ buildTypes {
     }
 }
 ```
+
 **Результат:** ~3.5 MB
 
 **2. Разделение по архитектуре:**
+
 ```gradle
 splits {
     abi {
@@ -723,6 +781,7 @@ splits {
     }
 }
 ```
+
 **Результат:** 2-3 APK по ~2 MB каждый
 
 ---
@@ -749,4 +808,3 @@ splits {
 
 **Дата:** 17 октября 2025  
 **Версия:** 1.0
-

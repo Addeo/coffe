@@ -35,83 +35,87 @@ export interface OrderStatusDialogData {
           Изменить статус заказа
         </mat-card-title>
       </mat-card-header>
-      
+
       <mat-card-content>
         <div class="order-info">
           <h3>{{ data.order.title }}</h3>
           <p><strong>Текущий статус:</strong> {{ getStatusDisplay(data.order.status) }}</p>
         </div>
-        
+
         <mat-form-field appearance="outline" class="status-select">
           <mat-label>Новый статус</mat-label>
           <mat-select [(ngModel)]="selectedStatus">
-            <mat-option 
-              *ngFor="let status of data.availableStatuses" 
+            <mat-option
+              *ngFor="let status of data.availableStatuses"
               [value]="status"
-              [disabled]="status === data.order.status">
+              [disabled]="status === data.order.status"
+            >
               <mat-icon [color]="getStatusColor(status)">{{ getStatusIcon(status) }}</mat-icon>
               {{ getStatusDisplay(status) }}
             </mat-option>
           </mat-select>
         </mat-form-field>
       </mat-card-content>
-      
+
       <mat-card-actions align="end">
         <button mat-button (click)="onCancel()">
           <mat-icon>cancel</mat-icon>
           Отмена
         </button>
-        <button 
-          mat-raised-button 
-          color="primary" 
+        <button
+          mat-raised-button
+          color="primary"
           (click)="onConfirm()"
-          [disabled]="!selectedStatus() || selectedStatus() === data.order.status">
+          [disabled]="!selectedStatus() || selectedStatus() === data.order.status"
+        >
           <mat-icon>check</mat-icon>
           Изменить
         </button>
       </mat-card-actions>
     </mat-card>
   `,
-  styles: [`
-    .status-dialog-card {
-      min-width: 400px;
-      max-width: 500px;
-    }
-    
-    .order-info {
-      margin-bottom: 20px;
-      padding: 16px;
-      background-color: #f5f5f5;
-      border-radius: 8px;
-    }
-    
-    .order-info h3 {
-      margin: 0 0 8px 0;
-      color: #333;
-    }
-    
-    .order-info p {
-      margin: 0;
-      color: #666;
-    }
-    
-    .status-select {
-      width: 100%;
-    }
-    
-    mat-card-actions {
-      padding: 16px;
-    }
-    
-    mat-card-actions button {
-      margin-left: 8px;
-    }
-  `]
+  styles: [
+    `
+      .status-dialog-card {
+        min-width: 400px;
+        max-width: 500px;
+      }
+
+      .order-info {
+        margin-bottom: 20px;
+        padding: 16px;
+        background-color: #f5f5f5;
+        border-radius: 8px;
+      }
+
+      .order-info h3 {
+        margin: 0 0 8px 0;
+        color: #333;
+      }
+
+      .order-info p {
+        margin: 0;
+        color: #666;
+      }
+
+      .status-select {
+        width: 100%;
+      }
+
+      mat-card-actions {
+        padding: 16px;
+      }
+
+      mat-card-actions button {
+        margin-left: 8px;
+      }
+    `,
+  ],
 })
 export class OrderStatusDialogComponent {
   private dialogRef = inject(MatDialogRef<OrderStatusDialogComponent>);
   data = inject<OrderStatusDialogData>(MAT_DIALOG_DATA);
-  
+
   selectedStatus = signal<OrderStatus | null>(null);
 
   getStatusDisplay(status: OrderStatus): string {

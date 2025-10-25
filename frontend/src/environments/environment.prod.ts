@@ -6,12 +6,6 @@ export const environment = {
   demo: false,
 };
 
-
-
-
-  
-  
-  
 // ВАЖНО: При сборке для Android/iOS убедитесь, что:
 // 1. Бэкенд запущен и доступен по указанному IP
 // 2. Порт 3001 открыт в firewall

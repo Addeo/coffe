@@ -1,4 +1,12 @@
-import { Component, inject, computed, signal, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  computed,
+  signal,
+  OnInit,
+  OnDestroy,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -109,16 +117,16 @@ export class NavigationComponent implements OnInit, OnDestroy {
     console.log('🧭 NavigationComponent initialized');
     console.log('🧭 Initial auth state:', this.isAuthenticated());
     console.log('🧭 Current user:', this.currentUser());
-    
+
     // Load notifications if authenticated
     if (this.isAuthenticated()) {
       this.loadNotifications();
       this.loadUnreadCount();
     }
-    
+
     // Force change detection to ensure UI updates
     this.cdr.detectChanges();
-    
+
     // Single delayed check to handle async auth state updates
     setTimeout(() => {
       console.log('🧭 Delayed auth state check:', this.isAuthenticated());
@@ -228,12 +236,12 @@ export class NavigationComponent implements OnInit, OnDestroy {
     if (this.isLoadingRoleSwitch()) return;
 
     this.isLoadingRoleSwitch.set(true);
-    
+
     this.authService.switchRole(newRole).subscribe({
       next: response => {
         console.log('✅ Role switched successfully in navigation');
         this.isLoadingRoleSwitch.set(false);
-        
+
         // Reload the page to reflect new role permissions
         window.location.reload();
       },

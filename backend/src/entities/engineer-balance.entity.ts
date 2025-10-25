@@ -58,4 +58,3 @@ export class EngineerBalance {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
-

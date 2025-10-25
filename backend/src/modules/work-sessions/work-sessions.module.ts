@@ -8,13 +8,9 @@ import { WorkSessionsController } from './work-sessions.controller';
 import { CalculationsModule } from '../расчеты/calculations.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([WorkSession, Order, Engineer]),
-    CalculationsModule,
-  ],
+  imports: [TypeOrmModule.forFeature([WorkSession, Order, Engineer]), CalculationsModule],
   controllers: [WorkSessionsController],
   providers: [WorkSessionsService],
   exports: [WorkSessionsService],
 })
 export class WorkSessionsModule {}
-

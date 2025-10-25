@@ -36,13 +36,7 @@ import {
 
           <div class="form-group">
             <label for="type">Тип выплаты *</label>
-            <select
-              id="type"
-              name="type"
-              [(ngModel)]="formData.type"
-              required
-              class="form-control"
-            >
+            <select id="type" name="type" [(ngModel)]="formData.type" required class="form-control">
               <option value="regular">Зарплата</option>
               <option value="advance">Аванс</option>
               <option value="bonus">Премия</option>
@@ -81,12 +75,7 @@ import {
           <div class="form-row">
             <div class="form-group">
               <label for="month">Месяц</label>
-              <select
-                id="month"
-                name="month"
-                [(ngModel)]="formData.month"
-                class="form-control"
-              >
+              <select id="month" name="month" [(ngModel)]="formData.month" class="form-control">
                 <option [value]="null">-</option>
                 <option *ngFor="let m of months; let i = index" [value]="i + 1">
                   {{ m }}
@@ -133,14 +122,8 @@ import {
           </div>
 
           <div class="form-actions">
-            <button type="button" class="btn-secondary" (click)="onCancel()">
-              Отмена
-            </button>
-            <button 
-              type="submit" 
-              class="btn-primary" 
-              [disabled]="!paymentForm.form.valid"
-            >
+            <button type="button" class="btn-secondary" (click)="onCancel()">Отмена</button>
+            <button type="submit" class="btn-primary" [disabled]="!paymentForm.form.valid">
               {{ isEdit ? 'Сохранить' : 'Создать' }}
             </button>
           </div>
@@ -148,153 +131,155 @@ import {
       </div>
     </div>
   `,
-  styles: [`
-    .payment-form-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
+  styles: [
+    `
+      .payment-form-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
 
-    .payment-form-modal {
-      background: white;
-      border-radius: 8px;
-      padding: 24px;
-      width: 90%;
-      max-width: 500px;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    }
+      .payment-form-modal {
+        background: white;
+        border-radius: 8px;
+        padding: 24px;
+        width: 90%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
 
-    .form-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid #e0e0e0;
-    }
+      .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e0e0e0;
+      }
 
-    .form-header h2 {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 600;
-      color: #333;
-    }
+      .form-header h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+      }
 
-    .btn-close {
-      background: transparent;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #999;
-      padding: 0;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 4px;
-      transition: all 0.3s;
-    }
+      .btn-close {
+        background: transparent;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #999;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: all 0.3s;
+      }
 
-    .btn-close:hover {
-      background: #f5f5f5;
-      color: #333;
-    }
+      .btn-close:hover {
+        background: #f5f5f5;
+        color: #333;
+      }
 
-    .form-group {
-      margin-bottom: 16px;
-    }
+      .form-group {
+        margin-bottom: 16px;
+      }
 
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
 
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      color: #555;
-    }
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #555;
+      }
 
-    .form-control {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 14px;
-      transition: border-color 0.3s;
-    }
+      .form-control {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
 
-    .form-control:focus {
-      outline: none;
-      border-color: #2196f3;
-    }
+      .form-control:focus {
+        outline: none;
+        border-color: #2196f3;
+      }
 
-    .form-control:disabled {
-      background: #f5f5f5;
-      cursor: not-allowed;
-    }
+      .form-control:disabled {
+        background: #f5f5f5;
+        cursor: not-allowed;
+      }
 
-    textarea.form-control {
-      resize: vertical;
-      font-family: inherit;
-    }
+      textarea.form-control {
+        resize: vertical;
+        font-family: inherit;
+      }
 
-    .form-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-      margin-top: 24px;
-      padding-top: 16px;
-      border-top: 1px solid #e0e0e0;
-    }
+      .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 24px;
+        padding-top: 16px;
+        border-top: 1px solid #e0e0e0;
+      }
 
-    .btn-primary,
-    .btn-secondary {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
+      .btn-primary,
+      .btn-secondary {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
 
-    .btn-primary {
-      background: #2196f3;
-      color: white;
-    }
+      .btn-primary {
+        background: #2196f3;
+        color: white;
+      }
 
-    .btn-primary:hover:not(:disabled) {
-      background: #1976d2;
-    }
+      .btn-primary:hover:not(:disabled) {
+        background: #1976d2;
+      }
 
-    .btn-primary:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
+      .btn-primary:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
 
-    .btn-secondary {
-      background: #f5f5f5;
-      color: #333;
-    }
+      .btn-secondary {
+        background: #f5f5f5;
+        color: #333;
+      }
 
-    .btn-secondary:hover {
-      background: #e0e0e0;
-    }
-  `],
+      .btn-secondary:hover {
+        background: #e0e0e0;
+      }
+    `,
+  ],
 })
 export class PaymentFormComponent implements OnInit {
   @Input() engineerId!: number;
@@ -314,8 +299,18 @@ export class PaymentFormComponent implements OnInit {
   currentYear = new Date().getFullYear();
 
   months = [
-    'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-    'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+    'Январь',
+    'Февраль',
+    'Март',
+    'Апрель',
+    'Май',
+    'Июнь',
+    'Июль',
+    'Август',
+    'Сентябрь',
+    'Октябрь',
+    'Ноябрь',
+    'Декабрь',
   ];
 
   ngOnInit(): void {
@@ -333,4 +328,3 @@ export class PaymentFormComponent implements OnInit {
     this.cancel.emit();
   }
 }
-

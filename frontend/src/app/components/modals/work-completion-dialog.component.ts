@@ -199,9 +199,7 @@ export interface WorkCompletionDialogData {
       </mat-dialog-content>
 
       <mat-dialog-actions align="end">
-        <button mat-button (click)="onCancel()" [disabled]="isLoading()">
-          Отмена
-        </button>
+        <button mat-button (click)="onCancel()" [disabled]="isLoading()">Отмена</button>
         <button
           mat-raised-button
           color="primary"
@@ -483,4 +481,3 @@ export class WorkCompletionDialogComponent implements OnInit {
     this.dialogRef.close();
   }
 }
-

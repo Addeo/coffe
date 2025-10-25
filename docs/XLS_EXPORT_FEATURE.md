@@ -130,4 +130,3 @@ To test the export functionality:
    - All data is present and formatted correctly
    - Column widths are appropriate
    - Calculations are accurate (especially profit)
-

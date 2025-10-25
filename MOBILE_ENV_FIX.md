@@ -8,6 +8,7 @@
 ## 🎯 Проблема
 
 Мобильное приложение использовало неправильный IP адрес для подключения к backend API:
+
 - ❌ **Было:** `http://192.168.0.25:3001/api`
 - ✅ **Стало:** `http://192.144.12.102:3001/api`
 
@@ -20,7 +21,7 @@
 ```typescript
 export const environment = {
   production: true,
-  apiUrl: 'http://192.144.12.102:3001/api',  // ✅ Правильный IP
+  apiUrl: 'http://192.144.12.102:3001/api', // ✅ Правильный IP
   authUrl: 'http://192.144.12.102:3001/api/auth/login',
   appName: 'Coffee Admin Mobile',
   demo: false,
@@ -32,7 +33,7 @@ export const environment = {
 ```typescript
 export const environment = {
   production: true,
-  apiUrl: 'http://192.144.12.102:3001/api',  // ✅ Правильный IP
+  apiUrl: 'http://192.144.12.102:3001/api', // ✅ Правильный IP
   authUrl: 'http://192.144.12.102:3001/api/auth/login',
   appName: 'Coffee Admin Panel',
   demo: false,
@@ -101,6 +102,7 @@ cd frontend && npm run build:android && cd android && ./gradlew assembleDebug
 **APK файл:** `CoffeeAdmin-mobile-fixed.apk` (4.9 MB)
 
 **Что изменилось:**
+
 - ✅ Правильный backend URL: `http://192.144.12.102:3001/api`
 - ✅ Отдельная конфигурация для мобильных устройств
 - ✅ Корректное имя приложения: "Coffee Admin Mobile"
@@ -109,11 +111,11 @@ cd frontend && npm run build:android && cd android && ./gradlew assembleDebug
 
 ## 🔐 Тестовые данные
 
-| Роль | Email | Пароль |
-|------|-------|--------|
-| Администратор | admin@coffee.com | password |
-| Менеджер | manager@coffee.com | password |
-| Инженер | engineer@coffee.com | password |
+| Роль          | Email               | Пароль   |
+| ------------- | ------------------- | -------- |
+| Администратор | admin@coffee.com    | password |
+| Менеджер      | manager@coffee.com  | password |
+| Инженер       | engineer@coffee.com | password |
 
 ---
 

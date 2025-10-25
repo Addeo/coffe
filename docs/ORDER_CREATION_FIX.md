@@ -5,18 +5,22 @@
 The 500 Internal Server Error when creating orders was caused by:
 
 ### 1. **Database-Specific Query Issue**
+
 The `findAvailableEngineer()` method used `JSON_EXTRACT()` SQL function which:
+
 - Works differently in SQLite (development) vs MySQL (production)
 - Was causing query failures on the production MySQL database
 - This broke the auto-assignment feature, which in turn broke order creation
 
 ### 2. **Insufficient Error Handling**
+
 - Auto-assignment errors were propagating up and breaking the entire order creation
 - The error interceptor was hiding the actual error details in production
 
 ## Fixes Applied
 
 ### 1. **Simplified Auto-Assignment Logic** (`orders.service.ts`)
+
 ```typescript
 // Removed problematic JSON_EXTRACT queries
 // Now uses simple ORDER BY COUNT(orders) approach
@@ -27,6 +31,7 @@ private async findAvailableEngineer(): Promise<User | null> {
 ```
 
 ### 2. **Added Error Handling for Auto-Assignment** (`orders.service.ts`)
+
 ```typescript
 // Wrapped auto-assignment in try-catch so it doesn't break order creation
 try {
@@ -41,6 +46,7 @@ try {
 ```
 
 ### 3. **Added Global Validation Pipe** (`main.ts`)
+
 ```typescript
 // Added ValidationPipe for better request validation
 app.useGlobalPipes(
@@ -51,27 +57,34 @@ app.useGlobalPipes(
     transformOptions: {
       enableImplicitConversion: true,
     },
-  }),
+  })
 );
 ```
 
 ### 4. **Enhanced Error Details in Development** (`error.interceptor.ts`)
+
 ```typescript
 // Now provides more detailed error information in development mode
-const isDevelopment = process.env.NODE_ENV === 'development' || process.env.NODE_ENV !== 'production';
+const isDevelopment =
+  process.env.NODE_ENV === 'development' || process.env.NODE_ENV !== 'production';
 
-return throwError(() =>
-  new HttpException({
-    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-    message: 'Internal server error',
-    error: isDevelopment ? error.message : undefined,
-    stack: isDevelopment ? error.stack : undefined,
-    details: isDevelopment ? { name: error.name, ...error } : undefined,
-  }, HttpStatus.INTERNAL_SERVER_ERROR)
+return throwError(
+  () =>
+    new HttpException(
+      {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error',
+        error: isDevelopment ? error.message : undefined,
+        stack: isDevelopment ? error.stack : undefined,
+        details: isDevelopment ? { name: error.name, ...error } : undefined,
+      },
+      HttpStatus.INTERNAL_SERVER_ERROR
+    )
 );
 ```
 
 ### 5. **Added Organization Validation** (`orders.service.ts`)
+
 ```typescript
 // Validate organization exists before creating order
 const organization = await this.organizationsRepository.findOne({
@@ -85,12 +98,14 @@ if (!organization) {
 ## Deployment Instructions
 
 ### Option 1: Using Deployment Script
+
 ```bash
 cd /Users/sergejkosilov/WebstormProjects/new\ goal/coffe
 ./deploy-backend.sh
 ```
 
 ### Option 2: Manual Deployment
+
 ```bash
 # 1. Build the backend
 cd /Users/sergejkosilov/WebstormProjects/new\ goal/coffe/backend
@@ -108,6 +123,7 @@ pm2 logs coffee-backend --lines 50
 ```
 
 ### Option 3: Using Docker (if configured)
+
 ```bash
 cd /Users/sergejkosilov/WebstormProjects/new\ goal/coffe
 docker-compose -f docker-compose.prod.yml up -d --build backend
@@ -116,17 +132,20 @@ docker-compose -f docker-compose.prod.yml up -d --build backend
 ## Verification
 
 ### 1. Run the diagnostic script after deployment:
+
 ```bash
 ./diagnose-order-creation.sh
 ```
 
 Expected output should show:
+
 ```
 5. Testing order creation WITHOUT files...
    ✅ Order creation SUCCESS (without files)
 ```
 
 ### 2. Test with curl:
+
 ```bash
 curl 'http://192.144.12.102:3001/api/orders' \
   -H 'Authorization: Bearer YOUR_TOKEN' \
@@ -144,6 +163,7 @@ curl 'http://192.144.12.102:3001/api/orders' \
 ```
 
 ### 3. Check server logs:
+
 ```bash
 ssh root@192.144.12.102 "pm2 logs coffee-backend --lines 20"
 ```
@@ -175,4 +195,3 @@ pm2 restart coffee-backend
 ```
 
 Or restore from backup if available.
-

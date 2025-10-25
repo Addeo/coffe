@@ -60,7 +60,7 @@ export interface Order {
   plannedStartDate?: Date;
   actualStartDate?: Date;
   completionDate?: Date;
-  
+
   // Work execution details
   workActNumber?: string; // Номер Акта выполненных работ
   workStartTime?: Date; // Время начала работ
@@ -72,7 +72,7 @@ export interface Order {
   comments?: string; // Дополнительная информация по заявке
   isIncomplete?: boolean; // Отметка "!" для незавершенных работ
   completionLockedAt?: Date; // Дата блокировки редактирования (24 часа после завершения)
-  
+
   createdAt: Date;
   updatedAt: Date;
 }

@@ -28,7 +28,7 @@ export class AuthGuard implements CanActivate {
         currentUser: this.authService.currentUser(),
         activeRole: this.authService.activeRole(),
       });
-      
+
       // Convert string roles to UserRole enum
       const userRoles = requiredRoles.map(role => {
         switch (role.toLowerCase()) {
@@ -43,10 +43,10 @@ export class AuthGuard implements CanActivate {
             return role as UserRole;
         }
       });
-      
+
       console.log('🔐 AuthGuard: Converted roles:', userRoles);
       console.log('🔐 AuthGuard: hasAnyRole result:', this.authService.hasAnyRole(userRoles));
-      
+
       if (!this.authService.hasAnyRole(userRoles)) {
         console.log('🔐 AuthGuard: Access denied, redirecting to unauthorized');
         // Redirect to unauthorized page with role information

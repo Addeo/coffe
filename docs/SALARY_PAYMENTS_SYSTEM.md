@@ -3,6 +3,7 @@
 ## 📋 Обзор
 
 Комплексная система для отслеживания начислений и фактических выплат зарплаты инженерам, включающая:
+
 - История всех выплат (зарплата, авансы, премии, корректировки)
 - Баланс каждого инженера (начислено vs выплачено)
 - Частичные выплаты и авансы
@@ -15,55 +16,60 @@
 ### Основные сущности
 
 #### 1. **SalaryPayment** - Выплата
+
 Представляет одну фактическую выплату инженеру.
 
 ```typescript
 {
   id: number;
   engineerId: number;
-  salaryCalculationId: number | null;  // Связь с начислением (может быть null для авансов)
-  month: number | null;                 // Период выплаты
+  salaryCalculationId: number | null; // Связь с начислением (может быть null для авансов)
+  month: number | null; // Период выплаты
   year: number | null;
-  amount: number;                       // Сумма выплаты
+  amount: number; // Сумма выплаты
   type: 'regular' | 'advance' | 'bonus' | 'adjustment';
   method: 'cash' | 'bank_transfer' | 'card' | 'other';
   status: 'pending' | 'completed' | 'cancelled';
-  paymentDate: Date;                    // Фактическая дата выплаты
+  paymentDate: Date; // Фактическая дата выплаты
   notes: string;
-  paidById: number;                     // Кто выплатил
-  documentNumber: string;               // Номер документа
+  paidById: number; // Кто выплатил
+  documentNumber: string; // Номер документа
 }
 ```
 
 **Типы выплат:**
+
 - `regular` - Обычная зарплата по начислению
 - `advance` - Аванс (выплата вперед)
 - `bonus` - Премия
 - `adjustment` - Корректировка (может быть отрицательной)
 
 #### 2. **EngineerBalance** - Баланс инженера
+
 Агрегированная информация о балансе инженера.
 
 ```typescript
 {
   id: number;
-  engineerId: number;                   // Уникальный для каждого инженера
-  totalAccrued: number;                 // Всего начислено
-  totalPaid: number;                    // Всего выплачено
-  balance: number;                      // Текущий баланс (+ долг, - переплата)
-  lastAccrualDate: Date;                // Дата последнего начисления
-  lastPaymentDate: Date;                // Дата последней выплаты
-  lastCalculatedAt: Date;               // Дата последнего пересчета
+  engineerId: number; // Уникальный для каждого инженера
+  totalAccrued: number; // Всего начислено
+  totalPaid: number; // Всего выплачено
+  balance: number; // Текущий баланс (+ долг, - переплата)
+  lastAccrualDate: Date; // Дата последнего начисления
+  lastPaymentDate: Date; // Дата последней выплаты
+  lastCalculatedAt: Date; // Дата последнего пересчета
 }
 ```
 
 **Расчет баланса:**
+
 - `balance = totalAccrued - totalPaid`
 - Положительный баланс = должны инженеру
 - Отрицательный баланс = переплата (инженер должен вернуть)
 - Нулевой баланс = все погашено
 
 #### 3. **SalaryCalculation** (обновлено)
+
 Добавлена связь с выплатами:
 
 ```typescript
@@ -75,6 +81,7 @@
 ```
 
 Статус автоматически обновляется:
+
 - `paid` - когда сумма всех выплат >= totalAmount
 
 ---
@@ -98,6 +105,7 @@
 ```
 
 **Автоматические действия:**
+
 1. ✅ Создается запись выплаты
 2. ✅ Обновляется баланс инженера
 3. ✅ Обновляется статус начисления (если привязано)
@@ -217,39 +225,47 @@ Response: EngineerBalanceDto[]
 ## 🎨 Frontend компоненты
 
 ### 1. EngineerBalanceCardComponent
+
 Карточка баланса инженера.
 
 **Отображает:**
+
 - Всего начислено
 - Всего выплачено
 - Текущий баланс (с цветовой индикацией)
 - Даты последних операций
 
 ### 2. PaymentListComponent
+
 Список выплат с фильтрами.
 
 **Функции:**
+
 - Просмотр истории выплат
 - Добавление новой выплаты
 - Редактирование выплаты
 - Удаление выплаты
 
 ### 3. PaymentFormComponent
+
 Форма создания/редактирования выплаты.
 
 **Поля:**
-- Сумма *
-- Тип выплаты *
-- Способ оплаты *
-- Дата выплаты *
+
+- Сумма \*
+- Тип выплаты \*
+- Способ оплаты \*
+- Дата выплаты \*
 - Месяц/год (для привязки к периоду)
 - Номер документа
 - Комментарий
 
 ### 4. EngineerPaymentsPageComponent
+
 Страница управления выплатами инженера.
 
 **Включает:**
+
 - Карточку баланса
 - Список начислений с информацией о выплатах
 - Историю выплат
@@ -278,11 +294,11 @@ CREATE TABLE salary_payments (
   paid_by INT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  
+
   FOREIGN KEY (engineer_id) REFERENCES engineers(id) ON DELETE CASCADE,
   FOREIGN KEY (salary_calculation_id) REFERENCES salary_calculations(id) ON DELETE SET NULL,
   FOREIGN KEY (paid_by) REFERENCES users(id) ON DELETE SET NULL,
-  
+
   INDEX idx_engineer_payment_date (engineer_id, payment_date),
   INDEX idx_payment_date (payment_date),
   INDEX idx_status (status),
@@ -304,7 +320,7 @@ CREATE TABLE engineer_balances (
   last_calculated_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  
+
   FOREIGN KEY (engineer_id) REFERENCES engineers(id) ON DELETE CASCADE,
   INDEX idx_engineer (engineer_id)
 );
@@ -368,12 +384,14 @@ salaryPaymentService.getEngineerBalanceDetail(5).subscribe(detail => {
 ### Пример 4: Получение истории выплат за месяц
 
 ```typescript
-salaryPaymentService.getEngineerPayments(5, {
-  year: 2025,
-  month: 10,
-}).subscribe(payments => {
-  console.log('October payments:', payments);
-});
+salaryPaymentService
+  .getEngineerPayments(5, {
+    year: 2025,
+    month: 10,
+  })
+  .subscribe(payments => {
+    console.log('October payments:', payments);
+  });
 ```
 
 ---
@@ -383,6 +401,7 @@ salaryPaymentService.getEngineerPayments(5, {
 ### 1. Пересчет баланса
 
 Баланс пересчитывается автоматически:
+
 - При создании выплаты
 - При обновлении выплаты
 - При удалении выплаты
@@ -395,16 +414,16 @@ private async recalculateEngineerBalance(engineerId: number) {
   const calculations = await this.salaryCalculationRepository.find({
     where: { engineerId, status: CalculationStatus.CALCULATED }
   });
-  
+
   const totalAccrued = calculations.reduce((sum, c) => sum + c.totalAmount, 0);
-  
+
   // 2. Получить все выплаты (status = COMPLETED)
   const payments = await this.salaryPaymentRepository.find({
     where: { engineerId, status: PaymentStatus.COMPLETED }
   });
-  
+
   const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-  
+
   // 3. Обновить баланс
   balance.totalAccrued = totalAccrued;
   balance.totalPaid = totalPaid;
@@ -422,13 +441,13 @@ private async updateCalculationStatus(calculationId: number) {
   const calculation = await this.salaryCalculationRepository.findOne({
     where: { id: calculationId }
   });
-  
+
   const payments = await this.salaryPaymentRepository.find({
     where: { salaryCalculationId: calculationId, status: PaymentStatus.COMPLETED }
   });
-  
+
   const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-  
+
   // Если выплачено >= начислено → статус PAID
   if (totalPaid >= calculation.totalAmount) {
     calculation.status = CalculationStatus.PAID;
@@ -444,24 +463,24 @@ private async updateCalculationStatus(calculationId: number) {
 ### Отчет 1: Балансы всех инженеров
 
 ```typescript
-GET /api/salary-payments/balances
-
-[
-  {
-    engineerName: "Иванов Иван",
-    totalAccrued: 240000,
-    totalPaid: 220000,
-    balance: 20000,  // Должны инженеру
-    lastPaymentDate: "2025-10-15"
-  },
-  {
-    engineerName: "Петров Петр",
-    totalAccrued: 180000,
-    totalPaid: 190000,
-    balance: -10000,  // Переплата
-    lastPaymentDate: "2025-10-10"
-  }
-]
+GET / api / salary -
+  payments /
+    balances[
+      ({
+        engineerName: 'Иванов Иван',
+        totalAccrued: 240000,
+        totalPaid: 220000,
+        balance: 20000, // Должны инженеру
+        lastPaymentDate: '2025-10-15',
+      },
+      {
+        engineerName: 'Петров Петр',
+        totalAccrued: 180000,
+        totalPaid: 190000,
+        balance: -10000, // Переплата
+        lastPaymentDate: '2025-10-10',
+      })
+    ];
 ```
 
 ### Отчет 2: Выплаты за период
@@ -524,6 +543,7 @@ GET /api/salary-payments/balance/5/detail
 ### Аудит
 
 Все операции логируются:
+
 - Кто создал выплату (paidById)
 - Когда создана (createdAt)
 - Когда обновлена (updatedAt)
@@ -593,9 +613,9 @@ ng build --configuration production
 ## 📞 Поддержка
 
 При возникновении вопросов или проблем:
+
 1. Проверьте логи: `backend/server.log`
 2. Проверьте состояние базы данных
 3. Проверьте права доступа пользователя
 
 **Система готова к использованию!** 🎉
-

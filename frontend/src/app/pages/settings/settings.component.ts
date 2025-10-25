@@ -122,11 +122,15 @@ export class SettingsComponent implements OnInit {
 
   exportSettings() {
     // TODO: Implement settings export
-    this.snackBar.open('Функция экспорта настроек скоро будет доступна', 'Закрыть', { duration: 2000 });
+    this.snackBar.open('Функция экспорта настроек скоро будет доступна', 'Закрыть', {
+      duration: 2000,
+    });
   }
 
   importSettings() {
     // TODO: Implement settings import
-    this.snackBar.open('Функция импорта настроек скоро будет доступна', 'Закрыть', { duration: 2000 });
+    this.snackBar.open('Функция импорта настроек скоро будет доступна', 'Закрыть', {
+      duration: 2000,
+    });
   }
 }

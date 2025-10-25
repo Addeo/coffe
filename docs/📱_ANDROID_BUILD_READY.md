@@ -56,6 +56,7 @@
 ## 📝 ИНФОРМАЦИЯ О ПРИЛОЖЕНИИ
 
 ### Идентификаторы:
+
 ```
 App ID:        com.coffee.admin
 App Name:      Coffee Admin
@@ -65,6 +66,7 @@ Target SDK:    33 (Android 13)
 ```
 
 ### Что включено:
+
 - ✅ Все функции веб-версии
 - ✅ Экспорт в Excel (только для ADMIN)
 - ✅ Графики и статистика (3 варианта на /orders)
@@ -75,6 +77,7 @@ Target SDK:    33 (Android 13)
 - ✅ Offline cache (частично)
 
 ### Технологии:
+
 - Angular 17
 - Ionic 7
 - Capacitor 5
@@ -87,6 +90,7 @@ Target SDK:    33 (Android 13)
 ## ⚙️ КОНФИГУРАЦИЯ
 
 ### capacitor.config.json:
+
 ```json
 {
   "appId": "com.coffee.admin",
@@ -99,6 +103,7 @@ Target SDK:    33 (Android 13)
 ```
 
 ### Права приложения (AndroidManifest.xml):
+
 - INTERNET - для API запросов
 - WRITE_EXTERNAL_STORAGE - для экспорта файлов
 - READ_EXTERNAL_STORAGE - для чтения файлов
@@ -123,11 +128,13 @@ cd android
 ```
 
 **Или одной командой:**
+
 ```bash
 npm run build:android
 ```
 
 ### Результат:
+
 ```
 BUILD SUCCESSFUL in 6s
 85 actionable tasks: 24 executed, 61 up-to-date
@@ -138,17 +145,21 @@ BUILD SUCCESSFUL in 6s
 ## 📦 ТИПЫ СБОРОК
 
 ### Debug (текущая) - для тестирования
+
 ```bash
 ./gradlew assembleDebug
 ```
+
 **Файл:** `app-debug.apk`
 **Подпись:** Debug keystore
 **Можно:** Устанавливать на любые устройства для тестирования
 
 ### Release - для production
+
 ```bash
 ./gradlew assembleRelease
 ```
+
 **Файл:** `app-release.apk`
 **Подпись:** Требуется release keystore
 **Можно:** Публиковать в Google Play
@@ -160,12 +171,14 @@ BUILD SUCCESSFUL in 6s
 ### Для публикации в Google Play:
 
 1. **Создайте release keystore:**
+
    ```bash
    keytool -genkey -v -keystore coffee-admin-release.keystore \
      -alias coffee-admin -keyalg RSA -keysize 2048 -validity 10000
    ```
 
 2. **Добавьте в `android/key.properties`:**
+
    ```properties
    storePassword=your-password
    keyPassword=your-password
@@ -174,6 +187,7 @@ BUILD SUCCESSFUL in 6s
    ```
 
 3. **Обновите `android/app/build.gradle`:**
+
    ```gradle
    signingConfigs {
        release {
@@ -186,6 +200,7 @@ BUILD SUCCESSFUL in 6s
    ```
 
 4. **Соберите release:**
+
    ```bash
    ./gradlew assembleRelease
    ```
@@ -229,6 +244,7 @@ jarsigner -verify -verbose -certs CoffeeAdmin-debug.apk
 ### Проблема: "BUILD FAILED"
 
 **Решение:**
+
 ```bash
 # Очистите build
 cd frontend/android
@@ -241,6 +257,7 @@ cd frontend/android
 ### Проблема: "SDK not found"
 
 **Решение:**
+
 ```bash
 # Установите Android SDK через Android Studio
 # Или установите переменную окружения:
@@ -251,6 +268,7 @@ export PATH=$PATH:$ANDROID_HOME/platform-tools
 ### Проблема: "Gradle wrapper not found"
 
 **Решение:**
+
 ```bash
 cd frontend/android
 gradle wrapper
@@ -259,6 +277,7 @@ gradle wrapper
 ### Проблема: APK не устанавливается
 
 **Решение:**
+
 - Включите "Установка из неизвестных источников"
 - Проверьте минимальную версию Android (5.0+)
 - Проверьте подпись APK
@@ -333,6 +352,7 @@ gradle wrapper
 ## 🎯 БЫСТРЫЕ КОМАНДЫ
 
 ### Пересобрать APK:
+
 ```bash
 cd /Users/sergejkosilov/WebstormProjects/new\ goal/coffe/frontend
 npm run build:android
@@ -341,21 +361,25 @@ cd android
 ```
 
 ### Открыть в Android Studio:
+
 ```bash
 npm run open:android
 ```
 
 ### Установить на подключённое устройство:
+
 ```bash
 adb install CoffeeAdmin-debug.apk
 ```
 
 ### Удалить с устройства:
+
 ```bash
 adb uninstall com.coffee.admin
 ```
 
 ### Посмотреть логи:
+
 ```bash
 adb logcat | grep "Coffee"
 ```
@@ -369,11 +393,13 @@ adb logcat | grep "Coffee"
 ```bash
 ./gradlew bundleRelease
 ```
+
 Создаст `.aab` файл вместо `.apk`
 
 ### Оптимизация размера:
 
 В `android/app/build.gradle` добавьте:
+
 ```gradle
 android {
     buildTypes {
@@ -425,12 +451,14 @@ productFlavors {
 ## 📞 ПОДДЕРЖКА
 
 **Если возникли проблемы:**
+
 1. Проверьте логи: `adb logcat`
 2. Проверьте версию Android (минимум 5.0)
 3. Включите режим разработчика
 4. Разрешите установку из неизвестных источников
 
 **Для вопросов:**
+
 - Смотрите [MOBILE_BUILD_README.md](frontend/MOBILE_BUILD_README.md)
 - Документация Capacitor: https://capacitorjs.com
 - Документация Ionic: https://ionicframework.com
@@ -443,4 +471,3 @@ productFlavors {
 **Версия:** 0.0.0  
 **Build:** Debug  
 **Тип:** APK
-

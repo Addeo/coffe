@@ -48,7 +48,7 @@ export const httpRequestInterceptor: HttpInterceptorFn = (req, next) => {
       if (error.status === 401) {
         // Проверяем, что это не сам запрос на логин
         const isLoginRequest = req.url.includes('/auth/login');
-        
+
         if (isLoginRequest) {
           // Для запроса логина показываем ошибку о неверных учетных данных
           errorMessage = 'Неверные учетные данные';
@@ -57,7 +57,7 @@ export const httpRequestInterceptor: HttpInterceptorFn = (req, next) => {
           // Для всех других запросов с 401 - выходим из системы
           errorMessage = 'Сессия истекла. Пожалуйста, войдите снова.';
           toastService.warning(errorMessage);
-          
+
           // Выходим из системы и перенаправляем на страницу логина
           setTimeout(() => {
             authService.logout();

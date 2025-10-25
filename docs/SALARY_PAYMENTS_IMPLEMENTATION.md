@@ -7,17 +7,18 @@
 ### ✅ Backend (NestJS + TypeORM)
 
 #### 1. **Entities (Сущности)**
+
 - `SalaryPayment` - выплата зарплаты
   - Типы: обычная, аванс, премия, корректировка
   - Способы: наличные, перевод, карта
   - Полный аудит (кто, когда, сколько)
-  
 - `EngineerBalance` - баланс инженера
   - Всего начислено
   - Всего выплачено
   - Текущий баланс (+ долг, - переплата)
 
 #### 2. **DTOs (Data Transfer Objects)**
+
 - `CreateSalaryPaymentDto` - создание выплаты
 - `UpdateSalaryPaymentDto` - обновление выплаты
 - `SalaryPaymentDto` - данные выплаты
@@ -25,6 +26,7 @@
 - `EngineerBalanceDetailDto` - детальный баланс с историей
 
 #### 3. **Services (Сервисы)**
+
 - `SalaryPaymentService` - бизнес-логика
   - Создание/обновление/удаление выплат
   - Автоматический пересчет балансов
@@ -33,6 +35,7 @@
   - Получение балансов всех инженеров
 
 #### 4. **Controllers (Контроллеры)**
+
 - `SalaryPaymentController` - REST API
   - `POST /api/salary-payments` - создать выплату
   - `GET /api/salary-payments/engineer/:id` - выплаты инженера
@@ -44,15 +47,18 @@
   - `DELETE /api/salary-payments/:id` - удалить выплату
 
 #### 5. **Module (Модуль)**
+
 - `PaymentsModule` - интегрирован в `AppModule`
 - Все зависимости настроены
 
 ### ✅ Frontend (Angular 18 + Signals)
 
 #### 1. **Services**
+
 - `SalaryPaymentService` - HTTP клиент для работы с API
 
 #### 2. **Components (Standalone)**
+
 - `EngineerBalanceCardComponent` - карточка баланса
   - Отображение начислено/выплачено/баланс
   - Цветовая индикация (долг/переплата)
@@ -77,6 +83,7 @@
 ### ✅ Database (MySQL/SQLite)
 
 #### 1. **Таблицы**
+
 - `salary_payments` - выплаты
   - Индексы для быстрого поиска
   - Foreign keys для целостности
@@ -87,11 +94,13 @@
   - Агрегированные данные
 
 #### 2. **Связи**
+
 - `SalaryCalculation` → `OneToMany` → `SalaryPayment`
 - `Engineer` → `OneToOne` → `EngineerBalance`
 - Каскадное удаление настроено
 
 #### 3. **Миграции**
+
 - SQL скрипты для MySQL и SQLite
 - Безопасное создание таблиц
 
@@ -176,16 +185,17 @@ docs/
    - ✅ Откатывается статус начисления (если нужно)
 
 3. **Пересчет баланса:**
+
    ```typescript
-   totalAccrued = SUM(salary_calculations.total_amount)
-   totalPaid = SUM(salary_payments.amount)
-   balance = totalAccrued - totalPaid
+   totalAccrued = SUM(salary_calculations.total_amount);
+   totalPaid = SUM(salary_payments.amount);
+   balance = totalAccrued - totalPaid;
    ```
 
 4. **Обновление статуса начисления:**
    ```typescript
    if (totalPaid >= calculation.totalAmount) {
-     calculation.status = 'paid'
+     calculation.status = 'paid';
    }
    ```
 
@@ -415,4 +425,3 @@ curl http://localhost:3000/api/salary-payments/engineer/1 \
 **Дата:** 12 октября 2025  
 **Версия:** 1.0.0  
 **Статус:** ✅ Готово к продакшену
-

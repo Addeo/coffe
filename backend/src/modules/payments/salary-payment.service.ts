@@ -1,7 +1,12 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { SalaryPayment, PaymentType, PaymentMethod, PaymentStatus } from '../../entities/salary-payment.entity';
+import {
+  SalaryPayment,
+  PaymentType,
+  PaymentMethod,
+  PaymentStatus,
+} from '../../entities/salary-payment.entity';
 import { EngineerBalance } from '../../entities/engineer-balance.entity';
 import { SalaryCalculation, CalculationStatus } from '../../entities/salary-calculation.entity';
 import { Engineer } from '../../entities/engineer.entity';
@@ -24,7 +29,7 @@ export class SalaryPaymentService {
     @InjectRepository(SalaryCalculation)
     private salaryCalculationRepository: Repository<SalaryCalculation>,
     @InjectRepository(Engineer)
-    private engineerRepository: Repository<Engineer>,
+    private engineerRepository: Repository<Engineer>
   ) {}
 
   /**
@@ -32,7 +37,7 @@ export class SalaryPaymentService {
    */
   async createPayment(
     createDto: CreateSalaryPaymentDto,
-    paidById: number,
+    paidById: number
   ): Promise<SalaryPaymentDto> {
     // Проверяем существование инженера
     const engineer = await this.engineerRepository.findOne({
@@ -86,7 +91,9 @@ export class SalaryPaymentService {
     // Обновляем баланс инженера
     await this.updateEngineerBalance(createDto.engineerId);
 
-    this.logger.log(`Payment created: ${savedPayment.id} for engineer ${createDto.engineerId}, amount: ${createDto.amount}`);
+    this.logger.log(
+      `Payment created: ${savedPayment.id} for engineer ${createDto.engineerId}, amount: ${createDto.amount}`
+    );
 
     return this.mapToDto(savedPayment, engineer.user?.firstName, engineer.user?.lastName);
   }
@@ -101,7 +108,7 @@ export class SalaryPaymentService {
       month?: number;
       type?: PaymentType;
       limit?: number;
-    },
+    }
   ): Promise<SalaryPaymentDto[]> {
     const query = this.salaryPaymentRepository
       .createQueryBuilder('payment')
@@ -136,8 +143,8 @@ export class SalaryPaymentService {
         p.engineer?.user?.firstName,
         p.engineer?.user?.lastName,
         p.paidBy?.firstName,
-        p.paidBy?.lastName,
-      ),
+        p.paidBy?.lastName
+      )
     );
   }
 
@@ -157,8 +164,8 @@ export class SalaryPaymentService {
         p.engineer?.user?.firstName,
         p.engineer?.user?.lastName,
         p.paidBy?.firstName,
-        p.paidBy?.lastName,
-      ),
+        p.paidBy?.lastName
+      )
     );
   }
 
@@ -196,7 +203,11 @@ export class SalaryPaymentService {
 
     this.logger.log(`Payment updated: ${id}`);
 
-    return this.mapToDto(savedPayment, payment.engineer?.user?.firstName, payment.engineer?.user?.lastName);
+    return this.mapToDto(
+      savedPayment,
+      payment.engineer?.user?.firstName,
+      payment.engineer?.user?.lastName
+    );
   }
 
   /**
@@ -298,7 +309,7 @@ export class SalaryPaymentService {
           paidAmount,
           remainingAmount,
         };
-      }),
+      })
     );
 
     return {
@@ -318,7 +329,7 @@ export class SalaryPaymentService {
     });
 
     const balances = await Promise.all(
-      engineers.map(engineer => this.getEngineerBalance(engineer.id)),
+      engineers.map(engineer => this.getEngineerBalance(engineer.id))
     );
 
     return balances;
@@ -349,7 +360,7 @@ export class SalaryPaymentService {
     })[0];
 
     const lastPayment = payments.sort(
-      (a, b) => b.paymentDate.getTime() - a.paymentDate.getTime(),
+      (a, b) => b.paymentDate.getTime() - a.paymentDate.getTime()
     )[0];
 
     // Обновляем или создаем баланс
@@ -429,7 +440,7 @@ export class SalaryPaymentService {
     engineerFirstName?: string,
     engineerLastName?: string,
     paidByFirstName?: string,
-    paidByLastName?: string,
+    paidByLastName?: string
   ): SalaryPaymentDto {
     return {
       id: payment.id,
@@ -456,4 +467,3 @@ export class SalaryPaymentService {
     };
   }
 }
-

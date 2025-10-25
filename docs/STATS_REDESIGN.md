@@ -13,7 +13,7 @@
       Статистика заказов
     </mat-card-title>
   </mat-card-header>
-  
+
   <mat-card-content>
     <div class="stats-table">
       <!-- Статусы заказов -->
@@ -171,7 +171,7 @@ npm install chart.js ng2-charts --save
       Статистика заказов
     </mat-card-title>
   </mat-card-header>
-  
+
   <mat-card-content>
     <div class="charts-container">
       <!-- График по статусам (Donut Chart) -->
@@ -249,38 +249,42 @@ export class OrdersComponent {
   // Данные для графика статусов (Donut)
   statusChartData: ChartData<'doughnut'> = {
     labels: ['Ожидают', 'В обработке', 'В работе', 'На проверке', 'Завершено'],
-    datasets: [{
-      data: [
-        this.orderStats().waiting,
-        this.orderStats().processing,
-        this.orderStats().working,
-        this.orderStats().review,
-        this.orderStats().completed
-      ],
-      backgroundColor: [
-        '#FFA726', // Оранжевый
-        '#42A5F5', // Синий
-        '#66BB6A', // Зелёный
-        '#FFCA28', // Жёлтый
-        '#26A69A', // Бирюзовый
-      ],
-      borderWidth: 0
-    }]
+    datasets: [
+      {
+        data: [
+          this.orderStats().waiting,
+          this.orderStats().processing,
+          this.orderStats().working,
+          this.orderStats().review,
+          this.orderStats().completed,
+        ],
+        backgroundColor: [
+          '#FFA726', // Оранжевый
+          '#42A5F5', // Синий
+          '#66BB6A', // Зелёный
+          '#FFCA28', // Жёлтый
+          '#26A69A', // Бирюзовый
+        ],
+        borderWidth: 0,
+      },
+    ],
   };
 
   // Данные для графика источников (Bar)
   sourceChartData: ChartData<'bar'> = {
     labels: ['Вручную', 'Автоматически', 'Email', 'API'],
-    datasets: [{
-      label: 'Количество заказов',
-      data: [
-        this.orderStats().bySource.manual,
-        this.orderStats().bySource.automatic,
-        this.orderStats().bySource.email,
-        this.orderStats().bySource.api
-      ],
-      backgroundColor: '#3f51b5',
-    }]
+    datasets: [
+      {
+        label: 'Количество заказов',
+        data: [
+          this.orderStats().bySource.manual,
+          this.orderStats().bySource.automatic,
+          this.orderStats().bySource.email,
+          this.orderStats().bySource.api,
+        ],
+        backgroundColor: '#3f51b5',
+      },
+    ],
   };
 
   // Опции для графиков
@@ -290,8 +294,8 @@ export class OrdersComponent {
     plugins: {
       legend: {
         position: 'right',
-      }
-    }
+      },
+    },
   };
 
   barChartOptions: ChartConfiguration['options'] = {
@@ -299,17 +303,17 @@ export class OrdersComponent {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false
-      }
+        display: false,
+      },
     },
     scales: {
       y: {
         beginAtZero: true,
         ticks: {
-          stepSize: 1
-        }
-      }
-    }
+          stepSize: 1,
+        },
+      },
+    },
   };
 
   // Статистика для бейджей
@@ -426,7 +430,7 @@ export class OrdersComponent {
   <mat-card-header>
     <mat-card-title>Статистика заказов</mat-card-title>
   </mat-card-header>
-  
+
   <mat-card-content>
     <!-- Общий счётчик -->
     <div class="total-counter">
@@ -486,29 +490,35 @@ export class OrdersComponent {
 ## 📊 Рекомендуемые библиотеки для графиков:
 
 ### 1. **ng2-charts** (на базе Chart.js) - РЕКОМЕНДУЕТСЯ!
+
 ```bash
 npm install chart.js ng2-charts
 ```
+
 ✅ Простая интеграция с Angular  
 ✅ Много типов графиков (line, bar, pie, doughnut, radar)  
 ✅ Responsive  
-✅ Хорошая документация  
+✅ Хорошая документация
 
 ### 2. **ngx-charts** (от Swimlane)
+
 ```bash
 npm install @swimlane/ngx-charts
 ```
+
 ✅ Красивые SVG графики  
 ✅ Анимации  
-✅ Angular-native  
+✅ Angular-native
 
 ### 3. **ApexCharts**
+
 ```bash
 npm install apexcharts ng-apexcharts
 ```
+
 ✅ Современный дизайн  
 ✅ Интерактивные графики  
-✅ Много опций кастомизации  
+✅ Много опций кастомизации
 
 ---
 
@@ -522,4 +532,3 @@ npm install apexcharts ng-apexcharts
    - Тренды по времени → Line Chart (линейный график)
 
 Хотите, чтобы я реализовал один из вариантов?
-

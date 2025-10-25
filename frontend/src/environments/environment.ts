@@ -6,10 +6,6 @@ export const environment = {
   demo: false,
 };
 
-
-
-
-
 // For ngrok:
 // apiUrl: 'https://1e53debf9f5f.ngrok-free.app/api',
 // authUrl: 'https://1e53debf9f5f.ngrok-free.app/api/auth/login',

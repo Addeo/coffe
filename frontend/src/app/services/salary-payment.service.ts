@@ -35,7 +35,7 @@ export class SalaryPaymentService {
       month?: number;
       type?: PaymentType;
       limit?: number;
-    },
+    }
   ): Observable<SalaryPaymentDto[]> {
     let params: any = {};
     if (options?.year) params.year = options.year.toString();
@@ -88,4 +88,3 @@ export class SalaryPaymentService {
     return this.http.get<EngineerBalanceDto[]>(`${this.apiUrl}/balances`);
   }
 }
-

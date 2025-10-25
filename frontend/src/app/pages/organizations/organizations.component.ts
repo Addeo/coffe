@@ -142,15 +142,20 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
   }
 
   onEditOrganization(organization: OrganizationDto): void {
-    console.log('✏️ onEditOrganization called for:', organization.name, 'User role:', this.currentUser()?.role);
+    console.log(
+      '✏️ onEditOrganization called for:',
+      organization.name,
+      'User role:',
+      this.currentUser()?.role
+    );
     console.log('✏️ canEdit():', this.canEdit());
-    
+
     if (!this.canEdit()) {
       console.log('✏️ User does not have edit permissions');
       this.toastService.showError('У вас нет прав на редактирование организаций');
       return;
     }
-    
+
     console.log('✏️ Opening edit dialog...');
     let dialogRef;
     try {
@@ -160,7 +165,7 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
         disableClose: true,
       });
       console.log('✏️ Dialog opened successfully:', dialogRef);
-      
+
       dialogRef.afterClosed().subscribe(result => {
         console.log('✏️ Edit dialog closed with result:', result);
         if (result) {
@@ -185,15 +190,20 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
   }
 
   onToggleStatus(organization: OrganizationDto): void {
-    console.log('🔄 onToggleStatus called for:', organization.name, 'User role:', this.currentUser()?.role);
+    console.log(
+      '🔄 onToggleStatus called for:',
+      organization.name,
+      'User role:',
+      this.currentUser()?.role
+    );
     console.log('🔄 canEdit():', this.canEdit());
-    
+
     if (!this.canEdit()) {
       console.log('🔄 User does not have edit permissions');
       this.toastService.showError('У вас нет прав на изменение статуса организаций');
       return;
     }
-    
+
     console.log('🔄 Toggling organization status...');
     this.organizationsService.toggleOrganizationStatus(organization.id).subscribe({
       next: updatedOrg => {

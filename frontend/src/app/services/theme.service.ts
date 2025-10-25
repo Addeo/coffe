@@ -9,10 +9,10 @@ export type Theme = 'light' | 'dark' | 'auto';
 export class ThemeService {
   private platformId = inject(PLATFORM_ID);
   private readonly THEME_KEY = 'coffee-admin-theme';
-  
+
   // Current theme signal
   currentTheme = signal<Theme>('light');
-  
+
   // Effective theme (resolved from 'auto')
   effectiveTheme = signal<'light' | 'dark'>('light');
 
@@ -20,7 +20,7 @@ export class ThemeService {
     if (isPlatformBrowser(this.platformId)) {
       this.initializeTheme();
       this.setupMediaQueryListener();
-      
+
       // Force apply theme on initialization
       setTimeout(() => {
         this.applyTheme(this.currentTheme());
@@ -44,7 +44,7 @@ export class ThemeService {
     }
 
     const savedTheme = localStorage.getItem(this.THEME_KEY) as Theme | null;
-    
+
     if (savedTheme && this.isValidTheme(savedTheme)) {
       this.currentTheme.set(savedTheme);
     } else {
@@ -92,15 +92,15 @@ export class ThemeService {
     console.log('🎨 Applying theme:', { theme, effectiveTheme });
 
     const body = document.body;
-    
+
     // Remove all theme classes
     body.classList.remove('light-theme', 'dark-theme');
-    
+
     // Add the effective theme class
     body.classList.add(`${effectiveTheme}-theme`);
-    
+
     console.log('🎨 Body classes after theme application:', body.classList.toString());
-    
+
     // Update meta theme-color
     this.updateMetaThemeColor(effectiveTheme);
   }
@@ -138,7 +138,7 @@ export class ThemeService {
     }
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
+
     mediaQuery.addEventListener('change', e => {
       // Only react to system changes if theme is set to 'auto'
       if (this.currentTheme() === 'auto') {
@@ -196,4 +196,3 @@ export class ThemeService {
     return icons[theme];
   }
 }
-

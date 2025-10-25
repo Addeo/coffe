@@ -479,7 +479,7 @@
   .stats-switcher {
     mat-button-toggle-group {
       width: 100%;
-      
+
       mat-button-toggle {
         flex: 1;
       }
@@ -538,11 +538,11 @@
       right: 16px;
       top: 50%;
       transform: translateY(-50%);
-      
+
       button {
         color: white;
         background: rgba(255, 255, 255, 0.1);
-        
+
         &:hover {
           background: rgba(255, 255, 255, 0.2);
         }
@@ -550,4 +550,3 @@
     }
   }
 }
-

@@ -160,7 +160,7 @@ export class SalaryCalculationService {
     });
 
     this.logger.log(
-      `✅ Salary calculated for engineer ${engineer.id}: ${workSessions.length} sessions, ${actualHours}h regular + ${overtimeHours}h overtime = ${totalAmount}₽`,
+      `✅ Salary calculated for engineer ${engineer.id}: ${workSessions.length} sessions, ${actualHours}h regular + ${overtimeHours}h overtime = ${totalAmount}₽`
     );
 
     return await this.salaryCalculationRepository.save(calculation);

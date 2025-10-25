@@ -23,7 +23,7 @@ Android приложение не могло подключиться к backend
             <certificates src="system" />
         </trust-anchors>
     </base-config>
-    
+
     <!-- Specific domain configuration for your backend -->
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">192.144.12.102</domain>
@@ -34,6 +34,7 @@ Android приложение не могло подключиться к backend
 ```
 
 **Что делает:**
+
 - Разрешает HTTP трафик для всех доменов
 - Явно разрешает доступ к `192.144.12.102` (ваш backend)
 - Добавляет поддержку localhost и 10.0.2.2 (эмулятор)
@@ -52,6 +53,7 @@ Android приложение не могло подключиться к backend
 ```
 
 **Что делает:**
+
 - `android:usesCleartextTraffic="true"` - разрешает HTTP трафик
 - `android:networkSecurityConfig` - указывает на файл конфигурации
 
@@ -121,12 +123,14 @@ app.enableCors({
 Если в будущем у вас будет HTTPS (SSL сертификат), измените:
 
 **environment.prod.ts:**
+
 ```typescript
 apiUrl: 'https://192.144.12.102:3001/api',
 authUrl: 'https://192.144.12.102:3001/api/auth/login',
 ```
 
 **network_security_config.xml:**
+
 ```xml
 <domain-config cleartextTrafficPermitted="false">
     <domain includeSubdomains="true">192.144.12.102</domain>
@@ -152,11 +156,13 @@ authUrl: 'https://192.144.12.102:3001/api/auth/login',
 ## Установка и тестирование
 
 1. Установите новый APK:
+
 ```bash
 adb install CoffeeAdmin-fixed.apk
 ```
 
 2. Убедитесь, что backend запущен:
+
 ```bash
 # На сервере
 curl http://localhost:3001/api
@@ -192,6 +198,3 @@ curl http://localhost:3001/api
 3. `frontend/src/environments/environment.prod.ts` - восстановлен правильный URL
 4. `frontend/angular.json` - увеличен лимит бюджета CSS
 5. `frontend/src/app/pages/statistics/statistics.component.ts` - исправлены TypeScript ошибки
-
-
-

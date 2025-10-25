@@ -107,7 +107,9 @@
           <mat-card-title>Организации должны заплатить</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="card-value">{{ totalOrganizationRevenue | currency:'RUB':'symbol':'1.0-0' }}</div>
+          <div class="card-value">
+            {{ totalOrganizationRevenue | currency: 'RUB' : 'symbol' : '1.0-0' }}
+          </div>
         </mat-card-content>
       </mat-card>
 
@@ -119,7 +121,9 @@
           <mat-card-title>Организации заплатили</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="card-value">{{ totalOrganizationPaid | currency:'RUB':'symbol':'1.0-0' }}</div>
+          <div class="card-value">
+            {{ totalOrganizationPaid | currency: 'RUB' : 'symbol' : '1.0-0' }}
+          </div>
         </mat-card-content>
       </mat-card>
 
@@ -131,7 +135,9 @@
           <mat-card-title>Инженеры заработали</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="card-value">{{ totalAgentEarnings | currency:'RUB':'symbol':'1.0-0' }}</div>
+          <div class="card-value">
+            {{ totalAgentEarnings | currency: 'RUB' : 'symbol' : '1.0-0' }}
+          </div>
         </mat-card-content>
       </mat-card>
 
@@ -139,11 +145,13 @@
         <mat-card-header>
           <div class="card-icon">
             <mat-icon>trending_up</mat-icon>
-    </div>
+          </div>
           <mat-card-title>Компания заработала</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="card-value">{{ totalCompanyRevenue | currency:'RUB':'symbol':'1.0-0' }}</div>
+          <div class="card-value">
+            {{ totalCompanyRevenue | currency: 'RUB' : 'symbol' : '1.0-0' }}
+          </div>
         </mat-card-content>
       </mat-card>
 
@@ -155,7 +163,9 @@
           <mat-card-title>Нужно выплатить инженерам</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="card-value">{{ totalAgentEarnings | currency:'RUB':'symbol':'1.0-0' }}</div>
+          <div class="card-value">
+            {{ totalAgentEarnings | currency: 'RUB' : 'symbol' : '1.0-0' }}
+          </div>
         </mat-card-content>
       </mat-card>
 
@@ -167,8 +177,12 @@
           <mat-card-title>Разница (прибыль компании)</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="card-value" [class.profit-positive]="companyProfit > 0" [class.profit-negative]="companyProfit < 0">
-            {{ companyProfit | currency:'RUB':'symbol':'1.0-0' }}
+          <div
+            class="card-value"
+            [class.profit-positive]="companyProfit > 0"
+            [class.profit-negative]="companyProfit < 0"
+          >
+            {{ companyProfit | currency: 'RUB' : 'symbol' : '1.0-0' }}
           </div>
         </mat-card-content>
       </mat-card>
@@ -182,7 +196,7 @@
           Обзор статистики
         </mat-card-title>
       </mat-card-header>
-      
+
       <mat-card-content>
         <!-- Основные метрики -->
         <div class="mobile-summary-grid">
@@ -224,24 +238,36 @@
             <div class="details-grid">
               <div class="detail-item">
                 <span class="detail-label">Организации должны заплатить:</span>
-                <span class="detail-value">{{ totalOrganizationRevenue | currency:'RUB':'symbol':'1.0-0' }}</span>
+                <span class="detail-value">{{
+                  totalOrganizationRevenue | currency: 'RUB' : 'symbol' : '1.0-0'
+                }}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Организации заплатили:</span>
-                <span class="detail-value">{{ totalOrganizationPaid | currency:'RUB':'symbol':'1.0-0' }}</span>
+                <span class="detail-value">{{
+                  totalOrganizationPaid | currency: 'RUB' : 'symbol' : '1.0-0'
+                }}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Инженеры заработали:</span>
-                <span class="detail-value">{{ totalAgentEarnings | currency:'RUB':'symbol':'1.0-0' }}</span>
+                <span class="detail-value">{{
+                  totalAgentEarnings | currency: 'RUB' : 'symbol' : '1.0-0'
+                }}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Нужно выплатить инженерам:</span>
-                <span class="detail-value">{{ totalAgentEarnings | currency:'RUB':'symbol':'1.0-0' }}</span>
+                <span class="detail-value">{{
+                  totalAgentEarnings | currency: 'RUB' : 'symbol' : '1.0-0'
+                }}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Прибыль компании:</span>
-                <span class="detail-value" [class.profit-positive]="companyProfit > 0" [class.profit-negative]="companyProfit < 0">
-                  {{ companyProfit | currency:'RUB':'symbol':'1.0-0' }}
+                <span
+                  class="detail-value"
+                  [class.profit-positive]="companyProfit > 0"
+                  [class.profit-negative]="companyProfit < 0"
+                >
+                  {{ companyProfit | currency: 'RUB' : 'symbol' : '1.0-0' }}
                 </span>
               </div>
             </div>
@@ -258,7 +284,7 @@
           Финансовая сводка
         </mat-card-title>
       </mat-card-header>
-      
+
       <mat-card-content>
         <!-- Финансовые метрики -->
         <div class="mobile-summary-grid">
@@ -267,7 +293,9 @@
               <mat-icon>account_balance</mat-icon>
             </div>
             <div class="summary-content">
-              <div class="summary-value">{{ totalOrganizationRevenue | currency:'RUB':'symbol':'1.0-0' }}</div>
+              <div class="summary-value">
+                {{ totalOrganizationRevenue | currency: 'RUB' : 'symbol' : '1.0-0' }}
+              </div>
               <div class="summary-label">Организации должны заплатить</div>
             </div>
           </div>
@@ -277,7 +305,9 @@
               <mat-icon>payment</mat-icon>
             </div>
             <div class="summary-content">
-              <div class="summary-value">{{ totalOrganizationPaid | currency:'RUB':'symbol':'1.0-0' }}</div>
+              <div class="summary-value">
+                {{ totalOrganizationPaid | currency: 'RUB' : 'symbol' : '1.0-0' }}
+              </div>
               <div class="summary-label">Организации заплатили</div>
             </div>
           </div>
@@ -287,7 +317,9 @@
               <mat-icon>account_balance_wallet</mat-icon>
             </div>
             <div class="summary-content">
-              <div class="summary-value">{{ totalAgentEarnings | currency:'RUB':'symbol':'1.0-0' }}</div>
+              <div class="summary-value">
+                {{ totalAgentEarnings | currency: 'RUB' : 'symbol' : '1.0-0' }}
+              </div>
               <div class="summary-label">Инженеры заработали</div>
             </div>
           </div>
@@ -297,7 +329,9 @@
               <mat-icon>trending_up</mat-icon>
             </div>
             <div class="summary-content">
-              <div class="summary-value">{{ totalCompanyRevenue | currency:'RUB':'symbol':'1.0-0' }}</div>
+              <div class="summary-value">
+                {{ totalCompanyRevenue | currency: 'RUB' : 'symbol' : '1.0-0' }}
+              </div>
               <div class="summary-label">Компания заработала</div>
             </div>
           </div>
@@ -310,12 +344,18 @@
             <div class="details-grid">
               <div class="detail-item">
                 <span class="detail-label">Нужно выплатить инженерам:</span>
-                <span class="detail-value">{{ totalAgentEarnings | currency:'RUB':'symbol':'1.0-0' }}</span>
+                <span class="detail-value">{{
+                  totalAgentEarnings | currency: 'RUB' : 'symbol' : '1.0-0'
+                }}</span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Прибыль компании:</span>
-                <span class="detail-value" [class.profit-positive]="companyProfit > 0" [class.profit-negative]="companyProfit < 0">
-                  {{ companyProfit | currency:'RUB':'symbol':'1.0-0' }}
+                <span
+                  class="detail-value"
+                  [class.profit-positive]="companyProfit > 0"
+                  [class.profit-negative]="companyProfit < 0"
+                >
+                  {{ companyProfit | currency: 'RUB' : 'symbol' : '1.0-0' }}
                 </span>
               </div>
             </div>
@@ -331,7 +371,10 @@
         <div class="tab-content">
           <mat-card>
             <mat-card-header>
-              <mat-card-title>Личная статистика за {{ statistics()?.monthName }} {{ statistics()?.year }}</mat-card-title>
+              <mat-card-title
+                >Личная статистика за {{ statistics()?.monthName }}
+                {{ statistics()?.year }}</mat-card-title
+              >
               <mat-card-subtitle>Ваши доходы, заказы и эффективность</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
@@ -343,10 +386,12 @@
                     </div>
                     <div class="stat-content">
                       <div class="stat-label">Мой заработок</div>
-                      <div class="stat-value">{{ getMyEarnings() | currency:'RUB':'symbol':'1.0-0' }}</div>
+                      <div class="stat-value">
+                        {{ getMyEarnings() | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                      </div>
                     </div>
                   </div>
-                  
+
                   <div class="stat-card">
                     <div class="stat-icon">
                       <mat-icon>assignment_turned_in</mat-icon>
@@ -356,7 +401,7 @@
                       <div class="stat-value">{{ getMyOrders() }}</div>
                     </div>
                   </div>
-                  
+
                   <div class="stat-card">
                     <div class="stat-icon">
                       <mat-icon>schedule</mat-icon>
@@ -366,14 +411,16 @@
                       <div class="stat-value">{{ getMyHours() }}</div>
                     </div>
                   </div>
-                  
+
                   <div class="stat-card">
                     <div class="stat-icon">
                       <mat-icon>trending_up</mat-icon>
                     </div>
                     <div class="stat-content">
                       <div class="stat-label">Средний чек</div>
-                      <div class="stat-value">{{ getMyAverageOrder() | currency:'RUB':'symbol':'1.0-0' }}</div>
+                      <div class="stat-value">
+                        {{ getMyAverageOrder() | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -408,7 +455,11 @@
 
               <!-- Chart View -->
               <div
-                *ngIf="viewMode === 'charts' && statistics()?.agentEarnings && statistics()!.agentEarnings.length > 0"
+                *ngIf="
+                  viewMode === 'charts' &&
+                  statistics()?.agentEarnings &&
+                  statistics()!.agentEarnings.length > 0
+                "
                 class="chart-container"
               >
                 <div class="chart-wrapper-large">
@@ -423,7 +474,11 @@
 
               <!-- Table View -->
               <div
-                *ngIf="viewMode === 'tables' && statistics()?.agentEarnings && statistics()!.agentEarnings.length > 0"
+                *ngIf="
+                  viewMode === 'tables' &&
+                  statistics()?.agentEarnings &&
+                  statistics()!.agentEarnings.length > 0
+                "
                 class="table-container"
               >
                 <table
@@ -498,7 +553,11 @@
 
               <!-- Chart View -->
               <div
-                *ngIf="viewMode === 'charts' && statistics()?.organizationEarnings && statistics()!.organizationEarnings.length > 0"
+                *ngIf="
+                  viewMode === 'charts' &&
+                  statistics()?.organizationEarnings &&
+                  statistics()!.organizationEarnings.length > 0
+                "
                 class="chart-container"
               >
                 <div class="charts-grid">
@@ -532,7 +591,11 @@
 
               <!-- Table View -->
               <div
-                *ngIf="viewMode === 'tables' && statistics()?.organizationEarnings && statistics()!.organizationEarnings.length > 0"
+                *ngIf="
+                  viewMode === 'tables' &&
+                  statistics()?.organizationEarnings &&
+                  statistics()!.organizationEarnings.length > 0
+                "
                 class="table-container"
               >
                 <table
@@ -628,7 +691,11 @@
             <mat-card-content>
               <!-- Chart View -->
               <div
-                *ngIf="viewMode === 'charts' && statistics()?.overtimeStatistics && statistics()!.overtimeStatistics.length > 0"
+                *ngIf="
+                  viewMode === 'charts' &&
+                  statistics()?.overtimeStatistics &&
+                  statistics()!.overtimeStatistics.length > 0
+                "
                 class="chart-container"
               >
                 <div class="charts-grid">
@@ -647,8 +714,14 @@
                     <!-- Дополнительная информация под диаграммой -->
                     <div class="chart-summary" *ngIf="statistics()?.overtimeStatistics">
                       <div class="summary-stats">
-                        <div class="stat-item" *ngFor="let stat of statistics()!.overtimeStatistics">
-                          <div class="stat-color" [style.background-color]="getOvertimeColor(stat)"></div>
+                        <div
+                          class="stat-item"
+                          *ngFor="let stat of statistics()!.overtimeStatistics"
+                        >
+                          <div
+                            class="stat-color"
+                            [style.background-color]="getOvertimeColor(stat)"
+                          ></div>
                           <span class="stat-label">{{ stat.agentName }}:</span>
                           <span class="stat-value">{{ stat.overtimeHours }} ч</span>
                           <span class="stat-percentage">({{ stat.overtimePercentage }}%)</span>
@@ -673,10 +746,7 @@
               </div>
 
               <!-- Table View -->
-              <div
-                *ngIf="viewMode === 'tables'"
-                class="table-container"
-              >
+              <div *ngIf="viewMode === 'tables'" class="table-container">
                 <table
                   mat-table
                   [dataSource]="statistics()?.overtimeStatistics || []"
@@ -739,7 +809,9 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title>Детальная аналитика по организациям</mat-card-title>
-              <mat-card-subtitle>Платежи организаций, ставки, заказы и прибыльность</mat-card-subtitle>
+              <mat-card-subtitle
+                >Платежи организаций, ставки, заказы и прибыльность</mat-card-subtitle
+              >
             </mat-card-header>
             <mat-card-content>
               <!-- Organization Financial Details -->
@@ -750,14 +822,20 @@
                     <mat-icon>account_balance</mat-icon>
                     <div class="card-content">
                       <h4>Общая выручка от организаций</h4>
-                      <p class="amount">{{ getTotalOrganizationRevenue() | currency:'RUB':'symbol':'1.0-0' }}</p>
+                      <p class="amount">
+                        {{ getTotalOrganizationRevenue() | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                      </p>
                     </div>
                   </div>
                   <div class="analytics-card">
                     <mat-icon>trending_up</mat-icon>
                     <div class="card-content">
                       <h4>Средняя ставка организации</h4>
-                      <p class="amount">{{ getAverageOrganizationRate() | currency:'RUB':'symbol':'1.0-0' }}/час</p>
+                      <p class="amount">
+                        {{
+                          getAverageOrganizationRate() | currency: 'RUB' : 'symbol' : '1.0-0'
+                        }}/час
+                      </p>
                     </div>
                   </div>
                   <div class="analytics-card">
@@ -780,25 +858,39 @@
 
                     <ng-container matColumnDef="totalRevenue">
                       <th mat-header-cell *matHeaderCellDef>Выручка (₽)</th>
-                      <td mat-cell *matCellDef="let element">{{ element.totalRevenue | currency:'RUB':'symbol':'1.0-0' }}</td>
+                      <td mat-cell *matCellDef="let element">
+                        {{ element.totalRevenue | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                      </td>
                     </ng-container>
 
                     <ng-container matColumnDef="totalCosts">
                       <th mat-header-cell *matHeaderCellDef>Затраты на инженеров (₽)</th>
-                      <td mat-cell *matCellDef="let element">{{ element.totalCosts | currency:'RUB':'symbol':'1.0-0' }}</td>
+                      <td mat-cell *matCellDef="let element">
+                        {{ element.totalCosts | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                      </td>
                     </ng-container>
 
                     <ng-container matColumnDef="totalProfit">
                       <th mat-header-cell *matHeaderCellDef>Прибыль (₽)</th>
-                      <td mat-cell *matCellDef="let element" [class.profit-positive]="element.totalProfit > 0" [class.profit-negative]="element.totalProfit < 0">
-                        {{ element.totalProfit | currency:'RUB':'symbol':'1.0-0' }}
+                      <td
+                        mat-cell
+                        *matCellDef="let element"
+                        [class.profit-positive]="element.totalProfit > 0"
+                        [class.profit-negative]="element.totalProfit < 0"
+                      >
+                        {{ element.totalProfit | currency: 'RUB' : 'symbol' : '1.0-0' }}
                       </td>
                     </ng-container>
 
                     <ng-container matColumnDef="profitMargin">
                       <th mat-header-cell *matHeaderCellDef>Маржа (%)</th>
-                      <td mat-cell *matCellDef="let element" [class.margin-positive]="element.profitMargin > 0" [class.margin-negative]="element.profitMargin < 0">
-                        {{ element.profitMargin | number:'1.1-1' }}%
+                      <td
+                        mat-cell
+                        *matCellDef="let element"
+                        [class.margin-positive]="element.profitMargin > 0"
+                        [class.margin-negative]="element.profitMargin < 0"
+                      >
+                        {{ element.profitMargin | number: '1.1-1' }}%
                       </td>
                     </ng-container>
 
@@ -814,11 +906,13 @@
 
                     <ng-container matColumnDef="averageOrderValue">
                       <th mat-header-cell *matHeaderCellDef>Средний чек (₽)</th>
-                      <td mat-cell *matCellDef="let element">{{ element.averageOrderValue | currency:'RUB':'symbol':'1.0-0' }}</td>
+                      <td mat-cell *matCellDef="let element">
+                        {{ element.averageOrderValue | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                      </td>
                     </ng-container>
 
                     <tr mat-header-row *matHeaderRowDef="organizationColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: organizationColumns;"></tr>
+                    <tr mat-row *matRowDef="let row; columns: organizationColumns"></tr>
                   </table>
                 </div>
               </div>
@@ -833,7 +927,9 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title>Детальная аналитика по агентам</mat-card-title>
-              <mat-card-subtitle>Заработок агентов, ставки, разница с компанией и эффективность</mat-card-subtitle>
+              <mat-card-subtitle
+                >Заработок агентов, ставки, разница с компанией и эффективность</mat-card-subtitle
+              >
             </mat-card-header>
             <mat-card-content>
               <!-- Agent Financial Details -->
@@ -844,21 +940,27 @@
                     <mat-icon>account_balance_wallet</mat-icon>
                     <div class="card-content">
                       <h4>Общий заработок агентов</h4>
-                      <p class="amount">{{ getTotalAgentEarnings() | currency:'RUB':'symbol':'1.0-0' }}</p>
+                      <p class="amount">
+                        {{ getTotalAgentEarnings() | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                      </p>
                     </div>
                   </div>
                   <div class="analytics-card">
                     <mat-icon>trending_up</mat-icon>
                     <div class="card-content">
                       <h4>Средняя ставка агента</h4>
-                      <p class="amount">{{ getAverageAgentRate() | currency:'RUB':'symbol':'1.0-0' }}/час</p>
+                      <p class="amount">
+                        {{ getAverageAgentRate() | currency: 'RUB' : 'symbol' : '1.0-0' }}/час
+                      </p>
                     </div>
                   </div>
                   <div class="analytics-card">
                     <mat-icon>compare_arrows</mat-icon>
                     <div class="card-content">
                       <h4>Разница с компанией</h4>
-                      <p class="amount">{{ getCompanyAgentDifference() | currency:'RUB':'symbol':'1.0-0' }}</p>
+                      <p class="amount">
+                        {{ getCompanyAgentDifference() | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -874,7 +976,9 @@
 
                     <ng-container matColumnDef="totalEarnings">
                       <th mat-header-cell *matHeaderCellDef>Заработок (₽)</th>
-                      <td mat-cell *matCellDef="let element">{{ element.totalEarnings | currency:'RUB':'symbol':'1.0-0' }}</td>
+                      <td mat-cell *matCellDef="let element">
+                        {{ element.totalEarnings | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                      </td>
                     </ng-container>
 
                     <ng-container matColumnDef="completedOrders">
@@ -884,28 +988,41 @@
 
                     <ng-container matColumnDef="averageOrderValue">
                       <th mat-header-cell *matHeaderCellDef>Средний чек (₽)</th>
-                      <td mat-cell *matCellDef="let element">{{ element.averageOrderValue | currency:'RUB':'symbol':'1.0-0' }}</td>
+                      <td mat-cell *matCellDef="let element">
+                        {{ element.averageOrderValue | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                      </td>
                     </ng-container>
 
                     <ng-container matColumnDef="hourlyRate">
                       <th mat-header-cell *matHeaderCellDef>Ставка/час (₽)</th>
-                      <td mat-cell *matCellDef="let element">{{ getAgentHourlyRate(element) | currency:'RUB':'symbol':'1.0-0' }}</td>
+                      <td mat-cell *matCellDef="let element">
+                        {{ getAgentHourlyRate(element) | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                      </td>
                     </ng-container>
 
                     <ng-container matColumnDef="overtimeRate">
                       <th mat-header-cell *matHeaderCellDef>Сверхурочная ставка (₽)</th>
-                      <td mat-cell *matCellDef="let element">{{ getAgentOvertimeRate(element) | currency:'RUB':'symbol':'1.0-0' }}</td>
+                      <td mat-cell *matCellDef="let element">
+                        {{ getAgentOvertimeRate(element) | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                      </td>
                     </ng-container>
 
                     <ng-container matColumnDef="companyDifference">
                       <th mat-header-cell *matHeaderCellDef>Разница с компанией (₽)</th>
-                      <td mat-cell *matCellDef="let element" [class.profit-positive]="getAgentCompanyDifference(element) > 0" [class.profit-negative]="getAgentCompanyDifference(element) < 0">
-                        {{ getAgentCompanyDifference(element) | currency:'RUB':'symbol':'1.0-0' }}
+                      <td
+                        mat-cell
+                        *matCellDef="let element"
+                        [class.profit-positive]="getAgentCompanyDifference(element) > 0"
+                        [class.profit-negative]="getAgentCompanyDifference(element) < 0"
+                      >
+                        {{
+                          getAgentCompanyDifference(element) | currency: 'RUB' : 'symbol' : '1.0-0'
+                        }}
                       </td>
                     </ng-container>
 
                     <tr mat-header-row *matHeaderRowDef="agentColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: agentColumns;"></tr>
+                    <tr mat-row *matRowDef="let row; columns: agentColumns"></tr>
                   </table>
                 </div>
               </div>
@@ -919,7 +1036,10 @@
         <div class="tab-content">
           <mat-card>
             <mat-card-header>
-              <mat-card-title>Временная аналитика за {{ statistics()?.monthName }} {{ statistics()?.year }}</mat-card-title>
+              <mat-card-title
+                >Временная аналитика за {{ statistics()?.monthName }}
+                {{ statistics()?.year }}</mat-card-title
+              >
               <mat-card-subtitle>Графики зарплат и часов по дням месяца</mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
@@ -927,15 +1047,15 @@
                 <!-- Salary Chart -->
                 <div class="chart-section">
                   <h3>Накопительные зарплаты по дням</h3>
-                <div class="chart-wrapper-large">
-                  <canvas
-                    baseChart
+                  <div class="chart-wrapper-large">
+                    <canvas
+                      baseChart
                       [data]="salaryTimeChartData"
                       [options]="lineChartTimeOptions"
                       [type]="'line'"
-                  ></canvas>
+                    ></canvas>
+                  </div>
                 </div>
-                    </div>
 
                 <!-- Hours Chart -->
                 <div class="chart-section">
@@ -947,9 +1067,9 @@
                       [options]="lineChartTimeOptions"
                       [type]="'line'"
                     ></canvas>
-                    </div>
-                    </div>
                   </div>
+                </div>
+              </div>
             </mat-card-content>
           </mat-card>
         </div>
@@ -961,7 +1081,9 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title>Детальная финансовая аналитика</mat-card-title>
-              <mat-card-subtitle>Разбивка заработной платы по компонентам и сравнительный анализ</mat-card-subtitle>
+              <mat-card-subtitle
+                >Разбивка заработной платы по компонентам и сравнительный анализ</mat-card-subtitle
+              >
             </mat-card-header>
             <mat-card-content>
               <div class="financial-analytics-container">
@@ -975,8 +1097,8 @@
                       [options]="stackedBarChartOptions"
                       [type]="'bar'"
                     ></canvas>
+                  </div>
                 </div>
-              </div>
 
                 <!-- Comparison with Previous Month -->
                 <div class="chart-section">
@@ -988,13 +1110,17 @@
                       [options]="barChartOptions"
                       [type]="'bar'"
                     ></canvas>
-                    </div>
                   </div>
-                  
+                </div>
+
                 <!-- Financial Details Table -->
                 <div class="financial-details-table">
                   <h3>Детальная финансовая информация</h3>
-                  <table mat-table [dataSource]="financialDetailsDataSource" class="mat-elevation-z8">
+                  <table
+                    mat-table
+                    [dataSource]="financialDetailsDataSource"
+                    class="mat-elevation-z8"
+                  >
                     <ng-container matColumnDef="engineerName">
                       <th mat-header-cell *matHeaderCellDef>Инженер</th>
                       <td mat-cell *matCellDef="let element">{{ element.engineerName }}</td>
@@ -1002,17 +1128,23 @@
 
                     <ng-container matColumnDef="fixedSalary">
                       <th mat-header-cell *matHeaderCellDef>Фиксированная зарплата (₽)</th>
-                      <td mat-cell *matCellDef="let element">{{ formatCurrency(element.fixedSalary) }}</td>
+                      <td mat-cell *matCellDef="let element">
+                        {{ formatCurrency(element.fixedSalary) }}
+                      </td>
                     </ng-container>
 
                     <ng-container matColumnDef="additionalEarnings">
                       <th mat-header-cell *matHeaderCellDef>Дополнительная оплата (₽)</th>
-                      <td mat-cell *matCellDef="let element">{{ formatCurrency(element.additionalEarnings) }}</td>
+                      <td mat-cell *matCellDef="let element">
+                        {{ formatCurrency(element.additionalEarnings) }}
+                      </td>
                     </ng-container>
 
                     <ng-container matColumnDef="carPayment">
                       <th mat-header-cell *matHeaderCellDef>Оплата за автомобиль (₽)</th>
-                      <td mat-cell *matCellDef="let element">{{ formatCurrency(element.carPayment) }}</td>
+                      <td mat-cell *matCellDef="let element">
+                        {{ formatCurrency(element.carPayment) }}
+                      </td>
                     </ng-container>
 
                     <ng-container matColumnDef="totalEarnings">
@@ -1025,11 +1157,11 @@
                     <tr mat-header-row *matHeaderRowDef="financialDetailsColumns"></tr>
                     <tr mat-row *matRowDef="let row; columns: financialDetailsColumns"></tr>
                   </table>
-                    </div>
-                  </div>
+                </div>
+              </div>
             </mat-card-content>
           </mat-card>
-                      </div>
+        </div>
       </mat-tab>
 
       <!-- Rankings and Performance Tab -->
@@ -1038,7 +1170,9 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title>Рейтинги и производительность</mat-card-title>
-              <mat-card-subtitle>Топ-инженеры по различным метрикам и анализ эффективности</mat-card-subtitle>
+              <mat-card-subtitle
+                >Топ-инженеры по различным метрикам и анализ эффективности</mat-card-subtitle
+              >
             </mat-card-header>
             <mat-card-content>
               <div class="rankings-container">
@@ -1067,9 +1201,9 @@
                         <div class="hours">{{ engineer.hours }} ч</div>
                       </div>
                     </div>
-                      </div>
-                    </div>
-                    
+                  </div>
+                </div>
+
                 <!-- Efficiency Chart -->
                 <div class="chart-section">
                   <h3>Эффективность (заработок/час)</h3>
@@ -1080,9 +1214,9 @@
                       [options]="barChartOptions"
                       [type]="'bar'"
                     ></canvas>
-                      </div>
-                      </div>
-                    </div>
+                  </div>
+                </div>
+              </div>
             </mat-card-content>
           </mat-card>
         </div>
@@ -1094,7 +1228,9 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title>Прогнозная аналитика</mat-card-title>
-              <mat-card-subtitle>Прогноз заработка до конца месяца и целевые показатели</mat-card-subtitle>
+              <mat-card-subtitle
+                >Прогноз заработка до конца месяца и целевые показатели</mat-card-subtitle
+              >
             </mat-card-header>
             <mat-card-content>
               <div class="forecast-container">
@@ -1108,15 +1244,15 @@
                       [options]="lineChartTimeOptions"
                       [type]="'line'"
                     ></canvas>
-                      </div>
-                      </div>
+                  </div>
+                </div>
 
                 <!-- Forecast Summary -->
                 <div class="forecast-summary">
                   <div class="forecast-card">
                     <h4>Текущий темп работы</h4>
                     <div class="forecast-value">{{ currentWorkPace() }} ₽/день</div>
-                    </div>
+                  </div>
                   <div class="forecast-card">
                     <h4>Прогноз до конца месяца</h4>
                     <div class="forecast-value">{{ formatCurrency(monthEndForecast()) }}</div>
@@ -1140,4 +1276,3 @@
     <p>Статистика недоступна для выбранного периода</p>
   </div>
 </div>
-

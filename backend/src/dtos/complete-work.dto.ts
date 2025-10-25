@@ -34,4 +34,3 @@ export class CompleteWorkDto {
   @IsBoolean()
   isFullyCompleted: boolean;
 }
-

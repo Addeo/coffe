@@ -37,6 +37,7 @@ npm run build -- --configuration production
 ```
 
 **Ожидаемый результат:**
+
 ```
 ✔ Browser application bundle generation complete.
 Build at: 2025-10-17T10:40:00.000Z
@@ -54,11 +55,13 @@ npx cap sync android
 ```
 
 **Что происходит:**
+
 - Копирование `dist/` в `android/app/src/main/assets/public/`
 - Обновление конфигурации
 - Обновление плагинов
 
 **Ожидаемый результат:**
+
 ```
 ✔ Copying web assets from coffee-admin to android/app/src/main/assets/public
 ✔ Creating capacitor.config.json in android/app/src/main/assets
@@ -86,6 +89,7 @@ cd android
 ```
 
 **Ожидаемый результат:**
+
 ```
 BUILD SUCCESSFUL in 6s
 85 actionable tasks: 24 executed, 61 up-to-date
@@ -108,6 +112,7 @@ find . -name "app-release.apk"
 ```
 
 **Или просто:**
+
 ```bash
 ls -lh app/build/outputs/apk/debug/
 ```
@@ -137,10 +142,12 @@ npm run build:android
 ```
 
 Эта команда выполнит:
+
 1. `ng build --configuration production`
 2. `cap sync android`
 
 **Затем соберите APK:**
+
 ```bash
 cd android
 ./gradlew assembleDebug
@@ -157,6 +164,7 @@ npx cap open android
 ```
 
 **В Android Studio:**
+
 1. Подождите синхронизации Gradle
 2. Нажмите **Build → Build Bundle(s) / APK(s) → Build APK(s)**
 3. Дождитесь завершения
@@ -184,6 +192,7 @@ ionic cap open android
 ### 1. Версия приложения
 
 Обновите в `frontend/package.json`:
+
 ```json
 {
   "version": "1.0.0"
@@ -193,6 +202,7 @@ ionic cap open android
 ### 2. App ID и название
 
 Обновите в `capacitor.config.json`:
+
 ```json
 {
   "appId": "com.coffee.admin",
@@ -203,6 +213,7 @@ ionic cap open android
 ### 3. API URL для production
 
 Обновите в `frontend/src/environments/environment.prod.ts`:
+
 ```typescript
 export const environment = {
   production: true,
@@ -222,13 +233,13 @@ npx capacitor-assets generate
 
 ## 📊 РАЗМЕРЫ СБОРКИ
 
-| Компонент | Размер |
-|-----------|--------|
-| Angular bundle | 1.34 MB |
-| Web assets | ~500 KB |
-| Capacitor runtime | ~200 KB |
-| Android WebView | ~2 MB |
-| **Итого APK** | **~4.8 MB** |
+| Компонент         | Размер      |
+| ----------------- | ----------- |
+| Angular bundle    | 1.34 MB     |
+| Web assets        | ~500 KB     |
+| Capacitor runtime | ~200 KB     |
+| Android WebView   | ~2 MB       |
+| **Итого APK**     | **~4.8 MB** |
 
 ### Оптимизация:
 
@@ -335,6 +346,7 @@ adb install CoffeeAdmin-debug.apk
 ## 🎉 ГОТОВО!
 
 **APK файл создан:**
+
 ```
 📱 CoffeeAdmin-debug.apk (4.8 MB)
 ```
@@ -346,4 +358,3 @@ adb install CoffeeAdmin-debug.apk
 **Дата:** 17 октября 2025  
 **Версия:** Debug build  
 **Статус:** ✅ READY
-

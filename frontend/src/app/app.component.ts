@@ -1,4 +1,12 @@
-import { Component, inject, computed, signal, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  inject,
+  computed,
+  signal,
+  OnInit,
+  OnDestroy,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
@@ -21,7 +29,13 @@ import { OrderSidebarComponent } from './components/sidebars/order-sidebar.compo
       <app-navigation *ngIf="isAuthenticated() && !isLoginRoute()"></app-navigation>
 
       <!-- Main content -->
-      <main id="main-content" class="main-content" [class.with-nav]="isAuthenticated() && !isLoginRoute()" role="main" tabindex="-1">
+      <main
+        id="main-content"
+        class="main-content"
+        [class.with-nav]="isAuthenticated() && !isLoginRoute()"
+        role="main"
+        tabindex="-1"
+      >
         <router-outlet></router-outlet>
       </main>
     </div>
@@ -36,7 +50,9 @@ import { OrderSidebarComponent } from './components/sidebars/order-sidebar.compo
         line-height: 1.5;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        transition: background-color 0.3s ease, color 0.3s ease;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
       }
 
       .main-content {
@@ -95,27 +111,25 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Listen for navigation events to ensure auth state is properly updated
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event) => {
-        const navigationEnd = event as NavigationEnd;
-        console.log('🏠 Navigation ended:', navigationEnd.url);
-        
-        // Force auth state refresh after navigation
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(event => {
+      const navigationEnd = event as NavigationEnd;
+      console.log('🏠 Navigation ended:', navigationEnd.url);
+
+      // Force auth state refresh after navigation
+      setTimeout(() => {
+        console.log('🏠 Auth state after navigation:', this.isAuthenticated());
+        this.authService.refreshAuthState();
+
+        // Force change detection using Angular's ChangeDetectorRef
+        this.cdr.detectChanges();
+
+        // Additional change detection trigger
         setTimeout(() => {
-          console.log('🏠 Auth state after navigation:', this.isAuthenticated());
-          this.authService.refreshAuthState();
-          
-          // Force change detection using Angular's ChangeDetectorRef
-          this.cdr.detectChanges();
-          
-          // Additional change detection trigger
-          setTimeout(() => {
-            this.cdr.markForCheck();
-            console.log('🏠 Change detection completed');
-          }, 50);
-        }, 100);
-      });
+          this.cdr.markForCheck();
+          console.log('🏠 Change detection completed');
+        }, 50);
+      }, 100);
+    });
   }
 
   ngOnDestroy(): void {

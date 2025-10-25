@@ -45,32 +45,32 @@ export interface WorkSessionDto {
   overtimeHours: number;
   calculatedAmount: number;
   carUsageAmount: number;
-  
+
   // Ставки (для аудита)
   engineerBaseRate: number;
   engineerOvertimeRate: number;
-  
+
   // Оплата от организации
   organizationPayment: number;
   organizationBaseRate: number;
   organizationOvertimeMultiplier: number;
-  
+
   // Разбивка оплат
   regularPayment: number;
   overtimePayment: number;
   organizationRegularPayment: number;
   organizationOvertimePayment: number;
   profit: number;
-  
+
   // Детали работы
   distanceKm?: number;
   territoryType?: string;
   notes?: string;
   photoUrl?: string;
-  
+
   status: WorkSessionStatus;
   canBeInvoiced: boolean;
-  
+
   createdAt: Date | string;
   updatedAt: Date | string;
 }
@@ -83,6 +83,3 @@ export interface WorkSessionSummaryDto {
   totalPayment: number;
   totalCarUsage: number;
 }
-
-
-

@@ -85,7 +85,7 @@
               <div class="user-email">{{ currentUser()?.email }}</div>
             </div>
           </div>
-          
+
           <!-- Role Switcher for Mobile -->
           @if (canSwitchRoles()) {
             <div class="role-switcher-mobile">
@@ -93,12 +93,13 @@
                 <span i18n="@@navigation.switchRole">Переключить роль</span>
               </div>
               @for (role of availableRoles(); track role) {
-                <button 
+                <button
                   mat-button
                   class="role-option"
                   (click)="switchRole(role)"
                   [disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
-                  [class.active-role]="isRoleActive(role)">
+                  [class.active-role]="isRoleActive(role)"
+                >
                   <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
                   <span>{{ getRoleDisplayName(role) }}</span>
                   @if (isRoleActive(role)) {
@@ -108,7 +109,7 @@
               }
             </div>
           }
-          
+
           <div class="mobile-actions">
             <button mat-stroked-button (click)="toggleTheme()" class="theme-toggle-mobile">
               <mat-icon>{{ themeIcon() }}</mat-icon>
@@ -212,12 +213,32 @@
 
         <mat-menu #userMenu="matMenu" class="user-dropdown">
           <!-- Test with regular buttons -->
-          <button (click)="navigateToProfile()" style="width: 100%; text-align: left; padding: 12px 16px; border: none; background: none; cursor: pointer;">
+          <button
+            (click)="navigateToProfile()"
+            style="
+              width: 100%;
+              text-align: left;
+              padding: 12px 16px;
+              border: none;
+              background: none;
+              cursor: pointer;
+            "
+          >
             <mat-icon>person</mat-icon>
             <span>Мой профиль</span>
           </button>
 
-          <button (click)="logout()" style="width: 100%; text-align: left; padding: 12px 16px; border: none; background: none; cursor: pointer;">
+          <button
+            (click)="logout()"
+            style="
+              width: 100%;
+              text-align: left;
+              padding: 12px 16px;
+              border: none;
+              background: none;
+              cursor: pointer;
+            "
+          >
             <mat-icon>logout</mat-icon>
             <span>Выход</span>
           </button>
