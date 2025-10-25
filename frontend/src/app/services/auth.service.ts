@@ -109,7 +109,7 @@ export class AuthService {
     localStorage.setItem('access_token', authResult.access_token);
     localStorage.setItem('user', JSON.stringify(authResult.user));
     
-    // Update signals immediately
+    // Update signals immediately with proper change detection
     this.currentUserSignal.set(authResult.user);
     this.isAuthenticatedSignal.set(true);
     
@@ -118,18 +118,13 @@ export class AuthService {
       currentUser: this.currentUserSignal()
     });
     
-    // Force change detection with multiple attempts
+    // Force change detection using Angular's change detection
     setTimeout(() => {
-      this.currentUserSignal.set(authResult.user);
-      this.isAuthenticatedSignal.set(true);
-      console.log('🔐 First change detection update');
+      // Trigger change detection by updating signals again
+      this.currentUserSignal.update(user => user);
+      this.isAuthenticatedSignal.update(auth => auth);
+      console.log('🔐 Change detection triggered');
     }, 0);
-    
-    setTimeout(() => {
-      this.currentUserSignal.set(authResult.user);
-      this.isAuthenticatedSignal.set(true);
-      console.log('🔐 Second change detection update');
-    }, 50);
   }
 
   private clearSession(): void {
@@ -182,6 +177,13 @@ export class AuthService {
   refreshAuthState(): void {
     console.log('🔐 Forcing auth state refresh');
     this.checkAuthStatus();
+    
+    // Force change detection after state update
+    setTimeout(() => {
+      this.currentUserSignal.update(user => user);
+      this.isAuthenticatedSignal.update(auth => auth);
+      console.log('🔐 Auth state refresh completed with change detection');
+    }, 0);
   }
 
   /**

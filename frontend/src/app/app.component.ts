@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, computed, signal, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
@@ -74,6 +74,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private themeService = inject(ThemeService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   title = 'coffee-admin';
 
@@ -104,9 +105,14 @@ export class AppComponent implements OnInit, OnDestroy {
         setTimeout(() => {
           console.log('🏠 Auth state after navigation:', this.isAuthenticated());
           this.authService.refreshAuthState();
-          // Force change detection
+          
+          // Force change detection using Angular's ChangeDetectorRef
+          this.cdr.detectChanges();
+          
+          // Additional change detection trigger
           setTimeout(() => {
-            window.dispatchEvent(new Event('resize'));
+            this.cdr.markForCheck();
+            console.log('🏠 Change detection completed');
           }, 50);
         }, 100);
       });
