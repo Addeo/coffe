@@ -9,7 +9,7 @@ echo "Quick Fix Deployment for Order Creation"
 echo "=========================================="
 echo ""
 
-VPS_HOST="192.168.0.10"
+VPS_HOST="192.144.12.102"
 VPS_USER="root"
 VPS_PATH="/root/backend"
 
@@ -26,7 +26,6 @@ cd ..
 tar -czf backend-fix.tar.gz \
   backend/dist \
   backend/package.json \
-  backend/package-lock.json \
   backend/src
 echo "   ✅ Package created"
 echo ""
