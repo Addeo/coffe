@@ -43,8 +43,6 @@ export class AuthService {
         id: result.id,
         email: result.email,
         role: result.role,
-        primaryRole: result.primaryRole,
-        activeRole: result.activeRole,
       });
 
       return result;
@@ -59,30 +57,23 @@ export class AuthService {
       id: user.id,
       email: user.email,
       role: user.role,
-      primaryRole: user.primaryRole,
-      activeRole: user.activeRole,
     });
 
-    // Use user.role directly as the primary role
-    const primaryRole = user.role;
-    const effectiveRole = user.activeRole || user.role;
+    // Use user.role directly
+    const effectiveRole = user.role;
 
-    console.log('🔐 AuthService.login - Primary role:', primaryRole);
-    console.log('🔐 AuthService.login - Effective role:', effectiveRole);
+    console.log('🔐 AuthService.login - Role:', effectiveRole);
 
     const payload = {
       email: user.email,
       sub: user.id,
       role: effectiveRole,
-      primaryRole: primaryRole,
-      activeRole: user.activeRole,
     };
 
-    // Include role hierarchy info in response
+    // Include role info in response
     const userResponse = {
       ...user,
-      primaryRole: user.primaryRole || user.role,
-      activeRole: effectiveRole,
+      role: effectiveRole,
     };
 
     delete userResponse.password;
