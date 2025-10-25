@@ -240,8 +240,12 @@ export class ProfileComponent implements OnInit {
 
   onThemeChange(theme: Theme): void {
     this.themeService.setTheme(theme);
-    this.snackBar.open(`Тема изменена на: ${this.themes.find(t => t.value === theme)?.label}`, 'OK', {
-      duration: 2000,
-    });
+    this.snackBar.open(
+      `Тема изменена на: ${this.themes.find(t => t.value === theme)?.label}`,
+      'OK',
+      {
+        duration: 2000,
+      }
+    );
   }
 }

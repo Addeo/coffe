@@ -8,10 +8,19 @@ export type SkeletonType = 'text' | 'circle' | 'rectangle' | 'card' | 'table-row
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="skeleton-loader" [ngClass]="['skeleton-' + type, customClass]" [style.height.px]="height" [style.width]="width">
+    <div
+      class="skeleton-loader"
+      [ngClass]="['skeleton-' + type, customClass]"
+      [style.height.px]="height"
+      [style.width]="width"
+    >
       <!-- Text skeleton -->
       <ng-container *ngIf="type === 'text'">
-        <div class="skeleton-line" *ngFor="let line of lines; let i = index" [style.width]="getLineWidth(i)"></div>
+        <div
+          class="skeleton-line"
+          *ngFor="let line of lines; let i = index"
+          [style.width]="getLineWidth(i)"
+        ></div>
       </ng-container>
 
       <!-- Circle skeleton (for avatars) -->
@@ -216,4 +225,3 @@ export class SkeletonLoaderComponent {
     return '100%';
   }
 }
-

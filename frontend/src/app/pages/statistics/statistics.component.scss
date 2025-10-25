@@ -585,7 +585,7 @@
       .table-container {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        
+
         table {
           min-width: 100%;
           font-size: 0.9rem;
@@ -596,7 +596,7 @@
             white-space: nowrap;
             min-width: 80px;
           }
-          
+
           th {
             font-size: 0.8rem;
             font-weight: 600;
@@ -616,7 +616,7 @@
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
     margin-bottom: 24px;
-    
+
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
       gap: 12px;
@@ -654,22 +654,22 @@
         font-size: 0.9rem;
       }
     }
-    
+
     @media (max-width: 768px) {
       padding: 12px;
       gap: 10px;
-      
+
       mat-icon {
         font-size: 24px;
         width: 24px;
         height: 24px;
       }
-      
+
       .stat-info {
         h3 {
           font-size: 1.2rem;
         }
-        
+
         p {
           font-size: 0.8rem;
         }

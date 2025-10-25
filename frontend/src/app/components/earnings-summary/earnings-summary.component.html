@@ -1,4 +1,4 @@
-<div 
+<div
   class="earnings-summary-container"
   (touchstart)="onTouchStart($event)"
   (touchend)="onTouchEnd($event)"
@@ -12,8 +12,8 @@
         </div>
 
         <div class="month-selector">
-          <button 
-            mat-icon-button 
+          <button
+            mat-icon-button
             (click)="previousMonth()"
             matTooltip="Предыдущий месяц"
             class="nav-btn"
@@ -21,12 +21,10 @@
             <mat-icon>chevron_left</mat-icon>
           </button>
 
-          <span class="month-display">
-            {{ getCurrentMonthName() }} {{ currentYear() }}
-          </span>
+          <span class="month-display"> {{ getCurrentMonthName() }} {{ currentYear() }} </span>
 
-          <button 
-            mat-icon-button 
+          <button
+            mat-icon-button
             (click)="nextMonth()"
             matTooltip="Следующий месяц"
             class="nav-btn"
@@ -36,18 +34,18 @@
         </div>
 
         <div class="header-actions">
-          <button 
-            mat-icon-button 
+          <button
+            mat-icon-button
             (click)="exportStatisticsToExcel()"
             matTooltip="Скачать статистику"
             class="export-btn"
           >
             <mat-icon>file_download</mat-icon>
           </button>
-          
-          <button 
+
+          <button
             *ngIf="collapsible"
-            mat-icon-button 
+            mat-icon-button
             (click)="toggleCollapse()"
             matTooltip="Свернуть/Развернуть"
             class="collapse-btn"
@@ -66,7 +64,11 @@
 
       <div class="earnings-grid" *ngIf="!isLoading()">
         <!-- Unaccepted Orders Warning -->
-        <div class="earning-card warning-earnings" *ngIf="hasUnacceptedOrders()" (click)="onViewUnacceptedOrders()">
+        <div
+          class="earning-card warning-earnings"
+          *ngIf="hasUnacceptedOrders()"
+          (click)="onViewUnacceptedOrders()"
+        >
           <div class="earning-icon">
             <mat-icon>warning</mat-icon>
           </div>
@@ -74,11 +76,9 @@
             <div class="earning-label">Непринятые заявки!</div>
             <div class="earning-value">
               <span *ngIf="canViewAllOrders">
-                {{ getUnacceptedOrdersCount() }} 
+                {{ getUnacceptedOrdersCount() }}
               </span>
-              <span *ngIf="!canViewAllOrders">
-                Есть непринятые заявки
-              </span>
+              <span *ngIf="!canViewAllOrders"> Есть непринятые заявки </span>
             </div>
           </div>
         </div>
@@ -147,4 +147,3 @@
     </mat-card-content>
   </mat-card>
 </div>
-

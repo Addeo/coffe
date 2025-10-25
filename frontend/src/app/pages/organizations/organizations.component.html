@@ -128,12 +128,20 @@
               </button>
 
               <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="onEditOrganizationTest(organization)" [disabled]="!canEdit()">
+                <button
+                  mat-menu-item
+                  (click)="onEditOrganizationTest(organization)"
+                  [disabled]="!canEdit()"
+                >
                   <mat-icon>edit</mat-icon>
                   <span i18n="@@organizations.edit">Редактировать</span>
                 </button>
 
-                <button mat-menu-item (click)="onToggleStatus(organization)" [disabled]="!canEdit()">
+                <button
+                  mat-menu-item
+                  (click)="onToggleStatus(organization)"
+                  [disabled]="!canEdit()"
+                >
                   <mat-icon>{{ organization.isActive ? 'block' : 'check_circle' }}</mat-icon>
                   <span>{{ organization.isActive ? 'Деактивировать' : 'Активировать' }}</span>
                 </button>
@@ -153,7 +161,7 @@
 
                 <!-- Тестовая кнопка для проверки обработчиков событий -->
                 <mat-divider></mat-divider>
-                <button mat-menu-item (click)="testClick()" style="color: red;">
+                <button mat-menu-item (click)="testClick()" style="color: red">
                   <mat-icon>bug_report</mat-icon>
                   <span>Тест клика</span>
                 </button>

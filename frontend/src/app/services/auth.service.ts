@@ -104,20 +104,20 @@ export class AuthService {
 
   private setSession(authResult: AuthLoginResponse): void {
     console.log('🔐 Setting session:', authResult);
-    
+
     // Store in localStorage
     localStorage.setItem('access_token', authResult.access_token);
     localStorage.setItem('user', JSON.stringify(authResult.user));
-    
+
     // Update signals immediately with proper change detection
     this.currentUserSignal.set(authResult.user);
     this.isAuthenticatedSignal.set(true);
-    
+
     console.log('🔐 Session set, auth state:', {
       isAuthenticated: this.isAuthenticatedSignal(),
-      currentUser: this.currentUserSignal()
+      currentUser: this.currentUserSignal(),
     });
-    
+
     // Force change detection using Angular's change detection
     setTimeout(() => {
       // Trigger change detection by updating signals again
@@ -177,7 +177,7 @@ export class AuthService {
   refreshAuthState(): void {
     console.log('🔐 Forcing auth state refresh');
     this.checkAuthStatus();
-    
+
     // Force change detection after state update
     setTimeout(() => {
       this.currentUserSignal.update(user => user);
@@ -191,11 +191,11 @@ export class AuthService {
    */
   retryAuthCheck(): Observable<boolean> {
     console.log('🔐 Retrying authentication check...');
-    
+
     // Simply re-check the stored data and update signals
     const token = this.getToken();
     const userData = localStorage.getItem('user');
-    
+
     if (!token || !userData) {
       console.log('🔐 No token or user data found, setting unauthenticated');
       this.isAuthenticatedSignal.set(false);
@@ -211,7 +211,7 @@ export class AuthService {
       console.log('✅ Token and user data found, setting authenticated');
       this.currentUserSignal.set(user);
       this.isAuthenticatedSignal.set(true);
-      
+
       return new Observable(observer => {
         observer.next(true);
         observer.complete();
@@ -240,15 +240,15 @@ export class AuthService {
     const user = this.currentUser();
     const active = this.activeRole();
     const primary = this.primaryRole();
-    
+
     // Admin has access to everything
     if (user?.role === 'admin' || primary === 'admin') {
       console.log('🔐 AuthService.hasAnyRole: Admin access granted');
       return true;
     }
-    
+
     const result = active ? roles.includes(active) : false;
-    
+
     console.log('🔐 AuthService.hasAnyRole:', {
       activeRole: active,
       primaryRole: primary,
@@ -257,7 +257,7 @@ export class AuthService {
       result,
       currentUser: this.currentUser(),
     });
-    
+
     return result;
   }
 

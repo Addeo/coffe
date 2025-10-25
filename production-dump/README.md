@@ -1,6 +1,7 @@
 # Production Database Dump
 
 ## Описание
+
 Этот дамп содержит структуру и данные базы данных для продакшена Coffee Admin System.
 
 ## Файлы
@@ -12,12 +13,14 @@
 ## Установка
 
 ### Вариант 1: Полный дамп
+
 ```bash
 # Создание новой базы данных
 sqlite3 production.db < production_dump_20251016_225347.sql
 ```
 
 ### Вариант 2: Только базовые данные
+
 ```bash
 # Создание новой базы данных с базовыми данными
 sqlite3 production.db < production_seed_20251016_225347.sql
@@ -25,12 +28,12 @@ sqlite3 production.db < production_seed_20251016_225347.sql
 
 ## Пользователи по умолчанию
 
-| Email | Пароль | Роль |
-|-------|--------|------|
-| admin@coffee.com | admin123 | Администратор |
-| manager@coffee.com | manager123 | Менеджер |
-| engineer1@coffee.com | engineer123 | Инженер |
-| engineer2@coffee.com | engineer123 | Инженер |
+| Email                | Пароль      | Роль          |
+| -------------------- | ----------- | ------------- |
+| admin@coffee.com     | admin123    | Администратор |
+| manager@coffee.com   | manager123  | Менеджер      |
+| engineer1@coffee.com | engineer123 | Инженер       |
+| engineer2@coffee.com | engineer123 | Инженер       |
 
 ## Организации
 

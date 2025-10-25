@@ -35,7 +35,7 @@ async function bootstrap() {
         transformOptions: {
           enableImplicitConversion: true,
         },
-      }),
+      })
     );
     console.log('ValidationPipe enabled');
 

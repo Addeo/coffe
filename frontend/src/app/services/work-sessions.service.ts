@@ -29,31 +29,28 @@ export class WorkSessionsService {
   getMyWorkSessions(startDate?: string, endDate?: string): Observable<WorkSessionDto[]> {
     let url = `${this.apiUrl}/my/sessions`;
     const params: string[] = [];
-    
+
     if (startDate) {
       params.push(`startDate=${startDate}`);
     }
     if (endDate) {
       params.push(`endDate=${endDate}`);
     }
-    
+
     if (params.length > 0) {
       url += `?${params.join('&')}`;
     }
-    
+
     return this.http.get<WorkSessionDto[]>(url);
   }
 
   /**
    * Создать рабочую сессию для заказа
    */
-  createWorkSession(
-    orderId: number,
-    data: CreateWorkSessionDto,
-  ): Observable<WorkSessionDto> {
+  createWorkSession(orderId: number, data: CreateWorkSessionDto): Observable<WorkSessionDto> {
     return this.http.post<WorkSessionDto>(
       `${environment.apiUrl}/orders/${orderId}/work-sessions`,
-      data,
+      data
     );
   }
 
@@ -61,18 +58,13 @@ export class WorkSessionsService {
    * Получить все рабочие сессии по заказу
    */
   getOrderWorkSessions(orderId: number): Observable<WorkSessionDto[]> {
-    return this.http.get<WorkSessionDto[]>(
-      `${environment.apiUrl}/orders/${orderId}/work-sessions`,
-    );
+    return this.http.get<WorkSessionDto[]>(`${environment.apiUrl}/orders/${orderId}/work-sessions`);
   }
 
   /**
    * Обновить рабочую сессию
    */
-  updateWorkSession(
-    sessionId: number,
-    data: UpdateWorkSessionDto,
-  ): Observable<WorkSessionDto> {
+  updateWorkSession(sessionId: number, data: UpdateWorkSessionDto): Observable<WorkSessionDto> {
     return this.http.patch<WorkSessionDto>(`${this.apiUrl}/${sessionId}`, data);
   }
 
@@ -103,7 +95,7 @@ export class WorkSessionsService {
         totalOvertimeHours: 0,
         totalPayment: 0,
         totalCarUsage: 0,
-      } as WorkSessionSummaryDto,
+      } as WorkSessionSummaryDto
     );
   }
 
@@ -127,4 +119,3 @@ export class WorkSessionsService {
     return new Date(dateString);
   }
 }
-

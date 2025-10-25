@@ -5,7 +5,7 @@
 При добавлении новой таблицы `work_sessions` может возникнуть ошибка миграции:
 
 ```
-QueryFailedError: SQLITE_CONSTRAINT: NOT NULL constraint failed: 
+QueryFailedError: SQLITE_CONSTRAINT: NOT NULL constraint failed:
 temporary_user_activity_logs.activity_type
 ```
 
@@ -77,6 +77,7 @@ npm run seed
 ```
 
 Это создаст:
+
 - Тестовых пользователей
 - Организации
 - Инженеров
@@ -204,4 +205,3 @@ sqlite3 database.sqlite
 ---
 
 **Готово! БД обновлена и готова к работе!** 🚀
-

@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WorkSession, WorkSessionStatus } from '../../entities/work-session.entity';
@@ -47,7 +42,7 @@ export class WorkSessionsService {
     private readonly ordersRepository: Repository<Order>,
     @InjectRepository(Engineer)
     private readonly engineersRepository: Repository<Engineer>,
-    private readonly calculationService: CalculationService,
+    private readonly calculationService: CalculationService
   ) {}
 
   /**
@@ -56,7 +51,7 @@ export class WorkSessionsService {
   async createWorkSession(
     orderId: number,
     engineerId: number,
-    workData: CreateWorkSessionDto,
+    workData: CreateWorkSessionDto
   ): Promise<WorkSession> {
     // Получаем заказ
     const order = await this.ordersRepository.findOne({
@@ -81,32 +76,27 @@ export class WorkSessionsService {
     // Проверяем, что инженер назначен на заказ
     if (order.assignedEngineerId !== engineer.id) {
       throw new BadRequestException(
-        'Engineer is not assigned to this order. Please assign engineer first.',
+        'Engineer is not assigned to this order. Please assign engineer first.'
       );
     }
 
     // Получаем ставки для пары инженер-организация
     const rates = await this.calculationService.getEngineerRatesForOrganization(
       engineer,
-      order.organization,
+      order.organization
     );
 
     // Рассчитываем оплату инженеру
     const regularPayment = workData.regularHours * rates.baseRate;
-    const overtimePayment =
-      workData.overtimeHours * (rates.overtimeRate || rates.baseRate);
+    const overtimePayment = workData.overtimeHours * (rates.overtimeRate || rates.baseRate);
     const totalPayment = regularPayment + overtimePayment;
 
     // Рассчитываем оплату от организации
-    const organizationRegularPayment =
-      workData.regularHours * order.organization.baseRate;
+    const organizationRegularPayment = workData.regularHours * order.organization.baseRate;
     const organizationOvertimePayment = order.organization.hasOvertime
-      ? workData.overtimeHours *
-        order.organization.baseRate *
-        order.organization.overtimeMultiplier
+      ? workData.overtimeHours * order.organization.baseRate * order.organization.overtimeMultiplier
       : workData.overtimeHours * order.organization.baseRate;
-    const organizationPayment =
-      organizationRegularPayment + organizationOvertimePayment;
+    const organizationPayment = organizationRegularPayment + organizationOvertimePayment;
 
     // Создаём рабочую сессию
     const workSession = this.workSessionsRepository.create({
@@ -145,7 +135,7 @@ export class WorkSessionsService {
     }
 
     this.logger.log(
-      `✅ Work session created: Order #${orderId}, Date: ${workData.workDate}, Hours: ${workData.regularHours}+${workData.overtimeHours}, Payment: ${totalPayment}₽`,
+      `✅ Work session created: Order #${orderId}, Date: ${workData.workDate}, Hours: ${workData.regularHours}+${workData.overtimeHours}, Payment: ${totalPayment}₽`
     );
 
     return savedSession;
@@ -176,7 +166,7 @@ export class WorkSessionsService {
   async getEngineerWorkSessions(
     engineerId: number,
     startDate?: Date,
-    endDate?: Date,
+    endDate?: Date
   ): Promise<WorkSession[]> {
     const query = this.workSessionsRepository
       .createQueryBuilder('session')
@@ -216,7 +206,7 @@ export class WorkSessionsService {
    */
   async updateWorkSession(
     sessionId: number,
-    updateData: UpdateWorkSessionDto,
+    updateData: UpdateWorkSessionDto
   ): Promise<WorkSession> {
     const session = await this.workSessionsRepository.findOne({
       where: { id: sessionId },
@@ -243,15 +233,11 @@ export class WorkSessionsService {
         overtimeHours * (session.engineerOvertimeRate || session.engineerBaseRate);
       const totalPayment = regularPayment + overtimePayment;
 
-      const organizationRegularPayment =
-        regularHours * session.organizationBaseRate;
+      const organizationRegularPayment = regularHours * session.organizationBaseRate;
       const organizationOvertimePayment = session.organizationOvertimeMultiplier
-        ? overtimeHours *
-          session.organizationBaseRate *
-          session.organizationOvertimeMultiplier
+        ? overtimeHours * session.organizationBaseRate * session.organizationOvertimeMultiplier
         : overtimeHours * session.organizationBaseRate;
-      const organizationPayment =
-        organizationRegularPayment + organizationOvertimePayment;
+      const organizationPayment = organizationRegularPayment + organizationOvertimePayment;
 
       // Обновляем расчёты
       session.regularHours = regularHours;
@@ -316,7 +302,7 @@ export class WorkSessionsService {
   async getWorkSessionsForSalaryCalculation(
     engineerId: number,
     month: number,
-    year: number,
+    year: number
   ): Promise<WorkSession[]> {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
@@ -334,4 +320,3 @@ export class WorkSessionsService {
       .getMany();
   }
 }
-

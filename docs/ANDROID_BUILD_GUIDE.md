@@ -25,6 +25,7 @@
 5. **npm** или **yarn**
 
 ### Для macOS дополнительно:
+
 - **Homebrew** (для установки JDK)
 - **Xcode Command Line Tools** (опционально)
 
@@ -42,6 +43,7 @@
 - ✅ **npm скрипты** - все команды сборки настроены
 
 Конфигурация приложения:
+
 ```json
 {
   "appId": "com.coffee.admin",
@@ -114,6 +116,7 @@ export PATH=$PATH:$ANDROID_HOME/build-tools/36.1.0
 ```
 
 Применить изменения:
+
 ```bash
 source ~/.zshrc  # или source ~/.bashrc
 ```
@@ -177,6 +180,7 @@ npm run build:android
 ```
 
 Эта команда:
+
 1. Собирает Angular приложение для production
 2. Копирует веб-ресурсы в Android проект
 3. Синхронизирует Capacitor плагины
@@ -199,6 +203,7 @@ npm run open:android
 ```
 
 В Android Studio:
+
 1. **Build** → **Build Bundle(s)/APK(s)** → **Build APK(s)**
 2. Дождитесь завершения сборки
 3. APK будет в: `frontend/android/app/build/outputs/apk/debug/app-debug.apk`
@@ -218,10 +223,10 @@ cd frontend/android
 
 После успешной сборки:
 
-| Тип сборки | Путь к файлу | Размер (примерно) |
-|------------|--------------|-------------------|
-| Debug APK | `frontend/android/app/build/outputs/apk/debug/app-debug.apk` | ~4-5 MB |
-| Release APK | `frontend/android/app/build/outputs/apk/release/app-release-unsigned.apk` | ~3-4 MB |
+| Тип сборки  | Путь к файлу                                                              | Размер (примерно) |
+| ----------- | ------------------------------------------------------------------------- | ----------------- |
+| Debug APK   | `frontend/android/app/build/outputs/apk/debug/app-debug.apk`              | ~4-5 MB           |
+| Release APK | `frontend/android/app/build/outputs/apk/release/app-release-unsigned.apk` | ~3-4 MB           |
 
 ---
 
@@ -355,6 +360,7 @@ npx cap open ios
 **Причина:** Неправильная версия Java.
 
 **Решение:**
+
 ```bash
 # Проверьте версию Java
 java -version
@@ -369,6 +375,7 @@ echo $JAVA_HOME
 **Причина:** Переменная окружения не настроена.
 
 **Решение:**
+
 ```bash
 # Добавьте в ~/.zshrc или ~/.bashrc
 export ANDROID_HOME=$HOME/Library/Android/sdk  # macOS
@@ -383,6 +390,7 @@ source ~/.zshrc
 **Причина:** Android SDK не установлен или путь неверный.
 
 **Решение:**
+
 1. Установите Android Studio
 2. Откройте Android Studio → **SDK Manager**
 3. Убедитесь, что SDK установлен
@@ -391,6 +399,7 @@ source ~/.zshrc
 ### Проблема: `npm run build:android` не работает
 
 **Решение:**
+
 ```bash
 # Очистите кэш и переустановите зависимости
 cd frontend
@@ -406,6 +415,7 @@ ls -la ../shared
 **Причина:** Недостаточно памяти или конфликт версий.
 
 **Решение:**
+
 ```bash
 # Остановите все Gradle процессы
 cd frontend/android
@@ -424,6 +434,7 @@ rm -rf ~/.gradle/daemon/
 **Причина:** Capacitor CLI не установлен.
 
 **Решение:**
+
 ```bash
 cd frontend
 npm install @capacitor/cli --save-dev
@@ -434,12 +445,14 @@ npm install @capacitor/cli --save-dev
 ### Проблема: Build warnings о превышении бюджета
 
 **Пример:**
+
 ```
 Warning: bundle initial exceeded maximum budget. Budget 500.00 kB was not met by 693.35 kB
 ```
 
 **Решение:**
 Это предупреждения, не ошибки. Для оптимизации:
+
 1. Включите tree-shaking
 2. Используйте lazy loading для модулей
 3. Оптимизируйте изображения
@@ -448,11 +461,13 @@ Warning: bundle initial exceeded maximum budget. Budget 500.00 kB was not met by
 ### Проблема: APK не устанавливается на устройство
 
 **Возможные причины:**
+
 1. Не включена "Установка из неизвестных источников"
 2. Устройство не поддерживает minSdkVersion (23+)
 3. Конфликт с существующей версией
 
 **Решение:**
+
 ```bash
 # Удалите старую версию
 adb uninstall com.coffee.admin
@@ -464,6 +479,7 @@ adb install -r app-debug.apk
 ### Проблема: `RxJS` ошибки
 
 **Решение:**
+
 ```bash
 # Очистите все node_modules
 cd frontend
@@ -564,6 +580,7 @@ touch keystore.properties
 ```
 
 Содержимое `keystore.properties`:
+
 ```properties
 storeFile=app/coffee-admin-release.keystore
 storePassword=YOUR_STORE_PASSWORD
@@ -609,6 +626,7 @@ cd frontend/android
 APK будет в: `app/build/outputs/apk/release/app-release.apk`
 
 **⚠️ ВАЖНО:**
+
 - Храните `keystore.properties` и `.keystore` файл в безопасности
 - Добавьте их в `.gitignore`
 - Никогда не коммитьте пароли в git
@@ -665,4 +683,3 @@ cd android
 **Дата создания:** 13 октября 2025  
 **Версия:** 1.0.0  
 **Автор:** Coffee Admin Team
-

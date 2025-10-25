@@ -38,7 +38,9 @@ export interface AssignEngineerDialogData {
   template: `
     <div class="assign-engineer-dialog">
       <h2 mat-dialog-title>
-        {{ data.order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера на заказ' }}
+        {{
+          data.order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера на заказ'
+        }}
       </h2>
 
       <mat-dialog-content>
@@ -56,9 +58,14 @@ export interface AssignEngineerDialogData {
 
         <form [formGroup]="assignForm" class="assign-form">
           <mat-form-field appearance="outline" class="form-field">
-            <mat-label>{{ data.order.assignedEngineerId ? 'Выберите нового инженера' : 'Выберите инженера' }}</mat-label>
+            <mat-label>{{
+              data.order.assignedEngineerId ? 'Выберите нового инженера' : 'Выберите инженера'
+            }}</mat-label>
             <mat-select formControlName="engineerId" placeholder="Выберите инженера для назначения">
-              <mat-option *ngFor="let engineer of availableEngineers" [value]="engineer.engineer?.id || engineer.id">
+              <mat-option
+                *ngFor="let engineer of availableEngineers"
+                [value]="engineer.engineer?.id || engineer.id"
+              >
                 {{ engineer.firstName }} {{ engineer.lastName }} ({{ engineer.email }})
               </mat-option>
             </mat-select>
@@ -83,7 +90,9 @@ export interface AssignEngineerDialogData {
           [disabled]="assignForm.invalid || isLoading"
         >
           <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
-          <span *ngIf="!isLoading">{{ data.order.assignedEngineerId ? 'Переназначить' : 'Назначить' }}</span>
+          <span *ngIf="!isLoading">{{
+            data.order.assignedEngineerId ? 'Переназначить' : 'Назначить'
+          }}</span>
         </button>
       </mat-dialog-actions>
     </div>
@@ -274,15 +283,16 @@ export class AssignEngineerDialogComponent {
       next: (response: any) => {
         // Filter only active engineers (users with role USER) - exclude managers and admins
         this.availableEngineers = response.data.filter(
-          (user: UserDto) => 
-            user.role === UserRole.USER && 
-            user.isActive
+          (user: UserDto) => user.role === UserRole.USER && user.isActive
         );
-        
+
         console.log('Available engineers:', this.availableEngineers);
-        console.log('Filtered out managers/admins:', response.data.filter(
-          (user: UserDto) => user.role === UserRole.MANAGER || user.role === UserRole.ADMIN
-        ));
+        console.log(
+          'Filtered out managers/admins:',
+          response.data.filter(
+            (user: UserDto) => user.role === UserRole.MANAGER || user.role === UserRole.ADMIN
+          )
+        );
       },
       error: (error: any) => {
         console.error('Error loading engineers:', error);
@@ -358,7 +368,9 @@ export class AssignEngineerDialogComponent {
     }
 
     // Fallback: Find the engineer name from available engineers (users with engineer property)
-    const user = this.availableEngineers.find(u => u.engineer?.id === this.data.order.assignedEngineerId);
+    const user = this.availableEngineers.find(
+      u => u.engineer?.id === this.data.order.assignedEngineerId
+    );
     if (user) {
       return `${user.firstName} ${user.lastName}`;
     }

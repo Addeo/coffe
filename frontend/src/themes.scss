@@ -55,7 +55,7 @@
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
-  --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.20);
+  --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.2);
 
   // Overlay
   --overlay-bg: rgba(0, 0, 0, 0.32);
@@ -118,7 +118,7 @@
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
-  --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.20);
+  --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.2);
 
   // Overlay
   --overlay-bg: rgba(0, 0, 0, 0.32);
@@ -180,7 +180,7 @@
   // Shadow colors (darker for dark theme)
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.24);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.32);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.40);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
   --shadow-xl: 0 12px 48px rgba(0, 0, 0, 0.48);
 
   // Overlay
@@ -214,11 +214,11 @@ body {
   .mat-mdc-text-field-wrapper {
     background-color: var(--bg-secondary);
   }
-  
+
   .mat-mdc-input-element {
     color: var(--text-primary);
   }
-  
+
   .mat-mdc-form-field-label {
     color: var(--text-secondary);
   }
@@ -371,4 +371,3 @@ body {
     border: 1px solid var(--border-color-light);
   }
 }
-

@@ -93,7 +93,7 @@ export class StatisticsComponent implements OnInit {
   isLoading = signal(false);
   statistics = signal<MonthlyStatisticsDto | null>(null);
   comprehensiveStatistics = signal<ComprehensiveStatisticsDto | null>(null);
-  
+
   // User statistics
   userStats = signal({
     totalUsers: 0,
@@ -103,7 +103,7 @@ export class StatisticsComponent implements OnInit {
       admin: 0,
       manager: 0,
       user: 0,
-    }
+    },
   });
 
   // Month and year selection
@@ -301,12 +301,14 @@ export class StatisticsComponent implements OnInit {
     const data = this.statistics()?.agentEarnings || [];
     return {
       labels: data.map(a => a.agentName),
-      datasets: [{
-        label: 'Начислено инженерам (₽)',
-        data: data.map(a => a.totalEarnings),
-        backgroundColor: '#3f51b5',
-        borderRadius: 6,
-      }]
+      datasets: [
+        {
+          label: 'Начислено инженерам (₽)',
+          data: data.map(a => a.totalEarnings),
+          backgroundColor: '#3f51b5',
+          borderRadius: 6,
+        },
+      ],
     };
   }
 
@@ -333,8 +335,8 @@ export class StatisticsComponent implements OnInit {
           data: data.map(o => o.totalProfit),
           backgroundColor: '#2196f3',
           borderRadius: 4,
-        }
-      ]
+        },
+      ],
     };
   }
 
@@ -343,16 +345,18 @@ export class StatisticsComponent implements OnInit {
     const data = this.statistics()?.organizationEarnings || [];
     return {
       labels: data.map(o => o.organizationName),
-      datasets: [{
-        label: 'Маржа прибыли (%)',
-        data: data.map(o => o.profitMargin),
-        borderColor: '#e91e63',
-        backgroundColor: 'rgba(233, 30, 99, 0.1)',
-        tension: 0.4,
-        fill: true,
-        pointRadius: 6,
-        pointHoverRadius: 8,
-      }]
+      datasets: [
+        {
+          label: 'Маржа прибыли (%)',
+          data: data.map(o => o.profitMargin),
+          borderColor: '#e91e63',
+          backgroundColor: 'rgba(233, 30, 99, 0.1)',
+          tension: 0.4,
+          fill: true,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+        },
+      ],
     };
   }
 
@@ -361,15 +365,17 @@ export class StatisticsComponent implements OnInit {
     const data = this.statistics()?.overtimeStatistics || [];
     const totalOvertime = data.reduce((sum, a) => sum + a.overtimeHours, 0);
     const totalRegular = data.reduce((sum, a) => sum + a.regularHours, 0);
-    
+
     return {
       labels: ['Сверхурочные часы', 'Обычные часы'],
-      datasets: [{
-        data: [totalOvertime, totalRegular],
-        backgroundColor: ['#ff5722', '#66BB6A'],
-        borderWidth: 0,
-        hoverOffset: 10
-      }]
+      datasets: [
+        {
+          data: [totalOvertime, totalRegular],
+          backgroundColor: ['#ff5722', '#66BB6A'],
+          borderWidth: 0,
+          hoverOffset: 10,
+        },
+      ],
     };
   }
 
@@ -390,8 +396,8 @@ export class StatisticsComponent implements OnInit {
           data: data.map(a => a.overtimeHours),
           backgroundColor: '#ff5722',
           borderRadius: 4,
-        }
-      ]
+        },
+      ],
     };
   }
 
@@ -406,30 +412,32 @@ export class StatisticsComponent implements OnInit {
       },
       tooltip: {
         callbacks: {
-          label: (context) => {
+          label: context => {
             const label = context.dataset.label || '';
             const value = new Intl.NumberFormat('ru-RU', {
               style: 'currency',
               currency: 'RUB',
             }).format(context.parsed?.y || 0);
             return `${label}: ${value}`;
-          }
-        }
-      }
+          },
+        },
+      },
     },
     scales: {
       y: {
         beginAtZero: true,
         ticks: {
-          callback: (value) => {
-            return new Intl.NumberFormat('ru-RU', {
-              notation: 'compact',
-              compactDisplay: 'short'
-            }).format(value as number) + ' ₽';
-          }
-        }
-      }
-    }
+          callback: value => {
+            return (
+              new Intl.NumberFormat('ru-RU', {
+                notation: 'compact',
+                compactDisplay: 'short',
+              }).format(value as number) + ' ₽'
+            );
+          },
+        },
+      },
+    },
   };
 
   lineChartOptions: ChartConfiguration['options'] = {
@@ -442,20 +450,20 @@ export class StatisticsComponent implements OnInit {
       },
       tooltip: {
         callbacks: {
-          label: (context) => {
+          label: context => {
             return `Маржа: ${context.parsed?.y?.toFixed(2) || '0.00'}%`;
-          }
-        }
-      }
+          },
+        },
+      },
     },
     scales: {
       y: {
         beginAtZero: true,
         ticks: {
-          callback: (value) => `${value}%`
-        }
-      }
-    }
+          callback: value => `${value}%`,
+        },
+      },
+    },
   };
 
   doughnutChartOptions: ChartConfiguration['options'] = {
@@ -468,19 +476,19 @@ export class StatisticsComponent implements OnInit {
           usePointStyle: true,
           padding: 15,
           font: {
-            size: 12
+            size: 12,
           },
-          generateLabels: (chart) => {
+          generateLabels: chart => {
             const data = chart.data;
             if (data.labels && data.datasets && data.datasets[0]) {
               const dataset = data.datasets[0];
               const total = (dataset.data as number[]).reduce((a: number, b: number) => a + b, 0);
-              
+
               return data.labels.map((label, index) => {
                 const value = dataset.data[index] as number;
                 const percentage = ((value / total) * 100).toFixed(1);
-                const bgColor = Array.isArray(dataset.backgroundColor) 
-                  ? dataset.backgroundColor[index] 
+                const bgColor = Array.isArray(dataset.backgroundColor)
+                  ? dataset.backgroundColor[index]
                   : dataset.backgroundColor;
                 const borderColor = Array.isArray(dataset.borderColor)
                   ? dataset.borderColor[index]
@@ -492,31 +500,34 @@ export class StatisticsComponent implements OnInit {
                   lineWidth: 2,
                   pointStyle: 'circle',
                   hidden: false,
-                  index: index
+                  index: index,
                 };
               });
             }
             return [];
-          }
-        }
+          },
+        },
       },
       tooltip: {
         enabled: true,
         callbacks: {
-          label: (context) => {
+          label: context => {
             const label = context.label || '';
             const value = context.parsed;
-            const total = (context.dataset.data as number[]).reduce((a: number, b: number) => a + b, 0);
+            const total = (context.dataset.data as number[]).reduce(
+              (a: number, b: number) => a + b,
+              0
+            );
             const percentage = ((value / total) * 100).toFixed(1);
             return `${label}: ${value} ч (${percentage}%)`;
-          }
-        }
-      }
+          },
+        },
+      },
     },
     // Добавляем анимацию для лучшего восприятия
     animation: {
-      duration: 1000
-    }
+      duration: 1000,
+    },
   };
 
   stackedBarChartOptions: ChartConfiguration['options'] = {
@@ -536,10 +547,10 @@ export class StatisticsComponent implements OnInit {
         stacked: true,
         beginAtZero: true,
         ticks: {
-          callback: (value) => `${value} ч`
-        }
-      }
-    }
+          callback: value => `${value} ч`,
+        },
+      },
+    },
   };
 
   ngOnInit() {
@@ -549,7 +560,7 @@ export class StatisticsComponent implements OnInit {
 
   loadStatistics() {
     this.isLoading.set(true);
-    
+
     // Для инженеров загружаем только их статистику
     if (this.isEngineer) {
       this.loadEngineerStatistics();
@@ -566,48 +577,52 @@ export class StatisticsComponent implements OnInit {
       return;
     }
 
-    this.statisticsService.getAdminEngineerStatistics(this.selectedYear(), this.selectedMonth()).subscribe({
-      next: (data: any) => {
-        // Фильтруем данные только для текущего инженера
-        const myEngineerData = data.engineers.find((engineer: any) => engineer.engineerId === currentUser.id);
-        
-        if (myEngineerData) {
-          // Создаем объект статистики только для этого инженера
-          const engineerStats = {
-            year: this.selectedYear(),
-            month: this.selectedMonth(),
-            monthName: this.getMonthName(this.selectedMonth()),
-            agentEarnings: [myEngineerData],
-            organizationEarnings: [],
-            overtimeStatistics: [],
-            totalEarnings: myEngineerData.totalEarnings,
-            totalOrders: myEngineerData.completedOrders,
-            totalOvertimeHours: myEngineerData.overtimeHours || 0,
-          };
-          
-          this.statistics.set(engineerStats);
-        } else {
-          // Если данных нет, создаем пустую статистику
-          this.statistics.set({
-            year: this.selectedYear(),
-            month: this.selectedMonth(),
-            monthName: this.getMonthName(this.selectedMonth()),
-            agentEarnings: [],
-            organizationEarnings: [],
-            overtimeStatistics: [],
-            totalEarnings: 0,
-            totalOrders: 0,
-            totalOvertimeHours: 0,
-          });
-        }
-        this.isLoading.set(false);
-      },
-      error: (error: any) => {
-        console.error('Error loading engineer statistics:', error);
-        this.snackBar.open('Ошибка загрузки статистики инженера', 'Закрыть', { duration: 3000 });
-        this.isLoading.set(false);
-      },
-    });
+    this.statisticsService
+      .getAdminEngineerStatistics(this.selectedYear(), this.selectedMonth())
+      .subscribe({
+        next: (data: any) => {
+          // Фильтруем данные только для текущего инженера
+          const myEngineerData = data.engineers.find(
+            (engineer: any) => engineer.engineerId === currentUser.id
+          );
+
+          if (myEngineerData) {
+            // Создаем объект статистики только для этого инженера
+            const engineerStats = {
+              year: this.selectedYear(),
+              month: this.selectedMonth(),
+              monthName: this.getMonthName(this.selectedMonth()),
+              agentEarnings: [myEngineerData],
+              organizationEarnings: [],
+              overtimeStatistics: [],
+              totalEarnings: myEngineerData.totalEarnings,
+              totalOrders: myEngineerData.completedOrders,
+              totalOvertimeHours: myEngineerData.overtimeHours || 0,
+            };
+
+            this.statistics.set(engineerStats);
+          } else {
+            // Если данных нет, создаем пустую статистику
+            this.statistics.set({
+              year: this.selectedYear(),
+              month: this.selectedMonth(),
+              monthName: this.getMonthName(this.selectedMonth()),
+              agentEarnings: [],
+              organizationEarnings: [],
+              overtimeStatistics: [],
+              totalEarnings: 0,
+              totalOrders: 0,
+              totalOvertimeHours: 0,
+            });
+          }
+          this.isLoading.set(false);
+        },
+        error: (error: any) => {
+          console.error('Error loading engineer statistics:', error);
+          this.snackBar.open('Ошибка загрузки статистики инженера', 'Закрыть', { duration: 3000 });
+          this.isLoading.set(false);
+        },
+      });
   }
 
   private loadAdminStatistics() {
@@ -695,9 +710,9 @@ export class StatisticsComponent implements OnInit {
     if (!this.isEngineer || !this.statistics()) return 0;
     const currentUser = this.currentUser();
     if (!currentUser) return 0;
-    
-    const myAgentData = this.statistics()?.agentEarnings?.find(agent => 
-      agent.agentId === currentUser.id
+
+    const myAgentData = this.statistics()?.agentEarnings?.find(
+      agent => agent.agentId === currentUser.id
     );
     return myAgentData?.totalEarnings || 0;
   }
@@ -706,9 +721,9 @@ export class StatisticsComponent implements OnInit {
     if (!this.isEngineer || !this.statistics()) return 0;
     const currentUser = this.currentUser();
     if (!currentUser) return 0;
-    
-    const myAgentData = this.statistics()?.agentEarnings?.find(agent => 
-      agent.agentId === currentUser.id
+
+    const myAgentData = this.statistics()?.agentEarnings?.find(
+      agent => agent.agentId === currentUser.id
     );
     return myAgentData?.completedOrders || 0;
   }
@@ -717,9 +732,9 @@ export class StatisticsComponent implements OnInit {
     if (!this.isEngineer || !this.statistics()) return 0;
     const currentUser = this.currentUser();
     if (!currentUser) return 0;
-    
-    const myAgentData = this.statistics()?.agentEarnings?.find(agent => 
-      agent.agentId === currentUser.id
+
+    const myAgentData = this.statistics()?.agentEarnings?.find(
+      agent => agent.agentId === currentUser.id
     );
     // Предполагаем 8 часов на заказ
     return myAgentData?.completedOrders ? myAgentData.completedOrders * 8 : 0;
@@ -733,8 +748,18 @@ export class StatisticsComponent implements OnInit {
 
   getMonthName(month: number): string {
     const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return monthNames[month - 1] || 'Unknown';
   }
@@ -746,13 +771,13 @@ export class StatisticsComponent implements OnInit {
         const now = new Date();
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
-        
+
         const usersByRole = {
           admin: 0,
           manager: 0,
           user: 0,
         };
-        
+
         users.forEach(user => {
           switch (user.role) {
             case 'admin':
@@ -766,7 +791,7 @@ export class StatisticsComponent implements OnInit {
               break;
           }
         });
-        
+
         this.userStats.set({
           totalUsers: users.length,
           activeUsers: users.filter(u => u.isActive).length,
@@ -788,12 +813,14 @@ export class StatisticsComponent implements OnInit {
     const stats = this.userStats();
     return {
       labels: ['Администраторы', 'Менеджеры', 'Инженеры'],
-      datasets: [{
-        data: [stats.usersByRole.admin, stats.usersByRole.manager, stats.usersByRole.user],
-        backgroundColor: ['#f44336', '#ff9800', '#4caf50'],
-        borderWidth: 0,
-        hoverOffset: 10
-      }]
+      datasets: [
+        {
+          data: [stats.usersByRole.admin, stats.usersByRole.manager, stats.usersByRole.user],
+          backgroundColor: ['#f44336', '#ff9800', '#4caf50'],
+          borderWidth: 0,
+          hoverOffset: 10,
+        },
+      ],
     };
   }
 
@@ -808,18 +835,20 @@ export class StatisticsComponent implements OnInit {
   get salaryTimeChartData(): ChartData<'line'> {
     const comprehensiveData = this.comprehensiveStatistics();
     const timeBasedData = comprehensiveData?.timeBasedAnalytics?.salaryChart || [];
-    
+
     if (timeBasedData.length === 0) {
       return {
         labels: Array.from({ length: 31 }, (_, i) => `${i + 1}`),
-        datasets: [{
-          label: 'Накопительные зарплаты',
-          data: Array.from({ length: 31 }, () => Math.random() * 10000),
-          borderColor: '#3f51b5',
-          backgroundColor: 'rgba(63, 81, 181, 0.1)',
-          tension: 0.4,
-          fill: true,
-        }]
+        datasets: [
+          {
+            label: 'Накопительные зарплаты',
+            data: Array.from({ length: 31 }, () => Math.random() * 10000),
+            borderColor: '#3f51b5',
+            backgroundColor: 'rgba(63, 81, 181, 0.1)',
+            tension: 0.4,
+            fill: true,
+          },
+        ],
       };
     }
 
@@ -842,18 +871,20 @@ export class StatisticsComponent implements OnInit {
   get hoursTimeChartData(): ChartData<'line'> {
     const comprehensiveData = this.comprehensiveStatistics();
     const timeBasedData = comprehensiveData?.timeBasedAnalytics?.hoursChart || [];
-    
+
     if (timeBasedData.length === 0) {
       return {
         labels: Array.from({ length: 31 }, (_, i) => `${i + 1}`),
-        datasets: [{
-          label: 'Накопительные часы',
-          data: Array.from({ length: 31 }, () => Math.random() * 8),
-          borderColor: '#4caf50',
-          backgroundColor: 'rgba(76, 175, 80, 0.1)',
-          tension: 0.4,
-          fill: true,
-        }]
+        datasets: [
+          {
+            label: 'Накопительные часы',
+            data: Array.from({ length: 31 }, () => Math.random() * 8),
+            borderColor: '#4caf50',
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            tension: 0.4,
+            fill: true,
+          },
+        ],
       };
     }
 
@@ -893,15 +924,15 @@ export class StatisticsComponent implements OnInit {
           label: 'Оплата за автомобиль',
           data: data.map(() => Math.random() * 5000),
           backgroundColor: '#4caf50',
-        }
-      ]
+        },
+      ],
     };
   }
 
   get monthlyComparisonChartData(): ChartData<'bar'> {
     const comprehensiveData = this.comprehensiveStatistics();
     const financialData = comprehensiveData?.financialAnalytics?.monthlyComparison;
-    
+
     if (!financialData) {
       const data = this.statistics()?.agentEarnings || [];
       return {
@@ -916,8 +947,8 @@ export class StatisticsComponent implements OnInit {
             label: 'Предыдущий месяц',
             data: data.map(() => Math.random() * 50000),
             backgroundColor: '#ff9800',
-          }
-        ]
+          },
+        ],
       };
     }
 
@@ -933,41 +964,45 @@ export class StatisticsComponent implements OnInit {
           label: 'Предыдущий месяц',
           data: financialData.previousMonth.map((a: any) => a.totalEarnings),
           backgroundColor: '#ff9800',
-        }
-      ]
+        },
+      ],
     };
   }
 
   get efficiencyChartData(): ChartData<'bar'> {
     const comprehensiveData = this.comprehensiveStatistics();
     const efficiencyData = comprehensiveData?.rankings?.efficiency || [];
-    
+
     if (efficiencyData.length === 0) {
       const data = this.statistics()?.agentEarnings || [];
       return {
         labels: data.map(a => a.agentName),
-        datasets: [{
-          label: 'Эффективность (₽/час)',
-          data: data.map(a => a.totalEarnings / (a.completedOrders * 8)), // Примерный расчет
-          backgroundColor: '#e91e63',
-        }]
+        datasets: [
+          {
+            label: 'Эффективность (₽/час)',
+            data: data.map(a => a.totalEarnings / (a.completedOrders * 8)), // Примерный расчет
+            backgroundColor: '#e91e63',
+          },
+        ],
       };
     }
 
     return {
       labels: efficiencyData.map((e: any) => e.engineerName),
-      datasets: [{
-        label: 'Эффективность (₽/час)',
-        data: efficiencyData.map((e: any) => e.efficiency),
-        backgroundColor: '#e91e63',
-      }]
+      datasets: [
+        {
+          label: 'Эффективность (₽/час)',
+          data: efficiencyData.map((e: any) => e.efficiency),
+          backgroundColor: '#e91e63',
+        },
+      ],
     };
   }
 
   get forecastChartData(): ChartData<'line'> {
     const comprehensiveData = this.comprehensiveStatistics();
     const forecastData = comprehensiveData?.forecast;
-    
+
     if (!forecastData) {
       return {
         labels: Array.from({ length: 31 }, (_, i) => `${i + 1}`),
@@ -981,13 +1016,13 @@ export class StatisticsComponent implements OnInit {
           },
           {
             label: 'Прогноз',
-            data: Array.from({ length: 31 }, (_, i) => i < 15 ? null : Math.random() * 10000),
+            data: Array.from({ length: 31 }, (_, i) => (i < 15 ? null : Math.random() * 10000)),
             borderColor: '#ff9800',
             backgroundColor: 'rgba(255, 152, 0, 0.1)',
             tension: 0.4,
             borderDash: [5, 5],
-          }
-        ]
+          },
+        ],
       };
     }
 
@@ -1008,8 +1043,8 @@ export class StatisticsComponent implements OnInit {
           backgroundColor: 'rgba(255, 152, 0, 0.1)',
           tension: 0.4,
           borderDash: [5, 5],
-        }
-      ]
+        },
+      ],
     };
   }
 
@@ -1025,29 +1060,29 @@ export class StatisticsComponent implements OnInit {
         },
         tooltip: {
           callbacks: {
-            label: (context) => {
+            label: context => {
               const label = context.dataset.label || '';
               const value = context.parsed?.y || 0;
               return `${label}: ${new Intl.NumberFormat('ru-RU').format(value)}`;
-            }
-          }
-        }
+            },
+          },
+        },
       },
       scales: {
         x: {
           title: {
             display: true,
-            text: 'День месяца'
-          }
+            text: 'День месяца',
+          },
         },
         y: {
           title: {
             display: true,
-            text: 'Сумма (₽)'
+            text: 'Сумма (₽)',
           },
           beginAtZero: true,
-        }
-      }
+        },
+      },
     };
   }
 

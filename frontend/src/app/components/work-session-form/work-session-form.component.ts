@@ -75,9 +75,10 @@ export class WorkSessionFormComponent implements OnInit {
     this.error = null;
 
     const formValue = this.sessionForm.value;
-    const workDate = formValue.workDate instanceof Date
-      ? this.workSessionsService.formatDateForApi(formValue.workDate)
-      : formValue.workDate;
+    const workDate =
+      formValue.workDate instanceof Date
+        ? this.workSessionsService.formatDateForApi(formValue.workDate)
+        : formValue.workDate;
 
     const data: CreateWorkSessionDto = {
       workDate,
@@ -103,7 +104,7 @@ export class WorkSessionFormComponent implements OnInit {
           canBeInvoiced: true,
         });
       },
-      error: (err) => {
+      error: err => {
         this.loading = false;
         this.error = 'Не удалось создать рабочую сессию';
         console.error('Error creating work session:', err);
@@ -121,4 +122,3 @@ export class WorkSessionFormComponent implements OnInit {
     return Number(regular) + Number(overtime);
   }
 }
-

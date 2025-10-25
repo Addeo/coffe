@@ -7,15 +7,17 @@
 Скопированы обновленные файлы из `shared/` в `frontend/shared/`:
 
 **Файлы:**
+
 - `frontend/shared/interfaces/user.interface.ts` - добавлены функции иерархии ролей
 - `frontend/shared/dtos/user.dto.ts` - добавлены SwitchRoleDto, SwitchRoleResponse
 - `frontend/shared/interfaces/order.interface.ts` - добавлены поля заявки, удален REMOTE
 - `frontend/shared/dtos/order.dto.ts` - обновлен UpdateOrderDto
 
 **Исправленные ошибки TypeScript:**
+
 ```
 ✅ Module has no exported member 'SwitchRoleDto'
-✅ Module has no exported member 'SwitchRoleResponse'  
+✅ Module has no exported member 'SwitchRoleResponse'
 ✅ Module has no exported member 'getAvailableRoles'
 ✅ Module has no exported member 'hasRoleAccess'
 ✅ Property 'primaryRole' does not exist
@@ -29,6 +31,7 @@
 ### 2. ✅ Исправлена earnings-summary.component.ts
 
 **Изменение:**
+
 ```typescript
 // Было:
 readonly currentUser = this.authService.currentUser();
@@ -38,6 +41,7 @@ readonly currentUser = this.authService.currentUser;
 ```
 
 **Исправленная ошибка:**
+
 ```
 ✅ Cannot invoke an object which is possibly 'null'
 ✅ This expression is not callable
@@ -50,6 +54,7 @@ readonly currentUser = this.authService.currentUser;
 Создан `sync-shared.sh` для автоматической синхронизации shared типов в будущем.
 
 **Использование:**
+
 ```bash
 ./sync-shared.sh
 ```
@@ -71,6 +76,7 @@ npm run start
 После перезапуска **большинство ошибок TypeScript должны исчезнуть**.
 
 Если остаются ошибки:
+
 ```bash
 # Очистите кеш
 rm -rf node_modules/.cache
@@ -84,6 +90,7 @@ npm run build
 ### HTML Parser Errors
 
 Ошибки в этих файлах **НЕ критичны** и **НЕ связаны** с моими изменениями:
+
 - `profile.component.html` - Parser Error: Bindings cannot contain assignments
 - `settings.component.html` - Parser Error: Bindings cannot contain assignments
 
@@ -102,6 +109,7 @@ orders.component.html:746 - Unexpected closing tag "div"
 **Статус:** Не критично, если страница заказов работает.
 
 **Как исправить (если мешает):**
+
 1. Откройте `orders.component.html`
 2. Проверьте парность div-ов около строки 746
 3. Используйте автоформатирование в IDE
@@ -111,14 +119,17 @@ orders.component.html:746 - Unexpected closing tag "div"
 ## 📊 Итоговая статистика
 
 ### ✅ Критичные ошибки - ИСПРАВЛЕНЫ (11):
+
 - ✅ 4 ошибки импорта shared модулей
 - ✅ 2 ошибки primaryRole/activeRole
 - ✅ 5 ошибок новых полей Order (workActNumber и др.)
 
 ### ✅ Баги кода - ИСПРАВЛЕНЫ (1):
+
 - ✅ earnings-summary.component.ts - неправильный вызов signal
 
 ### ⚠️ Некритичные - МОЖНО ИГНОРИРОВАТЬ (~100):
+
 - ⚠️ HTML Parser Errors в profile/settings (работает)
 - ⚠️ 1 лишний div в orders.component.html
 
@@ -133,6 +144,7 @@ npm run start
 ```
 
 Вы должны увидеть:
+
 ```
 ✔ Browser application bundle generation complete.
 ** Angular Live Development Server is listening on localhost:4202 **
@@ -146,6 +158,7 @@ npm run start
 ### Проблема: Все еще вижу ошибки shared exports
 
 **Решение:**
+
 ```bash
 cd frontend
 rm -rf node_modules/.cache
@@ -157,11 +170,12 @@ npm run start
 
 **Решение:**
 Проверьте, не используют ли они старый импорт:
+
 ```typescript
 // ❌ Плохо
 import { UserRole } from '../interfaces/user.interface';
 
-// ✅ Хорошо  
+// ✅ Хорошо
 import { UserRole } from '@shared/interfaces/user.interface';
 ```
 
@@ -185,4 +199,3 @@ cd backend/migrations
 ```
 
 🎉 Готово к работе!
-

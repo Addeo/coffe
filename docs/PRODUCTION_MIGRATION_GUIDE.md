@@ -59,6 +59,7 @@ ls -lh
 ```
 
 Должны быть файлы:
+
 - `001_add_work_sessions_table.sql`
 - `002_migrate_existing_order_data_to_sessions.sql`
 - `rollback.sql`
@@ -81,6 +82,7 @@ source ../.env
 ```
 
 Скрипт автоматически:
+
 1. ✅ Создаст backup БД
 2. ✅ Покажет текущее состояние
 3. ✅ Попросит подтверждение
@@ -109,7 +111,7 @@ ls -lh backups/backup-*.sql | tail -1
 
 ```bash
 mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD $DB_DATABASE <<EOF
-SELECT 
+SELECT
   COUNT(*) AS total_orders,
   SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed_orders
 FROM orders;
@@ -127,6 +129,7 @@ mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD $DB_DATABASE \
 ```
 
 Ожидаемый вывод:
+
 ```
 +----------------+------------+---------------------+
 | TABLE_NAME     | TABLE_ROWS | CREATE_TIME         |
@@ -149,7 +152,7 @@ mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD $DB_DATABASE \
 ```bash
 mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD $DB_DATABASE <<EOF
 -- Общая информация
-SELECT 
+SELECT
   COUNT(*) AS total_sessions,
   COUNT(DISTINCT order_id) AS unique_orders,
   ROUND(SUM(regular_hours + overtime_hours), 2) AS total_hours,
@@ -157,7 +160,7 @@ SELECT
 FROM work_sessions;
 
 -- По месяцам
-SELECT 
+SELECT
   YEAR(work_date) AS year,
   MONTH(work_date) AS month,
   COUNT(*) AS sessions,
@@ -276,6 +279,7 @@ mysql -h $DB_HOST -P $DB_PORT -u $DB_USERNAME -p$DB_PASSWORD $DB_DATABASE \
 ## 🎯 После успешной миграции
 
 1. Перезапустить backend:
+
 ```bash
 pm2 restart coffee-backend
 # или
@@ -283,6 +287,7 @@ npm run start:prod
 ```
 
 2. Проверить логи:
+
 ```bash
 pm2 logs coffee-backend
 # или
@@ -290,11 +295,13 @@ tail -f server.log
 ```
 
 3. Проверить в браузере:
+
 - Открыть заказ
 - Перейти на вкладку "Рабочие сессии"
 - Должна быть видна история (если были завершённые заказы)
 
 4. Создать тестовую сессию:
+
 - Создать новый заказ
 - Назначить инженера
 - Добавить рабочую сессию
@@ -305,10 +312,10 @@ tail -f server.log
 ## 🎊 Готово!
 
 После успешной миграции система будет:
+
 - ✅ Поддерживать множественные выезды на один заказ
 - ✅ Корректно учитывать работы в разных месяцах
 - ✅ Сохранять детализацию каждой сессии
 - ✅ Правильно рассчитывать зарплату по месяцам
 
 **Удачной миграции!** 🚀
-

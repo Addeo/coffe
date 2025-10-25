@@ -113,7 +113,9 @@ export interface UserDialogData {
               <mat-label>Тип инженера</mat-label>
               <mat-select formControlName="engineerType">
                 <mat-option [value]="EngineerType.STAFF">Штатный инженер</mat-option>
-                <mat-option [value]="EngineerType.CONTRACT">Контрактный (наемный) инженер</mat-option>
+                <mat-option [value]="EngineerType.CONTRACT"
+                  >Контрактный (наемный) инженер</mat-option
+                >
               </mat-select>
               <mat-error *ngIf="userForm.get('engineerType')?.hasError('required')">
                 Тип инженера обязателен

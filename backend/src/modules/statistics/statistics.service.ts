@@ -32,7 +32,7 @@ export class StatisticsService {
     @InjectRepository(Engineer)
     private engineerRepository: Repository<Engineer>,
     @InjectRepository(WorkSession)
-    private workSessionRepository: Repository<WorkSession>,
+    private workSessionRepository: Repository<WorkSession>
   ) {}
 
   async getUserEarningsStatistics(
@@ -89,7 +89,8 @@ export class StatisticsService {
       const uniqueOrders = new Set<number>();
 
       for (const session of sessions) {
-        totalEarnings += (Number(session.calculatedAmount) || 0) + (Number(session.carUsageAmount) || 0);
+        totalEarnings +=
+          (Number(session.calculatedAmount) || 0) + (Number(session.carUsageAmount) || 0);
         totalHours += (Number(session.regularHours) || 0) + (Number(session.overtimeHours) || 0);
         if (session.orderId) {
           uniqueOrders.add(session.orderId);
@@ -443,10 +444,13 @@ export class StatisticsService {
       );
 
       // Calculate financial metrics
-      const totalOrganizationRevenue = organizationEarnings.reduce((sum, org) => sum + org.totalRevenue, 0);
+      const totalOrganizationRevenue = organizationEarnings.reduce(
+        (sum, org) => sum + org.totalRevenue,
+        0
+      );
       const totalAgentEarnings = agentEarnings.reduce((sum, agent) => sum + agent.totalEarnings, 0);
       const totalCompanyRevenue = totalOrganizationRevenue;
-      
+
       // Получаем реальные выплаты от организаций и инженерам из orders
       const totalOrganizationPaid = await this.getTotalOrganizationPayments(startDate, endDate);
       const totalAgentPayments = await this.getTotalAgentPayments(startDate, endDate);
@@ -721,7 +725,7 @@ export class StatisticsService {
   ): Promise<ComprehensiveStatisticsDto> {
     // Получаем базовую статистику
     const baseStats = await this.getMonthlyStatistics(year, month);
-    
+
     const result: ComprehensiveStatisticsDto = {
       ...baseStats,
     };
@@ -764,7 +768,10 @@ export class StatisticsService {
 
   // Вспомогательные методы для комплексной статистики
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private async getSalaryTimeChart(_year: number, _month: number): Promise<EngineerTimeBasedData[]> {
+  private async getSalaryTimeChart(
+    _year: number,
+    _month: number
+  ): Promise<EngineerTimeBasedData[]> {
     // TODO: Реализовать получение данных по дням месяца
     return [];
   }
@@ -776,15 +783,21 @@ export class StatisticsService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private async getFinancialBreakdown(_year: number, _month: number): Promise<FinancialBreakdownData[]> {
+  private async getFinancialBreakdown(
+    _year: number,
+    _month: number
+  ): Promise<FinancialBreakdownData[]> {
     // TODO: Реализовать детальную финансовую разбивку
     return [];
   }
 
-  private async getPreviousMonthEarnings(year: number, month: number): Promise<AgentEarningsData[]> {
+  private async getPreviousMonthEarnings(
+    year: number,
+    month: number
+  ): Promise<AgentEarningsData[]> {
     const prevMonth = month === 1 ? 12 : month - 1;
     const prevYear = month === 1 ? year - 1 : year;
-    
+
     const prevStats = await this.getMonthlyStatistics(prevYear, prevMonth);
     return prevStats.agentEarnings;
   }
@@ -821,7 +834,7 @@ export class StatisticsService {
       const overtimeStats = stats.overtimeStatistics.find(s => s.agentId === earnings.agentId);
       const totalHours = overtimeStats?.totalHours || 0;
       const efficiency = totalHours > 0 ? earnings.totalEarnings / totalHours : 0;
-      
+
       return {
         engineerId: earnings.agentId,
         engineerName: earnings.agentName,
@@ -871,7 +884,10 @@ export class StatisticsService {
     try {
       const result = await this.orderRepository
         .createQueryBuilder('order')
-        .select('SUM(order.organizationRegularPayment + order.organizationOvertimePayment)', 'totalPayments')
+        .select(
+          'SUM(order.organizationRegularPayment + order.organizationOvertimePayment)',
+          'totalPayments'
+        )
         .where('order.completionDate >= :startDate', { startDate })
         .andWhere('order.completionDate < :endDate', { endDate })
         .andWhere('order.status = :status', { status: 'completed' })

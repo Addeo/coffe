@@ -10,17 +10,20 @@
 ### 1. ❌ Белый экран при запуске
 
 **Ошибка:**
+
 ```
 Приложение загружалось с белым экраном
 ```
 
 **Причина:**
+
 ```json
 // angular.json
 "baseHref": "/coffe/"  ← Неправильный путь
 ```
 
 **Решение:**
+
 ```json
 // angular.json
 "baseHref": "/"  ✅
@@ -33,6 +36,7 @@
 ### 2. ❌ Логин не работал
 
 **Ошибка:**
+
 ```
 Http failure response for http://192.144.12.102:3001/api/auth/login: 0 Unknown Error
 ```
@@ -40,6 +44,7 @@ Http failure response for http://192.144.12.102:3001/api/auth/login: 0 Unknown E
 **Причина 1:** Android блокирует HTTP трафик
 
 **Решение 1:**
+
 ```xml
 <!-- network_security_config.xml -->
 <base-config cleartextTrafficPermitted="true">
@@ -50,6 +55,7 @@ Http failure response for http://192.144.12.102:3001/api/auth/login: 0 Unknown E
 ```
 
 **Файлы:**
+
 - `frontend/android/app/src/main/res/xml/network_security_config.xml` (создан)
 - `frontend/android/app/src/main/AndroidManifest.xml` (обновлен)
 
@@ -58,25 +64,29 @@ Http failure response for http://192.144.12.102:3001/api/auth/login: 0 Unknown E
 ### 3. ❌ Mixed Content Error
 
 **Ошибка:**
+
 ```
-Mixed Content: The page at 'https://localhost/' was loaded over HTTPS, 
-but requested an insecure XMLHttpRequest endpoint 'http://192.144.12.102:3001/api/auth/login'. 
+Mixed Content: The page at 'https://localhost/' was loaded over HTTPS,
+but requested an insecure XMLHttpRequest endpoint 'http://192.144.12.102:3001/api/auth/login'.
 This request has been blocked
 ```
 
 **Причина:**
+
 ```json
 // capacitor.config.json
 "androidScheme": "https"  ← Приложение на HTTPS, backend на HTTP
 ```
 
 **Решение:**
+
 ```json
 // capacitor.config.json
 "androidScheme": "http"  ✅
 ```
 
 **Теперь:**
+
 ```
 http://localhost/ → http://192.144.12.102:3001 ✅ РАЗРЕШЕНО
 ```
@@ -88,11 +98,13 @@ http://localhost/ → http://192.144.12.102:3001 ✅ РАЗРЕШЕНО
 ### 4. ❌ TypeScript ошибки компиляции
 
 **Ошибка:**
+
 ```typescript
 Property 'snackBar' does not exist on type 'DashboardComponent'
 ```
 
 **Решение:**
+
 ```typescript
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -108,14 +120,16 @@ export class DashboardComponent {
 ### 5. ❌ Chart.js TypeScript ошибки
 
 **Ошибка:**
+
 ```typescript
 Element implicitly has an 'any' type because expression of type 'number' can't be used to index...
 ```
 
 **Решение:**
+
 ```typescript
-const bgColor = Array.isArray(dataset.backgroundColor) 
-  ? dataset.backgroundColor[index] 
+const bgColor = Array.isArray(dataset.backgroundColor)
+  ? dataset.backgroundColor[index]
   : dataset.backgroundColor;  ✅
 ```
 
@@ -131,6 +145,7 @@ const bgColor = Array.isArray(dataset.backgroundColor)
 **Backend:** `http://192.144.12.102:3001/api`
 
 **Исправления:**
+
 - ✅ `baseHref: "/"`
 - ✅ `androidScheme: "http"`
 - ✅ `network_security_config.xml`
@@ -138,6 +153,7 @@ const bgColor = Array.isArray(dataset.backgroundColor)
 - ✅ Все TypeScript ошибки исправлены
 
 **Работает на:**
+
 - Реальных Android устройствах в сети
 - Эмулятор (но логин не работает - нет доступа к 192.144.12.102)
 
@@ -149,6 +165,7 @@ const bgColor = Array.isArray(dataset.backgroundColor)
 **Backend:** `http://localhost:3001/api`
 
 **Использование:**
+
 ```bash
 # Настроить port forwarding
 adb reverse tcp:3001 tcp:3001
@@ -158,6 +175,7 @@ adb install CoffeeAdmin-emulator.apk
 ```
 
 **Работает на:**
+
 - Эмулятор с локальным backend
 
 ---
@@ -167,6 +185,7 @@ adb install CoffeeAdmin-emulator.apk
 ### Frontend конфигурация
 
 **1. angular.json**
+
 ```diff
 - "baseHref": "/coffe/",
 + "baseHref": "/",
@@ -176,16 +195,18 @@ adb install CoffeeAdmin-emulator.apk
 ```
 
 **2. capacitor.config.json**
+
 ```diff
 - "androidScheme": "https"
 + "androidScheme": "http"
 ```
 
 **3. environment.prod.ts**
+
 ```typescript
 export const environment = {
   production: true,
-  apiUrl: 'http://192.144.12.102:3001/api',  // Правильный URL
+  apiUrl: 'http://192.144.12.102:3001/api', // Правильный URL
   authUrl: 'http://192.144.12.102:3001/api/auth/login',
   appName: 'Coffee Admin Panel',
   demo: false,
@@ -195,6 +216,7 @@ export const environment = {
 ### Android конфигурация
 
 **4. AndroidManifest.xml**
+
 ```xml
 <application
     ...
@@ -203,6 +225,7 @@ export const environment = {
 ```
 
 **5. network_security_config.xml** (создан)
+
 ```xml
 <network-security-config>
     <base-config cleartextTrafficPermitted="true">
@@ -210,7 +233,7 @@ export const environment = {
             <certificates src="system" />
         </trust-anchors>
     </base-config>
-    
+
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">192.144.12.102</domain>
         <domain includeSubdomains="true">localhost</domain>
@@ -221,16 +244,18 @@ export const environment = {
 ### TypeScript исправления
 
 **6. dashboard.component.ts**
+
 ```typescript
 + import { MatSnackBar } from '@angular/material/snack-bar';
 + private snackBar = inject(MatSnackBar);
 ```
 
 **7. statistics.component.ts**
+
 ```typescript
 // Правильная типизация для backgroundColor
-const bgColor = Array.isArray(dataset.backgroundColor) 
-  ? dataset.backgroundColor[index] 
+const bgColor = Array.isArray(dataset.backgroundColor)
+  ? dataset.backgroundColor[index]
   : dataset.backgroundColor;
 ```
 
@@ -239,18 +264,23 @@ const bgColor = Array.isArray(dataset.backgroundColor)
 ## 🧪 Тестирование
 
 ### Тест 1: UI загружается
+
 ✅ **PASS** - Страница логина отображается (не белый экран)
 
 ### Тест 2: HTTP запросы не блокируются
+
 ✅ **PASS** - Mixed Content ошибка устранена
 
 ### Тест 3: Network доступность
+
 ⚠️ **EXPECTED** - Эмулятор не может подключиться к 192.144.12.102 (это нормально)
 
 ### Тест 4: Chrome DevTools
+
 ✅ **PASS** - Приложение видно в chrome://inspect/#devices
 
 ### Тест 5: Реальное устройство
+
 ✅ **READY** - APK готов для установки на реальные устройства
 
 ---
@@ -312,11 +342,13 @@ adb logcat | grep -iE "capacitor|console|error"
 ### Проверка схемы
 
 Правильно (HTTP):
+
 ```
 File: http://localhost/main.b3bd10b3568b0490.js
 ```
 
 Неправильно (HTTPS):
+
 ```
 File: https://localhost/main.b3bd10b3568b0490.js
 ```
@@ -327,23 +359,23 @@ File: https://localhost/main.b3bd10b3568b0490.js
 
 ### До исправлений:
 
-| Проблема | Статус |
-|----------|--------|
-| Белый экран | ❌ |
-| Логин | ❌ |
-| HTTP запросы | ❌ Blocked |
-| Mixed Content | ❌ Error |
-| TypeScript | ❌ Errors |
+| Проблема      | Статус     |
+| ------------- | ---------- |
+| Белый экран   | ❌         |
+| Логин         | ❌         |
+| HTTP запросы  | ❌ Blocked |
+| Mixed Content | ❌ Error   |
+| TypeScript    | ❌ Errors  |
 
 ### После исправлений:
 
-| Проблема | Статус |
-|----------|--------|
-| Белый экран | ✅ |
-| Логин | ✅ (на реальных устройствах) |
-| HTTP запросы | ✅ Allowed |
-| Mixed Content | ✅ Fixed |
-| TypeScript | ✅ No errors |
+| Проблема      | Статус                       |
+| ------------- | ---------------------------- |
+| Белый экран   | ✅                           |
+| Логин         | ✅ (на реальных устройствах) |
+| HTTP запросы  | ✅ Allowed                   |
+| Mixed Content | ✅ Fixed                     |
+| TypeScript    | ✅ No errors                 |
 
 ---
 
@@ -358,7 +390,7 @@ File: https://localhost/main.b3bd10b3568b0490.js
 ✅ Mixed Content исправлен  
 ✅ Приложение компилируется без ошибок  
 ✅ Chrome DevTools работает  
-✅ Готово для production использования  
+✅ Готово для production использования
 
 ### Что НЕ работает на эмуляторе:
 
@@ -377,6 +409,3 @@ File: https://localhost/main.b3bd10b3568b0490.js
 **Версия:** 1.0  
 **APK:** CoffeeAdmin-fixed.apk (4.9 MB)  
 **Статус:** ✅ PRODUCTION READY
-
-
-

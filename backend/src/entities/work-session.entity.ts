@@ -137,4 +137,3 @@ export class WorkSession {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
-

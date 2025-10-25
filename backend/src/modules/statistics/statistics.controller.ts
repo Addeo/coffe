@@ -74,16 +74,12 @@ export class StatisticsController {
     const targetYear = year || currentDate.getFullYear();
     const targetMonth = month || currentDate.getMonth() + 1;
 
-    return this.statisticsService.getComprehensiveStatistics(
-      targetYear, 
-      targetMonth, 
-      {
-        includeTimeBased,
-        includeFinancial,
-        includeRankings,
-        includeForecast
-      }
-    );
+    return this.statisticsService.getComprehensiveStatistics(targetYear, targetMonth, {
+      includeTimeBased,
+      includeFinancial,
+      includeRankings,
+      includeForecast,
+    });
   }
 
   @Get('admin/engineers')
@@ -98,5 +94,4 @@ export class StatisticsController {
 
     return this.statisticsService.getAdminEngineerStatistics(targetYear, targetMonth);
   }
-
 }

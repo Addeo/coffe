@@ -9,16 +9,10 @@ import { SalaryPaymentController } from './salary-payment.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      SalaryPayment,
-      EngineerBalance,
-      SalaryCalculation,
-      Engineer,
-    ]),
+    TypeOrmModule.forFeature([SalaryPayment, EngineerBalance, SalaryCalculation, Engineer]),
   ],
   controllers: [SalaryPaymentController],
   providers: [SalaryPaymentService],
   exports: [SalaryPaymentService],
 })
 export class PaymentsModule {}
-

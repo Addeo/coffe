@@ -31,6 +31,7 @@ ssh -o StrictHostKeyChecking=no \
 ### 2. Разделение на отдельные шаги
 
 **До (одна длинная команда):**
+
 ```yaml
 - name: 🐳 Deploy with Docker Compose
   run: |
@@ -38,6 +39,7 @@ ssh -o StrictHostKeyChecking=no \
 ```
 
 **После (отдельные шаги):**
+
 ```yaml
 - name: 🛑 Stop containers
   run: ssh ... "docker-compose down"
@@ -46,13 +48,14 @@ ssh -o StrictHostKeyChecking=no \
   run: ssh ... "docker image prune"
 
 - name: 🏗️ Build images
-  run: ssh ... "docker-compose build"  # Самая долгая операция
+  run: ssh ... "docker-compose build" # Самая долгая операция
 
 - name: 🚀 Start services
   run: ssh ... "docker-compose up -d"
 ```
 
 **Преимущества:**
+
 - ✅ Короткие SSH сессии
 - ✅ Понятно на каком шаге ошибка
 - ✅ Можно перезапустить конкретный шаг
@@ -120,21 +123,24 @@ ssh -o StrictHostKeyChecking=no \
 ### Если проблема повторяется:
 
 1. **Увеличьте таймауты:**
+
    ```yaml
    -o ServerAliveInterval=15     # Чаще keep-alive
    -o ServerAliveCountMax=40     # Больше попыток
    ```
 
 2. **Используйте tmux/screen на сервере:**
+
    ```bash
    ssh ... "tmux new-session -d -s deploy 'docker-compose build'"
    ```
 
 3. **Разделите build frontend и backend:**
+
    ```yaml
    - name: Build backend
      run: ssh ... "docker-compose build backend"
-   
+
    - name: Build frontend
      run: ssh ... "docker-compose build frontend"
    ```
@@ -165,6 +171,7 @@ ssh -o ServerAliveInterval=30 \
 Для проверки исправления:
 
 1. Сделайте коммит и push:
+
    ```bash
    git add .github/workflows/deploy-vps.yml
    git commit -m "fix: improve SSH connection stability in deploy workflow"
@@ -172,6 +179,7 @@ ssh -o ServerAliveInterval=30 \
    ```
 
 2. Перейдите в GitHub Actions:
+
    ```
    https://github.com/YOUR_USERNAME/coffe/actions
    ```
@@ -184,6 +192,3 @@ ssh -o ServerAliveInterval=30 \
 
 **Создано:** 20 октября 2025  
 **Версия:** 1.0
-
-
-

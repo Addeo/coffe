@@ -130,7 +130,7 @@ export class OrdersComponent implements OnInit {
   // Engineers can update status of their assigned orders
   canUpdateOrderStatus(order: OrderDto): boolean {
     const currentUser = this.authService.currentUser();
-    
+
     if (!currentUser) {
       return false;
     }
@@ -152,7 +152,7 @@ export class OrdersComponent implements OnInit {
   // Get available status options for the current user and order
   getAvailableStatuses(order: OrderDto): OrderStatus[] {
     const currentUser = this.authService.currentUser();
-    
+
     if (!currentUser) {
       return [];
     }
@@ -185,7 +185,7 @@ export class OrdersComponent implements OnInit {
     console.log('🚀 OrdersComponent initialized');
     console.log('🚀 Initial selected status:', this.selectedStatus());
     console.log('🚀 Status options:', this.statusOptions);
-    
+
     this.loadOrders();
     this.loadOrderStats();
   }
@@ -210,10 +210,10 @@ export class OrdersComponent implements OnInit {
         console.log('📊 Orders API response:', response);
         console.log('📊 Orders data:', response.data);
         console.log('📊 Orders count:', response.data?.length);
-        
+
         this.dataSource.data = response.data || [];
         this.isLoading.set(false);
-        
+
         console.log('📊 DataSource data after update:', this.dataSource.data);
         console.log('📊 DataSource data length:', this.dataSource.data.length);
       },
@@ -270,7 +270,7 @@ export class OrdersComponent implements OnInit {
 
   onUpdateStatus(order: OrderDto, newStatus: OrderStatus) {
     console.log('🔄 onUpdateStatus called for order:', order.id, 'new status:', newStatus);
-    
+
     let updateObservable;
 
     switch (newStatus) {
@@ -304,13 +304,13 @@ export class OrdersComponent implements OnInit {
 
   onOpenStatusDialog(order: OrderDto): void {
     console.log('🔄 Opening status dialog for order:', order.id);
-    
+
     const availableStatuses = this.getAvailableStatuses(order);
-    
+
     const dialogRef = this.dialog.open(OrderStatusDialogComponent, {
       data: {
         order,
-        availableStatuses
+        availableStatuses,
       },
       width: '500px',
       disableClose: false,
@@ -425,8 +425,7 @@ export class OrdersComponent implements OnInit {
       return false;
     }
     // Engineer can accept only assigned orders that are assigned to them
-    return order.status === OrderStatus.ASSIGNED && 
-           order.assignedEngineerId !== undefined;
+    return order.status === OrderStatus.ASSIGNED && order.assignedEngineerId !== undefined;
   }
 
   /**
@@ -438,8 +437,7 @@ export class OrdersComponent implements OnInit {
       return false;
     }
     // Engineer can complete work only on working orders assigned to them
-    return order.status === OrderStatus.WORKING && 
-           order.assignedEngineerId !== undefined;
+    return order.status === OrderStatus.WORKING && order.assignedEngineerId !== undefined;
   }
 
   /**
@@ -447,9 +445,12 @@ export class OrdersComponent implements OnInit {
    */
   canEditCompletedOrder(order: OrderDto): boolean {
     const currentUser = this.authService.currentUser();
-    
+
     // Only admins and managers
-    if (!currentUser || (currentUser.role !== UserRole.ADMIN && currentUser.role !== UserRole.MANAGER)) {
+    if (
+      !currentUser ||
+      (currentUser.role !== UserRole.ADMIN && currentUser.role !== UserRole.MANAGER)
+    ) {
       return false;
     }
 
@@ -476,11 +477,12 @@ export class OrdersComponent implements OnInit {
 
   getEngineerName(order: OrderDto): string {
     if (!order.assignedEngineer) return 'Не назначен';
-    
+
     // Try to get name from user object first, then fallback to direct properties
-    const firstName = order.assignedEngineer.user?.firstName || order.assignedEngineer.firstName || '';
+    const firstName =
+      order.assignedEngineer.user?.firstName || order.assignedEngineer.firstName || '';
     const lastName = order.assignedEngineer.user?.lastName || order.assignedEngineer.lastName || '';
-    
+
     if (!firstName && !lastName) return 'Не назначен';
     return `${firstName} ${lastName}`.trim();
   }
@@ -577,7 +579,7 @@ export class OrdersComponent implements OnInit {
 
   // Stats view switcher
   statsView: 'compact' | 'charts' | 'progress' = 'charts'; // По умолчанию графики
-  
+
   // Order statistics collapse state
   orderStatsCollapsed = signal(false);
 
@@ -585,29 +587,30 @@ export class OrdersComponent implements OnInit {
   isMobileView(): boolean {
     return window.innerWidth <= 768;
   }
-  
+
   // Toggle order statistics visibility
   toggleOrderStats() {
     this.orderStatsCollapsed.set(!this.orderStatsCollapsed());
   }
-  
+
   // Get unaccepted orders count
   getUnacceptedOrdersCount(): number {
     return this.dataSource.data.filter(order => order.status === OrderStatus.ASSIGNED).length;
   }
-  
+
   // Check if current user has unaccepted orders
   hasUnacceptedOrders(): boolean {
     const currentUser = this.authService.currentUser();
     if (!currentUser) return false;
-    
+
     if (this.canViewAllOrders) {
       // Admin/Manager sees all unaccepted orders
       return this.getUnacceptedOrdersCount() > 0;
     } else {
       // Engineer sees only their own unaccepted orders
       return this.dataSource.data.some(
-        order => order.status === OrderStatus.ASSIGNED && order.assignedEngineerId === currentUser.id
+        order =>
+          order.status === OrderStatus.ASSIGNED && order.assignedEngineerId === currentUser.id
       );
     }
   }
@@ -616,24 +619,26 @@ export class OrdersComponent implements OnInit {
   get statusChartData(): ChartData<'doughnut'> {
     return {
       labels: ['Ожидают', 'В обработке', 'В работе', 'На проверке', 'Завершено'],
-      datasets: [{
-        data: [
-          this.orderStats().waiting,
-          this.orderStats().processing,
-          this.orderStats().working,
-          this.orderStats().review,
-          this.orderStats().completed
-        ],
-        backgroundColor: [
-          '#FFA726', // Оранжевый - Ожидают
-          '#42A5F5', // Синий - В обработке
-          '#66BB6A', // Зелёный - В работе
-          '#FFCA28', // Жёлтый - На проверке
-          '#26A69A', // Бирюзовый - Завершено
-        ],
-        borderWidth: 0,
-        hoverOffset: 10
-      }]
+      datasets: [
+        {
+          data: [
+            this.orderStats().waiting,
+            this.orderStats().processing,
+            this.orderStats().working,
+            this.orderStats().review,
+            this.orderStats().completed,
+          ],
+          backgroundColor: [
+            '#FFA726', // Оранжевый - Ожидают
+            '#42A5F5', // Синий - В обработке
+            '#66BB6A', // Зелёный - В работе
+            '#FFCA28', // Жёлтый - На проверке
+            '#26A69A', // Бирюзовый - Завершено
+          ],
+          borderWidth: 0,
+          hoverOffset: 10,
+        },
+      ],
     };
   }
 
@@ -641,17 +646,19 @@ export class OrdersComponent implements OnInit {
   get sourceChartData(): ChartData<'bar'> {
     return {
       labels: ['Вручную', 'Автоматически', 'Email', 'API'],
-      datasets: [{
-        label: 'Количество заказов',
-        data: [
-          this.orderStats().bySource.manual,
-          this.orderStats().bySource.automatic,
-          this.orderStats().bySource.email,
-          this.orderStats().bySource.api
-        ],
-        backgroundColor: '#3f51b5',
-        borderRadius: 4,
-      }]
+      datasets: [
+        {
+          label: 'Количество заказов',
+          data: [
+            this.orderStats().bySource.manual,
+            this.orderStats().bySource.automatic,
+            this.orderStats().bySource.email,
+            this.orderStats().bySource.api,
+          ],
+          backgroundColor: '#3f51b5',
+          borderRadius: 4,
+        },
+      ],
     };
   }
 
@@ -666,22 +673,25 @@ export class OrdersComponent implements OnInit {
           usePointStyle: true,
           padding: 15,
           font: {
-            size: 12
-          }
-        }
+            size: 12,
+          },
+        },
       },
       tooltip: {
         callbacks: {
-          label: (context) => {
+          label: context => {
             const label = context.label || '';
             const value = context.parsed || 0;
-            const total = (context.dataset.data as number[]).reduce((a: number, b: number) => a + b, 0);
+            const total = (context.dataset.data as number[]).reduce(
+              (a: number, b: number) => a + b,
+              0
+            );
             const percentage = ((value / total) * 100).toFixed(1);
             return `${label}: ${value} (${percentage}%)`;
-          }
-        }
-      }
-    }
+          },
+        },
+      },
+    },
   };
 
   // Опции для Bar графика
@@ -690,34 +700,34 @@ export class OrdersComponent implements OnInit {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false
+        display: false,
       },
       tooltip: {
         callbacks: {
-          label: (context) => {
+          label: context => {
             return `Заказов: ${context.parsed.y}`;
-          }
-        }
-      }
+          },
+        },
+      },
     },
     scales: {
       y: {
         beginAtZero: true,
         ticks: {
           stepSize: 1,
-          precision: 0
+          precision: 0,
         },
         grid: {
           display: true,
-          color: 'rgba(0, 0, 0, 0.05)'
-        }
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
       },
       x: {
         grid: {
-          display: false
-        }
-      }
-    }
+          display: false,
+        },
+      },
+    },
   };
 
   // Статистика для бейджей под графиком
@@ -748,13 +758,13 @@ export class OrdersComponent implements OnInit {
     const exportData = this.dataSource.data.map(order => {
       const totalHours = (order.regularHours ?? 0) + (order.overtimeHours ?? 0);
       const engineerPayment = (order.calculatedAmount ?? 0) + (order.carUsageAmount ?? 0);
-      
+
       return {
         'ID заказа': order.id,
         'Название заказа': order.title,
         'Организация-заказчик': order.organization?.name ?? 'N/A',
-        'Инженер': this.getEngineerName(order),
-        'Статус': this.getStatusDisplay(order.status),
+        Инженер: this.getEngineerName(order),
+        Статус: this.getStatusDisplay(order.status),
         'Ставка оплаты от организации (₽/час)': order.organizationBaseRate ?? 0,
         'Коэффициент переработки организации': order.organizationOvertimeMultiplier ?? 0,
         'Ставка оплаты инженера (₽/час)': order.engineerBaseRate ?? 0,
@@ -766,10 +776,16 @@ export class OrdersComponent implements OnInit {
         'Оплата инженеру за работу (₽)': order.calculatedAmount ?? 0,
         'Доплата за автомобиль (₽)': order.carUsageAmount ?? 0,
         'Всего к оплате инженеру (₽)': engineerPayment,
-        'ДОХОД (₽)': order.profit ?? ((order.organizationPayment ?? 0) - engineerPayment),
-        'Дата создания': order.createdAt ? new Date(order.createdAt).toLocaleDateString('ru-RU') : '',
-        'Дата начала работ': order.actualStartDate ? new Date(order.actualStartDate).toLocaleDateString('ru-RU') : '',
-        'Дата завершения': order.completionDate ? new Date(order.completionDate).toLocaleDateString('ru-RU') : '',
+        'ДОХОД (₽)': order.profit ?? (order.organizationPayment ?? 0) - engineerPayment,
+        'Дата создания': order.createdAt
+          ? new Date(order.createdAt).toLocaleDateString('ru-RU')
+          : '',
+        'Дата начала работ': order.actualStartDate
+          ? new Date(order.actualStartDate).toLocaleDateString('ru-RU')
+          : '',
+        'Дата завершения': order.completionDate
+          ? new Date(order.completionDate).toLocaleDateString('ru-RU')
+          : '',
       };
     });
 
@@ -778,26 +794,26 @@ export class OrdersComponent implements OnInit {
 
     // Set column widths for better readability
     const columnWidths = [
-      { wch: 10 },  // ID заказа
-      { wch: 30 },  // Название заказа
-      { wch: 25 },  // Организация-заказчик
-      { wch: 20 },  // Инженер
-      { wch: 15 },  // Статус
-      { wch: 25 },  // Ставка оплаты от организации
-      { wch: 30 },  // Коэффициент переработки
-      { wch: 25 },  // Ставка оплаты инженера
-      { wch: 30 },  // Ставка переработки инженера
-      { wch: 15 },  // Обычные часы
-      { wch: 18 },  // Часы переработки
-      { wch: 12 },  // Всего часов
-      { wch: 30 },  // Сумма к оплате от организации
-      { wch: 25 },  // Оплата инженеру за работу
-      { wch: 20 },  // Доплата за автомобиль
-      { wch: 25 },  // Всего к оплате инженеру
-      { wch: 15 },  // ДОХОД
-      { wch: 15 },  // Дата создания
-      { wch: 18 },  // Дата начала работ
-      { wch: 18 },  // Дата завершения
+      { wch: 10 }, // ID заказа
+      { wch: 30 }, // Название заказа
+      { wch: 25 }, // Организация-заказчик
+      { wch: 20 }, // Инженер
+      { wch: 15 }, // Статус
+      { wch: 25 }, // Ставка оплаты от организации
+      { wch: 30 }, // Коэффициент переработки
+      { wch: 25 }, // Ставка оплаты инженера
+      { wch: 30 }, // Ставка переработки инженера
+      { wch: 15 }, // Обычные часы
+      { wch: 18 }, // Часы переработки
+      { wch: 12 }, // Всего часов
+      { wch: 30 }, // Сумма к оплате от организации
+      { wch: 25 }, // Оплата инженеру за работу
+      { wch: 20 }, // Доплата за автомобиль
+      { wch: 25 }, // Всего к оплате инженеру
+      { wch: 15 }, // ДОХОД
+      { wch: 15 }, // Дата создания
+      { wch: 18 }, // Дата начала работ
+      { wch: 18 }, // Дата завершения
     ];
     worksheet['!cols'] = columnWidths;
 
@@ -817,69 +833,69 @@ export class OrdersComponent implements OnInit {
 
   exportStatisticsToExcel() {
     const stats = this.orderStats();
-    
+
     // Prepare statistics data for export
     const statsData = [
       {
-        'Категория': 'Всего заказов',
-        'Количество': stats.total,
-        'Описание': 'Общее количество заказов в системе'
+        Категория: 'Всего заказов',
+        Количество: stats.total,
+        Описание: 'Общее количество заказов в системе',
       },
       {
-        'Категория': 'Ожидают назначения',
-        'Количество': stats.waiting,
-        'Описание': 'Заказы в статусе "Ожидают"'
+        Категория: 'Ожидают назначения',
+        Количество: stats.waiting,
+        Описание: 'Заказы в статусе "Ожидают"',
       },
       {
-        'Категория': 'В обработке',
-        'Количество': stats.processing,
-        'Описание': 'Заказы в статусе "В обработке"'
+        Категория: 'В обработке',
+        Количество: stats.processing,
+        Описание: 'Заказы в статусе "В обработке"',
       },
       {
-        'Категория': 'В работе',
-        'Количество': stats.working,
-        'Описание': 'Заказы в статусе "В работе"'
+        Категория: 'В работе',
+        Количество: stats.working,
+        Описание: 'Заказы в статусе "В работе"',
       },
       {
-        'Категория': 'На проверке',
-        'Количество': stats.review,
-        'Описание': 'Заказы в статусе "На проверке"'
+        Категория: 'На проверке',
+        Количество: stats.review,
+        Описание: 'Заказы в статусе "На проверке"',
       },
       {
-        'Категория': 'Завершено',
-        'Количество': stats.completed,
-        'Описание': 'Заказы в статусе "Завершено"'
+        Категория: 'Завершено',
+        Количество: stats.completed,
+        Описание: 'Заказы в статусе "Завершено"',
       },
       {
-        'Категория': 'Ручное создание',
-        'Количество': stats.bySource.manual,
-        'Описание': 'Заказы, созданные вручную'
+        Категория: 'Ручное создание',
+        Количество: stats.bySource.manual,
+        Описание: 'Заказы, созданные вручную',
       },
       {
-        'Категория': 'Автоматическое создание',
-        'Количество': stats.bySource.automatic,
-        'Описание': 'Заказы, созданные автоматически'
+        Категория: 'Автоматическое создание',
+        Количество: stats.bySource.automatic,
+        Описание: 'Заказы, созданные автоматически',
       },
       {
-        'Категория': 'Из email',
-        'Количество': stats.bySource.email,
-        'Описание': 'Заказы, созданные из email'
+        Категория: 'Из email',
+        Количество: stats.bySource.email,
+        Описание: 'Заказы, созданные из email',
       },
       {
-        'Категория': 'Через API',
-        'Количество': stats.bySource.api,
-        'Описание': 'Заказы, созданные через API'
-      }
+        Категория: 'Через API',
+        Количество: stats.bySource.api,
+        Описание: 'Заказы, созданные через API',
+      },
     ];
 
     // Create worksheet for statistics
     const statsWorksheet = XLSX.utils.json_to_sheet(statsData);
-    
+
     // Set column widths
     statsWorksheet['!cols'] = [
-      { wch: 25 },  // Категория
-      { wch: 15 },  // Количество
-      { wch: 40 }   // Описание
+      { wch: 25 }, // Категория
+      { wch: 15 }, // Количество
+      { wch: 40 }, // Описание
     ];
 
     // Create workbook with statistics
@@ -905,11 +921,10 @@ export class OrdersComponent implements OnInit {
     if (!this.paginator) {
       return index + 1;
     }
-    
+
     const currentPage = this.paginator.pageIndex;
     const pageSize = this.paginator.pageSize;
-    
-    return (currentPage * pageSize) + index + 1;
-  }
 
+    return currentPage * pageSize + index + 1;
+  }
 }

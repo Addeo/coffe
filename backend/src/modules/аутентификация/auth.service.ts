@@ -38,15 +38,15 @@ export class AuthService {
       // Remove password from result for security
       const result = { ...user };
       delete result.password;
-      
+
       console.log('🔐 AuthService.validateUser - User from DB:', {
         id: result.id,
         email: result.email,
         role: result.role,
         primaryRole: result.primaryRole,
-        activeRole: result.activeRole
+        activeRole: result.activeRole,
       });
-      
+
       return result;
     }
 
@@ -60,7 +60,7 @@ export class AuthService {
       email: user.email,
       role: user.role,
       primaryRole: user.primaryRole,
-      activeRole: user.activeRole
+      activeRole: user.activeRole,
     });
 
     // Use user.role directly as the primary role

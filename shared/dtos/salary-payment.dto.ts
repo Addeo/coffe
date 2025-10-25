@@ -87,4 +87,3 @@ export interface EngineerBalanceDetailDto extends EngineerBalanceDto {
     remainingAmount: number;
   }[];
 }
-

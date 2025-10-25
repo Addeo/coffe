@@ -15,7 +15,11 @@ import { JwtAuthGuard } from '../аутентификация/jwt-auth.guard';
 import { RolesGuard } from '../аутентификация/roles.guard';
 import { Roles } from '../аутентификация/roles.decorator';
 import { UserRole } from '../../entities/user.entity';
-import { WorkSessionsService, CreateWorkSessionDto, UpdateWorkSessionDto } from './work-sessions.service';
+import {
+  WorkSessionsService,
+  CreateWorkSessionDto,
+  UpdateWorkSessionDto,
+} from './work-sessions.service';
 import { WorkSession } from '../../entities/work-session.entity';
 
 @Controller('work-sessions')
@@ -28,9 +32,7 @@ export class WorkSessionsController {
    * GET /work-sessions/:id
    */
   @Get(':id')
-  async getWorkSession(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<WorkSession> {
+  async getWorkSession(@Param('id', ParseIntPipe) id: number): Promise<WorkSession> {
     return this.workSessionsService.getWorkSessionById(id);
   }
 
@@ -43,10 +45,10 @@ export class WorkSessionsController {
   async getMyWorkSessions(
     @Request() req,
     @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
+    @Query('endDate') endDate?: string
   ): Promise<WorkSession[]> {
     const engineerId = req.user.engineerId;
-    
+
     if (!engineerId) {
       return [];
     }
@@ -54,11 +56,7 @@ export class WorkSessionsController {
     const start = startDate ? new Date(startDate) : undefined;
     const end = endDate ? new Date(endDate) : undefined;
 
-    return this.workSessionsService.getEngineerWorkSessions(
-      engineerId,
-      start,
-      end,
-    );
+    return this.workSessionsService.getEngineerWorkSessions(engineerId, start, end);
   }
 
   /**
@@ -69,7 +67,7 @@ export class WorkSessionsController {
   @Roles(UserRole.MANAGER, UserRole.ADMIN)
   async updateWorkSession(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateData: UpdateWorkSessionDto,
+    @Body() updateData: UpdateWorkSessionDto
   ): Promise<WorkSession> {
     return this.workSessionsService.updateWorkSession(id, updateData);
   }
@@ -80,11 +78,8 @@ export class WorkSessionsController {
    */
   @Delete(':id')
   @Roles(UserRole.ADMIN)
-  async deleteWorkSession(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<{ success: boolean }> {
+  async deleteWorkSession(@Param('id', ParseIntPipe) id: number): Promise<{ success: boolean }> {
     await this.workSessionsService.deleteWorkSession(id);
     return { success: true };
   }
 }
-

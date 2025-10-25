@@ -119,7 +119,9 @@ export class OrdersService {
       where: { id: createOrderDto.organizationId },
     });
     if (!organization) {
-      throw new NotFoundException(`Organization with ID ${createOrderDto.organizationId} not found`);
+      throw new NotFoundException(
+        `Organization with ID ${createOrderDto.organizationId} not found`
+      );
     }
 
     const order = this.ordersRepository.create({
@@ -415,7 +417,7 @@ export class OrdersService {
       const engineerProfile = await this.engineersRepository.findOne({
         where: { userId: user.id, isActive: true },
       });
-      
+
       if (!engineerProfile || order.assignedEngineerId !== engineerProfile.id) {
         throw new NotFoundException('Order not found');
       }
@@ -652,12 +654,19 @@ export class OrdersService {
     });
 
     if (!engineer) {
-      throw new NotFoundException('Engineer not found or is inactive (checked both engineer ID and user ID)');
+      throw new NotFoundException(
+        'Engineer not found or is inactive (checked both engineer ID and user ID)'
+      );
     }
 
     // Check if there's already a different assigned engineer
     if (order.assignedEngineerId && order.assignedEngineerId !== engineer.id) {
-      console.log('⚠️ Reassigning order from engineer', order.assignedEngineerId, 'to', engineer.id);
+      console.log(
+        '⚠️ Reassigning order from engineer',
+        order.assignedEngineerId,
+        'to',
+        engineer.id
+      );
       // Check if user wants to overwrite existing assignment
       // Additional confirmation logic can be added here
     }
@@ -1140,7 +1149,9 @@ export class OrdersService {
 
     // Check order status - must be 'working'
     if (order.status !== OrderStatus.WORKING) {
-      throw new BadRequestException(`Order must be in 'working' status to complete work. Current status: ${order.status}`);
+      throw new BadRequestException(
+        `Order must be in 'working' status to complete work. Current status: ${order.status}`
+      );
     }
 
     // Get engineer
@@ -1212,7 +1223,7 @@ export class OrdersService {
     if (!order.actualStartDate) {
       order.actualStartDate = now;
     }
-    
+
     // Update status based on isFullyCompleted flag
     if (order.status === 'working') {
       if (workData.isFullyCompleted === true) {
@@ -1242,7 +1253,7 @@ export class OrdersService {
     const activityDescription = workData.isFullyCompleted
       ? `Work fully completed for order ${order.title} by engineer ${engineer.user.firstName} ${engineer.user.lastName}`
       : `Work data saved for order ${order.title} by engineer ${engineer.user.firstName} ${engineer.user.lastName} (work continues)`;
-    
+
     await this.logActivity(
       orderId,
       ActivityType.ORDER_STATUS_CHANGED,
@@ -1352,7 +1363,7 @@ export class OrdersService {
     // Проверяем, что есть хотя бы одна рабочая сессия
     if (!order.workSessions || order.workSessions.length === 0) {
       throw new BadRequestException(
-        'Cannot complete order without work sessions. Please create at least one work session first.',
+        'Cannot complete order without work sessions. Please create at least one work session first.'
       );
     }
 
@@ -1377,7 +1388,7 @@ export class OrdersService {
         totalSessions: order.workSessions.length,
         status: OrderStatus.COMPLETED,
       },
-      userId,
+      userId
     );
 
     // Отправляем уведомление
@@ -1394,7 +1405,7 @@ export class OrdersService {
           `Заказ "${order.title}" успешно завершён`,
           'info',
           NotificationPriority.MEDIUM,
-          orderId,
+          orderId
         );
       }
     }

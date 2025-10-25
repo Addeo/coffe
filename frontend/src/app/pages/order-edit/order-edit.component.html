@@ -729,8 +729,8 @@
         <div class="work-sessions-tab-content">
           <h3>Учёт работы по заказу</h3>
           <p class="tab-description">
-            Здесь отображаются все выезды и рабочие сессии по этому заказу.
-            Каждая сессия фиксирует время работы и будет учтена в расчёте зарплаты в соответствующем месяце.
+            Здесь отображаются все выезды и рабочие сессии по этому заказу. Каждая сессия фиксирует
+            время работы и будет учтена в расчёте зарплаты в соответствующем месяце.
           </p>
 
           <!-- Форма создания новой сессии -->
@@ -745,7 +745,7 @@
             *ngIf="orderId"
             [orderId]="orderId!"
             [canEdit]="canEditOrder"
-            [canDelete]="canEditOrder && (authService.currentUser()?.role === UserRole.ADMIN)"
+            [canDelete]="canEditOrder && authService.currentUser()?.role === UserRole.ADMIN"
           ></app-work-session-list>
         </div>
       </mat-tab>
@@ -753,7 +753,7 @@
 
     <div class="form-actions">
       <button mat-button (click)="onCancel()">Отмена</button>
-      
+
       <!-- Кнопка принятия заказа для инженеров -->
       <button
         *ngIf="canAcceptOrder"
@@ -766,7 +766,7 @@
         <mat-icon>check_circle</mat-icon>
         <span>Принять заказ</span>
       </button>
-      
+
       <button
         mat-raised-button
         color="primary"

@@ -129,7 +129,6 @@ export class CalculationService {
     return rate * multiplier;
   }
 
-
   /**
    * Фиксированные ставки внеурочного времени для наемного инженера
    */

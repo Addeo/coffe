@@ -1,9 +1,9 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { 
-  SalaryPaymentDto, 
-  PaymentType, 
-  PaymentMethod 
+import {
+  SalaryPaymentDto,
+  PaymentType,
+  PaymentMethod,
 } from '../../../../../shared/dtos/salary-payment.dto';
 
 @Component({
@@ -14,9 +14,7 @@ import {
     <div class="payment-list">
       <div class="list-header">
         <h3>История выплат</h3>
-        <button class="btn-primary" (click)="onAddPayment()">
-          + Добавить выплату
-        </button>
+        <button class="btn-primary" (click)="onAddPayment()">+ Добавить выплату</button>
       </div>
 
       <div class="payments" *ngIf="payments && payments.length > 0">
@@ -24,7 +22,9 @@ import {
           <div class="payment-info">
             <div class="payment-main">
               <span class="payment-amount">{{ payment.amount | number: '1.2-2' }} ₽</span>
-              <span class="payment-type" [class]="payment.type">{{ getPaymentTypeLabel(payment.type) }}</span>
+              <span class="payment-type" [class]="payment.type">{{
+                getPaymentTypeLabel(payment.type)
+              }}</span>
             </div>
             <div class="payment-details">
               <span class="payment-date">{{ payment.paymentDate | date: 'dd.MM.yyyy' }}</span>
@@ -53,152 +53,154 @@ import {
       </div>
     </div>
   `,
-  styles: [`
-    .payment-list {
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
+  styles: [
+    `
+      .payment-list {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
 
-    .list-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid #e0e0e0;
-    }
+      .list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e0e0e0;
+      }
 
-    .list-header h3 {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 600;
-      color: #333;
-    }
+      .list-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+      }
 
-    .btn-primary {
-      padding: 8px 16px;
-      background: #2196f3;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.3s;
-    }
+      .btn-primary {
+        padding: 8px 16px;
+        background: #2196f3;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.3s;
+      }
 
-    .btn-primary:hover {
-      background: #1976d2;
-    }
+      .btn-primary:hover {
+        background: #1976d2;
+      }
 
-    .payments {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+      .payments {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
 
-    .payment-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px;
-      background: #f5f5f5;
-      border-radius: 8px;
-      transition: all 0.3s;
-    }
+      .payment-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: #f5f5f5;
+        border-radius: 8px;
+        transition: all 0.3s;
+      }
 
-    .payment-item:hover {
-      background: #eeeeee;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
+      .payment-item:hover {
+        background: #eeeeee;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
 
-    .payment-info {
-      flex: 1;
-    }
+      .payment-info {
+        flex: 1;
+      }
 
-    .payment-main {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
-    }
+      .payment-main {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
 
-    .payment-amount {
-      font-size: 20px;
-      font-weight: 600;
-      color: #333;
-    }
+      .payment-amount {
+        font-size: 20px;
+        font-weight: 600;
+        color: #333;
+      }
 
-    .payment-type {
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 500;
-      text-transform: uppercase;
-    }
+      .payment-type {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 500;
+        text-transform: uppercase;
+      }
 
-    .payment-type.regular {
-      background: #e3f2fd;
-      color: #1976d2;
-    }
+      .payment-type.regular {
+        background: #e3f2fd;
+        color: #1976d2;
+      }
 
-    .payment-type.advance {
-      background: #fff3e0;
-      color: #f57c00;
-    }
+      .payment-type.advance {
+        background: #fff3e0;
+        color: #f57c00;
+      }
 
-    .payment-type.bonus {
-      background: #e8f5e9;
-      color: #388e3c;
-    }
+      .payment-type.bonus {
+        background: #e8f5e9;
+        color: #388e3c;
+      }
 
-    .payment-type.adjustment {
-      background: #fce4ec;
-      color: #c2185b;
-    }
+      .payment-type.adjustment {
+        background: #fce4ec;
+        color: #c2185b;
+      }
 
-    .payment-details {
-      display: flex;
-      gap: 16px;
-      color: #666;
-      font-size: 14px;
-    }
+      .payment-details {
+        display: flex;
+        gap: 16px;
+        color: #666;
+        font-size: 14px;
+      }
 
-    .payment-notes {
-      margin-top: 8px;
-      color: #999;
-    }
+      .payment-notes {
+        margin-top: 8px;
+        color: #999;
+      }
 
-    .payment-actions {
-      display: flex;
-      gap: 8px;
-    }
+      .payment-actions {
+        display: flex;
+        gap: 8px;
+      }
 
-    .btn-icon {
-      padding: 8px;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      border-radius: 4px;
-      transition: background 0.3s;
-    }
+      .btn-icon {
+        padding: 8px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 4px;
+        transition: background 0.3s;
+      }
 
-    .btn-icon:hover {
-      background: #e0e0e0;
-    }
+      .btn-icon:hover {
+        background: #e0e0e0;
+      }
 
-    .btn-icon.danger:hover {
-      background: #ffebee;
-    }
+      .btn-icon.danger:hover {
+        background: #ffebee;
+      }
 
-    .empty-state {
-      text-align: center;
-      padding: 40px;
-      color: #999;
-    }
-  `],
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+      }
+    `,
+  ],
 })
 export class PaymentListComponent {
   @Input() payments: SalaryPaymentDto[] = [];
@@ -242,10 +244,19 @@ export class PaymentListComponent {
 
   getMonthName(month: number): string {
     const months = [
-      'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-      'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+      'Январь',
+      'Февраль',
+      'Март',
+      'Апрель',
+      'Май',
+      'Июнь',
+      'Июль',
+      'Август',
+      'Сентябрь',
+      'Октябрь',
+      'Ноябрь',
+      'Декабрь',
     ];
     return months[month - 1] || '';
   }
 }
-

@@ -1,6 +1,7 @@
 # 📱 ПОЛНАЯ ИНСТРУКЦИЯ: ТЕСТИРОВАНИЕ В ANDROID STUDIO
 
 ## 🎯 ЦЕЛЬ
+
 Научиться тестировать мобильное приложение CoffeeAdmin в Android Studio на эмуляторе и реальном устройстве.
 
 ---
@@ -8,17 +9,20 @@
 ## 📋 ПОДГОТОВКА
 
 ### 1️⃣ Проверьте, что Android Studio установлена
+
 ```bash
 # В терминале:
 ls /Applications/ | grep -i android
 ```
 
 **Если не установлена:**
+
 - Скачайте с [developer.android.com](https://developer.android.com/studio)
 - Установите Android Studio
 - При первом запуске установите Android SDK
 
 ### 2️⃣ Проверьте, что проект открыт
+
 ```bash
 # В терминале проекта:
 cd /Users/sergejkosilov/WebstormProjects/new\ goal/coffe/frontend
@@ -58,11 +62,13 @@ npx @capacitor/cli open android
 ### Шаг 3: Запустите приложение
 
 **Способ A: Через Android Studio**
+
 1. **В Android Studio** нажмите **Run 'app'** (зелёная ▶️ вверху)
 2. **Выберите эмулятор** в списке устройств
 3. **Нажмите OK**
 
 **Способ B: Через терминал**
+
 ```bash
 # В терминале проекта:
 cd /Users/sergejkosilov/WebstormProjects/new\ goal/coffe/frontend
@@ -72,6 +78,7 @@ npx @capacitor/cli run android
 ### Шаг 4: Проверьте результат
 
 **Ожидаемый результат:**
+
 - ✅ Приложение запускается
 - ✅ Показывается экран входа/регистрации
 - ✅ Нет белого экрана
@@ -97,6 +104,7 @@ adb devices
 ```
 
 **Ожидаемый результат:**
+
 ```
 List of devices attached
 ABC123DEF456    device
@@ -105,11 +113,13 @@ ABC123DEF456    device
 ### Шаг 3: Запустите приложение
 
 **Способ A: Через Android Studio**
+
 1. **В Android Studio** нажмите **Run 'app'** (зелёная ▶️)
 2. **Выберите ваше устройство** в списке
 3. **Нажмите OK**
 
 **Способ B: Через терминал**
+
 ```bash
 cd /Users/sergejkosilov/WebstormProjects/new\ goal/coffe/frontend
 npx @capacitor/cli run android --target=ABC123DEF456
@@ -152,6 +162,7 @@ adb logcat | grep "CoffeeAdmin"
 ## 🐛 РЕШЕНИЕ ПРОБЛЕМ
 
 ### Проблема: "Device not found"
+
 ```bash
 # Перезапустите ADB
 adb kill-server
@@ -160,6 +171,7 @@ adb devices
 ```
 
 ### Проблема: "Build failed"
+
 ```bash
 # Очистите проект
 cd /Users/sergejkosilov/WebstormProjects/new\ goal/coffe/frontend/android
@@ -168,6 +180,7 @@ cd /Users/sergejkosilov/WebstormProjects/new\ goal/coffe/frontend/android
 ```
 
 ### Проблема: "App not installing"
+
 ```bash
 # Удалите старую версию
 adb uninstall com.coffee.admin
@@ -176,6 +189,7 @@ adb install app-debug.apk
 ```
 
 ### Проблема: Белый экран всё ещё есть
+
 ```bash
 # Проверьте, что baseHref исправлен
 grep -r "baseHref" /Users/sergejkosilov/WebstormProjects/new\ goal/coffe/frontend/dist/
@@ -206,6 +220,7 @@ grep -r "baseHref" /Users/sergejkosilov/WebstormProjects/new\ goal/coffe/fronten
 ## 🎯 БЫСТРЫЙ СТАРТ
 
 ### Для эмулятора:
+
 ```bash
 cd /Users/sergejkosilov/WebstormProjects/new\ goal/coffe/frontend
 npx @capacitor/cli open android
@@ -213,6 +228,7 @@ npx @capacitor/cli open android
 ```
 
 ### Для реального устройства:
+
 ```bash
 cd /Users/sergejkosilov/WebstormProjects/new\ goal/coffe/frontend
 adb devices  # Проверьте подключение

@@ -7,10 +7,12 @@ Settings page functionality has been migrated to the Profile page for better UX.
 ## ✅ What Changed
 
 ### Before:
+
 - **Profile page**: Personal info, security, engineer data
 - **Settings page**: Theme selection, notifications, general settings
 
 ### After:
+
 - **Profile page**: Personal info, security, **theme settings**, engineer data
 - **Settings page**: ❌ Removed from navigation (can be deleted)
 
@@ -26,23 +28,27 @@ Settings page functionality has been migrated to the Profile page for better UX.
 ### Files Modified:
 
 #### 1. `profile.component.ts`
+
 - Added `ThemeService` injection
 - Added `MatSelectModule` and `MatSlideToggleModule`
 - Added theme selection state and methods
 - Added `onThemeChange()` method
 
 #### 2. `profile.component.html`
+
 - Added new "Настройки оформления" (Preferences) section
 - Theme selector with icons
 - Live theme preview box
 - Shows current theme status
 
 #### 3. `profile.component.scss`
+
 - Added `.preferences-card` styles
 - Added `.theme-preview` styles
 - Added responsive styles for mobile
 
 #### 4. `navigation.component.ts`
+
 - Removed "Settings" menu item for admins
 - Simplified navigation items
 
@@ -53,6 +59,7 @@ Settings page functionality has been migrated to the Profile page for better UX.
 Located in the "Общие данные" (General Information) tab, after the Security section.
 
 **Features:**
+
 - ☀️ Light theme option
 - 🌙 Dark theme option
 - 🔄 Auto theme option (follows system)
@@ -60,6 +67,7 @@ Located in the "Общие данные" (General Information) tab, after the Se
 - Instant feedback when changing theme
 
 **UI Components:**
+
 - Theme icon indicator
 - Dropdown selector with icons
 - Hint text for auto mode
@@ -68,11 +76,13 @@ Located in the "Общие данные" (General Information) tab, after the Se
 ## 📱 Location
 
 **Desktop & Mobile:**
+
 ```
 Profile → Общие данные tab → Scroll down → "Настройки оформления"
 ```
 
 **Path:**
+
 ```
 /profile → first tab → third card
 ```
@@ -129,12 +139,14 @@ But current UX is recommended - keeps everything user-related in Profile.
 ## ✨ Benefits
 
 ### For Users:
+
 - ✅ Fewer clicks to change theme
 - ✅ All personal settings in one place
 - ✅ Simpler navigation
 - ✅ Logical organization
 
 ### For Developers:
+
 - ✅ Less code duplication
 - ✅ Simpler navigation structure
 - ✅ Easier to maintain
@@ -145,6 +157,7 @@ But current UX is recommended - keeps everything user-related in Profile.
 ### Navigation Changes:
 
 **Before:**
+
 ```
 - Users
 - Organizations
@@ -156,6 +169,7 @@ But current UX is recommended - keeps everything user-related in Profile.
 ```
 
 **After:**
+
 ```
 - Users
 - Organizations
@@ -202,10 +216,7 @@ Profile
         </div>
       </div>
       <mat-form-field>
-        <mat-select 
-          [value]="currentTheme()" 
-          (selectionChange)="onThemeChange($event.value)"
-        >
+        <mat-select [value]="currentTheme()" (selectionChange)="onThemeChange($event.value)">
           <mat-option *ngFor="let theme of themes" [value]="theme.value">
             <mat-icon>{{ theme.icon }}</mat-icon>
             {{ theme.label }}
@@ -240,6 +251,7 @@ onThemeChange(theme: Theme): void {
 ### Theme not changing?
 
 **Check:**
+
 1. ThemeService is properly injected
 2. Browser localStorage is enabled
 3. No console errors
@@ -248,6 +260,7 @@ onThemeChange(theme: Theme): void {
 ### Preview not updating?
 
 **Check:**
+
 1. Signals are properly bound: `currentTheme()` with parentheses
 2. `effectiveTheme()` is used in template
 3. CSS variables are loaded (themes.scss)
@@ -255,6 +268,7 @@ onThemeChange(theme: Theme): void {
 ### Mobile layout broken?
 
 **Check:**
+
 1. Responsive styles in `profile.component.scss`
 2. `.preference-item` has proper flex direction on mobile
 3. Theme preview has proper padding
@@ -262,6 +276,7 @@ onThemeChange(theme: Theme): void {
 ## 📞 Support
 
 For questions or issues:
+
 1. Check this documentation
 2. Review `profile.component.ts` implementation
 3. Check browser console for errors
@@ -272,4 +287,3 @@ For questions or issues:
 **Migration Date**: October 2025  
 **Version**: 2.0.0  
 **Status**: ✅ Complete
-

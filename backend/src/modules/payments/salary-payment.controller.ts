@@ -37,7 +37,7 @@ export class SalaryPaymentController {
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   async createPayment(
     @Body() createDto: CreateSalaryPaymentDto,
-    @Request() req,
+    @Request() req
   ): Promise<SalaryPaymentDto> {
     return this.salaryPaymentService.createPayment(createDto, req.user.userId);
   }
@@ -53,7 +53,7 @@ export class SalaryPaymentController {
     @Query('year') year?: string,
     @Query('month') month?: string,
     @Query('type') type?: PaymentType,
-    @Query('limit') limit?: string,
+    @Query('limit') limit?: string
   ): Promise<SalaryPaymentDto[]> {
     return this.salaryPaymentService.getEngineerPayments(engineerId, {
       year: year ? parseInt(year, 10) : undefined,
@@ -70,7 +70,7 @@ export class SalaryPaymentController {
   @Get('calculation/:calculationId')
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   async getPaymentsByCalculation(
-    @Param('calculationId', ParseIntPipe) calculationId: number,
+    @Param('calculationId', ParseIntPipe) calculationId: number
   ): Promise<SalaryPaymentDto[]> {
     return this.salaryPaymentService.getPaymentsByCalculation(calculationId);
   }
@@ -83,7 +83,7 @@ export class SalaryPaymentController {
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   async updatePayment(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateDto: UpdateSalaryPaymentDto,
+    @Body() updateDto: UpdateSalaryPaymentDto
   ): Promise<SalaryPaymentDto> {
     return this.salaryPaymentService.updatePayment(id, updateDto);
   }
@@ -106,7 +106,7 @@ export class SalaryPaymentController {
   @Get('balance/:engineerId')
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   async getEngineerBalance(
-    @Param('engineerId', ParseIntPipe) engineerId: number,
+    @Param('engineerId', ParseIntPipe) engineerId: number
   ): Promise<EngineerBalanceDto> {
     return this.salaryPaymentService.getEngineerBalance(engineerId);
   }
@@ -118,7 +118,7 @@ export class SalaryPaymentController {
   @Get('balance/:engineerId/detail')
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   async getEngineerBalanceDetail(
-    @Param('engineerId', ParseIntPipe) engineerId: number,
+    @Param('engineerId', ParseIntPipe) engineerId: number
   ): Promise<EngineerBalanceDetailDto> {
     return this.salaryPaymentService.getEngineerBalanceDetail(engineerId);
   }
@@ -133,4 +133,3 @@ export class SalaryPaymentController {
     return this.salaryPaymentService.getAllEngineersBalances();
   }
 }
-

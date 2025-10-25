@@ -131,25 +131,14 @@
     </mat-card-content>
 
     <mat-card-actions *ngIf="canEdit || canDelete">
-      <button
-        *ngIf="canEdit"
-        mat-button
-        color="primary"
-        (click)="onEditSession(session)"
-      >
+      <button *ngIf="canEdit" mat-button color="primary" (click)="onEditSession(session)">
         <mat-icon>edit</mat-icon>
         Редактировать
       </button>
-      <button
-        *ngIf="canDelete"
-        mat-button
-        color="warn"
-        (click)="onDeleteSession(session)"
-      >
+      <button *ngIf="canDelete" mat-button color="warn" (click)="onDeleteSession(session)">
         <mat-icon>delete</mat-icon>
         Удалить
       </button>
     </mat-card-actions>
   </mat-card>
 </div>
-

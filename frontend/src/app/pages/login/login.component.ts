@@ -106,10 +106,10 @@ export class LoginComponent {
 
           const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/orders';
           console.log('🧭 Navigating to:', returnUrl);
-          
+
           // Force change detection before navigation
           this.cdr.detectChanges();
-          
+
           // Navigate immediately - auth state is already set in AuthService
           this.router.navigate([returnUrl]).then(() => {
             // Final change detection after navigation

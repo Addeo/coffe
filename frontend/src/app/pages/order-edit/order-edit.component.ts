@@ -164,7 +164,7 @@ export class OrderEditComponent implements OnInit {
     comments: [''], // Дополнительные комментарии
     files: [[]], // Array of file IDs
   });
-  
+
   // Work execution form (for engineers filling out work details)
   workExecutionForm: FormGroup = this.fb.group({
     workActNumber: [''], // Номер акта выполненных работ
@@ -193,17 +193,14 @@ export class OrderEditComponent implements OnInit {
       (this.order.status === OrderStatus.WORKING || this.order.status === OrderStatus.COMPLETED)
     );
   });
-  
+
   // Computed: Check if work execution form should be shown
   showWorkExecutionForm = computed(() => {
     return (
-      this.isEngineer &&
-      this.isEdit &&
-      this.order &&
-      this.order.status === OrderStatus.WORKING
+      this.isEngineer && this.isEdit && this.order && this.order.status === OrderStatus.WORKING
     );
   });
-  
+
   // Computed: Check if order is locked for editing (24 hours after completion)
   isOrderLocked = computed(() => {
     if (!this.order || !this.order.completionLockedAt) {
@@ -213,17 +210,14 @@ export class OrderEditComponent implements OnInit {
     const now = new Date();
     return now > lockedDate;
   });
-  
+
   // Computed: Can show "Подтвердить" button (ASSIGNED status for engineer)
   canConfirmOrder = computed(() => {
     return (
-      this.isEngineer &&
-      this.isEdit &&
-      this.order &&
-      this.order.status === OrderStatus.ASSIGNED
+      this.isEngineer && this.isEdit && this.order && this.order.status === OrderStatus.ASSIGNED
     );
   });
-  
+
   // Computed: Can show "Выполнить" button (WORKING status for engineer)
   canStartExecution = computed(() => {
     return (
@@ -234,7 +228,7 @@ export class OrderEditComponent implements OnInit {
       !this.order.workStartTime // Not yet started execution
     );
   });
-  
+
   // Computed: Can show "Завершить" button (execution started)
   canCompleteExecution = computed(() => {
     return (
@@ -245,12 +239,12 @@ export class OrderEditComponent implements OnInit {
       !!this.order.workStartTime // Execution started
     );
   });
-  
+
   // Computed: Calculate total work hours from times
   totalWorkHours = computed(() => {
     const startTime = this.workExecutionForm.get('workStartTime')?.value;
     const endTime = this.workExecutionForm.get('workEndTime')?.value;
-    
+
     if (startTime && endTime) {
       const start = new Date(startTime);
       const end = new Date(endTime);
@@ -258,7 +252,7 @@ export class OrderEditComponent implements OnInit {
       const hours = diffMs / (1000 * 60 * 60);
       return Math.max(0, Math.round(hours * 100) / 100); // Round to 2 decimal places
     }
-    
+
     return 0;
   });
 
@@ -311,7 +305,7 @@ export class OrderEditComponent implements OnInit {
       comments: order.comments || '',
       files: order.files?.map(f => f.id) || [],
     });
-    
+
     // Populate work execution form if order is in WORKING status
     if (order.status === OrderStatus.WORKING || order.status === OrderStatus.COMPLETED) {
       this.workExecutionForm.patchValue({
@@ -321,7 +315,7 @@ export class OrderEditComponent implements OnInit {
         isOvertimeRate: order.isOvertimeRate || false,
         isRepairComplete: order.isRepairComplete,
       });
-      
+
       // Disable form if order is locked
       if (this.isOrderLocked()) {
         this.workExecutionForm.disable();
@@ -757,7 +751,7 @@ export class OrderEditComponent implements OnInit {
     try {
       await this.ordersService.acceptOrder(this.orderId).toPromise();
       this.toastService.success('Заказ принят успешно');
-      
+
       // Reload order data
       await this.loadOrder(this.orderId);
       this.selectedTabIndex = 0; // Switch to main tab
@@ -768,7 +762,7 @@ export class OrderEditComponent implements OnInit {
       this.isLoading.set(false);
     }
   }
-  
+
   /**
    * ПОДТВЕРДИТЬ - переводит заявку из ASSIGNED в WORKING (инженер подтверждает принятие)
    */
@@ -776,18 +770,18 @@ export class OrderEditComponent implements OnInit {
     if (!this.orderId || !this.canConfirmOrder()) {
       return;
     }
-    
+
     this.isLoading.set(true);
-    
+
     const orderData: UpdateOrderDto = {
       status: OrderStatus.WORKING,
       actualStartDate: new Date(),
     };
-    
+
     try {
       await this.ordersService.updateOrder(this.orderId, orderData).toPromise();
       this.toastService.success('Заявка подтверждена. Статус: В работе');
-      
+
       // Reload order data
       this.loadOrder(this.orderId);
     } catch (error: any) {
@@ -797,7 +791,7 @@ export class OrderEditComponent implements OnInit {
       this.isLoading.set(false);
     }
   }
-  
+
   /**
    * ВЫПОЛНИТЬ - открывает форму для заполнения данных о выполнении работ
    */
@@ -805,16 +799,16 @@ export class OrderEditComponent implements OnInit {
     if (!this.canStartExecution()) {
       return;
     }
-    
+
     // Установить текущее время как время начала работ
     const now = new Date();
     this.workExecutionForm.patchValue({
       workStartTime: now,
     });
-    
+
     this.toastService.success('Заполните данные о выполнении работ');
   }
-  
+
   /**
    * Установить статус завершения ремонта (галочка/крестик)
    */
@@ -823,7 +817,7 @@ export class OrderEditComponent implements OnInit {
       isRepairComplete: isComplete,
     });
   }
-  
+
   /**
    * ЗАВЕРШИТЬ - сохраняет данные выполнения и переводит заявку в статус COMPLETED
    */
@@ -831,34 +825,34 @@ export class OrderEditComponent implements OnInit {
     if (!this.orderId || !this.canCompleteExecution()) {
       return;
     }
-    
+
     // Validate work execution form
     const workExecValue = this.workExecutionForm.value;
-    
+
     if (!workExecValue.workStartTime || !workExecValue.workEndTime) {
       this.toastService.error('Укажите время начала и окончания работ');
       return;
     }
-    
+
     if (workExecValue.isRepairComplete === null) {
       this.toastService.error('Укажите, завершен ли ремонт');
       return;
     }
-    
+
     this.isLoading.set(true);
-    
+
     // Calculate total work hours
     const start = new Date(workExecValue.workStartTime);
     const end = new Date(workExecValue.workEndTime);
     const diffMs = end.getTime() - start.getTime();
     const totalHours = diffMs / (1000 * 60 * 60);
-    
+
     if (totalHours <= 0) {
       this.toastService.error('Время окончания должно быть позже времени начала');
       this.isLoading.set(false);
       return;
     }
-    
+
     // Prepare order update
     const orderData: UpdateOrderDto = {
       workActNumber: workExecValue.workActNumber,
@@ -870,12 +864,12 @@ export class OrderEditComponent implements OnInit {
       equipmentInfo: this.orderForm.get('equipmentInfo')?.value,
       comments: this.orderForm.get('comments')?.value,
     };
-    
+
     // If repair is complete, change status to COMPLETED
     if (workExecValue.isRepairComplete === true) {
       orderData.status = OrderStatus.COMPLETED;
       orderData.completionDate = new Date();
-      
+
       // Set lock date to 24 hours from now
       const lockDate = new Date();
       lockDate.setHours(lockDate.getHours() + 24);
@@ -884,16 +878,16 @@ export class OrderEditComponent implements OnInit {
       // Repair not complete - mark as incomplete
       orderData.isIncomplete = true;
     }
-    
+
     try {
       await this.ordersService.updateOrder(this.orderId, orderData).toPromise();
-      
+
       if (workExecValue.isRepairComplete === true) {
         this.toastService.success('Работа завершена успешно. Статус: Выполнена');
       } else {
         this.toastService.success('Данные сохранены. Заявка отмечена как незавершенная');
       }
-      
+
       // Reload order data
       this.loadOrder(this.orderId);
     } catch (error: any) {

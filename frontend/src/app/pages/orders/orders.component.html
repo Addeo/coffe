@@ -1,10 +1,11 @@
 <div class="orders-container">
   <!-- Earnings Summary Component -->
-  <app-earnings-summary 
+  <app-earnings-summary
     [collapsible]="true"
-    (viewUnacceptedOrders)="onStatusFilterChange(assignedStatus)">
+    (viewUnacceptedOrders)="onStatusFilterChange(assignedStatus)"
+  >
   </app-earnings-summary>
-  
+
   <!--
   <mat-card class="order-stats-card">
     <mat-card-header (click)="toggleOrderStats()" class="clickable-header">
@@ -431,7 +432,7 @@
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
 
-          <div class="button-group" style="display: flex; gap: 10px;">
+          <div class="button-group" style="display: flex; gap: 10px">
             <button
               mat-icon-button
               (click)="refreshData()"
@@ -549,7 +550,10 @@
             <td mat-cell *matCellDef="let order">
               <div class="actions-container">
                 <!-- Engineer Actions Group -->
-                <div class="action-group engineer-actions" *ngIf="canAcceptOrder(order) || canCompleteWork(order)">
+                <div
+                  class="action-group engineer-actions"
+                  *ngIf="canAcceptOrder(order) || canCompleteWork(order)"
+                >
                   <button
                     mat-raised-button
                     color="accent"
@@ -578,7 +582,10 @@
                 <!-- Admin/Manager Actions Group -->
                 <div class="action-group admin-actions">
                   <!-- Edit Actions -->
-                  <div class="edit-actions" *ngIf="canEditOrder(order) || canEditCompletedOrder(order)">
+                  <div
+                    class="edit-actions"
+                    *ngIf="canEditOrder(order) || canEditCompletedOrder(order)"
+                  >
                     <button
                       mat-icon-button
                       (click)="onEditOrder(order)"
@@ -625,11 +632,17 @@
                       (click)="onAssignEngineer(order)"
                       [disabled]="order.status === 'completed'"
                       color="primary"
-                      [matTooltip]="order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера'"
-                      [attr.aria-label]="order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера'"
+                      [matTooltip]="
+                        order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера'
+                      "
+                      [attr.aria-label]="
+                        order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера'
+                      "
                       class="action-btn-icon assign-btn"
                     >
-                      <mat-icon>{{ order.assignedEngineerId ? 'swap_horiz' : 'person_add' }}</mat-icon>
+                      <mat-icon>{{
+                        order.assignedEngineerId ? 'swap_horiz' : 'person_add'
+                      }}</mat-icon>
                     </button>
                   </div>
 
@@ -675,3 +688,4 @@
       </mat-paginator>
     </mat-card-content>
   </mat-card>
+</div>

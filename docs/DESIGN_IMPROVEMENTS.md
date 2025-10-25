@@ -121,6 +121,7 @@ var(--shadow-md)
 #### Usage in Settings
 
 The Settings page (`/settings`) allows users to:
+
 - Select theme preference (light/dark/auto)
 - See current effective theme when in auto mode
 - Changes are applied immediately
@@ -196,22 +197,14 @@ Most accessibility features work automatically. For custom components:
 <span class="sr-only">Additional context for screen readers</span>
 
 <!-- Interactive elements with proper ARIA -->
-<button 
-  aria-label="Close dialog"
-  aria-pressed="false"
-  [attr.aria-expanded]="isExpanded"
->
+<button aria-label="Close dialog" aria-pressed="false" [attr.aria-expanded]="isExpanded">
   Close
 </button>
 
 <!-- Status indicators -->
-<div role="status" aria-live="polite">
-  Loading...
-</div>
+<div role="status" aria-live="polite">Loading...</div>
 
-<div role="alert" aria-live="assertive">
-  Error occurred!
-</div>
+<div role="alert" aria-live="assertive">Error occurred!</div>
 ```
 
 ---
@@ -244,38 +237,22 @@ import { SkeletonLoaderComponent } from './components/skeleton-loader/skeleton-l
 <app-skeleton-loader type="text" [lines]="3"></app-skeleton-loader>
 
 <!-- Circle skeleton (avatar) -->
-<app-skeleton-loader 
-  type="circle" 
-  [height]="48" 
-  width="48px"
-></app-skeleton-loader>
+<app-skeleton-loader type="circle" [height]="48" width="48px"></app-skeleton-loader>
 
 <!-- Rectangle skeleton -->
-<app-skeleton-loader 
-  type="rectangle" 
-  [height]="200"
-></app-skeleton-loader>
+<app-skeleton-loader type="rectangle" [height]="200"></app-skeleton-loader>
 
 <!-- Card skeleton -->
-<app-skeleton-loader 
-  type="card" 
-  [lines]="4"
-></app-skeleton-loader>
+<app-skeleton-loader type="card" [lines]="4"></app-skeleton-loader>
 
 <!-- Table row skeleton -->
-<app-skeleton-loader 
-  type="table-row" 
-  [columns]="5"
-></app-skeleton-loader>
+<app-skeleton-loader type="table-row" [columns]="5"></app-skeleton-loader>
 
 <!-- Stat card skeleton -->
 <app-skeleton-loader type="stat-card"></app-skeleton-loader>
 
 <!-- Custom styling -->
-<app-skeleton-loader 
-  type="text" 
-  customClass="my-custom-class"
-></app-skeleton-loader>
+<app-skeleton-loader type="text" customClass="my-custom-class"></app-skeleton-loader>
 ```
 
 ### Integration Example
@@ -288,13 +265,13 @@ import { SkeletonLoaderComponent } from './components/skeleton-loader/skeleton-l
       <app-skeleton-loader type="card" [lines]="3"></app-skeleton-loader>
       <app-skeleton-loader type="card" [lines]="3"></app-skeleton-loader>
     </div>
-    
+
     <ng-template #content>
       <mat-card *ngFor="let item of data()">
         {{ item.title }}
       </mat-card>
     </ng-template>
-  `
+  `,
 })
 export class MyComponent {
   isLoading = signal(true);
@@ -309,7 +286,7 @@ export class MyComponent {
 ### Responsive Design
 
 - **Mobile-First**: Optimized for mobile devices
-- **Breakpoints**: 
+- **Breakpoints**:
   - Mobile: < 768px
   - Tablet: 768px - 1024px
   - Desktop: > 1024px
@@ -350,6 +327,7 @@ export class MyComponent {
 ### For Developers
 
 1. **Theme Variables**: Use CSS variables in your styles
+
 ```scss
 .my-component {
   background-color: var(--bg-secondary);
@@ -359,14 +337,15 @@ export class MyComponent {
 ```
 
 2. **Skeleton Loaders**: Import and use in loading states
+
 ```typescript
 import { SkeletonLoaderComponent } from './components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   imports: [SkeletonLoaderComponent],
   template: `
-    <app-skeleton-loader 
-      *ngIf="loading" 
+    <app-skeleton-loader
+      *ngIf="loading"
       type="card"
     ></app-skeleton-loader>
   `
@@ -374,19 +353,16 @@ import { SkeletonLoaderComponent } from './components/skeleton-loader/skeleton-l
 ```
 
 3. **Accessibility**: Follow established patterns
+
 ```html
-<button 
-  mat-icon-button
-  [attr.aria-label]="'Delete item ' + item.name"
-  (click)="deleteItem(item)"
->
+<button mat-icon-button [attr.aria-label]="'Delete item ' + item.name" (click)="deleteItem(item)">
   <mat-icon>delete</mat-icon>
 </button>
 ```
 
 ### For Users
 
-1. **Change Theme**: 
+1. **Change Theme**:
    - Click theme toggle button in navigation bar
    - Or go to Settings > Theme
 
@@ -408,12 +384,14 @@ import { SkeletonLoaderComponent } from './components/skeleton-loader/skeleton-l
 ### WCAG 2.1 AA Compliance
 
 ✅ **Perceivable**
+
 - Text alternatives for images
 - Sufficient color contrast (4.5:1 for normal text)
 - Resizable text without loss of functionality
 - Distinguishable content
 
 ✅ **Operable**
+
 - Keyboard accessible
 - No keyboard traps
 - Sufficient time for interactions
@@ -421,12 +399,14 @@ import { SkeletonLoaderComponent } from './components/skeleton-loader/skeleton-l
 - Navigable structure
 
 ✅ **Understandable**
+
 - Readable and predictable
 - Clear error identification
 - Labels and instructions
 - Consistent navigation
 
 ✅ **Robust**
+
 - Compatible with assistive technologies
 - Valid HTML
 - Proper ARIA usage
@@ -462,7 +442,7 @@ import { SkeletonLoaderComponent } from './components/skeleton-loader/skeleton-l
 
 1. **Support Both Themes**: Test in light and dark mode
 2. **Add Skeleton State**: Provide loading placeholder
-3. **Ensure Accessibility**: 
+3. **Ensure Accessibility**:
    - Add ARIA labels
    - Test keyboard navigation
    - Check color contrast
@@ -485,15 +465,18 @@ import { SkeletonLoaderComponent } from './components/skeleton-loader/skeleton-l
 ## 🎓 Resources
 
 ### Theme System
+
 - [Theme Service Documentation](../frontend/src/app/services/theme.service.ts)
 - [Theme Styles](../frontend/src/themes.scss)
 
 ### Accessibility
+
 - [WCAG 2.1 Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
 - [ARIA Practices](https://www.w3.org/WAI/ARIA/apg/)
 - [Accessibility Styles](../frontend/src/accessibility.scss)
 
 ### Components
+
 - [Skeleton Loader](../frontend/src/app/components/skeleton-loader/skeleton-loader.component.ts)
 - [Navigation Component](../frontend/src/app/components/navigation/navigation.component.ts)
 
@@ -517,7 +500,8 @@ import { SkeletonLoaderComponent } from './components/skeleton-loader/skeleton-l
 
 **Problem**: Skeleton loader not visible
 
-**Solution**: 
+**Solution**:
+
 1. Check component is imported
 2. Verify loading state is true
 3. Check z-index conflicts
@@ -552,4 +536,3 @@ For questions or issues related to design improvements:
 **Last Updated**: October 2025  
 **Version**: 1.0.0  
 **Author**: Coffee Admin Team
-

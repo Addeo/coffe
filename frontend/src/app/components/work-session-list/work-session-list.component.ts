@@ -51,12 +51,12 @@ export class WorkSessionListComponent implements OnInit {
     this.error = null;
 
     this.workSessionsService.getOrderWorkSessions(this.orderId).subscribe({
-      next: (sessions) => {
+      next: sessions => {
         this.sessions = sessions;
         this.summary = this.workSessionsService.calculateSessionsSummary(sessions);
         this.loading = false;
       },
-      error: (err) => {
+      error: err => {
         this.error = 'Не удалось загрузить рабочие сессии';
         console.error('Error loading work sessions:', err);
         this.loading = false;
@@ -101,7 +101,7 @@ export class WorkSessionListComponent implements OnInit {
         this.sessionDeleted.emit(session.id);
         this.loadSessions();
       },
-      error: (err) => {
+      error: err => {
         alert('Не удалось удалить сессию');
         console.error('Error deleting session:', err);
       },
@@ -116,4 +116,3 @@ export class WorkSessionListComponent implements OnInit {
     return session.id;
   }
 }
-

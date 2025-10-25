@@ -54,8 +54,16 @@ async function seed() {
 
   // Create settings
   const settings = [
-    { key: SettingKey.AUTO_DISTRIBUTION_ENABLED, value: 'false', description: 'Enable automatic order distribution' },
-    { key: SettingKey.MAX_ORDERS_PER_ENGINEER, value: '10', description: 'Maximum orders per engineer' },
+    {
+      key: SettingKey.AUTO_DISTRIBUTION_ENABLED,
+      value: 'false',
+      description: 'Enable automatic order distribution',
+    },
+    {
+      key: SettingKey.MAX_ORDERS_PER_ENGINEER,
+      value: '10',
+      description: 'Maximum orders per engineer',
+    },
   ];
 
   for (const settingData of settings) {
@@ -71,8 +79,7 @@ async function seed() {
   console.log('✓ Seed completed!');
 }
 
-seed().catch((error) => {
+seed().catch(error => {
   console.error('Seed failed:', error);
   process.exit(1);
 });
-

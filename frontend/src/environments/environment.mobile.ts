@@ -5,6 +5,3 @@ export const environment = {
   appName: 'Coffee Admin Mobile',
   demo: false,
 };
-
-
-
