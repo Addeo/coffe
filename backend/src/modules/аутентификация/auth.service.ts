@@ -214,7 +214,6 @@ export class AuthService {
       firstName: 'Admin',
       lastName: 'User',
       role: UserRole.ADMIN,
-      primaryRole: UserRole.ADMIN,
       isActive: true,
     });
 
