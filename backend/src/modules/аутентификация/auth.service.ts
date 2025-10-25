@@ -187,4 +187,49 @@ export class AuthService {
       user: userResponse,
     };
   }
+
+  async initializeAdmin() {
+    const existingAdmin = await this.userRepository.findOne({ 
+      where: { email: 'admin@coffee.com' } 
+    });
+    
+    if (existingAdmin) {
+      return {
+        success: true,
+        message: 'Admin user already exists',
+        user: {
+          id: existingAdmin.id,
+          email: existingAdmin.email,
+          firstName: existingAdmin.firstName,
+          lastName: existingAdmin.lastName,
+          role: existingAdmin.role,
+        }
+      };
+    }
+
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const admin = this.userRepository.create({
+      email: 'admin@coffee.com',
+      password: hashedPassword,
+      firstName: 'Admin',
+      lastName: 'User',
+      role: UserRole.ADMIN,
+      primaryRole: UserRole.ADMIN,
+      isActive: true,
+    });
+
+    const savedAdmin = await this.userRepository.save(admin);
+    
+    return {
+      success: true,
+      message: 'Admin user created successfully',
+      user: {
+        id: savedAdmin.id,
+        email: savedAdmin.email,
+        firstName: savedAdmin.firstName,
+        lastName: savedAdmin.lastName,
+        role: savedAdmin.role,
+      }
+    };
+  }
 }
