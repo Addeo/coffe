@@ -6,6 +6,7 @@ import {
   Body,
   HttpException,
   HttpStatus,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
@@ -14,6 +15,19 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+  @Get('init-admin')
+  async initAdmin() {
+    try {
+      const result = await this.authService.initializeAdmin();
+      return result;
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Failed to initialize admin',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
