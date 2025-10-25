@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -53,6 +53,7 @@ export class LoginComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toastService = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef);
 
   emailFormControl = new FormControl('', [Validators.required, Validators.email]);
   passwordFormControl = new FormControl('', [Validators.required, Validators.minLength(6)]);
@@ -106,20 +107,15 @@ export class LoginComponent {
           const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/orders';
           console.log('🧭 Navigating to:', returnUrl);
           
-          // Force refresh auth state and navigate
-          this.authService.refreshAuthState();
+          // Force change detection before navigation
+          this.cdr.detectChanges();
           
-          // Navigate with a small delay to ensure state is set
-          setTimeout(() => {
-            this.router.navigate([returnUrl]).then(() => {
-              // Force change detection after navigation
-              setTimeout(() => {
-                window.dispatchEvent(new Event('resize'));
-                // Final auth state refresh
-                this.authService.refreshAuthState();
-              }, 100);
-            });
-          }, 100);
+          // Navigate immediately - auth state is already set in AuthService
+          this.router.navigate([returnUrl]).then(() => {
+            // Final change detection after navigation
+            this.cdr.markForCheck();
+            console.log('🏠 Navigation completed with change detection');
+          });
 
           this.toastService.success('Вход выполнен успешно!');
         },

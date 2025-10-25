@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, computed, signal, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -30,6 +30,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   private themeService = inject(ThemeService);
   private router = inject(Router);
   private notificationsService = inject(NotificationsService);
+  private cdr = inject(ChangeDetectorRef);
   private subscriptions: Subscription[] = [];
 
   // Reactive signals
@@ -115,25 +116,18 @@ export class NavigationComponent implements OnInit, OnDestroy {
       this.loadUnreadCount();
     }
     
-    // Force checks with delays to ensure auth state is properly set
+    // Force change detection to ensure UI updates
+    this.cdr.detectChanges();
+    
+    // Single delayed check to handle async auth state updates
     setTimeout(() => {
       console.log('🧭 Delayed auth state check:', this.isAuthenticated());
       if (this.isAuthenticated()) {
         this.loadNotifications();
         this.loadUnreadCount();
+        this.cdr.markForCheck();
       }
-    }, 200);
-
-    // Additional check after longer delay
-    setTimeout(() => {
-      this.authService.retryAuthCheck().subscribe((isAuth) => {
-        console.log('🧭 Retry auth check in NavigationComponent:', isAuth);
-        if (isAuth) {
-          this.loadNotifications();
-          this.loadUnreadCount();
-        }
-      });
-    }, 500);
+    }, 100);
   }
 
   ngOnDestroy(): void {
