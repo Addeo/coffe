@@ -136,6 +136,13 @@ export const routes: Routes = [
     data: { roles: ['admin'], title: 'Database Backups' },
   },
   {
+    path: 'logs',
+    loadComponent: () =>
+      import('./pages/logs-viewer/logs-viewer.component').then(m => m.LogsViewerComponent),
+    canActivate: [AuthGuard],
+    data: { roles: ['admin'], title: 'Backend Logs' },
+  },
+  {
     path: 'unauthorized',
     loadComponent: () =>
       import('./pages/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent),

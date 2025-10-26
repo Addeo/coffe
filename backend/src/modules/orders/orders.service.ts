@@ -69,21 +69,33 @@ export class OrdersService {
   ) {}
 
   async create(createOrderDto: CreateOrderDto, userId: number): Promise<Order> {
+    console.log('🔨 [OrdersService] Starting order creation:', {
+      userId,
+      organizationId: createOrderDto.organizationId,
+      title: createOrderDto.title,
+      filesCount: createOrderDto.files?.length || 0,
+    });
+
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) {
+      console.error('❌ [OrdersService] User not found:', userId);
       throw new NotFoundException('User not found');
     }
+    console.log('✅ [OrdersService] User found:', user.email);
 
     // Validate organization exists
     const organization = await this.organizationsRepository.findOne({
       where: { id: createOrderDto.organizationId },
     });
     if (!organization) {
+      console.error('❌ [OrdersService] Organization not found:', createOrderDto.organizationId);
       throw new NotFoundException(
         `Organization with ID ${createOrderDto.organizationId} not found`
       );
     }
+    console.log('✅ [OrdersService] Organization found:', organization.name);
 
+    console.log('🏗️ [OrdersService] Creating order entity...');
     const order = this.ordersRepository.create({
       organizationId: createOrderDto.organizationId,
       title: createOrderDto.title,
@@ -99,13 +111,19 @@ export class OrdersService {
     });
 
     const savedOrder = await this.ordersRepository.save(order);
+    console.log('✅ [OrdersService] Order saved with ID:', savedOrder.id);
 
     // Attach files if provided
     if (createOrderDto.files && createOrderDto.files.length > 0) {
+      console.log('📎 [OrdersService] Attaching files:', createOrderDto.files);
       await this.attachFilesToOrder(savedOrder.id, createOrderDto.files);
+      console.log('✅ [OrdersService] Files attached successfully');
+    } else {
+      console.log('ℹ️ [OrdersService] No files to attach');
     }
 
     // Log order creation
+    console.log('📝 [OrdersService] Logging order creation activity...');
     await this.logActivity(
       savedOrder.id,
       ActivityType.ORDER_CREATED,
@@ -126,6 +144,7 @@ export class OrdersService {
     }
 
     // Return order with attached files
+    console.log('📤 [OrdersService] Returning order to controller...');
     return this.findOne(savedOrder.id, user);
   }
 
