@@ -446,11 +446,7 @@ export class OrdersComponent implements OnInit {
   canEditCompletedOrder(order: OrderDto): boolean {
     const currentUser = this.authService.currentUser();
 
-    // Only admins and managers
-    if (
-      !currentUser ||
-      (currentUser.role !== UserRole.ADMIN && currentUser.role !== UserRole.MANAGER)
-    ) {
+    if (!currentUser) {
       return false;
     }
 
@@ -459,16 +455,26 @@ export class OrdersComponent implements OnInit {
       return false;
     }
 
-    // Check if within 24 hours
-    if (!order.completionDate) {
-      return false;
+    // Admins and managers can edit any completed order
+    if (currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.MANAGER) {
+      // Check if within 24 hours for admins/managers
+      if (!order.completionDate) {
+        return false;
+      }
+
+      const completionTime = new Date(order.completionDate).getTime();
+      const now = new Date().getTime();
+      const hoursPassed = (now - completionTime) / (1000 * 60 * 60);
+
+      return hoursPassed <= 24;
     }
 
-    const completionTime = new Date(order.completionDate).getTime();
-    const now = new Date().getTime();
-    const hoursPassed = (now - completionTime) / (1000 * 60 * 60);
+    // Engineers can edit their own completed orders (without 24h restriction)
+    if (currentUser.role === UserRole.USER) {
+      return order.assignedEngineerId === currentUser.id;
+    }
 
-    return hoursPassed <= 24;
+    return false;
   }
 
   getOrganizationName(order: OrderDto): string {
