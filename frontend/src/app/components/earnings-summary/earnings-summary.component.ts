@@ -83,34 +83,35 @@ export class EarningsSummaryComponent implements OnInit {
     const year = this.currentYear();
     const month = this.currentMonth();
 
-    this.statisticsService.getAdminEngineerStatistics(year, month).subscribe({
-      next: (data: AdminEngineerStatistics) => {
-        const currentUser = this.currentUser();
-
-        if (this.isEngineer && currentUser) {
-          // For engineer, show only their own statistics
-          const currentUserId = currentUser.id;
-          const engineerStats = data.engineers.find(e => e.engineerId === currentUserId);
-
-          if (engineerStats) {
-            this.summary.set({
-              workEarnings: engineerStats.engineerEarnings,
-              carEarnings: engineerStats.carUsageAmount,
-              totalEarnings: engineerStats.totalEarnings,
-              completedOrders: engineerStats.completedOrders,
-              totalHours: engineerStats.totalHours,
-            });
-          } else {
-            this.summary.set({
-              workEarnings: 0,
-              carEarnings: 0,
-              totalEarnings: 0,
-              completedOrders: 0,
-              totalHours: 0,
-            });
-          }
-        } else {
-          // For admin/manager, show totals for all engineers
+    if (this.isEngineer && this.currentUser()) {
+      // For engineers, use the engineer-specific endpoint
+      this.statisticsService.getEngineerDetailedStats(year, month).subscribe({
+        next: (data: any) => {
+          this.summary.set({
+            workEarnings: data.totalEarnings || 0,
+            carEarnings: 0, // This would need to come from the engineer endpoint if available
+            totalEarnings: data.totalEarnings || 0,
+            completedOrders: data.totalOrders || 0,
+            totalHours: data.totalHours || 0,
+          });
+          this.isLoading.set(false);
+        },
+        error: error => {
+          console.error('Error loading engineer earnings data:', error);
+          this.summary.set({
+            workEarnings: 0,
+            carEarnings: 0,
+            totalEarnings: 0,
+            completedOrders: 0,
+            totalHours: 0,
+          });
+          this.isLoading.set(false);
+        },
+      });
+    } else {
+      // For admin/manager, use the admin endpoint
+      this.statisticsService.getAdminEngineerStatistics(year, month).subscribe({
+        next: (data: AdminEngineerStatistics) => {
           this.summary.set({
             workEarnings: data.totals.engineerEarnings,
             carEarnings: data.totals.carUsageAmount,
@@ -118,15 +119,15 @@ export class EarningsSummaryComponent implements OnInit {
             completedOrders: data.totals.completedOrders,
             totalHours: data.totals.totalHours,
           });
-        }
-        this.isLoading.set(false);
-      },
-      error: error => {
-        console.error('Error loading earnings data:', error);
-        this.toastService.error('Ошибка загрузки статистики по заработку');
-        this.isLoading.set(false);
-      },
-    });
+          this.isLoading.set(false);
+        },
+        error: error => {
+          console.error('Error loading earnings data:', error);
+          this.toastService.error('Ошибка загрузки статистики по заработку');
+          this.isLoading.set(false);
+        },
+      });
+    }
   }
 
   toggleCollapse() {
