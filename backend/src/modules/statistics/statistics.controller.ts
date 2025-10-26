@@ -94,4 +94,17 @@ export class StatisticsController {
 
     return this.statisticsService.getAdminEngineerStatistics(targetYear, targetMonth);
   }
+
+  @Get('payment-debts')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  async getPaymentDebtsStatistics(
+    @Query('year', ParseIntPipe) year?: number,
+    @Query('month', ParseIntPipe) month?: number
+  ) {
+    const currentDate = new Date();
+    const targetYear = year || currentDate.getFullYear();
+    const targetMonth = month || currentDate.getMonth() + 1;
+
+    return this.statisticsService.getPaymentDebtsStatistics(targetYear, targetMonth);
+  }
 }

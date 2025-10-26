@@ -27,9 +27,9 @@ import { OrdersService } from '../../services/orders.service';
 import { AuthService } from '../../services/auth.service';
 import { ModalService } from '../../services/modal.service';
 import { ToastService } from '../../services/toast.service';
-import { OrderDto, OrdersQueryDto } from '@shared/dtos/order.dto';
-import { OrderStatus, OrderStatusLabel } from '@shared/interfaces/order.interface';
-import { UserRole } from '@shared/interfaces/user.interface';
+import { OrderDto, OrdersQueryDto } from '../../../../shared/dtos/order.dto';
+import { OrderStatus, OrderStatusLabel } from '../../../../shared/interfaces/order.interface';
+import { UserRole } from '../../../../shared/interfaces/user.interface';
 import { OrderDialogComponent } from '../../components/modals/order-dialog.component';
 import { OrderDeleteConfirmationDialogComponent } from '../../components/modals/order-delete-confirmation-dialog.component';
 import { AssignEngineerDialogComponent } from '../../components/modals/assign-engineer-dialog.component';
@@ -97,11 +97,19 @@ export class OrdersComponent implements OnInit {
     working: 0,
     review: 0,
     completed: 0,
+    paid_to_engineer: 0,
     bySource: {
       manual: 0,
       automatic: 0,
       email: 0,
       api: 0,
+    },
+    paymentStats: {
+      totalCompleted: 0,
+      receivedFromOrganization: 0,
+      pendingFromOrganization: 0,
+      paidToEngineer: 0,
+      pendingToEngineer: 0,
     },
   });
 
@@ -345,7 +353,7 @@ export class OrdersComponent implements OnInit {
     const newStatus = !order.receivedFromOrganization;
     const updateData = {
       receivedFromOrganization: newStatus,
-      receivedFromOrganizationDate: newStatus ? new Date() : null,
+      receivedFromOrganizationDate: newStatus ? new Date() : undefined,
     };
 
     this.ordersService.updateOrder(order.id, updateData).subscribe({
@@ -667,7 +675,7 @@ export class OrdersComponent implements OnInit {
   // Данные для графика статусов (Donut)
   get statusChartData(): ChartData<'doughnut'> {
     return {
-      labels: ['Ожидают', 'В обработке', 'В работе', 'На проверке', 'Завершено'],
+      labels: ['Ожидают', 'В обработке', 'В работе', 'На проверке', 'Завершено', 'Выплачено инженеру'],
       datasets: [
         {
           data: [
@@ -676,6 +684,7 @@ export class OrdersComponent implements OnInit {
             this.orderStats().working,
             this.orderStats().review,
             this.orderStats().completed,
+            this.orderStats().paid_to_engineer,
           ],
           backgroundColor: [
             '#FFA726', // Оранжевый - Ожидают
@@ -683,6 +692,7 @@ export class OrdersComponent implements OnInit {
             '#66BB6A', // Зелёный - В работе
             '#FFCA28', // Жёлтый - На проверке
             '#26A69A', // Бирюзовый - Завершено
+            '#2196F3', // Синий - Выплачено инженеру
           ],
           borderWidth: 0,
           hoverOffset: 10,
@@ -779,7 +789,32 @@ export class OrdersComponent implements OnInit {
     },
   };
 
-  // Статистика для бейджей под графиком
+  // Данные для графика платежей (Donut)
+  get paymentChartData(): ChartData<'doughnut'> {
+    return {
+      labels: ['Получено от организаций', 'Ожидает от организаций', 'Выплачено инженерам', 'Ожидает выплаты'],
+      datasets: [
+        {
+          data: [
+            this.orderStats().paymentStats.receivedFromOrganization,
+            this.orderStats().paymentStats.pendingFromOrganization,
+            this.orderStats().paymentStats.paidToEngineer,
+            this.orderStats().paymentStats.pendingToEngineer,
+          ],
+          backgroundColor: [
+            '#4CAF50', // Зелёный - Получено от организаций
+            '#FF9800', // Оранжевый - Ожидает от организаций
+            '#2196F3', // Синий - Выплачено инженерам
+            '#FFC107', // Жёлтый - Ожидает выплаты
+          ],
+          borderWidth: 0,
+          hoverOffset: 10,
+        },
+      ],
+    };
+  }
+
+  // Статистика для бейджей под графиком статусов
   get statusStats() {
     return [
       { label: 'Ожидают', value: this.orderStats().waiting, color: '#FFA726' },
@@ -787,6 +822,17 @@ export class OrdersComponent implements OnInit {
       { label: 'В работе', value: this.orderStats().working, color: '#66BB6A' },
       { label: 'На проверке', value: this.orderStats().review, color: '#FFCA28' },
       { label: 'Завершено', value: this.orderStats().completed, color: '#26A69A' },
+      { label: 'Выплачено инженеру', value: this.orderStats().paid_to_engineer, color: '#2196F3' },
+    ];
+  }
+
+  // Статистика для бейджей под графиком платежей
+  get paymentStats() {
+    return [
+      { label: 'Получено от организаций', value: this.orderStats().paymentStats.receivedFromOrganization, color: '#4CAF50' },
+      { label: 'Ожидает от организаций', value: this.orderStats().paymentStats.pendingFromOrganization, color: '#FF9800' },
+      { label: 'Выплачено инженерам', value: this.orderStats().paymentStats.paidToEngineer, color: '#2196F3' },
+      { label: 'Ожидает выплаты', value: this.orderStats().paymentStats.pendingToEngineer, color: '#FFC107' },
     ];
   }
 

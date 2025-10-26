@@ -306,16 +306,22 @@ export class StatisticsService {
         previousMonthHours: 0,
         earningsGrowth: 0,
         hoursGrowth: 0,
+        paymentStats: {
+          paidToEngineer: 0,
+          pendingToEngineer: 0,
+          receivedFromOrganization: 0,
+          pendingFromOrganization: 0,
+        },
       };
     }
 
     const engineerId = engineer.id;
 
-    // Получаем orders за текущий месяц
+    // Получаем orders за текущий месяц (включая новый статус)
     const orders = await this.orderRepository
       .createQueryBuilder('order')
       .where('order.assignedEngineerId = :engineerId', { engineerId })
-      .andWhere('order.status = :status', { status: 'completed' })
+      .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
       .andWhere('order.completionDate >= :startDate', { startDate })
       .andWhere('order.completionDate < :endDate', { endDate })
       .getMany();
@@ -329,7 +335,7 @@ export class StatisticsService {
     const prevOrders = await this.orderRepository
       .createQueryBuilder('order')
       .where('order.assignedEngineerId = :engineerId', { engineerId })
-      .andWhere('order.status = :status', { status: 'completed' })
+      .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
       .andWhere('order.completionDate >= :startDate', { startDate: prevStartDate })
       .andWhere('order.completionDate < :endDate', { endDate: prevEndDate })
       .getMany();
@@ -379,6 +385,12 @@ export class StatisticsService {
     const hoursGrowth =
       prevTotalHours > 0 ? ((totalHours - prevTotalHours) / prevTotalHours) * 100 : 0;
 
+    // Статистика по платежам
+    const paidOrders = orders.filter(order => order.status === 'paid_to_engineer').length;
+    const pendingPaymentOrders = orders.filter(order => order.status === 'completed').length;
+    const receivedFromOrgOrders = orders.filter(order => order.receivedFromOrganization).length;
+    const pendingFromOrgOrders = orders.filter(order => !order.receivedFromOrganization).length;
+
     return {
       year,
       month,
@@ -395,6 +407,13 @@ export class StatisticsService {
       previousMonthHours: prevTotalHours,
       earningsGrowth,
       hoursGrowth,
+      // Новая статистика по платежам
+      paymentStats: {
+        paidToEngineer: paidOrders,
+        pendingToEngineer: pendingPaymentOrders,
+        receivedFromOrganization: receivedFromOrgOrders,
+        pendingFromOrganization: pendingFromOrgOrders,
+      },
     };
   }
 
@@ -613,7 +632,7 @@ export class StatisticsService {
       .innerJoin('order.assignedEngineer', 'engineer')
       .innerJoin('engineer.user', 'user')
       .where('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
-      .andWhere('order.status = :status', { status: 'completed' })
+      .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
       .andWhere('order.assignedEngineerId IS NOT NULL')
       .andWhere('user.role = :role', { role: UserRole.USER })
       .groupBy('engineer.userId')
@@ -650,7 +669,7 @@ export class StatisticsService {
       .addSelect('AVG(order.organizationPayment)', 'averageOrderValue')
       .leftJoin('order.organization', 'organization')
       .where('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
-      .andWhere('order.status = :status', { status: 'completed' })
+      .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
       .andWhere('order.organizationId IS NOT NULL')
       .groupBy('order.organizationId')
       .addGroupBy('organization.name')
@@ -693,7 +712,7 @@ export class StatisticsService {
       .innerJoin('order.assignedEngineer', 'engineer')
       .innerJoin('engineer.user', 'user')
       .where('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
-      .andWhere('order.status = :status', { status: 'completed' })
+      .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
       .andWhere('order.assignedEngineerId IS NOT NULL')
       .groupBy('engineer.userId')
       .addGroupBy('user.firstName')
@@ -898,5 +917,98 @@ export class StatisticsService {
       console.error('Error getting total organization payments:', error);
       return 0;
     }
+  }
+
+  // Новая статистика по долгам и обязательствам
+  async getPaymentDebtsStatistics(year: number, month: number): Promise<{
+    engineerDebts: Array<{
+      engineerId: number;
+      engineerName: string;
+      totalDebt: number;
+      completedOrders: number;
+      paidOrders: number;
+      pendingOrders: number;
+    }>;
+    organizationDebts: Array<{
+      organizationId: number;
+      organizationName: string;
+      totalDebt: number;
+      completedOrders: number;
+      receivedOrders: number;
+      pendingOrders: number;
+    }>;
+    summary: {
+      totalEngineerDebt: number;
+      totalOrganizationDebt: number;
+      netDebt: number; // organizationDebt - engineerDebt
+    };
+  }> {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 1);
+
+    // Статистика по долгам инженерам
+    const engineerDebts = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('engineer.userId', 'engineerId')
+      .addSelect('user.firstName', 'firstName')
+      .addSelect('user.lastName', 'lastName')
+      .addSelect('SUM(CASE WHEN order.status = "completed" THEN order.calculatedAmount + order.carUsageAmount ELSE 0 END)', 'totalDebt')
+      .addSelect('COUNT(CASE WHEN order.status IN ("completed", "paid_to_engineer") THEN 1 END)', 'completedOrders')
+      .addSelect('COUNT(CASE WHEN order.status = "paid_to_engineer" THEN 1 END)', 'paidOrders')
+      .addSelect('COUNT(CASE WHEN order.status = "completed" THEN 1 END)', 'pendingOrders')
+      .innerJoin('order.assignedEngineer', 'engineer')
+      .innerJoin('engineer.user', 'user')
+      .where('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
+      .andWhere('order.assignedEngineerId IS NOT NULL')
+      .groupBy('engineer.userId')
+      .addGroupBy('user.firstName')
+      .addGroupBy('user.lastName')
+      .getRawMany();
+
+    // Статистика по долгам организаций
+    const organizationDebts = await this.orderRepository
+      .createQueryBuilder('order')
+      .select('order.organizationId', 'organizationId')
+      .addSelect('organization.name', 'organizationName')
+      .addSelect('SUM(CASE WHEN order.status IN ("completed", "paid_to_engineer") AND NOT order.receivedFromOrganization THEN order.organizationPayment ELSE 0 END)', 'totalDebt')
+      .addSelect('COUNT(CASE WHEN order.status IN ("completed", "paid_to_engineer") THEN 1 END)', 'completedOrders')
+      .addSelect('COUNT(CASE WHEN order.receivedFromOrganization THEN 1 END)', 'receivedOrders')
+      .addSelect('COUNT(CASE WHEN order.status IN ("completed", "paid_to_engineer") AND NOT order.receivedFromOrganization THEN 1 END)', 'pendingOrders')
+      .leftJoin('order.organization', 'organization')
+      .where('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
+      .andWhere('order.organizationId IS NOT NULL')
+      .groupBy('order.organizationId')
+      .addGroupBy('organization.name')
+      .getRawMany();
+
+    // Подсчет общей суммы долгов
+    const totalEngineerDebt = engineerDebts.reduce((sum, debt) => sum + (Number(debt.totalDebt) || 0), 0);
+    const totalOrganizationDebt = organizationDebts.reduce((sum, debt) => sum + (Number(debt.totalDebt) || 0), 0);
+
+    return {
+      engineerDebts: engineerDebts.map(debt => ({
+        engineerId: debt.engineerId,
+        engineerName: `${debt.firstName || ''} ${debt.lastName || ''}`.trim() || 'Unknown',
+        totalDebt: Number(debt.totalDebt) || 0,
+        completedOrders: Number(debt.completedOrders) || 0,
+        paidOrders: Number(debt.paidOrders) || 0,
+        pendingOrders: Number(debt.pendingOrders) || 0,
+      })),
+      organizationDebts: organizationDebts.map(debt => ({
+        organizationId: debt.organizationId,
+        organizationName: debt.organizationName || 'Unknown',
+        totalDebt: Number(debt.totalDebt) || 0,
+        completedOrders: Number(debt.completedOrders) || 0,
+        receivedOrders: Number(debt.receivedOrders) || 0,
+        pendingOrders: Number(debt.pendingOrders) || 0,
+      })),
+      summary: {
+        totalEngineerDebt,
+        totalOrganizationDebt,
+        netDebt: totalOrganizationDebt - totalEngineerDebt,
+      },
+    };
   }
 }
