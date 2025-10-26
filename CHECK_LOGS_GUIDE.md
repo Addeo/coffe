@@ -17,12 +17,14 @@
 ### 1. Просмотр последних строк логов
 
 **Через скрипт:**
+
 ```bash
 ./check-production-logs.sh
 # Выберите опцию 1, 2 или 3
 ```
 
 **Вручную через SSH:**
+
 ```bash
 # Последние 50 строк
 ssh root@192.144.12.102 "cd /root/coffe/backend && tail -n 50 server.log"
@@ -37,12 +39,14 @@ ssh root@192.144.12.102 "cd /root/coffe/backend && tail -n 200 server.log"
 ### 2. Отслеживание логов в реальном времени
 
 **Через скрипт:**
+
 ```bash
 ./check-production-logs.sh
 # Выберите опцию 4
 ```
 
 **Вручную:**
+
 ```bash
 ssh root@192.144.12.102 "cd /root/coffe/backend && tail -f server.log"
 # Нажмите Ctrl+C для выхода
@@ -51,12 +55,14 @@ ssh root@192.144.12.102 "cd /root/coffe/backend && tail -f server.log"
 ### 3. Поиск ошибок
 
 **Через скрипт:**
+
 ```bash
 ./check-production-logs.sh
 # Выберите опцию 5
 ```
 
 **Вручную:**
+
 ```bash
 ssh root@192.144.12.102 "cd /root/coffe/backend && grep -i error server.log | tail -20"
 ```
@@ -64,12 +70,14 @@ ssh root@192.144.12.102 "cd /root/coffe/backend && grep -i error server.log | ta
 ### 4. Поиск логов создания заказов
 
 **Через скрипт:**
+
 ```bash
 ./check-production-logs.sh
 # Выберите опцию 6
 ```
 
 **Вручную:**
+
 ```bash
 ssh root@192.144.12.102 "cd /root/coffe/backend && tail -n 500 server.log | grep -E '📝|🔨|📎|Order|order' | tail -50"
 ```
@@ -77,12 +85,14 @@ ssh root@192.144.12.102 "cd /root/coffe/backend && tail -n 500 server.log | grep
 ### 5. Проверка статуса PM2
 
 **Через скрипт:**
+
 ```bash
 ./check-production-logs.sh
 # Выберите опцию 7
 ```
 
 **Вручную:**
+
 ```bash
 ssh root@192.144.12.102 "pm2 status"
 ssh root@192.144.12.102 "pm2 logs coffee-backend --lines 50"
@@ -111,11 +121,13 @@ ssh root@192.144.12.102 "pm2 logs coffee-backend --lines 50"
 ### Ошибки при создании заказа
 
 Ищите:
+
 - `❌` - ошибки
 - `Error:` - сообщения об ошибках
 - Stack trace после ошибки
 
 Примеры:
+
 ```
 ❌ [OrdersService] User not found: 1
 ❌ [OrdersService] Organization not found: 1
@@ -125,6 +137,7 @@ ssh root@192.144.12.102 "pm2 logs coffee-backend --lines 50"
 ### Проблемы с файлами
 
 Ищите:
+
 ```
 📎 [OrdersService] Attaching files: [...]
 ❌ File not found
@@ -137,18 +150,21 @@ ssh root@192.144.12.102 "pm2 logs coffee-backend --lines 50"
 ### Проблема: Заказ не создается
 
 **Шаги:**
+
 1. Проверьте логи на наличие ошибок:
+
    ```bash
    ./check-production-logs.sh
    # Выберите опцию 5 (Search for errors)
    ```
 
 2. Попробуйте создать заказ и сразу посмотрите логи:
+
    ```bash
    # В одном терминале - отслеживание логов
    ./check-production-logs.sh
    # Выберите опцию 4 (Follow logs)
-   
+
    # В другом терминале или браузере - создайте заказ
    ```
 
@@ -161,6 +177,7 @@ ssh root@192.144.12.102 "pm2 logs coffee-backend --lines 50"
 ### Проблема: Файлы не прикрепляются
 
 **Ищите в логах:**
+
 ```
 📎 [OrdersService] Attaching files: [...]
 ✅ [OrdersService] Files attached successfully
@@ -173,21 +190,25 @@ ssh root@192.144.12.102 "pm2 logs coffee-backend --lines 50"
 ## 🔧 Полезные команды
 
 ### Посмотреть размер лог-файла
+
 ```bash
 ssh root@192.144.12.102 "ls -lh /root/coffe/backend/server.log"
 ```
 
 ### Очистить логи (ОСТОРОЖНО!)
+
 ```bash
 ssh root@192.144.12.102 "cd /root/coffe/backend && > server.log"
 ```
 
 ### Поиск по конкретному тексту
+
 ```bash
 ssh root@192.144.12.102 "cd /root/coffe/backend && grep 'конкретный_текст' server.log"
 ```
 
 ### Фильтрация по времени
+
 ```bash
 # Логи за последний час
 ssh root@192.144.12.102 "cd /root/coffe/backend && tail -n 1000 server.log | tail -n 100"
@@ -200,16 +221,19 @@ ssh root@192.144.12.102 "cd /root/coffe/backend && tail -n 1000 server.log | tai
 ### Пример 1: Создание заказа с подробными логами
 
 **В терминале 1 (logs):**
+
 ```bash
 ./check-production-logs.sh
 # Выберите 4 - Follow logs
 ```
 
 **В терминале 2 (web-интерфейс):**
+
 - Откройте http://192.144.12.102:4000
 - Создайте заказ
 
 **Вы увидите в логах:**
+
 ```
 📝 [OrdersController] Creating order: { userId: 1, ... }
 🔨 [OrdersService] Starting order creation: { userId: 1, ... }
@@ -224,12 +248,14 @@ ssh root@192.144.12.102 "cd /root/coffe/backend && tail -n 1000 server.log | tai
 ### Пример 2: Диагностика ошибки
 
 Если заказ не создается, выполните:
+
 ```bash
 ./check-production-logs.sh
 # Выберите 5 - Search for errors
 ```
 
 Вы увидите ошибки с stack trace, например:
+
 ```
 ❌ [OrdersController] Error creating order: ValidationError: ...
 Error details: {
@@ -252,6 +278,7 @@ Error details: {
 ## 🚨 Частые проблемы и решения
 
 ### Backend не отвечает
+
 ```bash
 ./check-production-logs.sh
 # Выберите 7 - Check PM2 status
@@ -259,12 +286,14 @@ Error details: {
 ```
 
 ### Нет логов в server.log
+
 ```bash
 ssh root@192.144.12.102 "pm2 logs coffee-backend"
 # Логи могут быть в PM2, а не в файле
 ```
 
 ### Слишком много логов
+
 ```bash
 ssh root@192.144.12.102 "cd /root/coffe/backend && wc -l server.log"
 # Если > 10000 строк, очистите логи

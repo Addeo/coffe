@@ -180,10 +180,10 @@ export class AuthService {
   }
 
   async initializeAdmin() {
-    const existingAdmin = await this.userRepository.findOne({ 
-      where: { email: 'admin@coffee.com' } 
+    const existingAdmin = await this.userRepository.findOne({
+      where: { email: 'admin@coffee.com' },
     });
-    
+
     if (existingAdmin) {
       return {
         success: true,
@@ -194,7 +194,7 @@ export class AuthService {
           firstName: existingAdmin.firstName,
           lastName: existingAdmin.lastName,
           role: existingAdmin.role,
-        }
+        },
       };
     }
 
@@ -209,7 +209,7 @@ export class AuthService {
     });
 
     const savedAdmin = await this.userRepository.save(admin);
-    
+
     return {
       success: true,
       message: 'Admin user created successfully',
@@ -219,7 +219,7 @@ export class AuthService {
         firstName: savedAdmin.firstName,
         lastName: savedAdmin.lastName,
         role: savedAdmin.role,
-      }
+      },
     };
   }
 }

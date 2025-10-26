@@ -136,7 +136,9 @@
                   [disabled]="!canEdit()"
                   [color]="organization.isActive ? 'warn' : 'primary'"
                   [matTooltip]="
-                    organization.isActive ? 'Деактивировать организацию' : 'Активировать организацию'
+                    organization.isActive
+                      ? 'Деактивировать организацию'
+                      : 'Активировать организацию'
                   "
                   aria-label="Изменить статус"
                   class="action-btn-icon status-btn"

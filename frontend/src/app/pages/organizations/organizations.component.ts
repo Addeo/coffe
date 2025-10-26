@@ -184,8 +184,6 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
     }
   }
 
-
-
   onToggleStatus(organization: OrganizationDto): void {
     console.log(
       '🔄 onToggleStatus called for:',

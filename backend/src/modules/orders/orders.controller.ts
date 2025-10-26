@@ -65,7 +65,7 @@ export class OrdersController {
         filesCount: createOrderDto.files?.length || 0,
       },
     });
-    
+
     return this.ordersService.create(createOrderDto, req.user.id).catch(error => {
       console.error('❌ [OrdersController] Error creating order:', error);
       console.error('Error details:', {

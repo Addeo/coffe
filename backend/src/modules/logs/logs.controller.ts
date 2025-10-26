@@ -26,9 +26,7 @@ export class LogsController {
 
       // Filter by level if specified
       if (level) {
-        filteredLines = logLines.filter(line => 
-          line.toLowerCase().includes(level.toLowerCase())
-        );
+        filteredLines = logLines.filter(line => line.toLowerCase().includes(level.toLowerCase()));
       }
 
       // Filter by emoji indicators
@@ -49,14 +47,14 @@ export class LogsController {
       const parsedLogs = lastLines.map((line, index) => {
         const timestampMatch = line.match(/\[(.*?)\]/);
         const timestamp = timestampMatch ? timestampMatch[1] : null;
-        
+
         const levelMatch = line.match(/\[(\w+)\]/g);
         const logLevel = levelMatch ? levelMatch[levelMatch.length - 1] : null;
-        
+
         // Extract emoji and message
         const emojiMatch = line.match(/([📝🔨✅❌📎ℹ️🎯🔍])\s*/);
         const emoji = emojiMatch ? emojiMatch[1] : null;
-        
+
         return {
           id: index,
           timestamp,
@@ -101,7 +99,7 @@ export class LogsController {
       const logLines = logContent.split('\n').filter(line => line.trim());
 
       // Search in logs
-      const matchingLines = logLines.filter(line => 
+      const matchingLines = logLines.filter(line =>
         line.toLowerCase().includes(query.toLowerCase())
       );
 
@@ -111,7 +109,7 @@ export class LogsController {
       const parsedLogs = lastLines.map((line, index) => {
         const timestampMatch = line.match(/\[(.*?)\]/);
         const timestamp = timestampMatch ? timestampMatch[1] : null;
-        
+
         return {
           id: index,
           timestamp,
@@ -143,23 +141,26 @@ export class LogsController {
       const logLines = logContent.split('\n').filter(line => line.trim());
 
       // Get last 20 lines with important markers
-      const recentLogs = logLines.slice(-100).filter(line => {
-        const hasEmoji = /[📝🔨✅❌📎ℹ️🎯🔍]/.test(line);
-        const isError = line.toLowerCase().includes('error');
-        const isWarn = line.toLowerCase().includes('warn');
-        return hasEmoji || isError || isWarn;
-      }).slice(-20);
+      const recentLogs = logLines
+        .slice(-100)
+        .filter(line => {
+          const hasEmoji = /[📝🔨✅❌📎ℹ️🎯🔍]/.test(line);
+          const isError = line.toLowerCase().includes('error');
+          const isWarn = line.toLowerCase().includes('warn');
+          return hasEmoji || isError || isWarn;
+        })
+        .slice(-20);
 
       const parsedLogs = recentLogs.map((line, index) => {
         const timestampMatch = line.match(/\[(.*?)\]/);
         const timestamp = timestampMatch ? timestampMatch[1] : null;
-        
+
         const levelMatch = line.match(/\[(\w+)\]/g);
         const logLevel = levelMatch ? levelMatch[levelMatch.length - 1] : null;
-        
+
         const emojiMatch = line.match(/([📝🔨✅❌📎ℹ️🎯🔍])\s*/);
         const emoji = emojiMatch ? emojiMatch[1] : null;
-        
+
         const isError = line.toLowerCase().includes('error');
         const isWarn = line.toLowerCase().includes('warn');
 

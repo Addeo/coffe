@@ -593,7 +593,8 @@ export class StatisticsComponent implements OnInit {
                 agentName: data.engineerName || `${currentUser.firstName} ${currentUser.lastName}`,
                 totalEarnings: data.totalEarnings || 0,
                 completedOrders: data.totalOrders || 0,
-                averageOrderValue: data.totalOrders > 0 ? (data.totalEarnings || 0) / data.totalOrders : 0,
+                averageOrderValue:
+                  data.totalOrders > 0 ? (data.totalEarnings || 0) / data.totalOrders : 0,
               },
             ],
             organizationEarnings: [],
