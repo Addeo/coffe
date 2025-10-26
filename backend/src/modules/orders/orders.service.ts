@@ -1221,11 +1221,12 @@ export class OrdersService {
     const organizationPayment = organizationRegularPayment + organizationOvertimePayment;
 
     // Update order with work data AND RATES
-    order.regularHours = (order.regularHours || 0) + workData.regularHours;
-    order.overtimeHours = (order.overtimeHours || 0) + workData.overtimeHours;
-    order.calculatedAmount = (order.calculatedAmount || 0) + totalPayment;
-    order.carUsageAmount = (order.carUsageAmount || 0) + workData.carPayment;
-    order.organizationPayment = (order.organizationPayment || 0) + organizationPayment;
+    // Replace values instead of accumulating to allow re-submission of work data
+    order.regularHours = workData.regularHours;
+    order.overtimeHours = workData.overtimeHours;
+    order.calculatedAmount = totalPayment;
+    order.carUsageAmount = workData.carPayment;
+    order.organizationPayment = organizationPayment;
 
     // 🔥 SAVE RATES for audit
     order.engineerBaseRate = rates.baseRate;
@@ -1234,16 +1235,14 @@ export class OrdersService {
     order.organizationOvertimeMultiplier = order.organization.overtimeMultiplier;
 
     // 🔥 SAVE PAYMENT BREAKDOWN for detailed reporting
-    order.regularPayment = (order.regularPayment || 0) + regularPayment;
-    order.overtimePayment = (order.overtimePayment || 0) + overtimePayment;
-    order.organizationRegularPayment =
-      (order.organizationRegularPayment || 0) + organizationRegularPayment;
-    order.organizationOvertimePayment =
-      (order.organizationOvertimePayment || 0) + organizationOvertimePayment;
+    order.regularPayment = regularPayment;
+    order.overtimePayment = overtimePayment;
+    order.organizationRegularPayment = organizationRegularPayment;
+    order.organizationOvertimePayment = organizationOvertimePayment;
 
     // Calculate profit
     const currentProfit = organizationPayment - totalPayment;
-    order.profit = (order.profit || 0) + currentProfit;
+    order.profit = currentProfit;
 
     // Save additional work details
     order.distanceKm = workData.distanceKm || order.distanceKm;
