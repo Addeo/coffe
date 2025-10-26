@@ -141,7 +141,6 @@
       <div class="notifications-menu">
         <button
           mat-icon-button
-
           (click)="onViewAllNotifications()"
           class="notifications-button"
           matTooltip="Перейти к уведомлениям"
@@ -156,7 +155,7 @@
           ></span>
         </button>
 
-        <mat-menu #notificationsMenu="matMenu" class="notifications-dropdown" style="display: none;">
+        <mat-menu #notificationsMenu="matMenu" class="notifications-dropdown" style="display: none">
           <div class="notifications-header" mat-menu-item disabled>
             <h4 i18n="@@navigation.notifications">Уведомления</h4>
             <button

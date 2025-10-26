@@ -18,7 +18,12 @@ import { CalculationService } from '../расчеты/calculation.service';
 import { NotificationType, NotificationPriority } from '../../entities/notification.entity';
 import { OrderSource } from '../../entities/order.entity';
 import { OrderStatus, TerritoryType } from '../../shared/interfaces/order.interface';
-import { CreateOrderDto, UpdateOrderDto, AssignEngineerDto, OrdersQueryDto } from '../../shared/dtos/order.dto';
+import {
+  CreateOrderDto,
+  UpdateOrderDto,
+  AssignEngineerDto,
+  OrdersQueryDto,
+} from '../../shared/dtos/order.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 
 // Extended OrdersQueryDto with additional filters
@@ -445,7 +450,11 @@ export class OrdersService {
     if (updateOrderDto.plannedStartDate) {
       const date = new Date(updateOrderDto.plannedStartDate);
       // Extract only date part (YYYY-MM-DD)
-      updateOrderDto.plannedStartDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      updateOrderDto.plannedStartDate = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate()
+      );
     }
 
     console.log('\n🔄 UPDATE ORDER:', {

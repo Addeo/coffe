@@ -49,7 +49,11 @@ interface LogEntry {
               Backend Logs Viewer
             </h2>
             <div class="header-actions">
-              <button mat-icon-button (click)="toggleAutoRefresh()" [matTooltip]="autoRefreshEnabled() ? 'Disable auto-refresh' : 'Enable auto-refresh'">
+              <button
+                mat-icon-button
+                (click)="toggleAutoRefresh()"
+                [matTooltip]="autoRefreshEnabled() ? 'Disable auto-refresh' : 'Enable auto-refresh'"
+              >
                 <mat-icon>{{ autoRefreshEnabled() ? 'sync' : 'sync_disabled' }}</mat-icon>
               </button>
               <button mat-icon-button (click)="loadLogs()" [matTooltip]="'Refresh logs'">
@@ -83,7 +87,12 @@ interface LogEntry {
 
             <mat-form-field appearance="outline" class="search-field">
               <mat-label>Search</mat-label>
-              <input matInput [(ngModel)]="searchQuery" (keyup.enter)="searchLogs()" placeholder="Type to search..." />
+              <input
+                matInput
+                [(ngModel)]="searchQuery"
+                (keyup.enter)="searchLogs()"
+                placeholder="Type to search..."
+              />
               <button mat-icon-button matSuffix (click)="searchLogs()">
                 <mat-icon>search</mat-icon>
               </button>
@@ -391,19 +400,17 @@ export class LogsViewerComponent implements OnInit, OnDestroy {
       params.level = 'error';
     }
 
-    this.http
-      .get(`${environment.apiUrl}/api/logs`, { params })
-      .subscribe({
-        next: (response: any) => {
-          this.logs.set(response.logs || []);
-          this.logStats.set(response);
-          this.isLoading.set(false);
-        },
-        error: error => {
-          this.error.set('Failed to load logs: ' + error.message);
-          this.isLoading.set(false);
-        },
-      });
+    this.http.get(`${environment.apiUrl}/api/logs`, { params }).subscribe({
+      next: (response: any) => {
+        this.logs.set(response.logs || []);
+        this.logStats.set(response);
+        this.isLoading.set(false);
+      },
+      error: error => {
+        this.error.set('Failed to load logs: ' + error.message);
+        this.isLoading.set(false);
+      },
+    });
   }
 
   searchLogs() {

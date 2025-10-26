@@ -73,10 +73,20 @@ interface LogEntry {
 
               <mat-form-field appearance="outline" class="full-width">
                 <mat-label>Body (JSON)</mat-label>
-                <textarea matInput rows="5" [(ngModel)]="apiBody" placeholder='{"key": "value"}'></textarea>
+                <textarea
+                  matInput
+                  rows="5"
+                  [(ngModel)]="apiBody"
+                  placeholder='{"key": "value"}'
+                ></textarea>
               </mat-form-field>
 
-              <button mat-raised-button color="primary" (click)="testApi()" [disabled]="isTestingApi()">
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="testApi()"
+                [disabled]="isTestingApi()"
+              >
                 <mat-icon>send</mat-icon>
                 Отправить запрос
                 @if (isTestingApi()) {
@@ -121,7 +131,11 @@ interface LogEntry {
                     <span class="level">{{ log.level.toUpperCase() }}</span>
                     <span class="message">{{ log.message }}</span>
                     @if (log.data) {
-                      <button mat-icon-button (click)="toggleData(log)" matTooltip="Показать/скрыть данные">
+                      <button
+                        mat-icon-button
+                        (click)="toggleData(log)"
+                        matTooltip="Показать/скрыть данные"
+                      >
                         <mat-icon>info</mat-icon>
                       </button>
                     }
@@ -441,7 +455,10 @@ export class DebugComponent implements OnInit {
 
   private logInterceptors: any[] = [];
 
-  constructor(private http: HttpClient, private snackBar: MatSnackBar) {}
+  constructor(
+    private http: HttpClient,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit() {
     this.interceptConsoleLogs();
@@ -479,13 +496,15 @@ export class DebugComponent implements OnInit {
 
   private addLog(level: 'log' | 'info' | 'warn' | 'error', args: any[]) {
     const message = args
-      .map(arg =>
-        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-      )
+      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)))
       .join(' ');
 
     const data =
-      args.length > 1 && typeof args[1] === 'object' ? args[1] : args.length === 1 && typeof args[0] === 'object' ? args[0] : null;
+      args.length > 1 && typeof args[1] === 'object'
+        ? args[1]
+        : args.length === 1 && typeof args[0] === 'object'
+          ? args[0]
+          : null;
 
     this.logs.update(logs => [
       ...logs,
@@ -582,6 +601,8 @@ export class DebugComponent implements OnInit {
   }
 
   openBackendLogsGuide() {
-    alert('Для просмотра логов backend:\n\n1. Откройте терминал\n2. Запустите: ./check-production-logs.sh\n\nПодробнее см. CHECK_LOGS_GUIDE.md');
+    alert(
+      'Для просмотра логов backend:\n\n1. Откройте терминал\n2. Запустите: ./check-production-logs.sh\n\nПодробнее см. CHECK_LOGS_GUIDE.md'
+    );
   }
 }

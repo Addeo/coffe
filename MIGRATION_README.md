@@ -152,6 +152,7 @@ sudo apt-get install mysql-client
 ### Ошибка: "Failed to connect to production database"
 
 Проверьте:
+
 1. Правильность credentials (DB_HOST, DB_PASSWORD и т.д.)
 2. Доступность сервера (ping 192.144.12.102)
 3. Открыт ли порт 3306 на firewall
@@ -169,6 +170,7 @@ FLUSH PRIVILEGES;
 ### Ошибка при импорте: "Table already exists"
 
 База данных не пустая. Варианты:
+
 1. Удалить существующие таблицы (ОПАСНО!)
 2. Использовать другой подход (см. "Альтернативные методы")
 
