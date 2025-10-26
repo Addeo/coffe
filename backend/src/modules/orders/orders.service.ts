@@ -860,7 +860,33 @@ export class OrdersService {
     // Apply role-based filtering
     if (user.role === UserRole.USER) {
       // Regular users can only see orders assigned to them
-      queryBuilder.where('order.assignedEngineerId = :userId', { userId: user.id });
+      // Find engineer profile for this user
+      const engineer = await this.engineersRepository.findOne({
+        where: { userId: user.id, isActive: true },
+      });
+
+      if (engineer) {
+        queryBuilder.where('order.assignedEngineerId = :engineerId', {
+          engineerId: engineer.id,
+        });
+      } else {
+        // If no engineer profile found, return empty stats
+        return {
+          total: 0,
+          waiting: 0,
+          assigned: 0,
+          processing: 0,
+          working: 0,
+          review: 0,
+          completed: 0,
+          bySource: {
+            manual: 0,
+            automatic: 0,
+            email: 0,
+            api: 0,
+          },
+        };
+      }
     }
     // Admins and managers can see all orders
 
@@ -899,7 +925,18 @@ export class OrdersService {
 
     // Apply same role-based filtering
     if (user.role === UserRole.USER) {
-      sourceQuery.where('order.assignedEngineerId = :userId', { userId: user.id });
+      // Find engineer profile for this user
+      const engineer = await this.engineersRepository.findOne({
+        where: { userId: user.id, isActive: true },
+      });
+
+      if (engineer) {
+        sourceQuery.where('order.assignedEngineerId = :engineerId', {
+          engineerId: engineer.id,
+        });
+      } else {
+        // No engineer profile, skip source stats
+      }
     }
 
     sourceQuery.groupBy('order.source');
