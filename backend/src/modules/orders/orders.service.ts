@@ -1179,10 +1179,10 @@ export class OrdersService {
       throw new NotFoundException('Order not found');
     }
 
-    // Check order status - must be 'working'
-    if (order.status !== OrderStatus.WORKING) {
+    // Check order status - must be 'working' or 'completed' (to allow edits)
+    if (order.status !== OrderStatus.WORKING && order.status !== OrderStatus.COMPLETED) {
       throw new BadRequestException(
-        `Order must be in 'working' status to complete work. Current status: ${order.status}`
+        `Order must be in 'working' or 'completed' status. Current status: ${order.status}`
       );
     }
 
@@ -1257,16 +1257,17 @@ export class OrdersService {
     }
 
     // Update status based on isFullyCompleted flag
-    if (order.status === 'working') {
-      if (workData.isFullyCompleted === true) {
-        // Work is fully completed - mark as completed
-        order.completionDate = now;
-        order.status = 'completed' as any;
-        console.log('✅ Order marked as COMPLETED (isFullyCompleted = true)');
-      } else {
-        // Work continues - keep status as working
-        console.log('🔄 Order remains in WORKING status (isFullyCompleted = false/undefined)');
-      }
+    if (workData.isFullyCompleted === true) {
+      // Work is fully completed - mark as completed
+      order.completionDate = now;
+      order.status = 'completed' as any;
+      console.log('✅ Order marked as COMPLETED (isFullyCompleted = true)');
+    } else if (order.status === 'completed') {
+      // If editing completed order, keep it completed
+      console.log('✏️ Order remains COMPLETED (editing completed order)');
+    } else {
+      // Work continues - keep status as working
+      console.log('🔄 Order remains in WORKING status (isFullyCompleted = false/undefined)');
     }
 
     const savedOrder = await this.ordersRepository.save(order);
