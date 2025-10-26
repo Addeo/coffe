@@ -455,21 +455,12 @@ export class OrdersComponent implements OnInit {
       return false;
     }
 
-    // Admins and managers can edit any completed order
+    // Admins and managers can edit any completed order (always, no time restriction)
     if (currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.MANAGER) {
-      // Check if within 24 hours for admins/managers
-      if (!order.completionDate) {
-        return false;
-      }
-
-      const completionTime = new Date(order.completionDate).getTime();
-      const now = new Date().getTime();
-      const hoursPassed = (now - completionTime) / (1000 * 60 * 60);
-
-      return hoursPassed <= 24;
+      return true;
     }
 
-    // Engineers can edit their own completed orders (without 24h restriction)
+    // Engineers can edit their own completed orders (always)
     if (currentUser.role === UserRole.USER) {
       return order.assignedEngineerId === currentUser.id;
     }
