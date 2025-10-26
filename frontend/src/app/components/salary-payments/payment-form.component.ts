@@ -5,7 +5,7 @@ import {
   CreateSalaryPaymentDto,
   PaymentType,
   PaymentMethod,
-} from '../../../../../shared/dtos/salary-payment.dto';
+} from '../../../../shared/dtos/salary-payment.dto';
 
 @Component({
   selector: 'app-payment-form',
