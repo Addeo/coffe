@@ -1,7 +1,7 @@
 FROM node:18-alpine
 
-# Install Python and build dependencies for native modules
-RUN apk add --no-cache python3 py3-pip build-base
+# Install Python, build dependencies, and wget for health checks
+RUN apk add --no-cache python3 py3-pip build-base wget
 
 WORKDIR /app
 

@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from '../../entities/order.entity';
-import { User } from '../../entities/user.entity';
+import { User, UserRole } from '../../entities/user.entity';
 import { Engineer } from '../../entities/engineer.entity';
 import { Organization } from '../../entities/organization.entity';
 import { File } from '../../entities/file.entity';
@@ -15,48 +15,11 @@ import { Setting, SettingKey } from '../../entities/settings.entity';
 import { UserActivityLog, ActivityType } from '../../entities/user-activity-log.entity';
 import { StatisticsService } from '../statistics/statistics.service';
 import { CalculationService } from '../расчеты/calculation.service';
-import { NotificationType } from '../../entities/notification.entity';
-// Temporarily define DTOs locally until shared package is fixed
-interface CreateOrderDto {
-  organizationId: number;
-  title: string;
-  description?: string;
-  location: string;
-  distanceKm?: number;
-  territoryType?: TerritoryType;
-  source?: OrderSource;
-  plannedStartDate?: Date;
-  files?: string[];
-}
-
-interface UpdateOrderDto {
-  organizationId?: number;
-  title?: string;
-  description?: string;
-  location?: string;
-  distanceKm?: number;
-  territoryType?: TerritoryType;
-  status?: OrderStatus;
-  source?: OrderSource;
-  plannedStartDate?: Date;
-  actualStartDate?: Date;
-  completionDate?: Date;
-  assignedEngineerId?: number;
-  assignedById?: number;
-  files?: string[];
-  // Work details
-  regularHours?: number;
-  overtimeHours?: number;
-  calculatedAmount?: number;
-  carUsageAmount?: number;
-  organizationPayment?: number;
-  workNotes?: string;
-  workPhotoUrl?: string;
-}
-
-import { AssignEngineerDto, OrdersQueryDto } from '../../shared/dtos/order.dto';
+import { NotificationType, NotificationPriority } from '../../entities/notification.entity';
 import { OrderSource } from '../../entities/order.entity';
 import { OrderStatus, TerritoryType } from '../../shared/interfaces/order.interface';
+import { CreateOrderDto, UpdateOrderDto, AssignEngineerDto, OrdersQueryDto } from '../../shared/dtos/order.dto';
+import { NotificationsService } from '../notifications/notifications.service';
 
 // Extended OrdersQueryDto with additional filters
 interface ExtendedOrdersQueryDto extends OrdersQueryDto {
@@ -74,9 +37,6 @@ interface ExtendedOrdersQueryDto extends OrdersQueryDto {
   completionDateTo?: Date;
   assignedById?: number;
 }
-import { UserRole } from '../../entities/user.entity';
-import { NotificationsService } from '../notifications/notifications.service';
-import { NotificationPriority } from '../../entities/notification.entity';
 
 export interface OrdersResponse {
   data: Order[];
@@ -462,6 +422,13 @@ export class OrdersService {
       updateOrderDto.completionDate = new Date();
     }
 
+    // Fix date format for MySQL DATE field (plannedStartDate should be DATE, not DATETIME)
+    if (updateOrderDto.plannedStartDate) {
+      const date = new Date(updateOrderDto.plannedStartDate);
+      // Extract only date part (YYYY-MM-DD)
+      updateOrderDto.plannedStartDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
     console.log('\n🔄 UPDATE ORDER:', {
       orderId: id,
       hasFiles: updateOrderDto.files !== undefined,
@@ -841,7 +808,7 @@ export class OrdersService {
       await this.activityLogRepository
         .createQueryBuilder()
         .delete()
-        .where("metadata->>'orderId' = :orderId", { orderId: id.toString() })
+        .where("JSON_EXTRACT(metadata, '$.orderId') = :orderId", { orderId: id.toString() })
         .execute();
 
       // Now delete the order

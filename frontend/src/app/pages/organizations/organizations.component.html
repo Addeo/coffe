@@ -117,55 +117,46 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef i18n="@@organizations.actions">Действия</th>
             <td mat-cell *matCellDef="let organization">
-              <button
-                mat-icon-button
-                [matMenuTriggerFor]="menu"
-                [disabled]="!canEdit()"
-                aria-label="Действия с организацией"
-                title="canEdit: {{ canEdit() }}, canDelete: {{ canDelete() }}"
-              >
-                <mat-icon>more_vert</mat-icon>
-              </button>
-
-              <mat-menu #menu="matMenu">
+              <div class="action-buttons">
                 <button
-                  mat-menu-item
-                  (click)="onEditOrganizationTest(organization)"
+                  mat-icon-button
+                  (click)="onEditOrganization(organization)"
                   [disabled]="!canEdit()"
+                  color="primary"
+                  matTooltip="Редактировать организацию"
+                  aria-label="Редактировать"
+                  class="action-btn-icon edit-btn"
                 >
                   <mat-icon>edit</mat-icon>
-                  <span i18n="@@organizations.edit">Редактировать</span>
                 </button>
 
                 <button
-                  mat-menu-item
+                  mat-icon-button
                   (click)="onToggleStatus(organization)"
                   [disabled]="!canEdit()"
+                  [color]="organization.isActive ? 'warn' : 'primary'"
+                  [matTooltip]="
+                    organization.isActive ? 'Деактивировать организацию' : 'Активировать организацию'
+                  "
+                  aria-label="Изменить статус"
+                  class="action-btn-icon status-btn"
                 >
                   <mat-icon>{{ organization.isActive ? 'block' : 'check_circle' }}</mat-icon>
-                  <span>{{ organization.isActive ? 'Деактивировать' : 'Активировать' }}</span>
                 </button>
-
-                <mat-divider></mat-divider>
 
                 <button
-                  mat-menu-item
+                  mat-icon-button
                   (click)="onDeleteOrganization(organization)"
-                  class="delete-action"
-                  *ngIf="canDelete()"
                   [disabled]="!canDelete()"
+                  color="warn"
+                  matTooltip="Удалить организацию"
+                  aria-label="Удалить"
+                  *ngIf="canDelete()"
+                  class="action-btn-icon delete-btn"
                 >
                   <mat-icon>delete</mat-icon>
-                  <span i18n="@@organizations.delete">Удалить</span>
                 </button>
-
-                <!-- Тестовая кнопка для проверки обработчиков событий -->
-                <mat-divider></mat-divider>
-                <button mat-menu-item (click)="testClick()" style="color: red">
-                  <mat-icon>bug_report</mat-icon>
-                  <span>Тест клика</span>
-                </button>
-              </mat-menu>
+              </div>
             </td>
           </ng-container>
 
