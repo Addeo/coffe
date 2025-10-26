@@ -857,11 +857,19 @@ export class OrdersService {
     working: number;
     review: number;
     completed: number;
+    paid_to_engineer: number;
     bySource: {
       manual: number;
       automatic: number;
       email: number;
       api: number;
+    };
+    paymentStats: {
+      totalCompleted: number;
+      receivedFromOrganization: number;
+      pendingFromOrganization: number;
+      paidToEngineer: number;
+      pendingToEngineer: number;
     };
   }> {
     const queryBuilder = this.ordersRepository.createQueryBuilder('order');
@@ -888,11 +896,19 @@ export class OrdersService {
           working: 0,
           review: 0,
           completed: 0,
+          paid_to_engineer: 0,
           bySource: {
             manual: 0,
             automatic: 0,
             email: 0,
             api: 0,
+          },
+          paymentStats: {
+            totalCompleted: 0,
+            receivedFromOrganization: 0,
+            pendingFromOrganization: 0,
+            paidToEngineer: 0,
+            pendingToEngineer: 0,
           },
         };
       }
@@ -913,11 +929,19 @@ export class OrdersService {
       working: 0,
       review: 0,
       completed: 0,
+      paid_to_engineer: 0,
       bySource: {
         manual: 0,
         automatic: 0,
         email: 0,
         api: 0,
+      },
+      paymentStats: {
+        totalCompleted: 0,
+        receivedFromOrganization: 0,
+        pendingFromOrganization: 0,
+        paidToEngineer: 0,
+        pendingToEngineer: 0,
       },
     };
 
@@ -969,6 +993,49 @@ export class OrdersService {
           break;
       }
     });
+
+    // Calculate payment statistics
+    const paymentQuery = this.ordersRepository.createQueryBuilder('order');
+    
+    // Apply same role-based filtering
+    if (user.role === UserRole.USER) {
+      const engineer = await this.engineersRepository.findOne({
+        where: { userId: user.id, isActive: true },
+      });
+      if (engineer) {
+        paymentQuery.where('order.assignedEngineerId = :engineerId', {
+          engineerId: engineer.id,
+        });
+      }
+    }
+
+    // Get completed orders statistics
+    const completedOrders = await paymentQuery
+      .where('order.status IN (:...statuses)', { 
+        statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER] 
+      })
+      .getCount();
+
+    result.paymentStats.totalCompleted = completedOrders;
+
+    // Get payment status statistics
+    const receivedFromOrg = await paymentQuery
+      .where('order.status IN (:...statuses)', { 
+        statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER] 
+      })
+      .andWhere('order.receivedFromOrganization = :received', { received: true })
+      .getCount();
+
+    result.paymentStats.receivedFromOrganization = receivedFromOrg;
+    result.paymentStats.pendingFromOrganization = completedOrders - receivedFromOrg;
+
+    // Get paid to engineer statistics
+    const paidToEngineer = await paymentQuery
+      .where('order.status = :status', { status: OrderStatus.PAID_TO_ENGINEER })
+      .getCount();
+
+    result.paymentStats.paidToEngineer = paidToEngineer;
+    result.paymentStats.pendingToEngineer = completedOrders - paidToEngineer;
 
     return result;
   }

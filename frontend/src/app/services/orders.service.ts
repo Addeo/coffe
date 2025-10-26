@@ -46,11 +46,19 @@ export class OrdersService {
     working: number;
     review: number;
     completed: number;
+    paid_to_engineer: number;
     bySource: {
       manual: number;
       automatic: number;
       email: number;
       api: number;
+    };
+    paymentStats: {
+      totalCompleted: number;
+      receivedFromOrganization: number;
+      pendingFromOrganization: number;
+      paidToEngineer: number;
+      pendingToEngineer: number;
     };
   }> {
     return this.http.get<{
@@ -61,11 +69,19 @@ export class OrdersService {
       working: number;
       review: number;
       completed: number;
+      paid_to_engineer: number;
       bySource: {
         manual: number;
         automatic: number;
         email: number;
         api: number;
+      };
+      paymentStats: {
+        totalCompleted: number;
+        receivedFromOrganization: number;
+        pendingFromOrganization: number;
+        paidToEngineer: number;
+        pendingToEngineer: number;
       };
     }>(`${environment.apiUrl}/orders/stats`);
   }

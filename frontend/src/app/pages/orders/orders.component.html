@@ -6,23 +6,7 @@
   >
   </app-earnings-summary>
 
-  <!--
-  <mat-card class="order-stats-card">
-    <mat-card-header (click)="toggleOrderStats()" class="clickable-header">
-      <div class="stats-header-content">
-        <div class="stats-title">
-          <mat-icon>bar_chart</mat-icon>
-          <span>Статистика по заказам</span>
-        </div>
-        <button mat-icon-button class="expand-btn">
-          <mat-icon>{{ orderStatsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-        </button>
-      </div>
-    </mat-card-header>
-
-    <mat-card-content *ngIf="!orderStatsCollapsed()">
-     
-      <div class="stats-switcher">
+  <div class="stats-switcher">
     <mat-button-toggle-group [(ngModel)]="statsView" aria-label="Вариант отображения статистики" class="stats-toggle-group">
       <mat-button-toggle value="compact" class="stats-toggle-btn">
         <mat-icon>view_module</mat-icon>
@@ -91,6 +75,38 @@
               <span class="label">Завершено:</span>
               <span class="value">{{ orderStats().completed }}</span>
             </div>
+            <div class="stat-item">
+              <mat-icon style="color: #2196f3">paid</mat-icon>
+              <span class="label">Выплачено инженеру:</span>
+              <span class="value">{{ orderStats().paid_to_engineer }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Payment Statistics Section -->
+        <div class="stats-section">
+          <h3>Статистика по платежам</h3>
+          <div class="stats-row">
+            <div class="stat-item">
+              <mat-icon style="color: #ff9800">attach_money</mat-icon>
+              <span class="label">Получено от организаций:</span>
+              <span class="value">{{ orderStats().paymentStats.receivedFromOrganization }}</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon style="color: #f44336">pending</mat-icon>
+              <span class="label">Ожидает от организаций:</span>
+              <span class="value">{{ orderStats().paymentStats.pendingFromOrganization }}</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon style="color: #4caf50">money_off</mat-icon>
+              <span class="label">Выплачено инженерам:</span>
+              <span class="value">{{ orderStats().paymentStats.paidToEngineer }}</span>
+            </div>
+            <div class="stat-item">
+              <mat-icon style="color: #ff9800">schedule</mat-icon>
+              <span class="label">Ожидает выплаты:</span>
+              <span class="value">{{ orderStats().paymentStats.pendingToEngineer }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -135,7 +151,7 @@
           </div>
         </div>
 
-         div class="chart-section">
+         <div class="chart-section">
           <h3>Источники заказов</h3>
           <div class="chart-wrapper">
             <canvas
@@ -145,8 +161,29 @@
               [type]="'bar'"
             ></canvas>
           </div>
-        </div
-      </div>  <div class="total-stats">
+        </div>
+
+        <!-- Payment Statistics Chart -->
+        <div class="chart-section">
+          <h3>Статистика по платежам</h3>
+          <div class="chart-wrapper">
+            <canvas
+              baseChart
+              [data]="paymentChartData"
+              [options]="doughnutChartOptions"
+              [type]="'doughnut'"
+            ></canvas>
+          </div>
+          <div class="chart-stats">
+            <div class="stat-badge" *ngFor="let stat of paymentStats">
+              <span class="badge-color" [style.background-color]="stat.color"></span>
+              <span class="badge-label">{{ stat.label }}:</span>
+              <span class="badge-value">{{ stat.value }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="total-stats">
         <div class="total-item">
           <mat-icon color="primary">assignment</mat-icon>
           <div>
@@ -172,6 +209,7 @@
  
 
 
+  <!--
   <mat-card class="stats-card-progress" *ngIf="statsView === 'progress'">
     <mat-card-header>
       <mat-card-title>
@@ -276,7 +314,7 @@
         </div>
       </div>
 
-      mat-divider></mat-divider
+      <mat-divider></mat-divider>
 
       <div class="sources-compact">
         <h4>По источникам</h4>
@@ -299,6 +337,9 @@
           </div>
         </div>
       </div>
+    </mat-card-content>
+  </mat-card>
+  -->
 
   <mat-card class="mobile-summary-card" *ngIf="isMobileView()">
     <mat-card-header>
@@ -401,6 +442,8 @@
         </div>
 
       </div>
+    </mat-card-content>
+  </mat-card>
         -->
 
   <!-- Main Content -->
@@ -725,4 +768,3 @@
       </mat-paginator>
     </mat-card-content>
   </mat-card>
-</div>
