@@ -58,6 +58,45 @@
         color: #f44336 !important;
       }
     }
+
+    // Action buttons styling
+    .action-buttons {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      justify-content: flex-start;
+
+      .action-btn-icon {
+        width: 36px;
+        height: 36px;
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+          transform: scale(1.1);
+        }
+
+        &:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+
+        mat-icon {
+          font-size: 20px;
+        }
+      }
+
+      .edit-btn:hover:not(:disabled) {
+        background-color: rgba(33, 150, 243, 0.1);
+      }
+
+      .status-btn:hover:not(:disabled) {
+        background-color: rgba(255, 152, 0, 0.1);
+      }
+
+      .delete-btn:hover:not(:disabled) {
+        background-color: rgba(244, 67, 54, 0.1);
+      }
+    }
   }
 }
 

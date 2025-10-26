@@ -55,7 +55,7 @@ export interface UpdateOrderDto {
   distanceKm?: number;
   territoryType?: TerritoryType;
   status?: OrderStatus;
-  source?: OrderStatus;
+  source?: OrderSource;
   plannedStartDate?: Date;
   actualStartDate?: Date;
   completionDate?: Date;

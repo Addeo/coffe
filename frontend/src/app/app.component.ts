@@ -26,13 +26,13 @@ import { OrderSidebarComponent } from './components/sidebars/order-sidebar.compo
       <a href="#main-content" class="skip-to-main">Skip to main content</a>
 
       <!-- Navigation bar (only show when authenticated) -->
-      <app-navigation *ngIf="isAuthenticated() && !isLoginRoute()"></app-navigation>
+      <app-navigation *ngIf="shouldShowNav()"></app-navigation>
 
       <!-- Main content -->
       <main
         id="main-content"
         class="main-content"
-        [class.with-nav]="isAuthenticated() && !isLoginRoute()"
+        [class.with-nav]="shouldShowNav()"
         role="main"
         tabindex="-1"
       >
@@ -100,6 +100,11 @@ export class AppComponent implements OnInit, OnDestroy {
   /* Check if current route is login */
   isLoginRoute = computed(() => {
     return this.router.url === '/login';
+  });
+
+  /* Computed values for template */
+  shouldShowNav = computed(() => {
+    return this.isAuthenticated() && !this.isLoginRoute();
   });
 
   constructor() {

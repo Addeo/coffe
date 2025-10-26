@@ -184,10 +184,7 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onEditOrganizationTest(organization: OrganizationDto): void {
-    console.log('🧪 Edit button clicked for:', organization.name);
-    this.onEditOrganization(organization);
-  }
+
 
   onToggleStatus(organization: OrganizationDto): void {
     console.log(
@@ -342,10 +339,5 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
 
   getStatusText(isActive: boolean): string {
     return isActive ? 'Активна' : 'Неактивна';
-  }
-
-  testClick(): void {
-    console.log('🧪 TEST CLICK - обработчик событий работает!');
-    alert('Тест клика работает! Обработчики событий функционируют.');
   }
 }

@@ -58,9 +58,7 @@ tar -czf sbercloud-deploy.tar.gz \
     backend/.env.prod \
     frontend/dist \
     frontend/package*.json \
-    docker/mysql/init.sql \
-    --exclude='**/node_modules' \
-    --exclude='**/.git'
+    docker/mysql/init.sql
 
 print_step "4. Uploading to SberCloud VM..."
 scp -i "$SSH_KEY" sbercloud-deploy.tar.gz "$REMOTE_USER@$VM_IP:~/" || {
