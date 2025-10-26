@@ -54,7 +54,27 @@ export class OrdersController {
   @Post()
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
   create(@Body() createOrderDto: CreateOrderDto, @Request() req) {
-    return this.ordersService.create(createOrderDto, req.user.id);
+    console.log('📝 [OrdersController] Creating order:', {
+      userId: req.user?.id,
+      userRole: req.user?.role,
+      orderData: {
+        title: createOrderDto.title,
+        organizationId: createOrderDto.organizationId,
+        location: createOrderDto.location,
+        hasFiles: !!createOrderDto.files && createOrderDto.files.length > 0,
+        filesCount: createOrderDto.files?.length || 0,
+      },
+    });
+    
+    return this.ordersService.create(createOrderDto, req.user.id).catch(error => {
+      console.error('❌ [OrdersController] Error creating order:', error);
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+      });
+      throw error;
+    });
   }
 
   @Post('automatic')
