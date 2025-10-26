@@ -538,6 +538,29 @@
             </td>
           </ng-container>
 
+          <!-- Payment Status Column -->
+          <ng-container matColumnDef="paymentStatus">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Оплата от организации</th>
+            <td mat-cell *matCellDef="let order">
+              <div class="payment-status">
+                <mat-chip 
+                  [color]="order.receivedFromOrganization ? 'primary' : 'warn'" 
+                  selected
+                  *ngIf="order.status === 'completed' || order.status === 'paid_to_engineer'"
+                >
+                  <mat-icon>{{ order.receivedFromOrganization ? 'check_circle' : 'pending' }}</mat-icon>
+                  {{ order.receivedFromOrganization ? 'Получена' : 'Ожидает' }}
+                </mat-chip>
+                <span *ngIf="order.status !== 'completed' && order.status !== 'paid_to_engineer'" class="text-muted">
+                  -
+                </span>
+                <div *ngIf="order.receivedFromOrganization && order.receivedFromOrganizationDate" class="payment-date">
+                  <small class="text-muted">{{ order.receivedFromOrganizationDate | date: 'short' }}</small>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
           <!-- Created Date Column -->
           <ng-container matColumnDef="createdAt">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Создан</th>
@@ -622,6 +645,20 @@
                       (click)="onOpenStatusDialog(order)"
                     >
                       <mat-icon>swap_vert</mat-icon>
+                    </button>
+                  </div>
+
+                  <!-- Payment Status Management -->
+                  <div class="payment-actions" *ngIf="canManagePaymentStatus(order)">
+                    <button
+                      mat-icon-button
+                      [color]="order.receivedFromOrganization ? 'warn' : 'primary'"
+                      [matTooltip]="order.receivedFromOrganization ? 'Отметить как неоплаченный' : 'Отметить как оплаченный'"
+                      [attr.aria-label]="order.receivedFromOrganization ? 'Отметить как неоплаченный' : 'Отметить как оплаченный'"
+                      class="action-btn-icon payment-btn"
+                      (click)="onTogglePaymentStatus(order)"
+                    >
+                      <mat-icon>{{ order.receivedFromOrganization ? 'money_off' : 'attach_money' }}</mat-icon>
                     </button>
                   </div>
 

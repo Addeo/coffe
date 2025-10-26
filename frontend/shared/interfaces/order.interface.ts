@@ -7,6 +7,7 @@ export enum OrderStatus {
   WORKING = 'working', // в работе (принят инженером)
   REVIEW = 'review', // на проверке
   COMPLETED = 'completed', // законченный
+  PAID_TO_ENGINEER = 'paid_to_engineer', // выплачен инженеру
 }
 
 export enum OrderStatusLabel {
@@ -16,6 +17,7 @@ export enum OrderStatusLabel {
   WORKING = 'In Progress',
   REVIEW = 'Under Review',
   COMPLETED = 'Completed',
+  PAID_TO_ENGINEER = 'Paid to Engineer',
 }
 
 export enum TerritoryType {
@@ -60,6 +62,9 @@ export interface Order {
   plannedStartDate?: Date;
   actualStartDate?: Date;
   completionDate?: Date;
+  receivedFromOrganization?: boolean;
+  receivedFromOrganizationDate?: Date;
+  receivedFromOrganizationNotes?: string;
 
   // Work execution details
   workActNumber?: string; // Номер Акта выполненных работ

@@ -218,6 +218,15 @@ export class Order {
   @Column({ name: 'work_photo_url', type: 'varchar', length: 255, nullable: true })
   workPhotoUrl: string; // фото выполненной работы
 
+  @Column({ name: 'received_from_organization', type: 'boolean', default: false })
+  receivedFromOrganization: boolean; // получены ли деньги от организации
+
+  @Column({ name: 'received_from_organization_date', type: 'datetime', nullable: true })
+  receivedFromOrganizationDate: Date; // дата получения денег от организации
+
+  @Column({ name: 'received_from_organization_notes', type: 'text', nullable: true })
+  receivedFromOrganizationNotes: string; // примечания о получении денег
+
   @OneToMany(() => File, file => file.order)
   files: File[];
 

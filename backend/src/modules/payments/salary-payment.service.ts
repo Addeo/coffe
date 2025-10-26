@@ -10,6 +10,8 @@ import {
 import { EngineerBalance } from '../../entities/engineer-balance.entity';
 import { SalaryCalculation, CalculationStatus } from '../../entities/salary-calculation.entity';
 import { Engineer } from '../../entities/engineer.entity';
+import { Order } from '../../entities/order.entity';
+import { OrderStatus } from '../../shared/interfaces/order.interface';
 // Temporary - types not yet in shared package
 type CreateSalaryPaymentDto = any;
 type UpdateSalaryPaymentDto = any;
@@ -29,7 +31,9 @@ export class SalaryPaymentService {
     @InjectRepository(SalaryCalculation)
     private salaryCalculationRepository: Repository<SalaryCalculation>,
     @InjectRepository(Engineer)
-    private engineerRepository: Repository<Engineer>
+    private engineerRepository: Repository<Engineer>,
+    @InjectRepository(Order)
+    private orderRepository: Repository<Order>
   ) {}
 
   /**
@@ -90,6 +94,9 @@ export class SalaryPaymentService {
 
     // Обновляем баланс инженера
     await this.updateEngineerBalance(createDto.engineerId);
+
+    // Обновляем статус заказов инженера на PAID_TO_ENGINEER
+    await this.updateOrderStatusToPaid(createDto.engineerId);
 
     this.logger.log(
       `Payment created: ${savedPayment.id} for engineer ${createDto.engineerId}, amount: ${createDto.amount}`
@@ -398,6 +405,31 @@ export class SalaryPaymentService {
    */
   private async updateEngineerBalance(engineerId: number): Promise<void> {
     await this.recalculateEngineerBalance(engineerId);
+  }
+
+  /**
+   * Обновить статус заказов инженера на PAID_TO_ENGINEER
+   */
+  private async updateOrderStatusToPaid(engineerId: number): Promise<void> {
+    // Находим все завершенные заказы инженера, которые еще не помечены как выплаченные
+    const completedOrders = await this.orderRepository.find({
+      where: {
+        assignedEngineerId: engineerId,
+        status: OrderStatus.COMPLETED,
+      },
+    });
+
+    if (completedOrders.length > 0) {
+      // Обновляем статус всех завершенных заказов на PAID_TO_ENGINEER
+      await this.orderRepository.update(
+        { assignedEngineerId: engineerId, status: OrderStatus.COMPLETED },
+        { status: OrderStatus.PAID_TO_ENGINEER }
+      );
+
+      this.logger.log(
+        `Updated ${completedOrders.length} orders to PAID_TO_ENGINEER status for engineer ${engineerId}`
+      );
+    }
   }
 
   /**

@@ -84,6 +84,7 @@ export class OrdersComponent implements OnInit {
     'organization',
     'assignedEngineer',
     'status',
+    'paymentStatus',
     'createdAt',
     'actions',
   ];
@@ -149,6 +150,17 @@ export class OrdersComponent implements OnInit {
     return false;
   }
 
+  canManagePaymentStatus(order: OrderDto): boolean {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) return false;
+
+    // Only admins and managers can manage payment status
+    if (!this.canEditOrders) return false;
+
+    // Can only manage payment status for completed orders
+    return order.status === OrderStatus.COMPLETED || order.status === OrderStatus.PAID_TO_ENGINEER;
+  }
+
   // Get available status options for the current user and order
   getAvailableStatuses(order: OrderDto): OrderStatus[] {
     const currentUser = this.authService.currentUser();
@@ -169,6 +181,11 @@ export class OrdersComponent implements OnInit {
       } else if (order.status === OrderStatus.WORKING) {
         return [OrderStatus.COMPLETED];
       }
+    }
+
+    // Only admins and managers can set PAID_TO_ENGINEER status
+    if (this.canEditOrders && order.status === OrderStatus.COMPLETED) {
+      return [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER];
     }
 
     return [];
@@ -321,6 +338,32 @@ export class OrdersComponent implements OnInit {
       if (result) {
         this.onUpdateStatus(order, result);
       }
+    });
+  }
+
+  onTogglePaymentStatus(order: OrderDto): void {
+    const newStatus = !order.receivedFromOrganization;
+    const updateData = {
+      receivedFromOrganization: newStatus,
+      receivedFromOrganizationDate: newStatus ? new Date() : null,
+    };
+
+    this.ordersService.updateOrder(order.id, updateData).subscribe({
+      next: updatedOrder => {
+        // Update the order in the data source
+        const index = this.dataSource.data.findIndex(o => o.id === order.id);
+        if (index !== -1) {
+          this.dataSource.data[index] = updatedOrder;
+          this.dataSource._updateChangeSubscription();
+        }
+        
+        const statusText = newStatus ? 'отмечен как оплаченный' : 'отмечен как неоплаченный';
+        this.toastService.success(`Заказ ${statusText}`);
+      },
+      error: error => {
+        console.error('Ошибка обновления статуса оплаты:', error);
+        this.toastService.error('Ошибка обновления статуса оплаты');
+      },
     });
   }
 
@@ -495,6 +538,8 @@ export class OrdersComponent implements OnInit {
     switch (status) {
       case OrderStatus.COMPLETED:
         return 'primary';
+      case OrderStatus.PAID_TO_ENGINEER:
+        return 'accent';
       case OrderStatus.WORKING:
         return 'accent';
       case OrderStatus.ASSIGNED:
@@ -524,6 +569,8 @@ export class OrdersComponent implements OnInit {
         return OrderStatusLabel.REVIEW;
       case OrderStatus.COMPLETED:
         return OrderStatusLabel.COMPLETED;
+      case OrderStatus.PAID_TO_ENGINEER:
+        return OrderStatusLabel.PAID_TO_ENGINEER;
       default:
         return status;
     }
@@ -543,6 +590,8 @@ export class OrdersComponent implements OnInit {
         return 'visibility';
       case OrderStatus.COMPLETED:
         return 'check_circle';
+      case OrderStatus.PAID_TO_ENGINEER:
+        return 'paid';
       default:
         return 'help';
     }

@@ -61,6 +61,9 @@ export interface UpdateOrderDto {
   completionDate?: Date;
   assignedEngineerId?: number;
   assignedById?: number;
+  receivedFromOrganization?: boolean;
+  receivedFromOrganizationDate?: Date;
+  receivedFromOrganizationNotes?: string;
   files?: string[]; // Array of file IDs to attach
   // Work execution details
   workActNumber?: string;
@@ -128,6 +131,9 @@ export interface OrderDto {
   plannedStartDate?: Date;
   actualStartDate?: Date;
   completionDate?: Date;
+  receivedFromOrganization?: boolean;
+  receivedFromOrganizationDate?: Date;
+  receivedFromOrganizationNotes?: string;
   // Work execution details
   workActNumber?: string;
   workStartTime?: Date;

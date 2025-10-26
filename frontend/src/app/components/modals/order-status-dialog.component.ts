@@ -132,6 +132,8 @@ export class OrderStatusDialogComponent {
         return OrderStatusLabel.REVIEW;
       case OrderStatus.COMPLETED:
         return OrderStatusLabel.COMPLETED;
+      case OrderStatus.PAID_TO_ENGINEER:
+        return OrderStatusLabel.PAID_TO_ENGINEER;
       default:
         return status;
     }
@@ -141,6 +143,8 @@ export class OrderStatusDialogComponent {
     switch (status) {
       case OrderStatus.COMPLETED:
         return 'primary';
+      case OrderStatus.PAID_TO_ENGINEER:
+        return 'accent';
       case OrderStatus.WORKING:
         return 'accent';
       case OrderStatus.ASSIGNED:
@@ -170,6 +174,8 @@ export class OrderStatusDialogComponent {
         return 'visibility';
       case OrderStatus.COMPLETED:
         return 'check_circle';
+      case OrderStatus.PAID_TO_ENGINEER:
+        return 'paid';
       default:
         return 'help';
     }

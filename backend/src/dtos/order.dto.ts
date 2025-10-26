@@ -27,6 +27,9 @@ export interface UpdateOrderDto {
   completionDate?: Date;
   assignedEngineerId?: number;
   assignedById?: number;
+  receivedFromOrganization?: boolean;
+  receivedFromOrganizationDate?: Date;
+  receivedFromOrganizationNotes?: string;
   files?: string[]; // Array of file IDs to attach
 }
 
@@ -69,6 +72,9 @@ export interface OrderDto {
   plannedStartDate?: Date;
   actualStartDate?: Date;
   completionDate?: Date;
+  receivedFromOrganization?: boolean;
+  receivedFromOrganizationDate?: Date;
+  receivedFromOrganizationNotes?: string;
   files?: FileResponseDto[];
   createdAt: Date;
   updatedAt: Date;
