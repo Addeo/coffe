@@ -61,7 +61,7 @@ export class LoginComponent {
 
   isLoading = signal(false);
   hidePassword = signal(true);
-  appVersion = '1.0.0';
+  appVersion = '1.0.1';
 
   constructor() {
     // Redirect if already authenticated
