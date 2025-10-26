@@ -574,7 +574,7 @@ export class OrdersService {
       await this.sendStatusChangeNotifications(updatedOrder, user.id);
     }
 
-    // Statistics are now calculated in real-time from work_reports
+    // Statistics are calculated in real-time from order fields
     // No need to update cached statistics
 
     // Return updated order with attached files
