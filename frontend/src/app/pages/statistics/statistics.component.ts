@@ -577,49 +577,49 @@ export class StatisticsComponent implements OnInit {
       return;
     }
 
+    // Use engineer-specific endpoint instead of admin endpoint
     this.statisticsService
-      .getAdminEngineerStatistics(this.selectedYear(), this.selectedMonth())
+      .getEngineerDetailedStats(this.selectedYear(), this.selectedMonth())
       .subscribe({
         next: (data: any) => {
-          // Фильтруем данные только для текущего инженера
-          const myEngineerData = data.engineers.find(
-            (engineer: any) => engineer.engineerId === currentUser.id
-          );
+          // Create statistics object for the engineer
+          const engineerStats = {
+            year: this.selectedYear(),
+            month: this.selectedMonth(),
+            monthName: this.getMonthName(this.selectedMonth()),
+            agentEarnings: [
+              {
+                agentId: data.engineerId || currentUser.id,
+                agentName: data.engineerName || `${currentUser.firstName} ${currentUser.lastName}`,
+                totalEarnings: data.totalEarnings || 0,
+                completedOrders: data.totalOrders || 0,
+                averageOrderValue: data.totalOrders > 0 ? (data.totalEarnings || 0) / data.totalOrders : 0,
+              },
+            ],
+            organizationEarnings: [],
+            overtimeStatistics: [],
+            totalEarnings: data.totalEarnings || 0,
+            totalOrders: data.totalOrders || 0,
+            totalOvertimeHours: 0,
+          };
 
-          if (myEngineerData) {
-            // Создаем объект статистики только для этого инженера
-            const engineerStats = {
-              year: this.selectedYear(),
-              month: this.selectedMonth(),
-              monthName: this.getMonthName(this.selectedMonth()),
-              agentEarnings: [myEngineerData],
-              organizationEarnings: [],
-              overtimeStatistics: [],
-              totalEarnings: myEngineerData.totalEarnings,
-              totalOrders: myEngineerData.completedOrders,
-              totalOvertimeHours: myEngineerData.overtimeHours || 0,
-            };
-
-            this.statistics.set(engineerStats);
-          } else {
-            // Если данных нет, создаем пустую статистику
-            this.statistics.set({
-              year: this.selectedYear(),
-              month: this.selectedMonth(),
-              monthName: this.getMonthName(this.selectedMonth()),
-              agentEarnings: [],
-              organizationEarnings: [],
-              overtimeStatistics: [],
-              totalEarnings: 0,
-              totalOrders: 0,
-              totalOvertimeHours: 0,
-            });
-          }
+          this.statistics.set(engineerStats);
           this.isLoading.set(false);
         },
         error: (error: any) => {
           console.error('Error loading engineer statistics:', error);
-          this.snackBar.open('Ошибка загрузки статистики инженера', 'Закрыть', { duration: 3000 });
+          // Create empty statistics on error
+          this.statistics.set({
+            year: this.selectedYear(),
+            month: this.selectedMonth(),
+            monthName: this.getMonthName(this.selectedMonth()),
+            agentEarnings: [],
+            organizationEarnings: [],
+            overtimeStatistics: [],
+            totalEarnings: 0,
+            totalOrders: 0,
+            totalOvertimeHours: 0,
+          });
           this.isLoading.set(false);
         },
       });
