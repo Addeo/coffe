@@ -4,7 +4,7 @@ import {
   SalaryPaymentDto,
   PaymentType,
   PaymentMethod,
-} from '../../../../../shared/dtos/salary-payment.dto';
+} from '../../../../shared/dtos/salary-payment.dto';
 
 @Component({
   selector: 'app-payment-list',
@@ -223,21 +223,21 @@ export class PaymentListComponent {
   }
 
   getPaymentTypeLabel(type: PaymentType): string {
-    const labels: Record<PaymentType, string> = {
-      [PaymentType.REGULAR]: 'Зарплата',
-      [PaymentType.ADVANCE]: 'Аванс',
-      [PaymentType.BONUS]: 'Премия',
-      [PaymentType.ADJUSTMENT]: 'Корректировка',
+    const labels = {
+      regular: 'Зарплата',
+      advance: 'Аванс',
+      bonus: 'Премия',
+      adjustment: 'Корректировка',
     };
     return labels[type] || type;
   }
 
   getPaymentMethodLabel(method: PaymentMethod): string {
-    const labels: Record<PaymentMethod, string> = {
-      [PaymentMethod.CASH]: 'Наличные',
-      [PaymentMethod.BANK_TRANSFER]: 'Перевод',
-      [PaymentMethod.CARD]: 'На карту',
-      [PaymentMethod.OTHER]: 'Другое',
+    const labels = {
+      cash: 'Наличные',
+      bank_transfer: 'Перевод',
+      card: 'На карту',
+      other: 'Другое',
     };
     return labels[method] || method;
   }

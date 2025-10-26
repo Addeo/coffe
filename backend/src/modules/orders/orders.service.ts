@@ -1179,10 +1179,10 @@ export class OrdersService {
       throw new NotFoundException('Order not found');
     }
 
-    // Check order status - must be 'working' or 'completed' (to allow edits)
-    if (order.status !== OrderStatus.WORKING && order.status !== OrderStatus.COMPLETED) {
+    // Check order status - must be 'working'
+    if (order.status !== OrderStatus.WORKING) {
       throw new BadRequestException(
-        `Order must be in 'working' or 'completed' status. Current status: ${order.status}`
+        `Order must be in 'working' status to complete work. Current status: ${order.status}`
       );
     }
 
@@ -1221,12 +1221,11 @@ export class OrdersService {
     const organizationPayment = organizationRegularPayment + organizationOvertimePayment;
 
     // Update order with work data AND RATES
-    // Replace values instead of accumulating to allow re-submission of work data
-    order.regularHours = workData.regularHours;
-    order.overtimeHours = workData.overtimeHours;
-    order.calculatedAmount = totalPayment;
-    order.carUsageAmount = workData.carPayment;
-    order.organizationPayment = organizationPayment;
+    order.regularHours = (order.regularHours || 0) + workData.regularHours;
+    order.overtimeHours = (order.overtimeHours || 0) + workData.overtimeHours;
+    order.calculatedAmount = (order.calculatedAmount || 0) + totalPayment;
+    order.carUsageAmount = (order.carUsageAmount || 0) + workData.carPayment;
+    order.organizationPayment = (order.organizationPayment || 0) + organizationPayment;
 
     // 🔥 SAVE RATES for audit
     order.engineerBaseRate = rates.baseRate;
@@ -1235,14 +1234,16 @@ export class OrdersService {
     order.organizationOvertimeMultiplier = order.organization.overtimeMultiplier;
 
     // 🔥 SAVE PAYMENT BREAKDOWN for detailed reporting
-    order.regularPayment = regularPayment;
-    order.overtimePayment = overtimePayment;
-    order.organizationRegularPayment = organizationRegularPayment;
-    order.organizationOvertimePayment = organizationOvertimePayment;
+    order.regularPayment = (order.regularPayment || 0) + regularPayment;
+    order.overtimePayment = (order.overtimePayment || 0) + overtimePayment;
+    order.organizationRegularPayment =
+      (order.organizationRegularPayment || 0) + organizationRegularPayment;
+    order.organizationOvertimePayment =
+      (order.organizationOvertimePayment || 0) + organizationOvertimePayment;
 
     // Calculate profit
     const currentProfit = organizationPayment - totalPayment;
-    order.profit = currentProfit;
+    order.profit = (order.profit || 0) + currentProfit;
 
     // Save additional work details
     order.distanceKm = workData.distanceKm || order.distanceKm;
@@ -1256,17 +1257,16 @@ export class OrdersService {
     }
 
     // Update status based on isFullyCompleted flag
-    if (workData.isFullyCompleted === true) {
-      // Work is fully completed - mark as completed
-      order.completionDate = now;
-      order.status = 'completed' as any;
-      console.log('✅ Order marked as COMPLETED (isFullyCompleted = true)');
-    } else if (order.status === 'completed') {
-      // If editing completed order, keep it completed
-      console.log('✏️ Order remains COMPLETED (editing completed order)');
-    } else {
-      // Work continues - keep status as working
-      console.log('🔄 Order remains in WORKING status (isFullyCompleted = false/undefined)');
+    if (order.status === 'working') {
+      if (workData.isFullyCompleted === true) {
+        // Work is fully completed - mark as completed
+        order.completionDate = now;
+        order.status = 'completed' as any;
+        console.log('✅ Order marked as COMPLETED (isFullyCompleted = true)');
+      } else {
+        // Work continues - keep status as working
+        console.log('🔄 Order remains in WORKING status (isFullyCompleted = false/undefined)');
+      }
     }
 
     const savedOrder = await this.ordersRepository.save(order);

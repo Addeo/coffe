@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { EngineerBalanceDto } from '../../../../../shared/dtos/salary-payment.dto';
+import { EngineerBalanceDto } from '../../../../shared/dtos/salary-payment.dto';
 
 @Component({
   selector: 'app-engineer-balance-card',

@@ -9,7 +9,7 @@ import {
   EngineerBalanceDetailDto,
   SalaryPaymentDto,
   CreateSalaryPaymentDto,
-} from '../../../../../shared/dtos/salary-payment.dto';
+} from '../../../../shared/dtos/salary-payment.dto';
 
 @Component({
   selector: 'app-engineer-payments-page',
