@@ -952,6 +952,7 @@ export class OrderEditComponent implements OnInit {
   }
 
   formatAmount(amount: number): string {
+    if (amount == null || isNaN(amount)) return '0 ₽';
     return `${amount.toFixed(2)} ₽`;
   }
 

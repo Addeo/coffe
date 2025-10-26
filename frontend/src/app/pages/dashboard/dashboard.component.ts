@@ -257,6 +257,7 @@ export class DashboardComponent implements OnInit {
    * @param hours Количество часов
    */
   formatHours(hours: number): string {
+    if (hours == null || isNaN(hours)) return '0 ч';
     return hours.toFixed(1) + ' ч';
   }
 
@@ -265,6 +266,7 @@ export class DashboardComponent implements OnInit {
    * @param amount Сумма в рублях
    */
   formatAmount(amount: number): string {
+    if (amount == null || isNaN(amount)) return '0 ₽';
     return amount.toLocaleString('ru-RU') + ' ₽';
   }
 
