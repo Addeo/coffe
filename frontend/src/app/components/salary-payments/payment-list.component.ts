@@ -223,21 +223,21 @@ export class PaymentListComponent {
   }
 
   getPaymentTypeLabel(type: PaymentType): string {
-    const labels = {
-      regular: 'Зарплата',
-      advance: 'Аванс',
-      bonus: 'Премия',
-      adjustment: 'Корректировка',
+    const labels: Record<PaymentType, string> = {
+      [PaymentType.REGULAR]: 'Зарплата',
+      [PaymentType.ADVANCE]: 'Аванс',
+      [PaymentType.BONUS]: 'Премия',
+      [PaymentType.ADJUSTMENT]: 'Корректировка',
     };
     return labels[type] || type;
   }
 
   getPaymentMethodLabel(method: PaymentMethod): string {
-    const labels = {
-      cash: 'Наличные',
-      bank_transfer: 'Перевод',
-      card: 'На карту',
-      other: 'Другое',
+    const labels: Record<PaymentMethod, string> = {
+      [PaymentMethod.CASH]: 'Наличные',
+      [PaymentMethod.BANK_TRANSFER]: 'Перевод',
+      [PaymentMethod.CARD]: 'На карту',
+      [PaymentMethod.OTHER]: 'Другое',
     };
     return labels[method] || method;
   }
