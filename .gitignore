@@ -27,8 +27,9 @@ out/
 Thumbs.db
 
 # Logs
-logs
 *.log
+!**/logs/*.ts
+!.gitignore
 
 # Coverage
 coverage/
