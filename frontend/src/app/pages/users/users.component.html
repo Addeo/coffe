@@ -145,6 +145,15 @@
               >
                 <mat-icon>delete</mat-icon>
               </button>
+              <button
+                mat-icon-button
+                (click)="onPayEngineer(user)"
+                color="accent"
+                matTooltip="Выплаты инженеру"
+                *ngIf="canShowPaymentsButton(user)"
+              >
+                <mat-icon>payment</mat-icon>
+              </button>
             </td>
           </ng-container>
 

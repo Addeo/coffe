@@ -145,6 +145,18 @@ export class UsersComponent implements OnInit {
     this.router.navigate(['/users', user.id, 'edit']);
   }
 
+  onPayEngineer(user: UserDto) {
+    // Only show payments for engineers (users with engineer profile)
+    if (user.role === UserRole.USER && user.engineer) {
+      this.router.navigate(['/engineer-payments', user.engineer.id]);
+    }
+  }
+
+  canShowPaymentsButton(user: UserDto): boolean {
+    // Only show for engineers with engineer profile
+    return user.role === UserRole.USER && !!user.engineer && !!user.engineer.id;
+  }
+
   onDeleteUser(user: UserDto) {
     // Show cascade deletion warning for all users (since most users have dependencies)
     this.showCascadeDeleteConfirmation(user);

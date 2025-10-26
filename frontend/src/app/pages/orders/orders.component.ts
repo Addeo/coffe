@@ -462,7 +462,8 @@ export class OrdersComponent implements OnInit {
 
     // Engineers can edit their own completed orders (always)
     if (currentUser.role === UserRole.USER) {
-      return order.assignedEngineerId === currentUser.id;
+      // Compare user.id (not engineer.id) with the engineer's userId
+      return order.assignedEngineer?.user?.id === currentUser.id;
     }
 
     return false;
