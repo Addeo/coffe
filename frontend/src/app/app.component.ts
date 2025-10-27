@@ -13,6 +13,7 @@ import { filter } from 'rxjs/operators';
 
 import { AuthService } from './services/auth.service';
 import { ThemeService } from './services/theme.service';
+import { StartupService } from './services/startup.service';
 import { NavigationComponent } from './components/navigation/navigation.component';
 import { OrderSidebarComponent } from './components/sidebars/order-sidebar.component';
 
@@ -89,6 +90,7 @@ import { OrderSidebarComponent } from './components/sidebars/order-sidebar.compo
 export class AppComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private themeService = inject(ThemeService);
+  private startupService = inject(StartupService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
@@ -115,6 +117,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Проверяем наличие обновлений при старте приложения
+    this.startupService.checkForUpdates();
+
     // Listen for navigation events to ensure auth state is properly updated
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(event => {
       const navigationEnd = event as NavigationEnd;
