@@ -1,4 +1,4 @@
-import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -18,6 +18,7 @@ import { ErrorStateMatcher } from '@angular/material/core';
 
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
+import { environment } from '../../../environments/environment';
 
 interface AuthLoginDto {
   email: string;
@@ -47,7 +48,7 @@ export class MyErrorStateMatcher implements ErrorStateMatcher {
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -61,13 +62,19 @@ export class LoginComponent {
 
   isLoading = signal(false);
   hidePassword = signal(true);
-  appVersion = '1.0.1';
+  appVersion = signal(environment.appVersion); // Текущая версия зашита в код
 
   constructor() {
     // Redirect if already authenticated
     if (this.authService.isAuthenticated()) {
       this.router.navigate(['/orders']);
     }
+  }
+
+  ngOnInit(): void {
+    // Версия берется из environment (зашита в код при сборке)
+    // Не нужно загружать с backend, так как это версия текущего приложения
+    console.log('📱 Текущая версия приложения:', environment.appVersion);
   }
 
   onSubmit(): void {

@@ -35,6 +35,7 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { WorkSessionsModule } from './modules/work-sessions/work-sessions.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { LogsModule } from './modules/logs/logs.module';
+import { AppUpdateModule } from './modules/app/app.module';
 import { TestController } from './test.controller';
 
 @Module({
@@ -127,6 +128,7 @@ import { TestController } from './test.controller';
     WorkSessionsModule,
     PaymentsModule,
     LogsModule,
+    AppUpdateModule,
   ],
   controllers: [TestController],
   providers: [],
