@@ -1010,8 +1010,9 @@ export class OrdersService {
     }
 
     // Get completed orders statistics
-    const completedOrders = await paymentQuery
-      .where('order.status IN (:...statuses)', { 
+    const completedOrdersQuery = paymentQuery.clone();
+    const completedOrders = await completedOrdersQuery
+      .andWhere('order.status IN (:...statuses)', { 
         statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER] 
       })
       .getCount();
@@ -1019,8 +1020,9 @@ export class OrdersService {
     result.paymentStats.totalCompleted = completedOrders;
 
     // Get payment status statistics
-    const receivedFromOrg = await paymentQuery
-      .where('order.status IN (:...statuses)', { 
+    const receivedFromOrgQuery = paymentQuery.clone();
+    const receivedFromOrg = await receivedFromOrgQuery
+      .andWhere('order.status IN (:...statuses)', { 
         statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER] 
       })
       .andWhere('order.receivedFromOrganization = :received', { received: true })
@@ -1030,8 +1032,9 @@ export class OrdersService {
     result.paymentStats.pendingFromOrganization = completedOrders - receivedFromOrg;
 
     // Get paid to engineer statistics
-    const paidToEngineer = await paymentQuery
-      .where('order.status = :status', { status: OrderStatus.PAID_TO_ENGINEER })
+    const paidToEngineerQuery = paymentQuery.clone();
+    const paidToEngineer = await paidToEngineerQuery
+      .andWhere('order.status = :status', { status: OrderStatus.PAID_TO_ENGINEER })
       .getCount();
 
     result.paymentStats.paidToEngineer = paidToEngineer;
