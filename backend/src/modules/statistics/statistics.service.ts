@@ -788,25 +788,28 @@ export class StatisticsService {
   // Вспомогательные методы для комплексной статистики
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getSalaryTimeChart(
-    _year: number,
-    _month: number
+    year: number,
+    month: number
   ): Promise<EngineerTimeBasedData[]> {
     // TODO: Реализовать получение данных по дням месяца
+    console.log('getSalaryTimeChart called with:', { year, month });
     return [];
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private async getHoursTimeChart(_year: number, _month: number): Promise<EngineerTimeBasedData[]> {
+  private async getHoursTimeChart(year: number, month: number): Promise<EngineerTimeBasedData[]> {
     // TODO: Реализовать получение данных по дням месяца
+    console.log('getHoursTimeChart called with:', { year, month });
     return [];
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async getFinancialBreakdown(
-    _year: number,
-    _month: number
+    year: number,
+    month: number
   ): Promise<FinancialBreakdownData[]> {
     // TODO: Реализовать детальную финансовую разбивку
+    console.log('getFinancialBreakdown called with:', { year, month });
     return [];
   }
 
@@ -865,8 +868,9 @@ export class StatisticsService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private async getForecastData(_year: number, _month: number): Promise<ForecastData> {
+  private async getForecastData(year: number, month: number): Promise<ForecastData> {
     // TODO: Реализовать прогнозную аналитику
+    console.log('getForecastData called with:', { year, month });
     return {
       currentWorkPace: 0,
       monthEndForecast: 0,
@@ -920,7 +924,7 @@ export class StatisticsService {
   }
 
   // Новая статистика по долгам и обязательствам
-  async getPaymentDebtsStatistics(_year: number, _month: number): Promise<{
+  async getPaymentDebtsStatistics(year: number, month: number): Promise<{
     engineerDebts: Array<{
       engineerId: number;
       engineerName: string;
@@ -943,8 +947,8 @@ export class StatisticsService {
       netDebt: number; // organizationDebt - engineerDebt
     };
   }> {
-    const startDate = new Date(_year, _month - 1, 1);
-    const endDate = new Date(_year, _month, 1);
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 1);
 
     // Статистика по долгам инженерам
     const engineerDebts = await this.orderRepository
@@ -1019,6 +1023,29 @@ export class StatisticsService {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
+    console.log('🚗 Backend - Поиск автомобильных отчислений:', { year, month, startDate, endDate });
+
+    // Сначала проверим все рабочие сессии за период
+    const allSessions = await this.workSessionRepository
+      .createQueryBuilder('session')
+      .leftJoinAndSelect('session.order', 'order')
+      .leftJoinAndSelect('order.organization', 'organization')
+      .leftJoinAndSelect('session.engineer', 'engineer')
+      .leftJoinAndSelect('engineer.user', 'user')
+      .where('session.workDate >= :startDate', { startDate })
+      .andWhere('session.workDate < :endDate', { endDate })
+      .getMany();
+
+    console.log('🚗 Backend - Все рабочие сессии за период:', allSessions.length);
+    console.log('🚗 Backend - Детали всех сессий:', allSessions.map(s => ({
+      id: s.id,
+      carUsageAmount: s.carUsageAmount,
+      workDate: s.workDate,
+      status: s.status,
+      orderId: s.order?.id,
+      organizationName: s.order?.organization?.name
+    })));
+
     // Получаем все рабочие сессии с автомобильными отчислениями
     const carPayments = await this.workSessionRepository
       .createQueryBuilder('session')
@@ -1031,6 +1058,16 @@ export class StatisticsService {
       .andWhere('session.carUsageAmount > 0')
       .andWhere('session.status = :status', { status: 'completed' })
       .getMany();
+
+    console.log('🚗 Backend - Найдено рабочих сессий с автомобильными отчислениями:', carPayments.length);
+    console.log('🚗 Backend - Данные сессий:', carPayments.map(s => ({
+      id: s.id,
+      carUsageAmount: s.carUsageAmount,
+      workDate: s.workDate,
+      status: s.status,
+      orderId: s.order?.id,
+      organizationName: s.order?.organization?.name
+    })));
 
     // Общая сумма к доплате за автомобили
     const totalCarAmount = carPayments.reduce((sum, session) => 
@@ -1047,7 +1084,7 @@ export class StatisticsService {
     // Группировка по инженерам
     const engineerBreakdown = this.groupCarPaymentsByEngineer(carPayments);
 
-    return {
+    const result = {
       totalCarAmount,
       paidCarAmount,
       pendingCarAmount: totalCarAmount - paidCarAmount,
@@ -1056,6 +1093,9 @@ export class StatisticsService {
       paymentStatus: totalCarAmount > 0 ? 
         (paidCarAmount / totalCarAmount) * 100 : 0
     };
+
+    console.log('🚗 Backend - Результат автомобильных отчислений:', result);
+    return result;
   }
 
   /**

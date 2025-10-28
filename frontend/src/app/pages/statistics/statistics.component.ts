@@ -583,6 +583,7 @@ export class StatisticsComponent implements OnInit {
   ngOnInit() {
     this.loadStatistics();
     this.loadUserStats();
+    this.loadCarPaymentStatus();
   }
 
   loadStatistics() {
@@ -690,11 +691,13 @@ export class StatisticsComponent implements OnInit {
   onYearChange(year: number) {
     this.selectedYear.set(year);
     this.loadStatistics();
+    this.loadCarPaymentStatus();
   }
 
   onMonthChange(month: number) {
     this.selectedMonth.set(month);
     this.loadStatistics();
+    this.loadCarPaymentStatus();
   }
 
   refreshStatistics() {
