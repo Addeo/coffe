@@ -97,6 +97,17 @@
       </mat-card>
     </div>
 
+    <!-- Debug Info -->
+    <mat-card class="debug-card" *ngIf="canViewAllData">
+      <mat-card-content>
+        <h3>Отладочная информация</h3>
+        <p><strong>canViewAllData:</strong> {{ canViewAllData }}</p>
+        <p><strong>carPaymentStatus:</strong> {{ carPaymentStatus() | json }}</p>
+        <p><strong>isAdmin:</strong> {{ isAdmin }}</p>
+        <p><strong>isManager:</strong> {{ isManager }}</p>
+      </mat-card-content>
+    </mat-card>
+
     <!-- Car Payments Card -->
     <mat-card class="car-payments-card" *ngIf="canViewAllData">
       <mat-card-header>

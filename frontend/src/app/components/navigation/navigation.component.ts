@@ -78,9 +78,14 @@ export class NavigationComponent implements OnInit, OnDestroy {
   // Computed navigation items based on user role
   navigationItems = computed<NavigationItem[]>(() => {
     const role = this.userRole();
+    console.log('🧭 Navigation - Current role:', role);
+    console.log('🧭 Navigation - UserRole.MANAGER:', UserRole.MANAGER);
+    console.log('🧭 Navigation - Role comparison:', role === UserRole.MANAGER);
+    
     const items: NavigationItem[] = [];
 
-    if (role === UserRole.ADMIN || role === UserRole.MANAGER) {
+    // Админские разделы (только для админа)
+    if (role === UserRole.ADMIN) {
       items.push(
         { label: 'Пользователи', route: '/users', icon: 'people', i18nKey: '@@navigation.users' },
         {
@@ -90,16 +95,51 @@ export class NavigationComponent implements OnInit, OnDestroy {
           i18nKey: '@@navigation.organizations',
         },
         {
-          label: 'Статистика',
-          route: '/statistics',
-          icon: 'analytics',
-          i18nKey: '@@navigation.statistics',
+          label: 'Отчеты',
+          route: '/reports',
+          icon: 'assessment',
+          i18nKey: '@@navigation.reports',
+        },
+        {
+          label: 'Настройки',
+          route: '/settings',
+          icon: 'settings',
+          i18nKey: '@@navigation.settings',
+        },
+        {
+          label: 'Резервные копии',
+          route: '/backups',
+          icon: 'backup',
+          i18nKey: '@@navigation.backups',
+        },
+        {
+          label: 'Логи',
+          route: '/logs',
+          icon: 'description',
+          i18nKey: '@@navigation.logs',
         }
       );
     }
 
+    // Статистика только для админа
+    if (role === UserRole.ADMIN) {
+      items.push({
+        label: 'Статистика',
+        route: '/statistics',
+        icon: 'analytics',
+        i18nKey: '@@navigation.statistics',
+      });
+    }
+
+    // Заказы только для менеджеров и инженеров (НЕ для админа)
+    if (role === UserRole.MANAGER || role === UserRole.USER) {
+      items.push(
+        { label: 'Заказы', route: '/orders', icon: 'shopping_cart', i18nKey: '@@navigation.orders' }
+      );
+    }
+
+    // Базовые разделы для всех ролей
     items.push(
-      { label: 'Заказы', route: '/orders', icon: 'shopping_cart', i18nKey: '@@navigation.orders' },
       { label: 'Профиль', route: '/profile', icon: 'person', i18nKey: '@@navigation.profile' },
       {
         label: 'Уведомления',
@@ -110,6 +150,21 @@ export class NavigationComponent implements OnInit, OnDestroy {
       }
     );
 
+    // Добавляем кнопки переключения ролей для пользователей с несколькими ролями
+    if (this.canSwitchRoles()) {
+      this.availableRoles().forEach(role => {
+        if (!this.isRoleActive(role)) {
+          items.push({
+            label: this.getRoleDisplayName(role),
+            route: '#',
+            icon: this.getRoleIcon(role),
+            i18nKey: `@@navigation.switchTo${role}`,
+          });
+        }
+      });
+    }
+
+    console.log('🧭 Navigation - Final items:', items.map(item => item.label));
     return items;
   });
 
@@ -284,4 +339,14 @@ export class NavigationComponent implements OnInit, OnDestroy {
     // alert('Profile clicked!'); // Temporary alert for testing
     this.router.navigate(['/profile']);
   }
+
+  onRoleSwitchClick(item: NavigationItem): void {
+    // Находим роль по label (теперь label = название роли)
+    const role = this.availableRoles().find(r => this.getRoleDisplayName(r) === item.label);
+    
+    if (role) {
+      this.switchRole(role);
+    }
+  }
 }
+

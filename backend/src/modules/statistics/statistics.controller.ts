@@ -112,7 +112,7 @@ export class StatisticsController {
    * Получить статус оплаты автомобильных отчислений
    */
   @Get('car-payment-status')
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Roles(UserRole.ADMIN)
   async getCarPaymentStatus(
     @Query('year', ParseIntPipe) year?: number,
     @Query('month', ParseIntPipe) month?: number

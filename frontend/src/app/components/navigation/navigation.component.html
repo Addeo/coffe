@@ -22,9 +22,11 @@
       <a
         mat-button
         *ngFor="let item of navigationItems()"
-        [routerLink]="item.route"
+        [routerLink]="item.route === '#' ? null : item.route"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: false }"
+        (click)="item.route === '#' ? onRoleSwitchClick(item) : null"
+        [class.role-switch-button]="item.route === '#'"
       >
         <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
         <span [attr.i18n]="item.i18nKey">{{ item.label }}</span>
@@ -224,32 +226,6 @@
               <span style="font-weight: 500;">{{ getRoleDisplayName(activeRole()!) }}</span>
             </div>
           </div>
-
-          <!-- Role Switcher Section -->
-          @if (canSwitchRoles()) {
-            <div class="role-switcher-section" style="padding: 8px 0;">
-              <div class="section-title" style="padding: 8px 16px; font-size: 11px; 
-                   font-weight: 600; text-transform: uppercase; color: rgba(0,0,0,0.5);">
-                <span>Переключить роль</span>
-              </div>
-              
-              @for (role of availableRoles(); track role) {
-                <button
-                  mat-menu-item
-                  (click)="switchRole(role)"
-                  [disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
-                  [style.background-color]="isRoleActive(role) ? 'rgba(76, 175, 80, 0.08)' : 'transparent'"
-                  [style.font-weight]="isRoleActive(role) ? '500' : 'normal'"
-                >
-                  <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
-                  <span>{{ getRoleDisplayName(role) }}</span>
-                  @if (isRoleActive(role)) {
-                    <mat-icon style="margin-left: auto; color: #4caf50;">check</mat-icon>
-                  }
-                </button>
-              }
-            </div>
-          }
 
           <mat-divider></mat-divider>
 
