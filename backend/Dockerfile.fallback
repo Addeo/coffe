@@ -1,0 +1,85 @@
+FROM node:18-alpine
+
+# Install Python, build dependencies, and wget for health checks
+RUN apk add --no-cache python3 py3-pip build-base wget
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (including shared)
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Create builds directory for fallback
+RUN mkdir -p /app/builds
+
+# Build script with fallback mechanism
+RUN cat > /app/build-with-fallback.sh << 'EOF'
+#!/bin/sh
+set -e
+
+echo "🔨 Starting build process..."
+
+# Try to build the application
+if npm run build; then
+    echo "✅ Build successful"
+    
+    # Create timestamped backup
+    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+    echo "📦 Creating backup: build_$TIMESTAMP"
+    
+    # Copy successful build to builds directory
+    cp -r dist /app/builds/build_$TIMESTAMP
+    
+    # Create symlink to latest successful build
+    ln -sfn /app/builds/build_$TIMESTAMP /app/builds/latest
+    
+    # Keep only last 5 builds
+    cd /app/builds
+    ls -t | grep build_ | tail -n +6 | xargs -r rm -rf
+    
+    echo "✅ Build completed and backed up"
+else
+    echo "❌ Build failed, checking for fallback..."
+    
+    # Check if we have a previous successful build
+    if [ -d "/app/builds/latest" ]; then
+        echo "🔄 Using fallback build..."
+        cp -r /app/builds/latest /app/dist
+        echo "✅ Fallback build restored"
+    else
+        echo "❌ No fallback build available, exiting..."
+        exit 1
+    fi
+fi
+EOF
+
+RUN chmod +x /app/build-with-fallback.sh
+
+# Run the build with fallback
+RUN /app/build-with-fallback.sh
+
+# Expose port
+EXPOSE 3001
+
+# Health check script
+RUN cat > /app/health-check.sh << 'EOF'
+#!/bin/sh
+# Check if the application is responding
+if wget --no-verbose --tries=1 --spider http://localhost:3001/api/health 2>/dev/null; then
+    echo "✅ Health check passed"
+    exit 0
+else
+    echo "❌ Health check failed"
+    exit 1
+fi
+EOF
+
+RUN chmod +x /app/health-check.sh
+
+# Start the application
+CMD ["npm", "run", "start:prod"]

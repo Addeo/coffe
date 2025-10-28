@@ -6,7 +6,7 @@ export class AppController {
   getVersion() {
     return {
       version: '1.0.2',
-      downloadUrl: 'http://localhost:8080/app-debug.apk',
+      downloadUrl: 'http://192.144.12.102:3001/app-debug.apk',
       required: false,
       releaseNotes: 'Обновление включает новые функции и исправления ошибок.',
     };

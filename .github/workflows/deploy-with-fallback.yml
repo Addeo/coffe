@@ -1,0 +1,245 @@
+name: Deploy with Fallback to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy-with-fallback:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔐 Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "SSH key saved, first line:"
+          head -n 1 ~/.ssh/id_rsa
+          echo "VPS Host: ${{ secrets.VPS_HOST }}"
+          echo "Adding known hosts..."
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts 2>&1 || echo "ssh-keyscan failed, continuing..."
+          echo "SSH setup complete"
+
+      - name: 🛠️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: |
+          cd backend && npm install
+          cd ../frontend && npm install
+
+      - name: 🔨 Build Backend with Fallback
+        id: build-backend
+        run: |
+          cd backend
+          echo "Building backend..."
+          
+          # Try to build
+          if npm run build; then
+            echo "✅ Backend build successful"
+            echo "backend_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Backend build failed"
+            echo "backend_status=failed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🔨 Build Frontend with Fallback
+        id: build-frontend
+        run: |
+          cd frontend
+          echo "Building frontend..."
+          
+          # Try to build
+          if npm run build; then
+            echo "✅ Frontend build successful"
+            echo "frontend_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Frontend build failed"
+            echo "frontend_status=failed" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📦 Create deployment package
+        run: |
+          echo "Creating deployment package..."
+          
+          # Create package with built files
+          tar -czf deploy-package.tar.gz \
+            docker-compose.fallback.yml \
+            backend/dist \
+            backend/package*.json \
+            frontend/dist \
+            frontend/package*.json \
+            scripts/fallback-manager.sh \
+            docker/mysql/init.sql
+          
+          echo "✅ Deployment package created"
+
+      - name: 📤 Upload to VPS
+        run: |
+          echo "Uploading to VPS..."
+          scp -o StrictHostKeyChecking=no deploy-package.tar.gz ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/
+          echo "✅ Files uploaded to VPS"
+
+      - name: 🔧 Deploy on VPS with Fallback
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            set -e
+            
+            echo "🚀 Starting deployment with fallback mechanism..."
+            
+            # Create backup directory
+            mkdir -p ~/coffe/backups
+            
+            # Backup current deployment if exists
+            if [ -d "~/coffe" ]; then
+              echo "📦 Creating backup of current deployment..."
+              tar -czf ~/coffe/backups/backup-$(date +%Y%m%d_%H%M%S).tar.gz -C ~/coffe .
+            fi
+            
+            # Extract new deployment
+            echo "📦 Extracting new deployment..."
+            cd ~/coffe
+            tar -xzf /tmp/deploy-package.tar.gz
+            rm /tmp/deploy-package.tar.gz
+            
+            # Make scripts executable
+            chmod +x scripts/fallback-manager.sh
+            
+            # Stop current containers
+            echo "🛑 Stopping current containers..."
+            docker-compose -f docker-compose.fallback.yml down --remove-orphans || true
+            
+            # Clean old images
+            echo "🧹 Cleaning old images..."
+            docker image prune -af || true
+            
+            # Build and start with fallback
+            echo "🏗️ Building and starting with fallback..."
+            docker-compose -f docker-compose.fallback.yml up -d --build
+            
+            echo "✅ Deployment completed"
+          EOF
+
+      - name: ⏳ Wait for services to start
+        run: sleep 30
+
+      - name: 🔍 Health Check Backend
+        id: health-backend
+        run: |
+          echo "Checking backend health..."
+          
+          # Wait for backend to be ready
+          for i in {1..10}; do
+            if curl -f --max-time 10 "http://${{ secrets.VPS_HOST }}:3001/api/health" &> /dev/null; then
+              echo "✅ Backend is healthy"
+              echo "backend_health=healthy" >> $GITHUB_OUTPUT
+              break
+            else
+              echo "⏳ Backend not ready yet, attempt $i/10..."
+              sleep 10
+            fi
+          done
+          
+          if [ "$backend_health" != "healthy" ]; then
+            echo "❌ Backend health check failed"
+            echo "backend_health=unhealthy" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🔍 Health Check Frontend
+        id: health-frontend
+        run: |
+          echo "Checking frontend health..."
+          
+          # Wait for frontend to be ready
+          for i in {1..10}; do
+            if curl -f --max-time 10 "http://${{ secrets.VPS_HOST }}:4000" &> /dev/null; then
+              echo "✅ Frontend is healthy"
+              echo "frontend_health=healthy" >> $GITHUB_OUTPUT
+              break
+            else
+              echo "⏳ Frontend not ready yet, attempt $i/10..."
+              sleep 10
+            fi
+          done
+          
+          if [ "$frontend_health" != "healthy" ]; then
+            echo "❌ Frontend health check failed"
+            echo "frontend_health=unhealthy" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🔄 Rollback if Health Check Failed
+        if: steps.health-backend.outputs.backend_health == 'unhealthy' || steps.health-frontend.outputs.frontend_health == 'unhealthy'
+        run: |
+          echo "🔄 Health check failed, attempting rollback..."
+          
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            set -e
+            
+            echo "🔄 Starting rollback process..."
+            
+            # Find the most recent backup
+            LATEST_BACKUP=$(ls -t ~/coffe/backups/backup-*.tar.gz | head -n 1)
+            
+            if [ -n "$LATEST_BACKUP" ]; then
+              echo "📦 Restoring from backup: $LATEST_BACKUP"
+              
+              # Stop current containers
+              docker-compose -f docker-compose.fallback.yml down --remove-orphans || true
+              
+              # Restore from backup
+              tar -xzf "$LATEST_BACKUP" -C ~/coffe
+              
+              # Start with restored version
+              docker-compose -f docker-compose.fallback.yml up -d
+              
+              echo "✅ Rollback completed"
+            else
+              echo "❌ No backup found for rollback"
+              exit 1
+            fi
+          EOF
+
+      - name: 🔍 Final Health Check
+        run: |
+          echo "Performing final health check..."
+          
+          # Wait a bit for rollback to complete
+          sleep 20
+          
+          # Check backend
+          if curl -f --max-time 10 "http://${{ secrets.VPS_HOST }}:3001/api/health" &> /dev/null; then
+            echo "✅ Backend is healthy after rollback"
+          else
+            echo "❌ Backend is still unhealthy"
+            exit 1
+          fi
+          
+          # Check frontend
+          if curl -f --max-time 10 "http://${{ secrets.VPS_HOST }}:4000" &> /dev/null; then
+            echo "✅ Frontend is healthy after rollback"
+          else
+            echo "❌ Frontend is still unhealthy"
+            exit 1
+          fi
+
+      - name: 📊 Deployment Status
+        run: |
+          echo "🎉 Deployment with fallback completed successfully!"
+          echo "Backend: http://${{ secrets.VPS_HOST }}:3001"
+          echo "Frontend: http://${{ secrets.VPS_HOST }}:4000"
+          echo "Health Check: http://${{ secrets.VPS_HOST }}:3001/api/health"
+
+      - name: 🧹 Cleanup
+        if: always()
+        run: |
+          rm -f deploy-package.tar.gz
+          echo "✅ Cleanup completed"

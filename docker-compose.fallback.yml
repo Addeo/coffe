@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: coffee_mysql_fallback
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: coffee_admin
+      MYSQL_USER: coffee_user
+      MYSQL_PASSWORD: coffee_password
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - coffee_fallback_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # NestJS Backend with fallback mechanism
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.fallback
+    container_name: coffee_backend_fallback
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USERNAME: coffee_user
+      DB_PASSWORD: coffee_password
+      DB_DATABASE: coffee_admin
+      DB_SSL: "false"
+      JWT_SECRET: ${JWT_SECRET}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+    volumes:
+      - uploads_data:/app/uploads
+      - backend_builds:/app/builds
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - coffee_fallback_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Angular Frontend with fallback mechanism
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.fallback
+    container_name: coffee_frontend_fallback
+    restart: unless-stopped
+    ports:
+      - "4000:80"
+    environment:
+      NODE_ENV: production
+    depends_on:
+      - backend
+    networks:
+      - coffee_fallback_network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:80 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 90s
+
+  # Build Manager Service
+  build-manager:
+    image: alpine:latest
+    container_name: coffee_build_manager
+    restart: unless-stopped
+    volumes:
+      - backend_builds:/app/backend_builds
+      - frontend_builds:/app/frontend_builds
+      - ./scripts:/scripts:ro
+    networks:
+      - coffee_fallback_network
+    command: |
+      sh -c "
+        while true; do
+          echo 'Build manager running...'
+          sleep 300
+        done
+      "
+
+volumes:
+  mysql_data:
+  uploads_data:
+  backend_builds:
+  frontend_builds:
+
+networks:
+  coffee_fallback_network:
+    driver: bridge

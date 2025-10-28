@@ -187,4 +187,13 @@ export class StatisticsService {
       `${environment.apiUrl}/statistics/admin/engineers${params}`
     );
   }
+
+  /**
+   * Получить статус автомобильных отчислений
+   */
+  getCarPaymentStatus(year: number, month: number): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/statistics/car-payment-status`, {
+      params: { year: year.toString(), month: month.toString() }
+    });
+  }
 }
