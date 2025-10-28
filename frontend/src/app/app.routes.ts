@@ -4,8 +4,8 @@ import { AuthGuard } from './guards/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/orders',
-    pathMatch: 'full',
+    loadComponent: () => import('./components/smart-redirect/smart-redirect.component').then(m => m.SmartRedirectComponent),
+    canActivate: [AuthGuard],
   },
   {
     path: 'login',

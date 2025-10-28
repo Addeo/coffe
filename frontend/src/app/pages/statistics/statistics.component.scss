@@ -7,6 +7,43 @@
   .car-payments-card {
     margin-bottom: 24px;
     
+    .no-car-payments {
+      text-align: center;
+      padding: 40px 20px;
+      
+      .no-data-content {
+        max-width: 500px;
+        margin: 0 auto;
+        
+        mat-icon {
+          font-size: 48px;
+          width: 48px;
+          height: 48px;
+          color: var(--text-secondary);
+          margin-bottom: 16px;
+        }
+        
+        h3 {
+          color: var(--text-primary);
+          margin-bottom: 12px;
+          font-size: 20px;
+          font-weight: 500;
+        }
+        
+        p {
+          color: var(--text-secondary);
+          margin-bottom: 8px;
+          line-height: 1.5;
+          
+          &.hint {
+            font-size: 14px;
+            font-style: italic;
+            color: var(--text-tertiary);
+          }
+        }
+      }
+    }
+    
     .car-payments-summary {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
