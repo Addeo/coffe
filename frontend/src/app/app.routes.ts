@@ -21,7 +21,7 @@ export const routes: Routes = [
     path: 'users',
     loadComponent: () => import('./pages/users/users.component').then(m => m.UsersComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'User Management' },
+    data: { roles: ['admin'], title: 'User Management' },
   },
   {
     path: 'users/create',
@@ -35,14 +35,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/user-edit/user-edit.component').then(m => m.UserEditComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'Edit User' },
+    data: { roles: ['admin'], title: 'Edit User' },
   },
   {
     path: 'organizations',
     loadComponent: () =>
       import('./pages/organizations/organizations.component').then(m => m.OrganizationsComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'Organization Management' },
+    data: { roles: ['admin'], title: 'Organization Management' },
   },
   {
     path: 'organizations/create',
@@ -56,7 +56,7 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/organizations/organizations.component').then(m => m.OrganizationsComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'Edit Organization' },
+    data: { roles: ['admin'], title: 'Edit Organization' },
   },
   {
     path: 'engineer-rates',
@@ -106,14 +106,14 @@ export const routes: Routes = [
     path: 'reports',
     loadComponent: () => import('./pages/reports/reports.component').then(m => m.ReportsComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'Reports' },
+    data: { roles: ['admin'], title: 'Reports' },
   },
   {
     path: 'statistics',
     loadComponent: () =>
       import('./pages/statistics/statistics.component').then(m => m.StatisticsComponent),
     canActivate: [AuthGuard],
-    data: { roles: ['admin', 'manager'], title: 'Statistics' },
+    data: { roles: ['admin'], title: 'Statistics' },
   },
   {
     path: 'notifications',

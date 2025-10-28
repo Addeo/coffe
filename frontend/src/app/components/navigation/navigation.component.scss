@@ -16,7 +16,7 @@
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 8px 24px;
   min-height: 64px;
 }
 
@@ -61,11 +61,13 @@
 
 .nav-links {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 4px;
   flex: 1;
   justify-content: center;
   min-width: 0;
+  flex-wrap: wrap;
+  align-content: center;
 
   a {
     display: flex;
@@ -98,6 +100,34 @@
       background-color: var(--bg-selected);
       font-weight: 500;
     }
+
+    &.role-switch-button {
+      background-color: transparent;
+      border: none;
+      color: var(--text-on-secondary);
+      font-weight: normal;
+      position: relative;
+
+      .nav-icon {
+        color: var(--text-on-secondary);
+      }
+
+      &:hover {
+        background-color: var(--bg-hover);
+        border: none;
+      }
+
+      // Добавляем небольшую иконку переключения
+      &::after {
+        content: '↻';
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: bold;
+      }
+    }
   }
 }
 
@@ -119,6 +149,122 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+}
+
+.role-switcher {
+  .role-switcher-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    color: var(--text-on-secondary);
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    mat-icon {
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+      flex-shrink: 0;
+    }
+
+    .role-text {
+      font-weight: 500;
+      font-size: 13px;
+      max-width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .dropdown-icon {
+      font-size: 16px;
+      height: 16px;
+      width: 16px;
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+
+    &:hover {
+      background-color: var(--bg-hover);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    &[aria-expanded="true"] .dropdown-icon {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+.role-dropdown {
+  margin-top: 8px;
+  min-width: 200px;
+
+  .role-menu-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+    h4 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.7);
+    }
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    width: 100%;
+    transition: all 0.2s ease;
+
+    mat-icon {
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+      flex-shrink: 0;
+    }
+
+    span {
+      flex: 1;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .check-icon {
+      font-size: 16px;
+      height: 16px;
+      width: 16px;
+      color: #4caf50;
+      margin-left: auto;
+    }
+
+    &.active-role {
+      background-color: rgba(76, 175, 80, 0.08);
+      font-weight: 500;
+
+      mat-icon:not(.check-icon) {
+        color: #4caf50;
+      }
+
+      span {
+        color: #4caf50;
+      }
+    }
+
+    &:hover:not([disabled]):not(.active-role) {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    &[disabled] {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
 }
 
 .theme-toggle-button {
@@ -749,6 +895,11 @@
 }
 
 @media (max-width: 1200px) {
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+
   .nav-links a span {
     display: none;
   }
@@ -777,6 +928,7 @@
 
   .nav-links {
     display: none;
+    flex-wrap: nowrap;
   }
 
   .right-section {
@@ -789,6 +941,22 @@
 
   .desktop-logout {
     display: none;
+  }
+
+  .role-switcher {
+    .role-switcher-button {
+      padding: 6px 8px;
+      
+      .role-text {
+        display: none;
+      }
+      
+      .dropdown-icon {
+        font-size: 14px;
+        height: 14px;
+        width: 14px;
+      }
+    }
   }
 
   .notifications-menu {

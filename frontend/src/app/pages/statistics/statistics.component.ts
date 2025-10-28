@@ -143,7 +143,7 @@ export class StatisticsComponent implements OnInit {
   readonly isAdmin = this.authService.hasRole(UserRole.ADMIN);
   readonly isManager = this.authService.hasRole(UserRole.MANAGER);
   readonly isEngineer = this.authService.hasRole(UserRole.USER);
-  readonly canViewAllData = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
+  readonly canViewAllData = this.authService.hasRole(UserRole.ADMIN);
   readonly currentUser = this.authService.currentUser;
 
   // Table columns
@@ -413,10 +413,15 @@ export class StatisticsComponent implements OnInit {
       const year = this.selectedYear();
       const month = this.selectedMonth();
       
+      console.log('🚗 Загрузка автомобильных отчислений для:', { year, month });
+      console.log('🚗 canViewAllData:', this.canViewAllData);
+      
       const response = await this.statisticsService.getCarPaymentStatus(year, month).toPromise();
+      console.log('🚗 Ответ от сервера:', response);
+      
       this.carPaymentStatus.set(response);
     } catch (error) {
-      console.error('Ошибка загрузки статуса автомобильных отчислений:', error);
+      console.error('🚗 Ошибка загрузки статуса автомобильных отчислений:', error);
       this.snackBar.open('Не удалось загрузить данные автомобильных отчислений', 'Закрыть', {
         duration: 3000,
       });
