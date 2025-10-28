@@ -53,7 +53,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   // Reactive computed values
   currentUser = this.authService.currentUser;
   isAuthenticated = this.authService.isAuthenticated;
-  userRole = computed(() => this.currentUser()?.role);
+  userRole = computed(() => this.authService.activeRole()); // ✅ Используем activeRole вместо currentUser()?.role
   userName = computed(() => {
     const user = this.currentUser();
     return user ? `${user.firstName} ${user.lastName}` : '';

@@ -2,6 +2,7 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as express from 'express';
+import { join } from 'path';
 
 async function bootstrap() {
   try {
@@ -12,6 +13,10 @@ async function bootstrap() {
     // Set UTF-8 encoding for responses
     app.use(express.json({ limit: '50mb' }));
     app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+    // Serve static APK files
+    app.use('/app-debug.apk', express.static(join(__dirname, '../../app-debug.apk')));
+    app.use('/CoffeeAdmin-v2.apk', express.static(join(__dirname, '../../CoffeeAdmin-v2.apk')));
 
     // Enable CORS - completely open (for development)
     app.enableCors({

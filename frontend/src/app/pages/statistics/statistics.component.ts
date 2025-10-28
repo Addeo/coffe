@@ -105,6 +105,10 @@ export class StatisticsComponent implements OnInit {
       user: 0,
     },
   });
+  // Car payment status
+  carPaymentStatus = signal<any>(null);
+  carPaymentOrgColumns = ['organizationName', 'totalCarAmount', 'paidCarAmount', 'pendingCarAmount', 'paymentStatus'];
+  carPaymentEngineerColumns = ['engineerName', 'totalCarAmount', 'paidCarAmount', 'pendingCarAmount', 'paymentStatus'];
 
   // Month and year selection
   selectedYear = signal(new Date().getFullYear());
@@ -401,6 +405,24 @@ export class StatisticsComponent implements OnInit {
     };
   }
 
+  /**
+   * Загрузить статус автомобильных отчислений
+   */
+  private async loadCarPaymentStatus(): Promise<void> {
+    try {
+      const year = this.selectedYear();
+      const month = this.selectedMonth();
+      
+      const response = await this.statisticsService.getCarPaymentStatus(year, month).toPromise();
+      this.carPaymentStatus.set(response);
+    } catch (error) {
+      console.error('Ошибка загрузки статуса автомобильных отчислений:', error);
+      this.snackBar.open('Не удалось загрузить данные автомобильных отчислений', 'Закрыть', {
+        duration: 3000,
+      });
+    }
+  }
+
   // Chart options
   barChartOptions: ChartConfiguration['options'] = {
     responsive: true,
@@ -672,6 +694,7 @@ export class StatisticsComponent implements OnInit {
 
   refreshStatistics() {
     this.loadStatistics();
+    this.loadCarPaymentStatus();
   }
 
   formatCurrency(amount: number): string {

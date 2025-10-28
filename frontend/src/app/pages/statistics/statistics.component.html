@@ -97,7 +97,186 @@
       </mat-card>
     </div>
 
-    <!-- Additional Financial Summary Cards (Admin/Manager only) -->
+    <!-- Car Payments Card -->
+    <mat-card class="car-payments-card" *ngIf="canViewAllData">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>directions_car</mat-icon>
+          Автомобильные отчисления
+        </mat-card-title>
+        <mat-card-subtitle>
+          Статус оплаты автомобильных отчислений за {{ selectedMonth() }}/{{ selectedYear() }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Car Payments Summary -->
+        <div class="car-payments-summary" *ngIf="carPaymentStatus()">
+          <div class="payment-item total">
+            <div class="payment-icon">
+              <mat-icon>account_balance</mat-icon>
+            </div>
+            <div class="payment-content">
+              <div class="payment-value">
+                {{ carPaymentStatus()!.totalCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' }}
+              </div>
+              <div class="payment-label">Общая сумма к доплате</div>
+            </div>
+          </div>
+
+          <div class="payment-item paid">
+            <div class="payment-icon">
+              <mat-icon>payment</mat-icon>
+            </div>
+            <div class="payment-content">
+              <div class="payment-value">
+                {{ carPaymentStatus()!.paidCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' }}
+              </div>
+              <div class="payment-label">Уже заплачено</div>
+            </div>
+          </div>
+
+          <div class="payment-item pending">
+            <div class="payment-icon">
+              <mat-icon>schedule</mat-icon>
+            </div>
+            <div class="payment-content">
+              <div class="payment-value">
+                {{ carPaymentStatus()!.pendingCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' }}
+              </div>
+              <div class="payment-label">Осталось доплатить</div>
+            </div>
+          </div>
+
+          <div class="payment-item status">
+            <div class="payment-icon">
+              <mat-icon>percent</mat-icon>
+            </div>
+            <div class="payment-content">
+              <div class="payment-value">
+                {{ carPaymentStatus()!.paymentStatus | number: '1.1-1' }}%
+              </div>
+              <div class="payment-label">Процент оплаты</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Car Payments Tabs -->
+        <mat-tab-group *ngIf="carPaymentStatus()" class="car-payments-tabs">
+          <!-- Organizations Tab -->
+          <mat-tab label="По организациям">
+            <div class="tab-content">
+              <table mat-table [dataSource]="carPaymentStatus()!.organizationBreakdown" class="car-payments-table">
+                <ng-container matColumnDef="organizationName">
+                  <th mat-header-cell *matHeaderCellDef>Организация</th>
+                  <td mat-cell *matCellDef="let element">{{ element.organizationName }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="totalCarAmount">
+                  <th mat-header-cell *matHeaderCellDef>Общая сумма (₽)</th>
+                  <td mat-cell *matCellDef="let element">
+                    {{ element.totalCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="paidCarAmount">
+                  <th mat-header-cell *matHeaderCellDef>Заплачено (₽)</th>
+                  <td mat-cell *matCellDef="let element">
+                    <span class="paid-amount">
+                      {{ element.paidCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="pendingCarAmount">
+                  <th mat-header-cell *matHeaderCellDef>Осталось (₽)</th>
+                  <td mat-cell *matCellDef="let element">
+                    <span class="pending-amount">
+                      {{ element.pendingCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="paymentStatus">
+                  <th mat-header-cell *matHeaderCellDef>Статус</th>
+                  <td mat-cell *matCellDef="let element">
+                    <div class="status-indicator">
+                      <div class="status-bar">
+                        <div 
+                          class="status-fill" 
+                          [style.width.%]="element.paymentStatus"
+                          [class.completed]="element.paymentStatus === 100"
+                        ></div>
+                      </div>
+                      <span class="status-text">{{ element.paymentStatus | number: '1.1-1' }}%</span>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="carPaymentOrgColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: carPaymentOrgColumns;"></tr>
+              </table>
+            </div>
+          </mat-tab>
+
+          <!-- Engineers Tab -->
+          <mat-tab label="По инженерам">
+            <div class="tab-content">
+              <table mat-table [dataSource]="carPaymentStatus()!.engineerBreakdown" class="car-payments-table">
+                <ng-container matColumnDef="engineerName">
+                  <th mat-header-cell *matHeaderCellDef>Инженер</th>
+                  <td mat-cell *matCellDef="let element">{{ element.engineerName }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="totalCarAmount">
+                  <th mat-header-cell *matHeaderCellDef>Общая сумма (₽)</th>
+                  <td mat-cell *matCellDef="let element">
+                    {{ element.totalCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="paidCarAmount">
+                  <th mat-header-cell *matHeaderCellDef>Заплачено (₽)</th>
+                  <td mat-cell *matCellDef="let element">
+                    <span class="paid-amount">
+                      {{ element.paidCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="pendingCarAmount">
+                  <th mat-header-cell *matHeaderCellDef>Осталось (₽)</th>
+                  <td mat-cell *matCellDef="let element">
+                    <span class="pending-amount">
+                      {{ element.pendingCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="paymentStatus">
+                  <th mat-header-cell *matHeaderCellDef>Статус</th>
+                  <td mat-cell *matCellDef="let element">
+                    <div class="status-indicator">
+                      <div class="status-bar">
+                        <div 
+                          class="status-fill" 
+                          [style.width.%]="element.paymentStatus"
+                          [class.completed]="element.paymentStatus === 100"
+                        ></div>
+                      </div>
+                      <span class="status-text">{{ element.paymentStatus | number: '1.1-1' }}%</span>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="carPaymentEngineerColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: carPaymentEngineerColumns;"></tr>
+              </table>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
     <div class="financial-summary-cards desktop-summary" *ngIf="!isMobileView() && canViewAllData">
       <mat-card class="summary-card">
         <mat-card-header>

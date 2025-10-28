@@ -235,27 +235,21 @@ export class AuthService {
 
   /**
    * Check if current active role is one of the specified roles
+   * IMPORTANT: Checks ACTIVE role, not primary role
+   * This allows admin to switch to manager/user and have restricted access
    */
   hasAnyRole(roles: UserRole[]): boolean {
-    const user = this.currentUser();
     const active = this.activeRole();
     const primary = this.primaryRole();
 
-    // Admin has access to everything
-    if (user?.role === 'admin' || primary === 'admin') {
-      console.log('🔐 AuthService.hasAnyRole: Admin access granted');
-      return true;
-    }
-
+    // Check if active role is in the required roles list
     const result = active ? roles.includes(active) : false;
 
     console.log('🔐 AuthService.hasAnyRole:', {
       activeRole: active,
       primaryRole: primary,
-      userRole: user?.role,
       requiredRoles: roles,
       result,
-      currentUser: this.currentUser(),
     });
 
     return result;
@@ -270,18 +264,15 @@ export class AuthService {
   }
 
   isAdmin(): boolean {
-    const user = this.currentUser();
-    return user?.role === 'admin' || this.hasRole(UserRole.ADMIN);
+    return this.hasRole(UserRole.ADMIN);
   }
 
   isManager(): boolean {
-    const user = this.currentUser();
-    return user?.role === 'admin' || this.hasRole(UserRole.MANAGER);
+    return this.hasRole(UserRole.MANAGER);
   }
 
   isUser(): boolean {
-    const user = this.currentUser();
-    return user?.role === 'admin' || this.hasRole(UserRole.USER);
+    return this.hasRole(UserRole.USER);
   }
 
   /**

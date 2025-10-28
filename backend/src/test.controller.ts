@@ -7,6 +7,18 @@ export class TestController {
     return { message: 'Server is working', timestamp: new Date() };
   }
 
+  @Get('health')
+  getHealth() {
+    return { 
+      status: 'ok', 
+      message: 'Service is healthy', 
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      version: process.env.npm_package_version || '1.0.0'
+    };
+  }
+
   @Get('files/test')
   getFilesTest() {
     return { message: 'Files API is working', timestamp: new Date() };

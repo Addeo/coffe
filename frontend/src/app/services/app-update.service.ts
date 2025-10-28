@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 interface VersionResponse {
@@ -49,6 +50,12 @@ export class AppUpdateService {
    */
   async checkForUpdates(): Promise<VersionResponse | null> {
     try {
+      console.log('🔍 Начинаем проверку обновлений...');
+      console.log('📱 Платформа:', Capacitor.getPlatform());
+      console.log('🌐 Нативная платформа:', Capacitor.isNativePlatform());
+      console.log('📱 Текущая версия:', this.currentVersion);
+      console.log('🌐 API URL:', environment.apiUrl);
+
       // Проверяем только для нативных платформ (Android/iOS)
       if (!Capacitor.isNativePlatform()) {
         console.log('🌐 Веб-версия: проверка обновлений отключена');
@@ -66,19 +73,22 @@ export class AppUpdateService {
       }
 
       console.log('🔍 Проверка обновлений. Текущая версия:', this.currentVersion);
+      console.log('🌐 Запрос к:', `${environment.apiUrl}/app/version`);
 
       // Проверяем наличие новой версии на сервере
-      const response = await this.http
-        .get<VersionResponse>(`${environment.apiUrl}/app/version`)
-        .toPromise();
+      const response = await firstValueFrom(
+        this.http.get<VersionResponse>(`${environment.apiUrl}/app/version`)
+      );
 
-      console.log('📡 Версия на сервере:', response?.version);
+      console.log('📡 Получен ответ от сервера:', response);
 
       // Сохраняем время проверки
       this.saveLastCheckTime();
 
       if (response && response.version !== this.currentVersion) {
         console.log('✅ Доступна новая версия:', response.version);
+        console.log('📥 URL для скачивания:', response.downloadUrl);
+        console.log('⚠️ Обязательное обновление:', response.required);
         return response;
       }
 
@@ -86,6 +96,12 @@ export class AppUpdateService {
       return null;
     } catch (error) {
       console.error('❌ Ошибка проверки обновлений:', error);
+      console.error('❌ Детали ошибки:', {
+        message: (error as any).message,
+        status: (error as any).status,
+        url: (error as any).url,
+        stack: (error as any).stack
+      });
       return null;
     }
   }
@@ -122,22 +138,41 @@ export class AppUpdateService {
       console.log('📥 Загрузка обновления с:', url);
 
       if (Capacitor.isNativePlatform()) {
-        // Для нативного приложения используем window.open с '_system'
-        // Android автоматически предложит установить APK
-        const link = document.createElement('a');
-        link.href = url;
-        link.target = '_system';
-        link.click();
-        
-        console.log('✅ Обновление запущено на скачивание');
+        // Для нативного приложения используем несколько методов
+        try {
+          // Метод 1: Используем Capacitor Browser для открытия ссылки
+          const { Browser } = await import('@capacitor/browser');
+          await Browser.open({ url, windowName: '_system' });
+          console.log('✅ Обновление открыто через Capacitor Browser');
+        } catch (browserError) {
+          console.warn('Capacitor Browser недоступен, используем fallback:', browserError);
+          
+          // Метод 2: Fallback через window.open
+          const link = document.createElement('a');
+          link.href = url;
+          link.target = '_system';
+          link.rel = 'noopener noreferrer';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          console.log('✅ Обновление запущено через fallback метод');
+        }
       } else {
         // Для веб-версии открываем в новой вкладке
         window.open(url, '_blank');
+        console.log('✅ Обновление открыто в новой вкладке');
       }
     } catch (error) {
       console.error('❌ Ошибка загрузки обновления:', error);
-      // Fallback: пытаемся открыть URL напрямую
-      window.open(url, Capacitor.isNativePlatform() ? '_system' : '_blank');
+      // Последний fallback: пытаемся открыть URL напрямую
+      try {
+        window.open(url, Capacitor.isNativePlatform() ? '_system' : '_blank');
+        console.log('✅ Обновление открыто через последний fallback');
+      } catch (finalError) {
+        console.error('❌ Критическая ошибка при открытии обновления:', finalError);
+        alert('Не удалось открыть ссылку на обновление. Попробуйте скопировать ссылку вручную.');
+      }
     }
   }
 
@@ -146,6 +181,35 @@ export class AppUpdateService {
    */
   getCurrentVersion(): string {
     return this.currentVersion;
+  }
+
+  /**
+   * Принудительно проверяет обновления (игнорирует интервал)
+   */
+  async forceCheckForUpdates(): Promise<VersionResponse | null> {
+    console.log('🔄 Принудительная проверка обновлений...');
+    
+    // Временно очищаем время последней проверки
+    const originalLastCheck = this.getLastCheckTime();
+    localStorage.removeItem(this.LAST_CHECK_KEY);
+    
+    try {
+      const result = await this.checkForUpdates();
+      return result;
+    } finally {
+      // Восстанавливаем время последней проверки
+      if (originalLastCheck) {
+        localStorage.setItem(this.LAST_CHECK_KEY, originalLastCheck.toString());
+      }
+    }
+  }
+
+  /**
+   * Очищает кэш проверки обновлений
+   */
+  clearUpdateCache(): void {
+    localStorage.removeItem(this.LAST_CHECK_KEY);
+    console.log('🗑️ Кэш проверки обновлений очищен');
   }
 }
 

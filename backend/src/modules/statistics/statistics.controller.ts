@@ -107,4 +107,20 @@ export class StatisticsController {
 
     return this.statisticsService.getPaymentDebtsStatistics(targetYear, targetMonth);
   }
+
+  /**
+   * Получить статус оплаты автомобильных отчислений
+   */
+  @Get('car-payment-status')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  async getCarPaymentStatus(
+    @Query('year', ParseIntPipe) year?: number,
+    @Query('month', ParseIntPipe) month?: number
+  ) {
+    const currentDate = new Date();
+    const targetYear = year || currentDate.getFullYear();
+    const targetMonth = month || currentDate.getMonth() + 1;
+
+    return this.statisticsService.getCarPaymentStatus(targetYear, targetMonth);
+  }
 }
