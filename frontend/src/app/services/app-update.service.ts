@@ -89,6 +89,13 @@ export class AppUpdateService {
         console.log('✅ Доступна новая версия:', response.version);
         console.log('📥 URL для скачивания:', response.downloadUrl);
         console.log('⚠️ Обязательное обновление:', response.required);
+        
+        // Проверяем, что URL не пустой
+        if (!response.downloadUrl || response.downloadUrl.trim() === '') {
+          console.error('❌ URL для скачивания пустой!');
+          return null;
+        }
+        
         return response;
       }
 
@@ -136,27 +143,45 @@ export class AppUpdateService {
   async downloadAndInstall(url: string): Promise<void> {
     try {
       console.log('📥 Загрузка обновления с:', url);
+      
+      // Проверяем, что URL не пустой
+      if (!url || url.trim() === '') {
+        console.error('❌ URL для скачивания пустой!');
+        alert('Ошибка: ссылка для скачивания обновления не найдена. Обратитесь к администратору.');
+        return;
+      }
 
       if (Capacitor.isNativePlatform()) {
         // Для нативного приложения используем несколько методов
         try {
-          // Метод 1: Используем Capacitor Browser для открытия ссылки
+          // Метод 1: Пытаемся открыть APK файл напрямую для установки
+          console.log('📱 Открываем APK файл для установки...');
+          
+          // Создаем intent для установки APK
           const { Browser } = await import('@capacitor/browser');
-          await Browser.open({ url, windowName: '_system' });
-          console.log('✅ Обновление открыто через Capacitor Browser');
+          await Browser.open({ 
+            url, 
+            windowName: '_system',
+            presentationStyle: 'fullscreen'
+          });
+          
+          console.log('✅ APK файл открыт для установки через системный браузер');
+          console.log('📱 Android должен показать диалог установки приложения');
+          
         } catch (browserError) {
           console.warn('Capacitor Browser недоступен, используем fallback:', browserError);
           
-          // Метод 2: Fallback через window.open
+          // Метод 2: Fallback через window.open с правильным intent
           const link = document.createElement('a');
           link.href = url;
           link.target = '_system';
           link.rel = 'noopener noreferrer';
+          link.download = 'app-update.apk'; // Указываем имя файла
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
           
-          console.log('✅ Обновление запущено через fallback метод');
+          console.log('✅ APK файл запущен через fallback метод');
         }
       } else {
         // Для веб-версии открываем в новой вкладке
