@@ -2,6 +2,9 @@ import { DataSource } from 'typeorm';
 import { User, UserRole } from './entities/user.entity';
 import { Organization } from './entities/organization.entity';
 import { Setting, SettingKey } from './entities/settings.entity';
+import { Engineer } from './entities/engineer.entity';
+import { EngineerType } from './shared/interfaces/order.interface';
+import * as bcrypt from 'bcrypt';
 
 async function seed() {
   const dataSource = new DataSource({
@@ -17,20 +20,74 @@ async function seed() {
   const userRepo = dataSource.getRepository(User);
   const orgRepo = dataSource.getRepository(Organization);
   const settingsRepo = dataSource.getRepository(Setting);
+  const engineerRepo = dataSource.getRepository(Engineer);
 
   // Create admin user (password: admin123)
   const existingAdmin = await userRepo.findOne({ where: { email: 'admin@coffee.com' } });
   if (!existingAdmin) {
+    const hashedPassword = await bcrypt.hash('admin123', 10);
     const admin = userRepo.create({
       email: 'admin@coffee.com',
-      password: '$2b$10$sLBzpTHEx6GiLNIYaqJ/.Oh2BvarSaGQSJJasnrAhXuzc/ZqAQ.Yi', // admin123
+      password: hashedPassword,
       firstName: 'Admin',
       lastName: 'User',
       role: UserRole.ADMIN,
+      primaryRole: UserRole.ADMIN,
+      activeRole: null,
       isActive: true,
     });
     await userRepo.save(admin);
     console.log('✓ Admin user created');
+  }
+
+  // Create manager user (password: manager123)
+  const existingManager = await userRepo.findOne({ where: { email: 'manager@coffee.com' } });
+  if (!existingManager) {
+    const hashedPassword = await bcrypt.hash('manager123', 10);
+    const manager = userRepo.create({
+      email: 'manager@coffee.com',
+      password: hashedPassword,
+      firstName: 'Manager',
+      lastName: 'User',
+      role: UserRole.MANAGER,
+      primaryRole: UserRole.MANAGER,
+      activeRole: null,
+      isActive: true,
+    });
+    await userRepo.save(manager);
+    console.log('✓ Manager user created');
+  }
+
+  // Create engineer user (password: engineer123)
+  const existingEngineer = await userRepo.findOne({ where: { email: 'engineer@coffee.com' } });
+  if (!existingEngineer) {
+    const hashedPassword = await bcrypt.hash('engineer123', 10);
+    const engineerUser = userRepo.create({
+      email: 'engineer@coffee.com',
+      password: hashedPassword,
+      firstName: 'Engineer',
+      lastName: 'User',
+      role: UserRole.USER,
+      primaryRole: UserRole.USER,
+      activeRole: null,
+      isActive: true,
+    });
+    const savedEngineerUser = await userRepo.save(engineerUser);
+    
+    // Create engineer record
+    const engineer = engineerRepo.create({
+      userId: savedEngineerUser.id,
+      type: EngineerType.STAFF,
+      baseRate: 700,
+      overtimeRate: 700,
+      planHoursMonth: 160,
+      homeTerritoryFixedAmount: 0,
+      fixedSalary: 0,
+      fixedCarAmount: 0,
+      isActive: true,
+    });
+    await engineerRepo.save(engineer);
+    console.log('✓ Engineer user created with engineer record');
   }
 
   // Create organizations

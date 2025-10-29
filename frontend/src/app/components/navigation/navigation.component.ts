@@ -94,30 +94,30 @@ export class NavigationComponent implements OnInit, OnDestroy {
           icon: 'business',
           i18nKey: '@@navigation.organizations',
         },
-        {
-          label: 'Отчеты',
-          route: '/reports',
-          icon: 'assessment',
-          i18nKey: '@@navigation.reports',
-        },
+        // {
+        //   label: 'Отчеты',
+        //   route: '/reports',
+        //   icon: 'assessment',
+        //   i18nKey: '@@navigation.reports',
+        // },
         {
           label: 'Настройки',
           route: '/settings',
           icon: 'settings',
           i18nKey: '@@navigation.settings',
         },
-        {
-          label: 'Резервные копии',
-          route: '/backups',
-          icon: 'backup',
-          i18nKey: '@@navigation.backups',
-        },
-        {
-          label: 'Логи',
-          route: '/logs',
-          icon: 'description',
-          i18nKey: '@@navigation.logs',
-        }
+        // {
+        //   label: 'Резервные копии',
+        //   route: '/backups',
+        //   icon: 'backup',
+        //   i18nKey: '@@navigation.backups',
+        // },
+        // {
+        //   label: 'Логи',
+        //   route: '/logs',
+        //   icon: 'description',
+        //   i18nKey: '@@navigation.logs',
+        // }
       );
     }
 

@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User, UserRole } from '../../entities/user.entity';
+import { Engineer } from '../../entities/engineer.entity';
+import { EngineerType } from '../../shared/interfaces/order.interface';
 
 // Role hierarchy levels (higher number = higher privilege)
 const ROLE_HIERARCHY: Record<UserRole, number> = {
@@ -18,7 +20,7 @@ const ROLE_HIERARCHY: Record<UserRole, number> = {
 function getAvailableRoles(primaryRole: UserRole): UserRole[] {
   const primaryLevel = ROLE_HIERARCHY[primaryRole];
   return Object.entries(ROLE_HIERARCHY)
-    .filter(([_, level]) => level <= primaryLevel)
+    .filter(([, level]) => level <= primaryLevel)
     .map(([role]) => role as UserRole)
     .sort((a, b) => ROLE_HIERARCHY[b] - ROLE_HIERARCHY[a]);
 }
@@ -28,6 +30,8 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Engineer)
+    private engineerRepository: Repository<Engineer>,
     private jwtService: JwtService
   ) {}
 
@@ -180,46 +184,136 @@ export class AuthService {
   }
 
   async initializeAdmin() {
+    const results = {
+      admin: null as any,
+      manager: null as any,
+      engineer: null as any,
+    };
+
+    // Create admin user (password: admin123)
     const existingAdmin = await this.userRepository.findOne({
       where: { email: 'admin@coffee.com' },
     });
 
-    if (existingAdmin) {
-      return {
-        success: true,
-        message: 'Admin user already exists',
-        user: {
-          id: existingAdmin.id,
-          email: existingAdmin.email,
-          firstName: existingAdmin.firstName,
-          lastName: existingAdmin.lastName,
-          role: existingAdmin.role,
-        },
-      };
-    }
-
-    const hashedPassword = await bcrypt.hash('admin123', 10);
-    const admin = this.userRepository.create({
-      email: 'admin@coffee.com',
-      password: hashedPassword,
-      firstName: 'Admin',
-      lastName: 'User',
-      role: UserRole.ADMIN,
-      isActive: true,
-    });
-
-    const savedAdmin = await this.userRepository.save(admin);
-
-    return {
-      success: true,
-      message: 'Admin user created successfully',
-      user: {
+    if (!existingAdmin) {
+      const hashedPassword = await bcrypt.hash('admin123', 10);
+      const admin = this.userRepository.create({
+        email: 'admin@coffee.com',
+        password: hashedPassword,
+        firstName: 'Admin',
+        lastName: 'User',
+        role: UserRole.ADMIN,
+        primaryRole: UserRole.ADMIN,
+        activeRole: null,
+        isActive: true,
+      });
+      const savedAdmin = await this.userRepository.save(admin);
+      results.admin = {
         id: savedAdmin.id,
         email: savedAdmin.email,
         firstName: savedAdmin.firstName,
         lastName: savedAdmin.lastName,
         role: savedAdmin.role,
-      },
+      };
+    } else {
+      results.admin = {
+        id: existingAdmin.id,
+        email: existingAdmin.email,
+        firstName: existingAdmin.firstName,
+        lastName: existingAdmin.lastName,
+        role: existingAdmin.role,
+      };
+    }
+
+    // Create manager user (password: manager123)
+    const existingManager = await this.userRepository.findOne({
+      where: { email: 'manager@coffee.com' },
+    });
+
+    if (!existingManager) {
+      const hashedPassword = await bcrypt.hash('manager123', 10);
+      const manager = this.userRepository.create({
+        email: 'manager@coffee.com',
+        password: hashedPassword,
+        firstName: 'Manager',
+        lastName: 'User',
+        role: UserRole.MANAGER,
+        primaryRole: UserRole.MANAGER,
+        activeRole: null,
+        isActive: true,
+      });
+      const savedManager = await this.userRepository.save(manager);
+      results.manager = {
+        id: savedManager.id,
+        email: savedManager.email,
+        firstName: savedManager.firstName,
+        lastName: savedManager.lastName,
+        role: savedManager.role,
+      };
+    } else {
+      results.manager = {
+        id: existingManager.id,
+        email: existingManager.email,
+        firstName: existingManager.firstName,
+        lastName: existingManager.lastName,
+        role: existingManager.role,
+      };
+    }
+
+    // Create engineer user (password: engineer123)
+    const existingEngineer = await this.userRepository.findOne({
+      where: { email: 'engineer@coffee.com' },
+    });
+
+    if (!existingEngineer) {
+      const hashedPassword = await bcrypt.hash('engineer123', 10);
+      const engineerUser = this.userRepository.create({
+        email: 'engineer@coffee.com',
+        password: hashedPassword,
+        firstName: 'Engineer',
+        lastName: 'User',
+        role: UserRole.USER,
+        primaryRole: UserRole.USER,
+        activeRole: null,
+        isActive: true,
+      });
+      const savedEngineerUser = await this.userRepository.save(engineerUser);
+
+      // Create engineer record
+      const engineer = this.engineerRepository.create({
+        userId: savedEngineerUser.id,
+        type: EngineerType.STAFF,
+        baseRate: 700,
+        overtimeRate: 700,
+        planHoursMonth: 160,
+        homeTerritoryFixedAmount: 0,
+        fixedSalary: 0,
+        fixedCarAmount: 0,
+        isActive: true,
+      });
+      await this.engineerRepository.save(engineer);
+
+      results.engineer = {
+        id: savedEngineerUser.id,
+        email: savedEngineerUser.email,
+        firstName: savedEngineerUser.firstName,
+        lastName: savedEngineerUser.lastName,
+        role: savedEngineerUser.role,
+      };
+    } else {
+      results.engineer = {
+        id: existingEngineer.id,
+        email: existingEngineer.email,
+        firstName: existingEngineer.firstName,
+        lastName: existingEngineer.lastName,
+        role: existingEngineer.role,
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Users initialized successfully',
+      users: results,
     };
   }
 }
