@@ -340,7 +340,7 @@ docker-compose -f docker-compose.fallback.yml restart
 ls -la ~/coffe/backups/
 
 # Восстановить из бэкапа
-tar -xzf ~/coffe/backups/backup-YYYYMMDD_HHMMSS.tar.gz -C ~/coffe
+tar -xzf ~/coffe/backups/backup-YYYYMMDD_HHMMSS.tar.gz -C ~/coffe --overwrite
 ```
 
 4. **Перезапуск:**

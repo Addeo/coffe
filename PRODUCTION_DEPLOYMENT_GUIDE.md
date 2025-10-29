@@ -106,7 +106,7 @@ ssh root@your-server "/root/coffe/scripts/system-monitor.sh recover"
 ssh root@your-server "ls -la /root/coffe/backups/"
 
 # Восстановить
-ssh root@your-server "cd /root/coffe && tar -xzf backups/backup-YYYYMMDD_HHMMSS.tar.gz"
+ssh root@your-server "cd /root/coffe && tar -xzf backups/backup-YYYYMMDD_HHMMSS.tar.gz --overwrite"
 ssh root@your-server "cd /root/coffe && docker-compose -f docker-compose.fallback.yml up -d"
 ```
 
