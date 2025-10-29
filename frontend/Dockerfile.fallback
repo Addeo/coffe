@@ -164,3 +164,5 @@ RUN chmod +x /usr/local/bin/health-check.sh
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
+
+
