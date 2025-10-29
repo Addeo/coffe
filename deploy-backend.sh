@@ -70,7 +70,7 @@ ssh -i "$SSH_KEY" "$REMOTE_USER@$SERVER_IP" << 'EOF'
     cd ~/coffee-backend
 
     # Extract files
-    tar -xzf ~/backend-deploy.tar.gz
+    tar -xzf ~/backend-deploy.tar.gz --overwrite
     rm ~/backend-deploy.tar.gz
 
     # Install dependencies

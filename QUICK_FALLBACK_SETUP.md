@@ -123,7 +123,7 @@ crontab -e
 ls -la ~/coffe/backups/
 
 # Восстановить
-tar -xzf ~/coffe/backups/backup-YYYYMMDD_HHMMSS.tar.gz -C ~/coffe
+tar -xzf ~/coffe/backups/backup-YYYYMMDD_HHMMSS.tar.gz -C ~/coffe --overwrite
 docker-compose -f docker-compose.fallback.yml up -d
 ```
 
