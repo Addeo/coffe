@@ -100,16 +100,31 @@ jobs:
             mkdir -p ~/coffe/backups
             
             # Backup current deployment if exists
-            if [ -d "~/coffe" ]; then
+          if [ -d ~/coffe ]; then
               echo "📦 Creating backup of current deployment..."
               tar -czf ~/coffe/backups/backup-$(date +%Y%m%d_%H%M%S).tar.gz -C ~/coffe .
             fi
             
             # Extract new deployment
-            echo "📦 Extracting new deployment..."
-            cd ~/coffe
-            tar -xzf /tmp/deploy-package.tar.gz
-            rm /tmp/deploy-package.tar.gz
+          echo "📦 Extracting new deployment (staged)..."
+          # Stage extract into a temp dir to avoid in-place tar overwrite issues
+          STAGE_DIR=/tmp/deploy-stage-$(date +%s)
+          mkdir -p "$STAGE_DIR"
+          tar -xzf /tmp/deploy-package.tar.gz -C "$STAGE_DIR" --no-same-owner --no-same-permissions
+          rm -f /tmp/deploy-package.tar.gz
+
+          # Prepare target directory and relax permissions to avoid Permission denied
+          mkdir -p ~/coffe
+          chown -R $USER:$USER ~/coffe || true
+          chmod -R u+rwX ~/coffe || true
+
+          # Clean potentially conflicting directories before sync
+          cd ~/coffe
+          rm -rf backend/dist backend/node_modules frontend/dist || true
+
+          echo "🔁 Syncing staged files into target..."
+          rsync -a --delete --no-perms --no-owner --no-group "$STAGE_DIR"/ ~/coffe/
+          rm -rf "$STAGE_DIR"
             
             # Make scripts executable
             chmod +x scripts/fallback-manager.sh
@@ -195,8 +210,18 @@ jobs:
               # Stop current containers
               docker-compose -f docker-compose.fallback.yml down --remove-orphans || true
               
-              # Restore from backup
-              tar -xzf "$LATEST_BACKUP" -C ~/coffe
+              # Restore from backup via staging + rsync to avoid permission issues
+              RESTORE_STAGE=/tmp/restore-stage-$(date +%s)
+              mkdir -p "$RESTORE_STAGE"
+              tar -xzf "$LATEST_BACKUP" -C "$RESTORE_STAGE" --no-same-owner --no-same-permissions
+              # Relax target permissions
+              chown -R $USER:$USER ~/coffe || true
+              chmod -R u+rwX ~/coffe || true
+              # Clean conflicting dirs
+              rm -rf ~/coffe/backend/dist ~/coffe/frontend/dist || true
+              # Sync restored files
+              rsync -a --delete --no-perms --no-owner --no-group "$RESTORE_STAGE"/ ~/coffe/
+              rm -rf "$RESTORE_STAGE"
               
               # Start with restored version
               docker-compose -f docker-compose.fallback.yml up -d
