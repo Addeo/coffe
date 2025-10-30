@@ -124,15 +124,21 @@ jobs:
 
           # Prepare target directory and relax permissions to avoid Permission denied
           mkdir -p ~/coffe
-          chown -R $USER:$USER ~/coffe || true
-          chmod -R u+rwX ~/coffe || true
+          sudo chown -R $(id -un):$(id -gn) ~/coffe || true
+          sudo chmod -R u+rwX ~/coffe || true
 
           # Clean potentially conflicting directories before sync
           cd ~/coffe
-          rm -rf backend/dist backend/node_modules frontend/dist || true
+          sudo rm -rf backend/dist backend/node_modules frontend/dist || true
 
           echo "🔁 Syncing staged files into target..."
-          rsync -a --delete --no-perms --no-owner --no-group "$STAGE_DIR"/ ~/coffe/
+          # Sync staged files with sudo, do not preserve owners/perms/times, avoid dir mtimes
+          sudo rsync -r --delete \
+            --no-perms --no-owner --no-group \
+            --omit-dir-times \
+            --inplace \
+            --partial-dir=.rsync-partials \
+            "$STAGE_DIR"/ ~/coffe/
           rm -rf "$STAGE_DIR"
             
             # Make scripts executable
@@ -224,12 +230,17 @@ jobs:
               mkdir -p "$RESTORE_STAGE"
               tar -xzf "$LATEST_BACKUP" -C "$RESTORE_STAGE" --no-same-owner --no-same-permissions
               # Relax target permissions
-              chown -R $USER:$USER ~/coffe || true
-              chmod -R u+rwX ~/coffe || true
+              sudo chown -R $(id -un):$(id -gn) ~/coffe || true
+              sudo chmod -R u+rwX ~/coffe || true
               # Clean conflicting dirs
-              rm -rf ~/coffe/backend/dist ~/coffe/frontend/dist || true
+              sudo rm -rf ~/coffe/backend/dist ~/coffe/frontend/dist || true
               # Sync restored files
-              rsync -a --delete --no-perms --no-owner --no-group "$RESTORE_STAGE"/ ~/coffe/
+              sudo rsync -r --delete \
+                --no-perms --no-owner --no-group \
+                --omit-dir-times \
+                --inplace \
+                --partial-dir=.rsync-partials \
+                "$RESTORE_STAGE"/ ~/coffe/
               rm -rf "$RESTORE_STAGE"
               
               # Start with restored version
