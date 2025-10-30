@@ -154,25 +154,13 @@ deploy_with_fallback() {
         return 1
     fi
     
-    # Step 3: Prepare remote and copy files to remote server
-    print_step "Preparing remote directory and copying files..."
-    ssh ${VPS_USER}@${VPS_HOST} << ENDSSH
-        set -e
-        mkdir -p ${remote_path}
-        cd ${remote_path}
-        # Fix ownership and permissions to avoid Permission denied during cleanup
-        chown -R ${VPS_USER}:${VPS_USER} . || true
-        chmod -R u+rwX . || true
-        # Explicitly cleanup problematic targets (especially for backend)
-        rm -rf dist node_modules || true
-    ENDSSH
-
+    # Step 3: Copy files to remote server
+    print_step "Copying files to remote server..."
     rsync -avz --delete \
         --exclude 'node_modules' \
         --exclude '.env' \
         --exclude 'database.sqlite' \
         --exclude 'uploads' \
-        --chown=${VPS_USER}:${VPS_USER} \
         ./ ${VPS_USER}@${VPS_HOST}:${remote_path}/
     
     print_status "Files copied to remote server"
@@ -182,9 +170,6 @@ deploy_with_fallback() {
     ssh ${VPS_USER}@${VPS_HOST} << ENDSSH
         cd ${remote_path}
         
-        # Ensure clean dist before build to avoid stale/locked files
-        rm -rf dist || true
-
         # Install dependencies
         npm install --production
         
@@ -299,5 +284,3 @@ main() {
 
 # Run main function
 main "$@"
-
-
