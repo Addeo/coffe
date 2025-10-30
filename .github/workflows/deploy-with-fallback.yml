@@ -157,8 +157,10 @@ jobs:
           done
           rm -rf "$STAGE_DIR"
             
-            # Make scripts executable
-            chmod +x scripts/fallback-manager.sh
+            # Make scripts executable (ignore permission issues if FS restricts it)
+            if [ -f scripts/fallback-manager.sh ]; then
+              sudo chmod +x scripts/fallback-manager.sh || true
+            fi
             
             # Stop current containers
             echo "🛑 Stopping current containers..."
