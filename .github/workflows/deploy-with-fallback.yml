@@ -121,9 +121,6 @@ jobs:
             mv "$STAGE_DIR/docker/mysql/init.sql" ~/coffe/docker/mysql/
             rm -rf "$STAGE_DIR"
             
-            # Make scripts executable
-            chmod +x scripts/fallback-manager.sh
-            
             # Stop current containers
             echo "🛑 Stopping current containers..."
             docker-compose -f docker-compose.fallback.yml down --remove-orphans || true
