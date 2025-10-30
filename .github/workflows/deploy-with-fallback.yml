@@ -99,10 +99,18 @@ jobs:
             # Create backup directory
             mkdir -p ~/coffe/backups
             
-            # Backup current deployment if exists
-          if [ -d ~/coffe ]; then
+            # Backup current deployment if exists (stage backup outside of the source tree to avoid tar self-inclusion)
+            if [ -d ~/coffe ]; then
               echo "📦 Creating backup of current deployment..."
-              tar -czf ~/coffe/backups/backup-$(date +%Y%m%d_%H%M%S).tar.gz -C ~/coffe .
+              TS=$(date +%Y%m%d_%H%M%S)
+              BACKUP_TMP=/tmp/backup-$TS.tar.gz
+              # Exclude the backups folder itself to prevent 'file changed as we read it'
+              tar -czf "$BACKUP_TMP" -C ~/coffe . \
+                --exclude='./backups/*' \
+                --exclude='./node_modules/*' \
+                --exclude='./frontend/node_modules/*' \
+                --exclude='./backend/node_modules/*'
+              mv "$BACKUP_TMP" ~/coffe/backups/backup-$TS.tar.gz
             fi
             
             # Extract new deployment
