@@ -114,6 +114,24 @@ jobs:
             
             echo "🚀 Starting deployment with fallback mechanism..."
 
+            BACKUP_ROOT=~/.coffe-backups
+            mkdir -p "$BACKUP_ROOT"
+
+            # Create backup before we wipe the project directory
+            if [ -d ~/coffe ]; then
+              TS=$(date +%Y%m%d_%H%M%S)
+              BACKUP_FILE="$BACKUP_ROOT/backup-$TS.tar.gz"
+              echo "📦 Creating backup of current deployment -> $BACKUP_FILE"
+              tar -czf "$BACKUP_FILE" \
+                --exclude='./node_modules/*' \
+                --exclude='./frontend/node_modules/*' \
+                --exclude='./backend/node_modules/*' \
+                -C ~/coffe .
+              echo "✅ Backup saved"
+            else
+              echo "ℹ️ No existing deployment directory, skipping backup"
+            fi
+
             echo "🧨 FULL CLEANUP: stopping and removing all docker resources and project directory"
             # Stop and remove all containers (no-fail if none)
             docker ps -aq | xargs -r docker stop || true
@@ -239,7 +257,8 @@ jobs:
             echo "🔄 Starting rollback process..."
             
             # Find the most recent backup
-            LATEST_BACKUP=$(ls -t ~/coffe/backups/backup-*.tar.gz | head -n 1)
+            BACKUP_ROOT=~/.coffe-backups
+            LATEST_BACKUP=$(ls -t "$BACKUP_ROOT"/backup-*.tar.gz 2>/dev/null | head -n 1)
             
             if [ -n "$LATEST_BACKUP" ]; then
               echo "📦 Restoring from backup: $LATEST_BACKUP"
