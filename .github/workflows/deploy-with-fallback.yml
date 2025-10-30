@@ -135,17 +135,17 @@ jobs:
 
             # Create .env from CI secrets if missing
             if [ ! -f ~/coffe/.env ]; then
-              cat > ~/coffe/.env << ENVEOF
-JWT_SECRET=${JWT_SECRET}
-MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-MYSQL_DATABASE=${MYSQL_DATABASE}
-MYSQL_USER=${MYSQL_USER}
-MYSQL_PASSWORD=${MYSQL_PASSWORD}
-SMTP_HOST=${SMTP_HOST}
-SMTP_PORT=${SMTP_PORT}
-SMTP_USER=${SMTP_USER}
-SMTP_PASS=${SMTP_PASS}
-ENVEOF
+              {
+                echo "JWT_SECRET=${JWT_SECRET}";
+                echo "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}";
+                echo "MYSQL_DATABASE=${MYSQL_DATABASE}";
+                echo "MYSQL_USER=${MYSQL_USER}";
+                echo "MYSQL_PASSWORD=${MYSQL_PASSWORD}";
+                echo "SMTP_HOST=${SMTP_HOST}";
+                echo "SMTP_PORT=${SMTP_PORT}";
+                echo "SMTP_USER=${SMTP_USER}";
+                echo "SMTP_PASS=${SMTP_PASS}";
+              } > ~/coffe/.env
             fi
 
             # Decide compose command (prefer v2)
