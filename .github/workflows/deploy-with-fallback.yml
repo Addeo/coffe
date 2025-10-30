@@ -220,14 +220,27 @@ jobs:
             if [ -n "$LATEST_BACKUP" ]; then
               echo "📦 Restoring from backup: $LATEST_BACKUP"
               
-              # Stop current containers
-              docker-compose -f docker-compose.fallback.yml down --remove-orphans || true
+              # Stop current containers and remove orphans/volumes/images
+              cd ~/coffe || exit 1
+              docker-compose -f docker-compose.fallback.yml down -v --rmi all --remove-orphans || true
+              docker ps -aq --filter "name=coffee_mysql_fallback" | xargs -r docker rm -f || true
+              docker ps -aq --filter "name=coffe_mysql" | xargs -r docker rm -f || true
+              docker volume ls -q --filter name=coffe_ | xargs -r docker volume rm || true
+              docker network ls -q --filter name=coffe_ | xargs -r docker network rm || true
               
               # Restore from backup
-              tar -xzf "$LATEST_BACKUP" -C ~/coffe
+              tar -xzf "$LATEST_BACKUP" -C ~/coffe --overwrite --no-same-owner --no-same-permissions
+
+              # Ensure we are in the correct directory and compose file exists
+              cd ~/coffe || exit 1
+              if [ ! -f "docker-compose.fallback.yml" ]; then
+                echo "❌ docker-compose.fallback.yml not found after restore. Listing directory:"
+                ls -la
+                exit 1
+              fi
               
               # Start with restored version
-              docker-compose -f docker-compose.fallback.yml up -d
+              docker-compose -f docker-compose.fallback.yml up -d --remove-orphans
               
               echo "✅ Rollback completed"
             else
