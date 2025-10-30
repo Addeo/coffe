@@ -132,15 +132,20 @@ jobs:
             
             # Stop current containers
             echo "🛑 Stopping current containers..."
-            cd ~/coffe && docker-compose -f docker-compose.fallback.yml down --remove-orphans || true
+            cd ~/coffe && docker-compose -f docker-compose.fallback.yml down -v --remove-orphans || true
             
             # Clean old images
             echo "🧹 Cleaning old images..."
+            # Clean old containers/volumes/networks that may conflict (mysql/orphans)
             docker image prune -af || true
+            docker ps -aq --filter "name=coffee_mysql_fallback" | xargs -r docker rm -f || true
+            docker ps -aq --filter "name=coffe_mysql" | xargs -r docker rm -f || true
+            docker volume ls -q --filter name=coffe_ | xargs -r docker volume rm || true
+            docker network ls -q --filter name=coffe_ | xargs -r docker network rm || true
             
             # Build and start with fallback
             echo "🏗️ Building and starting with fallback..."
-            cd ~/coffe && docker-compose -f docker-compose.fallback.yml up -d --build
+            cd ~/coffe && docker-compose -f docker-compose.fallback.yml up -d --build --remove-orphans
             
             echo "✅ Deployment completed"
           EOF
