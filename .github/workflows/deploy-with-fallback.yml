@@ -106,10 +106,20 @@ jobs:
             fi
             
             # Extract new deployment
-            echo "📦 Extracting new deployment..."
-            cd ~/coffe
-            tar -xzf /tmp/deploy-package.tar.gz
+            # Clean dist dirs before extracting to avoid tar 'Cannot open: File exists'/permission bugs
+            sudo rm -rf ~/coffe/backend/dist ~/coffe/frontend/dist || true
+            echo "📦 Extracting new deployment (staged)..."
+            # Stage extract into a temp dir to avoid in-place tar overwrite issues
+            STAGE_DIR=/tmp/deploy-stage-$(date +%s)
+            mkdir -p "$STAGE_DIR"
+            tar -xzf /tmp/deploy-package.tar.gz -C "$STAGE_DIR"
             rm /tmp/deploy-package.tar.gz
+            
+            # Move staged files to the correct location
+            mv "$STAGE_DIR/docker-compose.fallback.yml" ~/coffe/
+            mv "$STAGE_DIR/scripts/fallback-manager.sh" ~/coffe/scripts/
+            mv "$STAGE_DIR/docker/mysql/init.sql" ~/coffe/docker/mysql/
+            rm -rf "$STAGE_DIR"
             
             # Make scripts executable
             chmod +x scripts/fallback-manager.sh
