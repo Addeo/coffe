@@ -95,25 +95,21 @@ jobs:
             set -e
             
             echo "🚀 Starting deployment with fallback mechanism..."
-            
-            # Create backup directory and make a backup (exclude backups/node_modules)
-            mkdir -p ~/coffe/backups
-            if [ -d ~/coffe ]; then
-              echo "📦 Creating backup of current deployment..."
-              TS=$(date +%Y%m%d_%H%M%S)
-              BACKUP_TMP=/tmp/backup-$TS.tar.gz
-              tar -czf "$BACKUP_TMP" \
-                --exclude='./backups/*' \
-                --exclude='./node_modules/*' \
-                --exclude='./frontend/node_modules/*' \
-                --exclude='./backend/node_modules/*' \
-                -C ~/coffe .
-              mv "$BACKUP_TMP" ~/coffe/backups/backup-$TS.tar.gz
-              echo "✅ Backup saved to ~/coffe/backups/backup-$TS.tar.gz"
-            fi
+
+            echo "🧨 FULL CLEANUP: stopping and removing all docker resources and project directory"
+            # Stop and remove all containers (no-fail if none)
+            docker ps -aq | xargs -r docker stop || true
+            docker ps -aq | xargs -r docker rm -f || true
+            # Remove networks/volumes/images caches that may conflict
+            docker network prune -f || true
+            docker volume prune -f || true
+            docker system prune -af || true
+            # Remove project directory entirely
+            rm -rf ~/coffe || true
+            mkdir -p ~/coffe
             
             # Extract new deployment
-            # Clean dist dirs before extracting to avoid tar 'Cannot open: File exists'/permission bugs
+            # Ensure clean target (already removed), keep idempotent
             sudo rm -rf ~/coffe/backend/dist ~/coffe/frontend/dist || true
             echo "📦 Extracting new deployment (staged)..."
             # Stage extract into a temp dir to avoid in-place tar overwrite issues
