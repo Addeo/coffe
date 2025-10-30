@@ -90,6 +90,16 @@ jobs:
           echo "✅ Files uploaded to VPS"
 
       - name: 🔧 Deploy on VPS with Fallback
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             set -e
@@ -126,15 +136,15 @@ jobs:
             # Create .env from CI secrets if missing
             if [ ! -f ~/coffe/.env ]; then
               cat > ~/coffe/.env << ENVEOF
-JWT_SECRET=${{ secrets.JWT_SECRET }}
-MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
-MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
-MYSQL_USER=${{ secrets.MYSQL_USER }}
-MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
-SMTP_HOST=${{ secrets.SMTP_HOST }}
-SMTP_PORT=${{ secrets.SMTP_PORT }}
-SMTP_USER=${{ secrets.SMTP_USER }}
-SMTP_PASS=${{ secrets.SMTP_PASS }}
+JWT_SECRET=${JWT_SECRET}
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+MYSQL_DATABASE=${MYSQL_DATABASE}
+MYSQL_USER=${MYSQL_USER}
+MYSQL_PASSWORD=${MYSQL_PASSWORD}
+SMTP_HOST=${SMTP_HOST}
+SMTP_PORT=${SMTP_PORT}
+SMTP_USER=${SMTP_USER}
+SMTP_PASS=${SMTP_PASS}
 ENVEOF
             fi
 
