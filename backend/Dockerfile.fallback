@@ -14,6 +14,10 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Ensure TypeScript configs are present for Nest build
+COPY tsconfig.json ./
+COPY shared/tsconfig.json ./shared/tsconfig.json
+
 # Create builds directory for fallback
 RUN mkdir -p /app/builds
 
