@@ -136,7 +136,6 @@ jobs:
           sudo rsync -r --delete \
             --no-perms --no-owner --no-group \
             --omit-dir-times \
-            --inplace \
             --partial-dir=.rsync-partials \
             "$STAGE_DIR"/ ~/coffe/
           rm -rf "$STAGE_DIR"
@@ -238,7 +237,6 @@ jobs:
               sudo rsync -r --delete \
                 --no-perms --no-owner --no-group \
                 --omit-dir-times \
-                --inplace \
                 --partial-dir=.rsync-partials \
                 "$RESTORE_STAGE"/ ~/coffe/
               rm -rf "$RESTORE_STAGE"
