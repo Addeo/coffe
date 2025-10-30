@@ -49,9 +49,7 @@ ssh ${VPS_USER}@${VPS_HOST} << 'ENDSSH'
   
   # Extract new version
   echo "   📦 Extracting new files..."
-  # Clean existing files to avoid permission issues
-  rm -rf dist src package*.json
-  tar -xzf /tmp/backend-fix.tar.gz --overwrite
+  tar -xzf /tmp/backend-fix.tar.gz
   mv backend/* .
   rmdir backend
   rm /tmp/backend-fix.tar.gz

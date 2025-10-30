@@ -110,7 +110,7 @@ scp ../backend-deploy.tar.gz $VPS_USER@$VPS_HOST:$VPS_PATH/
 # Extract and restart on VPS
 ssh $VPS_USER@$VPS_HOST << 'ENDSSH'
 cd $VPS_PATH
-tar -xzf backend-deploy.tar.gz -C backend/ --overwrite
+tar -xzf backend-deploy.tar.gz -C backend/
 cd backend
 pm2 restart coffee-backend || npm run start:prod &
 ENDSSH
