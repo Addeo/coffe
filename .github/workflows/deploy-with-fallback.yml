@@ -75,8 +75,12 @@ jobs:
           tar -czf deploy-package.tar.gz \
             docker-compose.fallback.yml \
             backend/dist \
+            backend/Dockerfile \
+            backend/Dockerfile.fallback \
             backend/package*.json \
             frontend/dist \
+            frontend/Dockerfile \
+            frontend/Dockerfile.fallback \
             frontend/package*.json \
             scripts/fallback-manager.sh \
             docker/mysql/init.sql
@@ -136,6 +140,14 @@ jobs:
             # Create .env from CI secrets if missing
             if [ ! -f ~/coffe/.env ]; then
               echo -e "JWT_SECRET=${JWT_SECRET}\nMYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}\nMYSQL_DATABASE=${MYSQL_DATABASE}\nMYSQL_USER=${MYSQL_USER}\nMYSQL_PASSWORD=${MYSQL_PASSWORD}\nSMTP_HOST=${SMTP_HOST}\nSMTP_PORT=${SMTP_PORT}\nSMTP_USER=${SMTP_USER}\nSMTP_PASS=${SMTP_PASS}" > ~/coffe/.env
+            fi
+
+            # Ensure Dockerfiles exist with expected names
+            if [ -f ~/coffe/backend/Dockerfile.fallback ]; then
+              cp -f ~/coffe/backend/Dockerfile.fallback ~/coffe/backend/Dockerfile
+            fi
+            if [ -f ~/coffe/frontend/Dockerfile.fallback ]; then
+              cp -f ~/coffe/frontend/Dockerfile.fallback ~/coffe/frontend/Dockerfile
             fi
 
             # Decide compose command (prefer v2)
