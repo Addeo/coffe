@@ -83,5 +83,3 @@ RUN chmod +x /app/health-check.sh
 
 # Start the application
 CMD ["npm", "run", "start:prod"]
-
-

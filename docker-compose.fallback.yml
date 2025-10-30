@@ -111,5 +111,3 @@ volumes:
 networks:
   coffee_fallback_network:
     driver: bridge
-
-

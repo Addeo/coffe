@@ -5,11 +5,6 @@ on:
     branches:
       - main
   workflow_dispatch:
-    inputs:
-      ref:
-        description: "Git ref (commit SHA/branch/tag) to deploy"
-        required: false
-        default: ""
 
 jobs:
   deploy-with-fallback:
@@ -18,8 +13,6 @@ jobs:
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.ref != '' && github.event.inputs.ref || github.sha }}
 
       - name: 🔐 Setup SSH
         run: |
@@ -82,10 +75,8 @@ jobs:
           tar -czf deploy-package.tar.gz \
             docker-compose.fallback.yml \
             backend/dist \
-            backend/Dockerfile.fallback \
             backend/package*.json \
             frontend/dist \
-            frontend/Dockerfile.fallback \
             frontend/package*.json \
             scripts/fallback-manager.sh \
             docker/mysql/init.sql
@@ -108,59 +99,20 @@ jobs:
             # Create backup directory
             mkdir -p ~/coffe/backups
             
-            # Backup current deployment if exists (stage backup outside of the source tree to avoid tar self-inclusion)
-            if [ -d ~/coffe ]; then
+            # Backup current deployment if exists
+            if [ -d "~/coffe" ]; then
               echo "📦 Creating backup of current deployment..."
-              TS=$(date +%Y%m%d_%H%M%S)
-              BACKUP_TMP=/tmp/backup-$TS.tar.gz
-              # Exclude the backups folder itself to prevent 'file changed as we read it'
-              tar -czf "$BACKUP_TMP" \
-                --exclude='./backups/*' \
-                --exclude='./node_modules/*' \
-                --exclude='./frontend/node_modules/*' \
-                --exclude='./backend/node_modules/*' \
-                -C ~/coffe .
-              mv "$BACKUP_TMP" ~/coffe/backups/backup-$TS.tar.gz
+              tar -czf ~/coffe/backups/backup-$(date +%Y%m%d_%H%M%S).tar.gz -C ~/coffe .
             fi
             
             # Extract new deployment
-          echo "📦 Extracting new deployment (staged)..."
-          # Stage extract into a temp dir to avoid in-place tar overwrite issues
-          STAGE_DIR=/tmp/deploy-stage-$(date +%s)
-          mkdir -p "$STAGE_DIR"
-          tar -xzf /tmp/deploy-package.tar.gz -C "$STAGE_DIR" --no-same-owner --no-same-permissions
-          rm -f /tmp/deploy-package.tar.gz
-
-          # Prepare target directory and relax permissions to avoid Permission denied
-          mkdir -p ~/coffe
-          sudo chown -R $(id -un):$(id -gn) ~/coffe || true
-          sudo chmod -R u+rwX ~/coffe || true
-
-          # Clean potentially conflicting directories before sync
-          cd ~/coffe
-          sudo rm -rf backend/dist backend/node_modules frontend/dist || true
-
-          echo "🔁 Syncing staged files into target..."
-          # Sync staged files with sudo, do not preserve owners/perms/times, avoid dir mtimes
-          sudo rsync -r --delete \
-            --no-perms --no-owner --no-group \
-            --omit-dir-times \
-            --partial-dir=.rsync-partials \
-            "$STAGE_DIR"/ ~/coffe/
-          
-          # Ensure Dockerfiles exist for compose build (fallback -> default name)
-          cd ~/coffe
-          for svc in backend frontend; do
-            if [ -f "$svc/Dockerfile.fallback" ]; then
-              sudo cp -f "$svc/Dockerfile.fallback" "$svc/Dockerfile"
-            fi
-          done
-          rm -rf "$STAGE_DIR"
+            echo "📦 Extracting new deployment..."
+            cd ~/coffe
+            tar -xzf /tmp/deploy-package.tar.gz
+            rm /tmp/deploy-package.tar.gz
             
-            # Make scripts executable (ignore permission issues if FS restricts it)
-            if [ -f scripts/fallback-manager.sh ]; then
-              sudo chmod +x scripts/fallback-manager.sh || true
-            fi
+            # Make scripts executable
+            chmod +x scripts/fallback-manager.sh
             
             # Stop current containers
             echo "🛑 Stopping current containers..."
@@ -243,22 +195,8 @@ jobs:
               # Stop current containers
               docker-compose -f docker-compose.fallback.yml down --remove-orphans || true
               
-              # Restore from backup via staging + rsync to avoid permission issues
-              RESTORE_STAGE=/tmp/restore-stage-$(date +%s)
-              mkdir -p "$RESTORE_STAGE"
-              tar -xzf "$LATEST_BACKUP" -C "$RESTORE_STAGE" --no-same-owner --no-same-permissions
-              # Relax target permissions
-              sudo chown -R $(id -un):$(id -gn) ~/coffe || true
-              sudo chmod -R u+rwX ~/coffe || true
-              # Clean conflicting dirs
-              sudo rm -rf ~/coffe/backend/dist ~/coffe/frontend/dist || true
-              # Sync restored files
-              sudo rsync -r --delete \
-                --no-perms --no-owner --no-group \
-                --omit-dir-times \
-                --partial-dir=.rsync-partials \
-                "$RESTORE_STAGE"/ ~/coffe/
-              rm -rf "$RESTORE_STAGE"
+              # Restore from backup
+              tar -xzf "$LATEST_BACKUP" -C ~/coffe
               
               # Start with restored version
               docker-compose -f docker-compose.fallback.yml up -d
@@ -305,5 +243,3 @@ jobs:
         run: |
           rm -f deploy-package.tar.gz
           echo "✅ Cleanup completed"
-
-

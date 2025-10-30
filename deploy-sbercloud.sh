@@ -71,9 +71,7 @@ ssh -i "$SSH_KEY" "$REMOTE_USER@$VM_IP" << 'EOF'
     set -e
 
     echo "📦 Extracting deployment files..."
-    # Clean existing files to avoid permission issues
-    rm -rf backend/dist backend/src backend/package*.json
-    tar -xzf sbercloud-deploy.tar.gz --overwrite
+    tar -xzf sbercloud-deploy.tar.gz
     rm sbercloud-deploy.tar.gz
 
     echo "🐳 Installing Docker if not present..."
