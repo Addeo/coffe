@@ -82,8 +82,10 @@ jobs:
           tar -czf deploy-package.tar.gz \
             docker-compose.fallback.yml \
             backend/dist \
+            backend/Dockerfile.fallback \
             backend/package*.json \
             frontend/dist \
+            frontend/Dockerfile.fallback \
             frontend/package*.json \
             scripts/fallback-manager.sh \
             docker/mysql/init.sql
