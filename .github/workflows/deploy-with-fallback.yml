@@ -109,33 +109,45 @@ jobs:
             mkdir -p ~/coffe
             
             # Extract new deployment
-            # Ensure clean target (already removed), keep idempotent
-            sudo rm -rf ~/coffe/backend/dist ~/coffe/frontend/dist || true
             echo "📦 Extracting new deployment (staged)..."
-            # Stage extract into a temp dir to avoid in-place tar overwrite issues
             STAGE_DIR=/tmp/deploy-stage-$(date +%s)
             mkdir -p "$STAGE_DIR"
-            tar -xzf /tmp/deploy-package.tar.gz -C "$STAGE_DIR"
-            rm /tmp/deploy-package.tar.gz
-            
-            # Ensure target directories exist
-            mkdir -p ~/coffe ~/coffe/scripts ~/coffe/docker ~/coffe/docker/mysql
-            
-            # Move staged files to the correct location if present
-            if [ -f "$STAGE_DIR/docker-compose.fallback.yml" ]; then
-              mv -f "$STAGE_DIR/docker-compose.fallback.yml" ~/coffe/
-            fi
-            if [ -f "$STAGE_DIR/scripts/fallback-manager.sh" ]; then
-              mv -f "$STAGE_DIR/scripts/fallback-manager.sh" ~/coffe/scripts/
-            fi
-            if [ -f "$STAGE_DIR/docker/mysql/init.sql" ]; then
-              mv -f "$STAGE_DIR/docker/mysql/init.sql" ~/coffe/docker/mysql/
-            fi
+            tar -xzf /tmp/deploy-package.tar.gz -C "$STAGE_DIR" --no-same-owner --no-same-permissions
+            rm -f /tmp/deploy-package.tar.gz
+
+            # Sync ALL staged files into target to ensure backend/ and frontend/ exist
+            mkdir -p ~/coffe
+            rsync -a "$STAGE_DIR"/ ~/coffe/
             rm -rf "$STAGE_DIR"
+
+            # Ensure required directories exist
+            mkdir -p ~/coffe/scripts ~/coffe/docker ~/coffe/docker/mysql
+
+            # Create .env from CI secrets if missing
+            if [ ! -f ~/coffe/.env ]; then
+              cat > ~/coffe/.env << ENVEOF
+JWT_SECRET=${{ secrets.JWT_SECRET }}
+MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}
+MYSQL_USER=${{ secrets.MYSQL_USER }}
+MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+SMTP_HOST=${{ secrets.SMTP_HOST }}
+SMTP_PORT=${{ secrets.SMTP_PORT }}
+SMTP_USER=${{ secrets.SMTP_USER }}
+SMTP_PASS=${{ secrets.SMTP_PASS }}
+ENVEOF
+            fi
+
+            # Decide compose command (prefer v2)
+            if docker compose version >/dev/null 2>&1; then
+              COMPOSE="docker compose"
+            else
+              COMPOSE="docker-compose"
+            fi
             
             # Stop current containers
             echo "🛑 Stopping current containers..."
-            cd ~/coffe && docker-compose -f docker-compose.fallback.yml down -v --remove-orphans || true
+            cd ~/coffe && $COMPOSE -f docker-compose.fallback.yml down -v --remove-orphans || true
             
             # Clean old images
             echo "🧹 Cleaning old images..."
@@ -148,7 +160,7 @@ jobs:
             
             # Build and start with fallback
             echo "🏗️ Building and starting with fallback..."
-            cd ~/coffe && docker-compose -f docker-compose.fallback.yml up -d --build --remove-orphans
+            cd ~/coffe && $COMPOSE -f docker-compose.fallback.yml up -d --build --remove-orphans
             
             echo "✅ Deployment completed"
           EOF
