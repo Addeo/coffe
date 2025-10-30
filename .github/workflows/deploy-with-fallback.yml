@@ -96,13 +96,20 @@ jobs:
             
             echo "🚀 Starting deployment with fallback mechanism..."
             
-            # Create backup directory
+            # Create backup directory and make a backup (exclude backups/node_modules)
             mkdir -p ~/coffe/backups
-            
-            # Backup current deployment if exists
-            if [ -d "~/coffe" ]; then
+            if [ -d ~/coffe ]; then
               echo "📦 Creating backup of current deployment..."
-              tar -czf ~/coffe/backups/backup-$(date +%Y%m%d_%H%M%S).tar.gz -C ~/coffe .
+              TS=$(date +%Y%m%d_%H%M%S)
+              BACKUP_TMP=/tmp/backup-$TS.tar.gz
+              tar -czf "$BACKUP_TMP" \
+                --exclude='./backups/*' \
+                --exclude='./node_modules/*' \
+                --exclude='./frontend/node_modules/*' \
+                --exclude='./backend/node_modules/*' \
+                -C ~/coffe .
+              mv "$BACKUP_TMP" ~/coffe/backups/backup-$TS.tar.gz
+              echo "✅ Backup saved to ~/coffe/backups/backup-$TS.tar.gz"
             fi
             
             # Extract new deployment
