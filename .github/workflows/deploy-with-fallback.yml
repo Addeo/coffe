@@ -115,15 +115,24 @@ jobs:
             tar -xzf /tmp/deploy-package.tar.gz -C "$STAGE_DIR"
             rm /tmp/deploy-package.tar.gz
             
-            # Move staged files to the correct location
-            mv "$STAGE_DIR/docker-compose.fallback.yml" ~/coffe/
-            mv "$STAGE_DIR/scripts/fallback-manager.sh" ~/coffe/scripts/
-            mv "$STAGE_DIR/docker/mysql/init.sql" ~/coffe/docker/mysql/
+            # Ensure target directories exist
+            mkdir -p ~/coffe ~/coffe/scripts ~/coffe/docker ~/coffe/docker/mysql
+            
+            # Move staged files to the correct location if present
+            if [ -f "$STAGE_DIR/docker-compose.fallback.yml" ]; then
+              mv -f "$STAGE_DIR/docker-compose.fallback.yml" ~/coffe/
+            fi
+            if [ -f "$STAGE_DIR/scripts/fallback-manager.sh" ]; then
+              mv -f "$STAGE_DIR/scripts/fallback-manager.sh" ~/coffe/scripts/
+            fi
+            if [ -f "$STAGE_DIR/docker/mysql/init.sql" ]; then
+              mv -f "$STAGE_DIR/docker/mysql/init.sql" ~/coffe/docker/mysql/
+            fi
             rm -rf "$STAGE_DIR"
             
             # Stop current containers
             echo "🛑 Stopping current containers..."
-            docker-compose -f docker-compose.fallback.yml down --remove-orphans || true
+            cd ~/coffe && docker-compose -f docker-compose.fallback.yml down --remove-orphans || true
             
             # Clean old images
             echo "🧹 Cleaning old images..."
@@ -131,7 +140,7 @@ jobs:
             
             # Build and start with fallback
             echo "🏗️ Building and starting with fallback..."
-            docker-compose -f docker-compose.fallback.yml up -d --build
+            cd ~/coffe && docker-compose -f docker-compose.fallback.yml up -d --build
             
             echo "✅ Deployment completed"
           EOF
