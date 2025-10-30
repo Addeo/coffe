@@ -147,6 +147,14 @@ jobs:
             --omit-dir-times \
             --partial-dir=.rsync-partials \
             "$STAGE_DIR"/ ~/coffe/
+          
+          # Ensure Dockerfiles exist for compose build (fallback -> default name)
+          cd ~/coffe
+          for svc in backend frontend; do
+            if [ -f "$svc/Dockerfile.fallback" ]; then
+              sudo cp -f "$svc/Dockerfile.fallback" "$svc/Dockerfile"
+            fi
+          done
           rm -rf "$STAGE_DIR"
             
             # Make scripts executable
