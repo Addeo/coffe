@@ -54,16 +54,17 @@ rm -rf frontend/dist/
 mkdir -p backend
 mkdir -p frontend/dist
 
-# Extract new deployment
+# Extract new deployment (force overwrite, don't preserve owners/permissions)
 echo "📦 Extracting new deployment..."
-tar -xzf deploy-latest.tar.gz
+# Relax permissions on target to avoid conflicts
+chown -R root:root . || true
+chmod -R u+rwX . || true
+tar -xzf deploy-latest.tar.gz --overwrite --no-same-owner --no-same-permissions
 
 # Set proper permissions
 echo "🔐 Setting permissions..."
-chmod -R 755 backend/
-chmod -R 755 frontend/dist/
-chown -R root:root backend/
-chown -R root:root frontend/dist/
+chmod -R 755 backend/ frontend/dist/
+chown -R root:root backend/ frontend/dist/
 
 # Install backend dependencies
 echo "📦 Installing backend dependencies..."
