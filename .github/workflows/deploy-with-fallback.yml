@@ -74,6 +74,7 @@ jobs:
           # Create package with built files
           tar -czf deploy-package.tar.gz \
             docker-compose.fallback.yml \
+            docker-compose.prod.yml \
             backend/dist \
             backend/Dockerfile \
             backend/Dockerfile.fallback \
