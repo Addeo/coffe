@@ -77,10 +77,13 @@ jobs:
             backend/dist \
             backend/Dockerfile \
             backend/Dockerfile.fallback \
+            backend/tsconfig.json \
+            backend/shared/tsconfig.json \
             backend/package*.json \
             frontend/dist \
             frontend/Dockerfile \
             frontend/Dockerfile.fallback \
+            frontend/nginx.conf \
             frontend/package*.json \
             scripts/fallback-manager.sh \
             docker/mysql/init.sql
