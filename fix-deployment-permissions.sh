@@ -23,10 +23,12 @@ echo "📁 Creating fresh backend directory..."
 mkdir -p backend
 chmod 755 backend
 
-# Extract the new deployment
+# Extract the new deployment (force overwrite, avoid preserving owners/permissions)
 echo "📦 Extracting new deployment..."
 cd /root/coffee-admin
-tar -xzf deploy-latest.tar.gz
+chown -R root:root . || true
+chmod -R u+rwX . || true
+tar -xzf deploy-latest.tar.gz --overwrite --no-same-owner --no-same-permissions
 
 # Set proper permissions
 echo "🔐 Setting proper permissions..."
