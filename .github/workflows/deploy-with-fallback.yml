@@ -203,9 +203,23 @@ jobs:
             tar -xzf /tmp/deploy-package.tar.gz -C "$STAGE_DIR" --no-same-owner --no-same-permissions
             rm -f /tmp/deploy-package.tar.gz
 
+            # Ensure we're in home directory and target directory exists
+            cd ~ || exit 1
+            TARGET_DIR="$HOME/coffe"
+            mkdir -p "$TARGET_DIR"
+            
+            # Verify target directory exists and is accessible
+            if [ ! -d "$TARGET_DIR" ]; then
+              echo "❌ ERROR: Cannot create target directory $TARGET_DIR"
+              exit 1
+            fi
+            
             # Sync ALL staged files into target to ensure backend/ and frontend/ exist
-            mkdir -p ~/coffe
-            rsync -a "$STAGE_DIR"/ ~/coffe/
+            echo "📋 Syncing files to $TARGET_DIR..."
+            rsync -a "$STAGE_DIR"/ "$TARGET_DIR/" || {
+              echo "⚠️ rsync failed, trying with cp instead..."
+              cp -r "$STAGE_DIR"/* "$TARGET_DIR/" 2>/dev/null || cp -r "$STAGE_DIR"/. "$TARGET_DIR/" 2>/dev/null || true
+            }
             rm -rf "$STAGE_DIR"
 
             # Debug: List extracted files
