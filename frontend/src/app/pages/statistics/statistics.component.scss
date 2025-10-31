@@ -6,15 +6,15 @@
   // Car Payments Styles
   .car-payments-card {
     margin-bottom: var(--spacing-xl);
-    
+
     .no-car-payments {
       text-align: center;
       padding: 40px 20px;
-      
+
       .no-data-content {
         max-width: 500px;
         margin: 0 auto;
-        
+
         mat-icon {
           font-size: 48px;
           width: 48px;
@@ -22,19 +22,19 @@
           color: var(--text-secondary);
           margin-bottom: var(--spacing-lg);
         }
-        
+
         h3 {
           color: var(--text-primary);
           margin-bottom: var(--spacing-md);
           font-size: 20px;
           font-weight: 500;
         }
-        
+
         p {
           color: var(--text-secondary);
           margin-bottom: var(--spacing-sm);
           line-height: 1.5;
-          
+
           &.hint {
             font-size: 14px;
             font-style: italic;
@@ -43,13 +43,13 @@
         }
       }
     }
-    
+
     .car-payments-summary {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
       margin-bottom: var(--spacing-xl);
-      
+
       .payment-item {
         display: flex;
         align-items: center;
@@ -58,7 +58,7 @@
         border-radius: 8px;
         background: var(--surface);
         border: 1px solid var(--border);
-        
+
         .payment-icon {
           display: flex;
           align-items: center;
@@ -66,23 +66,23 @@
           width: 40px;
           height: 40px;
           border-radius: 50%;
-          
+
           mat-icon {
             font-size: 20px;
             color: white;
           }
         }
-        
+
         .payment-content {
           flex: 1;
-          
+
           .payment-value {
             font-size: 18px;
             font-weight: 600;
             color: var(--text-primary);
             margin-bottom: var(--spacing-xs);
           }
-          
+
           .payment-label {
             font-size: 12px;
             color: var(--text-secondary);
@@ -90,66 +90,66 @@
             letter-spacing: 0.5px;
           }
         }
-        
+
         &.total .payment-icon {
           background: #2196f3;
         }
-        
+
         &.paid .payment-icon {
           background: #4caf50;
         }
-        
+
         &.pending .payment-icon {
           background: #ff9800;
         }
-        
+
         &.status .payment-icon {
           background: #9c27b0;
         }
       }
     }
-    
+
     .car-payments-tabs {
       .tab-content {
         padding: var(--spacing-lg) 0;
       }
-      
+
       .car-payments-table {
         width: 100%;
-        
+
         .paid-amount {
           color: #4caf50;
           font-weight: 500;
         }
-        
+
         .pending-amount {
           color: #ff9800;
           font-weight: 500;
         }
-        
+
         .status-indicator {
           display: flex;
           align-items: center;
           gap: 8px;
-          
+
           .status-bar {
             flex: 1;
             height: 8px;
             background: #e0e0e0;
             border-radius: 4px;
             overflow: hidden;
-            
+
             .status-fill {
               height: 100%;
               background: #4caf50;
               transition: width 0.3s ease;
-              
+
               &.completed {
                 background: #4caf50;
               }
             }
           }
-          
+
           .status-text {
             font-size: 12px;
             font-weight: 500;

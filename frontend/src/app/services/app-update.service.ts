@@ -65,8 +65,8 @@ export class AppUpdateService {
       // Проверяем, не проверяли ли мы недавно
       const lastCheck = this.getLastCheckTime();
       const now = Date.now();
-      
-      if (lastCheck && (now - lastCheck) < this.CHECK_INTERVAL) {
+
+      if (lastCheck && now - lastCheck < this.CHECK_INTERVAL) {
         const hoursSinceCheck = Math.floor((now - lastCheck) / (60 * 60 * 1000));
         console.log(`⏰ Последняя проверка была ${hoursSinceCheck} часов назад. Пропускаем.`);
         return null;
@@ -89,13 +89,13 @@ export class AppUpdateService {
         console.log('✅ Доступна новая версия:', response.version);
         console.log('📥 URL для скачивания:', response.downloadUrl);
         console.log('⚠️ Обязательное обновление:', response.required);
-        
+
         // Проверяем, что URL не пустой
         if (!response.downloadUrl || response.downloadUrl.trim() === '') {
           console.error('❌ URL для скачивания пустой!');
           return null;
         }
-        
+
         return response;
       }
 
@@ -107,7 +107,7 @@ export class AppUpdateService {
         message: (error as any).message,
         status: (error as any).status,
         url: (error as any).url,
-        stack: (error as any).stack
+        stack: (error as any).stack,
       });
       return null;
     }
@@ -143,7 +143,7 @@ export class AppUpdateService {
   async downloadAndInstall(url: string): Promise<void> {
     try {
       console.log('📥 Загрузка обновления с:', url);
-      
+
       // Проверяем, что URL не пустой
       if (!url || url.trim() === '') {
         console.error('❌ URL для скачивания пустой!');
@@ -156,21 +156,20 @@ export class AppUpdateService {
         try {
           // Метод 1: Пытаемся открыть APK файл напрямую для установки
           console.log('📱 Открываем APK файл для установки...');
-          
+
           // Создаем intent для установки APK
           const { Browser } = await import('@capacitor/browser');
-          await Browser.open({ 
-            url, 
+          await Browser.open({
+            url,
             windowName: '_system',
-            presentationStyle: 'fullscreen'
+            presentationStyle: 'fullscreen',
           });
-          
+
           console.log('✅ APK файл открыт для установки через системный браузер');
           console.log('📱 Android должен показать диалог установки приложения');
-          
         } catch (browserError) {
           console.warn('Capacitor Browser недоступен, используем fallback:', browserError);
-          
+
           // Метод 2: Fallback через window.open с правильным intent
           const link = document.createElement('a');
           link.href = url;
@@ -180,7 +179,7 @@ export class AppUpdateService {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-          
+
           console.log('✅ APK файл запущен через fallback метод');
         }
       } else {
@@ -213,11 +212,11 @@ export class AppUpdateService {
    */
   async forceCheckForUpdates(): Promise<VersionResponse | null> {
     console.log('🔄 Принудительная проверка обновлений...');
-    
+
     // Временно очищаем время последней проверки
     const originalLastCheck = this.getLastCheckTime();
     localStorage.removeItem(this.LAST_CHECK_KEY);
-    
+
     try {
       const result = await this.checkForUpdates();
       return result;
@@ -237,4 +236,3 @@ export class AppUpdateService {
     console.log('🗑️ Кэш проверки обновлений очищен');
   }
 }
-

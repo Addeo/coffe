@@ -81,7 +81,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     console.log('🧭 Navigation - Current role:', role);
     console.log('🧭 Navigation - UserRole.MANAGER:', UserRole.MANAGER);
     console.log('🧭 Navigation - Role comparison:', role === UserRole.MANAGER);
-    
+
     const items: NavigationItem[] = [];
 
     // Админские разделы (только для админа)
@@ -105,7 +105,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
           route: '/settings',
           icon: 'settings',
           i18nKey: '@@navigation.settings',
-        },
+        }
         // {
         //   label: 'Резервные копии',
         //   route: '/backups',
@@ -133,9 +133,12 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
     // Заказы только для менеджеров и инженеров (НЕ для админа)
     if (role === UserRole.MANAGER || role === UserRole.USER) {
-      items.push(
-        { label: 'Заказы', route: '/orders', icon: 'shopping_cart', i18nKey: '@@navigation.orders' }
-      );
+      items.push({
+        label: 'Заказы',
+        route: '/orders',
+        icon: 'shopping_cart',
+        i18nKey: '@@navigation.orders',
+      });
     }
 
     // Базовые разделы для всех ролей
@@ -164,7 +167,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
       });
     }
 
-    console.log('🧭 Navigation - Final items:', items.map(item => item.label));
+    console.log(
+      '🧭 Navigation - Final items:',
+      items.map(item => item.label)
+    );
     return items;
   });
 
@@ -343,10 +349,9 @@ export class NavigationComponent implements OnInit, OnDestroy {
   onRoleSwitchClick(item: NavigationItem): void {
     // Находим роль по label (теперь label = название роли)
     const role = this.availableRoles().find(r => this.getRoleDisplayName(r) === item.label);
-    
+
     if (role) {
       this.switchRole(role);
     }
   }
 }
-

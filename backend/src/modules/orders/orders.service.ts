@@ -996,7 +996,7 @@ export class OrdersService {
 
     // Calculate payment statistics
     const paymentQuery = this.ordersRepository.createQueryBuilder('order');
-    
+
     // Apply same role-based filtering
     if (user.role === UserRole.USER) {
       const engineer = await this.engineersRepository.findOne({
@@ -1012,8 +1012,8 @@ export class OrdersService {
     // Get completed orders statistics
     const completedOrdersQuery = paymentQuery.clone();
     const completedOrders = await completedOrdersQuery
-      .andWhere('order.status IN (:...statuses)', { 
-        statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER] 
+      .andWhere('order.status IN (:...statuses)', {
+        statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER],
       })
       .getCount();
 
@@ -1022,8 +1022,8 @@ export class OrdersService {
     // Get payment status statistics
     const receivedFromOrgQuery = paymentQuery.clone();
     const receivedFromOrg = await receivedFromOrgQuery
-      .andWhere('order.status IN (:...statuses)', { 
-        statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER] 
+      .andWhere('order.status IN (:...statuses)', {
+        statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER],
       })
       .andWhere('order.receivedFromOrganization = :received', { received: true })
       .getCount();

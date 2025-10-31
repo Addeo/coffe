@@ -364,7 +364,7 @@ export class OrdersComponent implements OnInit {
           this.dataSource.data[index] = updatedOrder;
           this.dataSource._updateChangeSubscription();
         }
-        
+
         const statusText = newStatus ? 'отмечен как оплаченный' : 'отмечен как неоплаченный';
         this.toastService.success(`Заказ ${statusText}`);
       },
@@ -675,7 +675,14 @@ export class OrdersComponent implements OnInit {
   // Данные для графика статусов (Donut)
   get statusChartData(): ChartData<'doughnut'> {
     return {
-      labels: ['Ожидают', 'В обработке', 'В работе', 'На проверке', 'Завершено', 'Выплачено инженеру'],
+      labels: [
+        'Ожидают',
+        'В обработке',
+        'В работе',
+        'На проверке',
+        'Завершено',
+        'Выплачено инженеру',
+      ],
       datasets: [
         {
           data: [
@@ -792,7 +799,12 @@ export class OrdersComponent implements OnInit {
   // Данные для графика платежей (Donut)
   get paymentChartData(): ChartData<'doughnut'> {
     return {
-      labels: ['Получено от организаций', 'Ожидает от организаций', 'Выплачено инженерам', 'Ожидает выплаты'],
+      labels: [
+        'Получено от организаций',
+        'Ожидает от организаций',
+        'Выплачено инженерам',
+        'Ожидает выплаты',
+      ],
       datasets: [
         {
           data: [
@@ -829,10 +841,26 @@ export class OrdersComponent implements OnInit {
   // Статистика для бейджей под графиком платежей
   get paymentStats() {
     return [
-      { label: 'Получено от организаций', value: this.orderStats().paymentStats.receivedFromOrganization, color: '#4CAF50' },
-      { label: 'Ожидает от организаций', value: this.orderStats().paymentStats.pendingFromOrganization, color: '#FF9800' },
-      { label: 'Выплачено инженерам', value: this.orderStats().paymentStats.paidToEngineer, color: '#2196F3' },
-      { label: 'Ожидает выплаты', value: this.orderStats().paymentStats.pendingToEngineer, color: '#FFC107' },
+      {
+        label: 'Получено от организаций',
+        value: this.orderStats().paymentStats.receivedFromOrganization,
+        color: '#4CAF50',
+      },
+      {
+        label: 'Ожидает от организаций',
+        value: this.orderStats().paymentStats.pendingFromOrganization,
+        color: '#FF9800',
+      },
+      {
+        label: 'Выплачено инженерам',
+        value: this.orderStats().paymentStats.paidToEngineer,
+        color: '#2196F3',
+      },
+      {
+        label: 'Ожидает выплаты',
+        value: this.orderStats().paymentStats.pendingToEngineer,
+        color: '#FFC107',
+      },
     ];
   }
 

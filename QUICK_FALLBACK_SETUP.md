@@ -65,11 +65,13 @@ crontab -e
 ## 🎯 Что изменилось
 
 ### До:
+
 - ❌ Сервер падал при неудачной сборке
 - ❌ Нет механизма отката
 - ❌ Нет health checks
 
 ### После:
+
 - ✅ Автоматический fallback на последнюю рабочую версию
 - ✅ Health checks для всех сервисов
 - ✅ Автоматические бэкапы
@@ -96,10 +98,12 @@ crontab -e
 ## 📊 Мониторинг
 
 ### Health Check URLs:
+
 - Backend: `http://your-server:3001/api/health`
 - Frontend: `http://your-server:4000`
 
 ### Логи:
+
 - Система: `/var/log/system-monitor.log`
 - Docker: `docker logs coffee_backend_fallback`
 
@@ -108,16 +112,19 @@ crontab -e
 ### Если система не работает:
 
 1. **Проверить статус:**
+
 ```bash
 ./scripts/system-monitor.sh status
 ```
 
 2. **Попытаться восстановление:**
+
 ```bash
 ./scripts/system-monitor.sh recover
 ```
 
 3. **Ручной откат:**
+
 ```bash
 # Найти последний бэкап
 ls -la ~/coffe/backups/
@@ -130,6 +137,7 @@ docker-compose -f docker-compose.fallback.yml up -d
 ## ✅ Готово!
 
 Теперь ваша система имеет:
+
 - 🛡️ Защиту от падения при неудачной сборке
 - 🔄 Автоматическое восстановление
 - 📊 Мониторинг состояния

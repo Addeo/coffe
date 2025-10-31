@@ -107,8 +107,20 @@ export class StatisticsComponent implements OnInit {
   });
   // Car payment status
   carPaymentStatus = signal<any>(null);
-  carPaymentOrgColumns = ['organizationName', 'totalCarAmount', 'paidCarAmount', 'pendingCarAmount', 'paymentStatus'];
-  carPaymentEngineerColumns = ['engineerName', 'totalCarAmount', 'paidCarAmount', 'pendingCarAmount', 'paymentStatus'];
+  carPaymentOrgColumns = [
+    'organizationName',
+    'totalCarAmount',
+    'paidCarAmount',
+    'pendingCarAmount',
+    'paymentStatus',
+  ];
+  carPaymentEngineerColumns = [
+    'engineerName',
+    'totalCarAmount',
+    'paidCarAmount',
+    'pendingCarAmount',
+    'paymentStatus',
+  ];
 
   // Month and year selection
   selectedYear = signal(new Date().getFullYear());
@@ -412,13 +424,13 @@ export class StatisticsComponent implements OnInit {
     try {
       const year = this.selectedYear();
       const month = this.selectedMonth();
-      
+
       console.log('🚗 Загрузка автомобильных отчислений для:', { year, month });
       console.log('🚗 canViewAllData:', this.canViewAllData);
-      
+
       const response = await this.statisticsService.getCarPaymentStatus(year, month).toPromise();
       console.log('🚗 Ответ от сервера:', response);
-      
+
       this.carPaymentStatus.set(response);
     } catch (error) {
       console.error('🚗 Ошибка загрузки статуса автомобильных отчислений:', error);

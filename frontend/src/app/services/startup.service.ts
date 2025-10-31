@@ -16,10 +16,10 @@ export class StartupService {
   async checkForUpdates(): Promise<void> {
     try {
       const versionInfo = await this.updateService.checkForUpdates();
-      
+
       if (versionInfo) {
         console.log('📢 Доступно обновление:', versionInfo.version);
-        
+
         // Показываем диалог обновления
         const dialogRef = this.dialog.open(AppUpdateComponent, {
           width: '400px',
@@ -48,4 +48,3 @@ export class StartupService {
     }
   }
 }
-

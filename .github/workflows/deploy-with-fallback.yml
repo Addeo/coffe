@@ -71,26 +71,6 @@ jobs:
         run: |
           echo "Creating deployment package..."
           
-<<<<<<< HEAD
-          # Verify critical files exist and check sizes
-          echo "🔍 Checking files before packaging..."
-          if [ ! -f docker-compose.fallback.yml ]; then
-            echo "❌ ERROR: docker-compose.fallback.yml not found!"
-            exit 1
-          fi
-          COMPOSE_SIZE=$(wc -c < docker-compose.fallback.yml)
-          echo "📏 docker-compose.fallback.yml size: $COMPOSE_SIZE bytes"
-          if [ "$COMPOSE_SIZE" -lt 100 ]; then
-            echo "❌ ERROR: docker-compose.fallback.yml is too small ($COMPOSE_SIZE bytes)!"
-            exit 1
-          fi
-          
-          # List files to be included
-          echo "📋 Files to include:"
-          ls -lah docker-compose.fallback.yml backend/dist frontend/dist 2>&1 || true
-          
-          # Create package with built files
-=======
           # Verify critical files exist
           echo "🔍 Checking files before packaging..."
           ls -lah docker-compose.fallback.yml || echo "⚠️ docker-compose.fallback.yml not found!"
@@ -98,7 +78,6 @@ jobs:
           ls -lah frontend/Dockerfile* || echo "⚠️ Frontend Dockerfiles not found!"
           
           # Create package with built files (use absolute paths from workspace root)
->>>>>>> 2c68e30637bd9b39475875870addea9b5fd34467
           tar -czf deploy-package.tar.gz \
             -C "${{ github.workspace }}" \
             docker-compose.fallback.yml \
@@ -115,10 +94,6 @@ jobs:
             scripts/fallback-manager.sh \
             docker/mysql/init.sql 2>&1 || {
               echo "❌ Error creating archive!"
-<<<<<<< HEAD
-              exit 1
-            }
-=======
               echo "Files check:"
               ls -lah docker-compose.fallback.yml backend/ frontend/ || true
               exit 1
@@ -132,7 +107,6 @@ jobs:
             tar -tzf deploy-package.tar.gz | head -20
             exit 1
           }
->>>>>>> 2c68e30637bd9b39475875870addea9b5fd34467
           
           # Verify archive contains compose file with correct size
           echo "🔍 Verifying archive..."

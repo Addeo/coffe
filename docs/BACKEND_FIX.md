@@ -13,10 +13,11 @@
 Использован метод `.clone()` для создания независимых копий QueryBuilder перед применением дополнительных условий.
 
 ### Было:
+
 ```typescript
 const completedOrders = await paymentQuery
-  .where('order.status IN (:...statuses)', { 
-    statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER] 
+  .where('order.status IN (:...statuses)', {
+    statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER]
   })
   .getCount();
 
@@ -27,11 +28,12 @@ const receivedFromOrg = await paymentQuery
 ```
 
 ### Стало:
+
 ```typescript
 const completedOrdersQuery = paymentQuery.clone();
 const completedOrders = await completedOrdersQuery
-  .andWhere('order.status IN (:...statuses)', { 
-    statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER] 
+  .andWhere('order.status IN (:...statuses)', {
+    statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER]
   })
   .getCount();
 
@@ -53,4 +55,3 @@ cd backend
 npm run build
 npm run start:dev
 ```
-

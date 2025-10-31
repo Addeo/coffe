@@ -4,7 +4,10 @@ import { AuthGuard } from './guards/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./components/smart-redirect/smart-redirect.component').then(m => m.SmartRedirectComponent),
+    loadComponent: () =>
+      import('./components/smart-redirect/smart-redirect.component').then(
+        m => m.SmartRedirectComponent
+      ),
     canActivate: [AuthGuard],
   },
   {
