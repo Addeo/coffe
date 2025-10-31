@@ -71,17 +71,65 @@ jobs:
         run: |
           echo "Creating deployment package..."
           
+          # Verify critical files exist and check sizes
+          echo "🔍 Checking files before packaging..."
+          if [ ! -f docker-compose.fallback.yml ]; then
+            echo "❌ ERROR: docker-compose.fallback.yml not found!"
+            exit 1
+          fi
+          COMPOSE_SIZE=$(wc -c < docker-compose.fallback.yml)
+          echo "📏 docker-compose.fallback.yml size: $COMPOSE_SIZE bytes"
+          if [ "$COMPOSE_SIZE" -lt 100 ]; then
+            echo "❌ ERROR: docker-compose.fallback.yml is too small ($COMPOSE_SIZE bytes)!"
+            exit 1
+          fi
+          
+          # List files to be included
+          echo "📋 Files to include:"
+          ls -lah docker-compose.fallback.yml backend/dist frontend/dist 2>&1 || true
+          
           # Create package with built files
           tar -czf deploy-package.tar.gz \
             docker-compose.fallback.yml \
             backend/dist \
+            backend/Dockerfile \
+            backend/Dockerfile.fallback \
             backend/package*.json \
+            backend/tsconfig.json \
             frontend/dist \
+            frontend/Dockerfile \
+            frontend/Dockerfile.fallback \
+            frontend/nginx.conf \
             frontend/package*.json \
             scripts/fallback-manager.sh \
-            docker/mysql/init.sql
+            docker/mysql/init.sql 2>&1 || {
+              echo "❌ Error creating archive!"
+              exit 1
+            }
           
-          echo "✅ Deployment package created"
+          # Verify archive contains compose file with correct size
+          echo "🔍 Verifying archive..."
+          if ! tar -tzf deploy-package.tar.gz | grep -q docker-compose.fallback.yml; then
+            echo "❌ ERROR: docker-compose.fallback.yml not in archive!"
+            tar -tzf deploy-package.tar.gz | head -20
+            exit 1
+          fi
+          
+          # Extract and check file size from archive
+          TEMP_CHECK=$(mktemp -d)
+          tar -xzf deploy-package.tar.gz -C "$TEMP_CHECK" docker-compose.fallback.yml
+          ARCHIVED_SIZE=$(wc -c < "$TEMP_CHECK/docker-compose.fallback.yml")
+          rm -rf "$TEMP_CHECK"
+          
+          echo "📏 Original size: $COMPOSE_SIZE bytes"
+          echo "📏 Archived size: $ARCHIVED_SIZE bytes"
+          
+          if [ "$ARCHIVED_SIZE" -lt 100 ]; then
+            echo "❌ ERROR: File in archive is too small!"
+            exit 1
+          fi
+          
+          echo "✅ Deployment package created and verified"
 
       - name: 📤 Upload to VPS
         run: |
