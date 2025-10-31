@@ -5,11 +5,11 @@ on:
   push:
     branches:
       - __disabled_workflow_never_runs__
-  workflow_dispatch:
-    # Workflow disabled - use deploy-with-fallback.yml instead
 
 jobs:
   deploy:
+    # Job disabled - always skip
+    if: false
     runs-on: ubuntu-latest
     
     steps:
