@@ -1,13 +1,15 @@
-name: Deploy to VPS (Cloud.ru)
+name: Deploy to VPS (Cloud.ru) [DISABLED - Use Deploy with Fallback instead]
 
+# DISABLED: This workflow is disabled. Use deploy-with-fallback.yml instead.
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - __disabled_workflow_never_runs__
 
 jobs:
   deploy:
+    # Job disabled - always skip
+    if: false
     runs-on: ubuntu-latest
     
     steps:
