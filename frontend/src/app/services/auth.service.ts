@@ -104,6 +104,11 @@ export class AuthService {
 
   private setSession(authResult: AuthLoginResponse): void {
     console.log('🔐 Setting session:', authResult);
+    console.log('🔐 User role data:', {
+      role: authResult.user?.role,
+      primaryRole: authResult.user?.primaryRole,
+      activeRole: authResult.user?.activeRole,
+    });
 
     // Store in localStorage
     localStorage.setItem('access_token', authResult.access_token);
@@ -113,6 +118,14 @@ export class AuthService {
     this.currentUserSignal.set(authResult.user);
     this.isAuthenticatedSignal.set(true);
 
+    // Log computed role values
+    console.log('🔐 Session set, computed roles:', {
+      primaryRole: this.primaryRole(),
+      activeRole: this.activeRole(),
+      availableRoles: this.availableRoles(),
+      canSwitchRoles: this.canSwitchRoles(),
+    });
+    
     console.log('🔐 Session set, auth state:', {
       isAuthenticated: this.isAuthenticatedSignal(),
       currentUser: this.currentUserSignal(),
