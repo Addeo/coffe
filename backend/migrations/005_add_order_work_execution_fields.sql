@@ -59,6 +59,14 @@ PREPARE stmt FROM @sqlstmt;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
+-- comments
+SET @exist := (SELECT COUNT(*) FROM information_schema.COLUMNS 
+  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders' AND COLUMN_NAME = 'comments');
+SET @sqlstmt := IF(@exist = 0, 'ALTER TABLE orders ADD COLUMN comments TEXT', 'SELECT ''Column comments already exists''');
+PREPARE stmt FROM @sqlstmt;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 -- is_incomplete
 SET @exist := (SELECT COUNT(*) FROM information_schema.COLUMNS 
   WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'orders' AND COLUMN_NAME = 'is_incomplete');
