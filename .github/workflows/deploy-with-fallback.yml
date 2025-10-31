@@ -88,12 +88,45 @@ jobs:
 
       - name: 📤 Upload to VPS
         run: |
-          echo "Uploading to VPS..."
-          scp -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ConnectTimeout=30 -o TCPKeepAlive=yes deploy-package.tar.gz ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/
-          echo "✅ Files uploaded to VPS"
+          echo "Checking VPS availability..."
+          SSH_OPTS="-o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ConnectTimeout=30 -o TCPKeepAlive=yes"
           
-          # Small delay to avoid connection reset issues
-          sleep 2
+          # Wait for SSH to be available with retries
+          for i in {1..5}; do
+            echo "Attempt $i/5: Testing SSH connection..."
+            if ssh $SSH_OPTS ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "echo 'SSH connection successful'" 2>&1; then
+              echo "✅ SSH connection established"
+              break
+            else
+              if [ $i -eq 5 ]; then
+                echo "❌ Failed to connect to VPS after 5 attempts"
+                exit 1
+              fi
+              echo "⏳ Waiting 10 seconds before retry..."
+              sleep 10
+            fi
+          done
+          
+          # Upload file with retry
+          echo "Uploading deploy-package.tar.gz..."
+          for i in {1..3}; do
+            echo "Upload attempt $i/3..."
+            if scp $SSH_OPTS deploy-package.tar.gz ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/ 2>&1; then
+              echo "✅ Files uploaded to VPS"
+              break
+            else
+              if [ $i -eq 3 ]; then
+                echo "❌ Failed to upload after 3 attempts"
+                exit 1
+              fi
+              echo "⏳ Waiting 5 seconds before retry..."
+              sleep 5
+            fi
+          done
+          
+          # Verify file was uploaded
+          echo "Verifying file upload..."
+          ssh $SSH_OPTS ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "ls -lh /tmp/deploy-package.tar.gz && echo 'File verified'" || exit 1
 
       - name: 🔧 Deploy on VPS with Fallback
         env:
