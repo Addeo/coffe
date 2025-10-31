@@ -28,8 +28,7 @@ export class CalculationService {
 
   /**
    * Получить ставки инженера для конкретной организации
-   * ОБЯЗАТЕЛЬНО должны быть установлены индивидуальные ставки администратором
-   * Без индивидуальных ставок расчет невозможен
+   * Если индивидуальные ставки не установлены, используются дефолтные ставки инженера
    */
   async getEngineerRatesForOrganization(
     engineer: Engineer,
@@ -44,20 +43,41 @@ export class CalculationService {
       },
     });
 
-    // Если индивидуальные ставки не установлены - выбрасываем ошибку
-    // Расчет невозможен без явного указания ставок администратором
+    // Если индивидуальные ставки не установлены - используем дефолтные ставки инженера
+    // Логируем предупреждение для администратора
     if (!customRate) {
-      throw new Error(
-        `Individual rates not set for engineer ${engineer.user?.firstName} ${engineer.user?.lastName} ` +
-          `and organization ${organization.name}. Please contact administrator to set rates.`
+      console.warn(
+        `⚠️ Individual rates not set for engineer ${engineer.user?.firstName} ${engineer.user?.lastName} ` +
+          `and organization ${organization.name}. Using default engineer rates.`
       );
+      
+      // Проверяем, что у инженера есть базовые ставки
+      if (!engineer.baseRate || engineer.baseRate === 0) {
+        throw new Error(
+          `Engineer ${engineer.user?.firstName} ${engineer.user?.lastName} does not have base rate set. ` +
+          `Please set engineer base rate or individual rates for organization ${organization.name}.`
+        );
+      }
+      
+      // Возвращаем дефолтные ставки инженера
+      return {
+        baseRate: engineer.baseRate,
+        overtimeRate: engineer.overtimeRate || engineer.baseRate,
+        overtimeMultiplier: undefined,
+        fixedSalary: engineer.fixedSalary,
+        fixedCarAmount: engineer.fixedCarAmount,
+        carKmRate: engineer.type === EngineerType.CONTRACT ? 14 : undefined,
+        zone1Extra: undefined,
+        zone2Extra: undefined,
+        zone3Extra: undefined,
+      };
     }
 
     // Формируем итоговые ставки на основе индивидуальных настроек
     // Некоторые поля могут быть не заполнены (null), что нормально
     const rates: EngineerRates = {
-      baseRate: customRate.customBaseRate ?? engineer.baseRate,
-      overtimeRate: customRate.customOvertimeRate ?? engineer.overtimeRate,
+      baseRate: customRate.customBaseRate ?? engineer.baseRate ?? 0,
+      overtimeRate: customRate.customOvertimeRate ?? engineer.overtimeRate ?? engineer.baseRate ?? 0,
       overtimeMultiplier: undefined, // Берется из настроек инженера
       fixedSalary: engineer.fixedSalary,
       fixedCarAmount: engineer.fixedCarAmount,
