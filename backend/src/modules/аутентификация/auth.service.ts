@@ -227,7 +227,7 @@ export class AuthService {
       engineer: null as any,
     };
 
-    // Create admin user (password: admin123)
+    // Create or update admin user (password: admin123)
     const existingAdmin = await this.userRepository.findOne({
       where: { email: 'admin@coffee.com' },
     });
@@ -251,18 +251,25 @@ export class AuthService {
         firstName: savedAdmin.firstName,
         lastName: savedAdmin.lastName,
         role: savedAdmin.role,
+        primaryRole: savedAdmin.primaryRole,
       };
     } else {
+      // Update existing admin to ensure correct role
+      existingAdmin.role = UserRole.ADMIN;
+      existingAdmin.primaryRole = UserRole.ADMIN;
+      existingAdmin.isActive = true;
+      const updatedAdmin = await this.userRepository.save(existingAdmin);
       results.admin = {
-        id: existingAdmin.id,
-        email: existingAdmin.email,
-        firstName: existingAdmin.firstName,
-        lastName: existingAdmin.lastName,
-        role: existingAdmin.role,
+        id: updatedAdmin.id,
+        email: updatedAdmin.email,
+        firstName: updatedAdmin.firstName,
+        lastName: updatedAdmin.lastName,
+        role: updatedAdmin.role,
+        primaryRole: updatedAdmin.primaryRole,
       };
     }
 
-    // Create manager user (password: manager123)
+    // Create or update manager user (password: manager123)
     const existingManager = await this.userRepository.findOne({
       where: { email: 'manager@coffee.com' },
     });
@@ -286,14 +293,21 @@ export class AuthService {
         firstName: savedManager.firstName,
         lastName: savedManager.lastName,
         role: savedManager.role,
+        primaryRole: savedManager.primaryRole,
       };
     } else {
+      // Update existing manager to ensure correct role
+      existingManager.role = UserRole.MANAGER;
+      existingManager.primaryRole = UserRole.MANAGER;
+      existingManager.isActive = true;
+      const updatedManager = await this.userRepository.save(existingManager);
       results.manager = {
-        id: existingManager.id,
-        email: existingManager.email,
-        firstName: existingManager.firstName,
-        lastName: existingManager.lastName,
-        role: existingManager.role,
+        id: updatedManager.id,
+        email: updatedManager.email,
+        firstName: updatedManager.firstName,
+        lastName: updatedManager.lastName,
+        role: updatedManager.role,
+        primaryRole: updatedManager.primaryRole,
       };
     }
 
