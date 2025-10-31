@@ -1,6 +1,7 @@
 services:
   mysql:
     image: mysql:8.0
+    pull_policy: always
     container_name: coffee_mysql_fallback
     restart: unless-stopped
     environment:
@@ -88,6 +89,7 @@ services:
   # Build Manager Service
   build-manager:
     image: alpine:latest
+    pull_policy: always
     container_name: coffee_build_manager
     restart: unless-stopped
     volumes:
