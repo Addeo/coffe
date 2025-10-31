@@ -71,20 +71,42 @@ jobs:
         run: |
           echo "Creating deployment package..."
           
-          # Create package with built files
+          # Verify critical files exist
+          echo "🔍 Checking files before packaging..."
+          ls -lah docker-compose.fallback.yml || echo "⚠️ docker-compose.fallback.yml not found!"
+          ls -lah backend/Dockerfile* || echo "⚠️ Dockerfiles not found!"
+          ls -lah frontend/Dockerfile* || echo "⚠️ Frontend Dockerfiles not found!"
+          
+          # Create package with built files (use absolute paths from workspace root)
           tar -czf deploy-package.tar.gz \
+            -C "${{ github.workspace }}" \
             docker-compose.fallback.yml \
             backend/dist \
             backend/Dockerfile \
             backend/Dockerfile.fallback \
             backend/package*.json \
+            backend/tsconfig.json \
             frontend/dist \
             frontend/Dockerfile \
             frontend/Dockerfile.fallback \
             frontend/nginx.conf \
             frontend/package*.json \
             scripts/fallback-manager.sh \
-            docker/mysql/init.sql
+            docker/mysql/init.sql 2>&1 || {
+              echo "❌ Error creating archive!"
+              echo "Files check:"
+              ls -lah docker-compose.fallback.yml backend/ frontend/ || true
+              exit 1
+            }
+          
+          # Verify archive contains the compose file
+          echo "🔍 Verifying archive contents..."
+          tar -tzf deploy-package.tar.gz | grep docker-compose.fallback.yml || {
+            echo "❌ docker-compose.fallback.yml not in archive!"
+            echo "Archive contents:"
+            tar -tzf deploy-package.tar.gz | head -20
+            exit 1
+          }
           
           echo "✅ Deployment package created"
 
@@ -150,6 +172,21 @@ jobs:
             ls -lah ~/coffe/ || true
             echo "📋 Checking for compose file:"
             ls -lah ~/coffe/docker-compose*.yml 2>&1 || echo "⚠️ No compose files found!"
+            
+            # Check compose file size (should be > 1 byte)
+            if [ -f ~/coffe/docker-compose.fallback.yml ]; then
+              COMPOSE_SIZE=$(wc -c < ~/coffe/docker-compose.fallback.yml)
+              echo "📏 docker-compose.fallback.yml size: $COMPOSE_SIZE bytes"
+              if [ "$COMPOSE_SIZE" -lt 100 ]; then
+                echo "❌ ERROR: docker-compose.fallback.yml is too small ($COMPOSE_SIZE bytes) - file is empty or corrupted!"
+                echo "First 50 bytes:"
+                head -c 50 ~/coffe/docker-compose.fallback.yml | cat -A || true
+                echo ""
+                echo "Checking if file exists in archive source:"
+                tar -tzf /tmp/deploy-package.tar.gz 2>/dev/null | grep docker-compose || echo "Not in archive!"
+                exit 1
+              fi
+            fi
 
             # Ensure required directories exist
             mkdir -p ~/coffe/scripts ~/coffe/docker ~/coffe/docker/mysql
