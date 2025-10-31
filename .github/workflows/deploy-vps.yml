@@ -1,11 +1,10 @@
-name: Deploy to VPS (Cloud.ru) [DISABLED - Use Deploy with Fallback instead]
+name: Deploy to VPS (Cloud.ru)
 
 on:
-  # Disabled automatic deployment - use deploy-with-fallback.yml instead
-  # push:
-  #   branches:
-  #     - main
-  workflow_dispatch:  # Can still be triggered manually if needed
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   deploy:

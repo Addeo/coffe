@@ -70,63 +70,29 @@ jobs:
       - name: 📦 Create deployment package
         run: |
           echo "Creating deployment package..."
-          # Create archive in /tmp to avoid "file changed as we read it" error
-          cd "${{ github.workspace }}"
-          tar -czf /tmp/deploy-package.tar.gz \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='node_modules' \
-            --exclude='backend/node_modules' \
-            --exclude='frontend/node_modules' \
-            --exclude='dist' \
-            --exclude='*.tar.gz' \
-            --exclude='*.log' \
-            .
-          # Move archive back to workspace
-          mv /tmp/deploy-package.tar.gz ./deploy-package.tar.gz
+          
+          # Create package with built files
+          tar -czf deploy-package.tar.gz \
+            docker-compose.fallback.yml \
+            backend/dist \
+            backend/Dockerfile \
+            backend/Dockerfile.fallback \
+            backend/package*.json \
+            frontend/dist \
+            frontend/Dockerfile \
+            frontend/Dockerfile.fallback \
+            frontend/nginx.conf \
+            frontend/package*.json \
+            scripts/fallback-manager.sh \
+            docker/mysql/init.sql
+          
           echo "✅ Deployment package created"
 
       - name: 📤 Upload to VPS
         run: |
-          echo "Checking VPS availability..."
-          SSH_OPTS="-o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ConnectTimeout=30 -o TCPKeepAlive=yes"
-          
-          # Wait for SSH to be available with retries
-          for i in {1..5}; do
-            echo "Attempt $i/5: Testing SSH connection..."
-            if ssh $SSH_OPTS ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "echo 'SSH connection successful'" 2>&1; then
-              echo "✅ SSH connection established"
-              break
-            else
-              if [ $i -eq 5 ]; then
-                echo "❌ Failed to connect to VPS after 5 attempts"
-                exit 1
-              fi
-              echo "⏳ Waiting 10 seconds before retry..."
-              sleep 10
-            fi
-          done
-          
-          # Upload file with retry
-          echo "Uploading deploy-package.tar.gz..."
-          for i in {1..3}; do
-            echo "Upload attempt $i/3..."
-            if scp $SSH_OPTS deploy-package.tar.gz ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/ 2>&1; then
-              echo "✅ Files uploaded to VPS"
-              break
-            else
-              if [ $i -eq 3 ]; then
-                echo "❌ Failed to upload after 3 attempts"
-                exit 1
-              fi
-              echo "⏳ Waiting 5 seconds before retry..."
-              sleep 5
-            fi
-          done
-          
-          # Verify file was uploaded
-          echo "Verifying file upload..."
-          ssh $SSH_OPTS ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "ls -lh /tmp/deploy-package.tar.gz && echo 'File verified'" || exit 1
+          echo "Uploading to VPS..."
+          scp -o StrictHostKeyChecking=no deploy-package.tar.gz ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/
+          echo "✅ Files uploaded to VPS"
 
       - name: 🔧 Deploy on VPS with Fallback
         env:
@@ -140,28 +106,10 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
-          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ConnectTimeout=30 -o TCPKeepAlive=yes ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             set -e
             
             echo "🚀 Starting deployment with fallback mechanism..."
-
-            BACKUP_ROOT=~/.coffe-backups
-            mkdir -p "$BACKUP_ROOT"
-
-            # Create backup before we wipe the project directory
-            if [ -d ~/coffe ]; then
-              TS=$(date +%Y%m%d_%H%M%S)
-              BACKUP_FILE="$BACKUP_ROOT/backup-$TS.tar.gz"
-              echo "📦 Creating backup of current deployment -> $BACKUP_FILE"
-              tar -czf "$BACKUP_FILE" \
-                --exclude='./node_modules/*' \
-                --exclude='./frontend/node_modules/*' \
-                --exclude='./backend/node_modules/*' \
-                -C ~/coffe .
-              echo "✅ Backup saved"
-            else
-              echo "ℹ️ No existing deployment directory, skipping backup"
-            fi
 
             echo "🧨 FULL CLEANUP: stopping and removing all docker resources and project directory"
             # Stop and remove all containers (no-fail if none)
@@ -189,12 +137,6 @@ jobs:
 
             # Ensure required directories exist
             mkdir -p ~/coffe/scripts ~/coffe/docker ~/coffe/docker/mysql
-            
-            # Ensure init.sql exists (create empty if missing)
-            if [ ! -f ~/coffe/docker/mysql/init.sql ]; then
-              echo "-- MySQL initialization script" > ~/coffe/docker/mysql/init.sql
-              echo "SELECT 'Database initialized';" >> ~/coffe/docker/mysql/init.sql
-            fi
 
             # Create .env from CI secrets if missing
             if [ ! -f ~/coffe/.env ]; then
@@ -216,63 +158,22 @@ jobs:
               COMPOSE="docker-compose"
             fi
             
-            # Stop current containers and force remove all project containers
-            echo "🛑 Stopping and removing all containers..."
-            cd ~/coffe
+            # Stop current containers
+            echo "🛑 Stopping current containers..."
+            cd ~/coffe && $COMPOSE -f docker-compose.fallback.yml down -v --remove-orphans || true
             
-            # Force remove all containers by name (including orphans)
-            docker ps -a --format "{{.Names}}" | grep -E "(coffee_|coffe_)" | xargs -r docker rm -f || true
-            
-            # Use compose down if possible
-            $COMPOSE -f docker-compose.fallback.yml down -v --remove-orphans 2>/dev/null || true
-            
-            # Clean old images and networks
-            echo "🧹 Cleaning old images and networks..."
+            # Clean old images
+            echo "🧹 Cleaning old images..."
+            # Clean old containers/volumes/networks that may conflict (mysql/orphans)
             docker image prune -af || true
-            docker network ls -q --filter name=coffee_fallback | xargs -r docker network rm || true
+            docker ps -aq --filter "name=coffee_mysql_fallback" | xargs -r docker rm -f || true
+            docker ps -aq --filter "name=coffe_mysql" | xargs -r docker rm -f || true
+            docker volume ls -q --filter name=coffe_ | xargs -r docker volume rm || true
             docker network ls -q --filter name=coffe_ | xargs -r docker network rm || true
             
             # Build and start with fallback
-            echo "🏗️ Pulling base images..."
-            cd ~/coffe && $COMPOSE -f docker-compose.fallback.yml pull || true
-            
             echo "🏗️ Building and starting with fallback..."
-            cd ~/coffe && $COMPOSE -f docker-compose.fallback.yml up -d --build --force-recreate --remove-orphans
-            
-            # Wait for MySQL to start and check status
-            echo "⏳ Waiting for MySQL to initialize..."
-            sleep 10
-            
-            # Check all containers status first
-            echo "📊 All containers status:"
-            docker ps -a --filter "name=coffee_" --format "table {{.Names}}\t{{.Status}}\t{{.ExitCode}}" || true
-            
-            # Check system resources
-            echo "💾 Disk space:"
-            df -h / || true
-            echo "🧠 Memory:"
-            free -h || true
-            
-            if ! docker ps | grep -q coffee_mysql_fallback; then
-              echo "❌ MySQL container failed to start. Detailed diagnostics:"
-              echo "📋 MySQL logs (last 100 lines):"
-              docker logs coffee_mysql_fallback --tail=100 2>&1 || true
-              echo "📋 MySQL container inspect (State section):"
-              docker inspect coffee_mysql_fallback 2>&1 | grep -A 30 '"State"' || true
-              echo "💾 Volume info:"
-              docker volume inspect coffe_mysql_data 2>&1 || true
-              exit 1
-            fi
-            
-            # Check MySQL health
-            for i in {1..30}; do
-              if docker exec coffee_mysql_fallback mysqladmin ping -h localhost -u root -prootpassword >/dev/null 2>&1; then
-                echo "✅ MySQL is healthy"
-                break
-              fi
-              echo "⏳ Waiting for MySQL health check (attempt $i/30)..."
-              sleep 2
-            done
+            cd ~/coffe && $COMPOSE -f docker-compose.fallback.yml up -d --build --remove-orphans
             
             echo "✅ Deployment completed"
           EOF
@@ -329,14 +230,13 @@ jobs:
         run: |
           echo "🔄 Health check failed, attempting rollback..."
           
-          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ConnectTimeout=30 -o TCPKeepAlive=yes ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             set -e
             
             echo "🔄 Starting rollback process..."
             
             # Find the most recent backup
-            BACKUP_ROOT=~/.coffe-backups
-            LATEST_BACKUP=$(ls -t "$BACKUP_ROOT"/backup-*.tar.gz 2>/dev/null | head -n 1)
+            LATEST_BACKUP=$(ls -t ~/coffe/backups/backup-*.tar.gz | head -n 1)
             
             if [ -n "$LATEST_BACKUP" ]; then
               echo "📦 Restoring from backup: $LATEST_BACKUP"
