@@ -36,6 +36,8 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
+    // Since primaryRole and activeRole have select: false, they won't be loaded automatically
+    // This avoids errors if those columns don't exist in the database yet
     const user = await this.userRepository.findOne({ where: { email } });
 
     if (user && (await bcrypt.compare(password, user.password))) {
@@ -43,10 +45,20 @@ export class AuthService {
       const result = { ...user };
       delete result.password;
 
+      // Ensure role is set (fallback to role if primaryRole doesn't exist)
+      // primaryRole won't be loaded due to select: false, so use role as fallback
+      if (!result.role) {
+        result.role = UserRole.USER; // Default fallback
+      }
+      if (!result.primaryRole) {
+        result.primaryRole = result.role;
+      }
+
       console.log('🔐 AuthService.validateUser - User from DB:', {
         id: result.id,
         email: result.email,
         role: result.role,
+        primaryRole: result.primaryRole,
       });
 
       return result;
