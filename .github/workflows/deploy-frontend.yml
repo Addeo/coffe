@@ -1,17 +1,18 @@
-name: Deploy Frontend to GitHub Pages
+name: [DISABLED] Deploy Frontend to GitHub Pages
 
+# DISABLED: This workflow is disabled. Use deploy-with-fallback.yml for full deployment instead.
 on:
   push:
-    branches: [ main ]
-    paths:
-      - 'frontend/**'
-  workflow_dispatch:
+    branches:
+      - __disabled_workflow_never_runs__
 
 permissions:
   contents: write
 
 jobs:
   deploy:
+    # Job disabled - always skip
+    if: false
     runs-on: ubuntu-latest
 
     steps:
