@@ -97,7 +97,8 @@ jobs:
             frontend/src/ \
             frontend/shared/ \
             scripts/fallback-manager.sh \
-            docker/mysql/init.sql 2>&1 || {
+            docker/mysql/init.sql \
+            backend/migrations/ 2>&1 || {
               echo "❌ Error creating archive!"
               echo "Files check:"
               ls -lah docker-compose.fallback.yml backend/ frontend/ || true
@@ -322,6 +323,34 @@ jobs:
             # Build and start with fallback
             echo "🏗️ Building and starting with fallback..."
             cd ~/coffe && $COMPOSE -f docker-compose.fallback.yml up -d --build --remove-orphans
+            
+            # Wait for MySQL to be ready
+            echo "⏳ Waiting for MySQL to be ready..."
+            for i in {1..30}; do
+              if docker exec coffee_mysql_fallback mysqladmin ping -h localhost --silent 2>/dev/null; then
+                echo "✅ MySQL is ready"
+                break
+              fi
+              echo "⏳ Waiting for MySQL... ($i/30)"
+              sleep 2
+            done
+            
+            # Run database migrations
+            echo "🔄 Running database migrations..."
+            if [ -d ~/coffe/backend/migrations ]; then
+              for migration in ~/coffe/backend/migrations/*_add_*.sql; do
+                if [ -f "$migration" ]; then
+                  echo "📝 Applying migration: $(basename $migration)"
+                  docker exec -i coffee_mysql_fallback mysql \
+                    -u${MYSQL_USER} \
+                    -p${MYSQL_PASSWORD} \
+                    ${MYSQL_DATABASE} < "$migration" 2>&1 | grep -v "already exists" || true
+                fi
+              done
+              echo "✅ Migrations applied"
+            else
+              echo "⚠️ Migrations directory not found, skipping"
+            fi
             
             echo "✅ Deployment completed"
           EOF

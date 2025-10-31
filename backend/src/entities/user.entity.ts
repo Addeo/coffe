@@ -44,16 +44,14 @@ export class User {
     length: 20,
     default: UserRole.USER,
     nullable: true,
-    select: false, // Don't select automatically to avoid errors if column doesn't exist
   })
-  primaryRole?: UserRole; // Highest role assigned to user (optional - falls back to role if not exists)
+  primaryRole?: UserRole; // Highest role assigned to user (falls back to role if not set)
 
   @Column({
     name: 'active_role',
     type: 'varchar',
     length: 20,
     nullable: true,
-    select: false, // Don't select automatically to avoid errors if column doesn't exist
   })
   activeRole?: UserRole | null; // Currently active role in session (null = use primaryRole or role)
 
