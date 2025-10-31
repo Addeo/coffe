@@ -101,6 +101,7 @@ search_errors() {
 EOF
 }
 
+
 # Main script
 check_connection
 list_containers
