@@ -153,6 +153,12 @@ jobs:
 
             # Ensure required directories exist
             mkdir -p ~/coffe/scripts ~/coffe/docker ~/coffe/docker/mysql
+            
+            # Ensure init.sql exists (create empty if missing)
+            if [ ! -f ~/coffe/docker/mysql/init.sql ]; then
+              echo "-- MySQL initialization script" > ~/coffe/docker/mysql/init.sql
+              echo "SELECT 'Database initialized';" >> ~/coffe/docker/mysql/init.sql
+            fi
 
             # Create .env from CI secrets if missing
             if [ ! -f ~/coffe/.env ]; then
@@ -196,10 +202,26 @@ jobs:
             
             # Wait for MySQL to start and check status
             echo "⏳ Waiting for MySQL to initialize..."
-            sleep 15
+            sleep 10
+            
+            # Check all containers status first
+            echo "📊 All containers status:"
+            docker ps -a --filter "name=coffee_" --format "table {{.Names}}\t{{.Status}}\t{{.ExitCode}}" || true
+            
+            # Check system resources
+            echo "💾 Disk space:"
+            df -h / || true
+            echo "🧠 Memory:"
+            free -h || true
+            
             if ! docker ps | grep -q coffee_mysql_fallback; then
-              echo "❌ MySQL container failed to start. Logs:"
-              docker logs coffee_mysql_fallback --tail=50 || true
+              echo "❌ MySQL container failed to start. Detailed diagnostics:"
+              echo "📋 MySQL logs (last 100 lines):"
+              docker logs coffee_mysql_fallback --tail=100 2>&1 || true
+              echo "📋 MySQL container inspect (State section):"
+              docker inspect coffee_mysql_fallback 2>&1 | grep -A 30 '"State"' || true
+              echo "💾 Volume info:"
+              docker volume inspect coffe_mysql_data 2>&1 || true
               exit 1
             fi
             
