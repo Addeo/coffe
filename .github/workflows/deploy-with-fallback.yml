@@ -78,6 +78,7 @@ jobs:
             --exclude='backend/node_modules' \
             --exclude='frontend/node_modules' \
             --exclude='dist' \
+            --exclude='deploy-package.tar.gz' \
             .
 
           echo "✅ Deployment package created"

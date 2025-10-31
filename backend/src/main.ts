@@ -10,6 +10,21 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     console.log('App created successfully');
 
+    // Request logging middleware - logs all incoming requests
+    app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+      const start = Date.now();
+      const { method, url, ip } = req;
+      
+      res.on('finish', () => {
+        const duration = Date.now() - start;
+        const { statusCode } = res;
+        const logMessage = `[${new Date().toISOString()}] ${method} ${url} | ${statusCode} | ${duration}ms | IP: ${ip}`;
+        console.log(logMessage);
+      });
+      
+      next();
+    });
+
     // Set UTF-8 encoding for responses
     app.use(express.json({ limit: '50mb' }));
     app.use(express.urlencoded({ extended: true, limit: '50mb' }));
