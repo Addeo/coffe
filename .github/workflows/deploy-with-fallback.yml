@@ -352,6 +352,14 @@ jobs:
               echo "⚠️ Migrations directory not found, skipping"
             fi
             
+            # Wait for backend to be ready before initializing users
+            echo "⏳ Waiting for backend to be ready..."
+            sleep 10
+            
+            # Initialize default users (will be done automatically by AuthModule, but ensure it happens)
+            echo "🔄 Initializing default users..."
+            docker exec coffee_backend_fallback curl -s http://localhost:3001/api/auth/init-admin > /dev/null 2>&1 || echo "⚠️ User initialization will happen automatically on backend startup"
+            
             echo "✅ Deployment completed"
           EOF
 

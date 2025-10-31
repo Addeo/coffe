@@ -120,25 +120,12 @@ export class AppComponent implements OnInit, OnDestroy {
     // Проверяем наличие обновлений при старте приложения
     this.startupService.checkForUpdates();
 
-    // Listen for navigation events to ensure auth state is properly updated
+    // Auth state is reactive and managed by signals - no need to refresh on navigation
+    // Signals will automatically update UI when auth state changes
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(event => {
       const navigationEnd = event as NavigationEnd;
       console.log('🏠 Navigation ended:', navigationEnd.url);
-
-      // Force auth state refresh after navigation
-      setTimeout(() => {
-        console.log('🏠 Auth state after navigation:', this.isAuthenticated());
-        this.authService.refreshAuthState();
-
-        // Force change detection using Angular's ChangeDetectorRef
-        this.cdr.detectChanges();
-
-        // Additional change detection trigger
-        setTimeout(() => {
-          this.cdr.markForCheck();
-          console.log('🏠 Change detection completed');
-        }, 50);
-      }, 100);
+      // No need to refresh auth state - it's already reactive via signals
     });
   }
 

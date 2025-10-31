@@ -179,24 +179,15 @@ export class NavigationComponent implements OnInit, OnDestroy {
     console.log('🧭 Initial auth state:', this.isAuthenticated());
     console.log('🧭 Current user:', this.currentUser());
 
-    // Load notifications if authenticated
+    // Load notifications only once if authenticated
+    // Signals will handle reactive updates automatically
     if (this.isAuthenticated()) {
       this.loadNotifications();
       this.loadUnreadCount();
     }
 
-    // Force change detection to ensure UI updates
+    // Force change detection once to ensure initial UI updates
     this.cdr.detectChanges();
-
-    // Single delayed check to handle async auth state updates
-    setTimeout(() => {
-      console.log('🧭 Delayed auth state check:', this.isAuthenticated());
-      if (this.isAuthenticated()) {
-        this.loadNotifications();
-        this.loadUnreadCount();
-        this.cdr.markForCheck();
-      }
-    }, 100);
   }
 
   ngOnDestroy(): void {
@@ -217,14 +208,21 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   private loadUnreadCount(): void {
+    // Subscribe to unread count observable (will be updated when count changes)
     this.subscriptions.push(
       this.notificationsService.unreadCount$.subscribe(count => {
         this.unreadCount.set(count);
       })
     );
 
-    // Initial load
-    this.notificationsService.getUnreadCount().subscribe();
+    // Initial load once - subsequent updates will come through the observable
+    this.subscriptions.push(
+      this.notificationsService.getUnreadCount().subscribe({
+        error: error => {
+          console.error('Failed to load unread count:', error);
+        },
+      })
+    );
   }
 
   logout(): void {

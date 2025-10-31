@@ -365,6 +365,12 @@ export class AuthService {
       success: true,
       message: 'Users initialized successfully',
       users: results,
+      passwords: {
+        admin: results.admin ? 'admin123' : null,
+        manager: results.manager ? 'manager123' : null,
+        engineer: results.engineer ? 'engineer123' : null,
+      },
+      note: 'Пароли для входа: admin123, manager123, engineer123. Измените их после первого входа.',
     };
   }
 }

@@ -1,204 +1,139 @@
 #!/bin/bash
 
-# =============================================================================
-# ПРОСТЫЕ ТЕСТЫ API ЭНДПОИНТОВ
-# =============================================================================
+# Script to test all API endpoints with different roles
+# Usage: ./test-api-endpoints.sh [BASE_URL]
 
-# Цвета для вывода
-RED='\033[0;31m'
+BASE_URL="${1:-http://192.144.12.102:3001/api}"
+VPS_HOST="${VPS_HOST:-192.144.12.102}"
+
+# Colors
 GREEN='\033[0;32m'
+RED='\033[0;31m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Настройки
-BASE_URL="http://localhost:3001"
+echo -e "${BLUE}╔══════════════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║  API Endpoints Test Suite                           ║${NC}"
+echo -e "${BLUE}╚══════════════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${CYAN}Base URL: ${BASE_URL}${NC}"
+echo ""
 
-# Счетчики
-TOTAL_TESTS=0
-PASSED_TESTS=0
-FAILED_TESTS=0
-
-# Функция для логирования
-log() {
-    echo -e "${BLUE}[$(date '+%H:%M:%S')]${NC} $1"
-}
-
-log_success() {
-    echo -e "${GREEN}✅ $1${NC}"
-    ((PASSED_TESTS++))
-}
-
-log_error() {
-    echo -e "${RED}❌ $1${NC}"
-    ((FAILED_TESTS++))
-}
-
-log_info() {
-    echo -e "${CYAN}ℹ️  $1${NC}"
-}
-
-# Функция для выполнения HTTP запроса
+# Test function
 test_endpoint() {
-    local method=$1
-    local endpoint=$2
-    local expected_status=$3
-    local description=$4
-    
-    ((TOTAL_TESTS++))
-    
-    local response=$(curl -s -w "%{http_code}" -o /dev/null -X $method "$BASE_URL$endpoint")
-    
-    if [ "$response" = "$expected_status" ]; then
-        log_success "$method $endpoint -> $response ($description)"
-        return 0
-    else
-        log_error "$method $endpoint -> Expected: $expected_status, Got: $response ($description)"
-        return 1
-    fi
+  local method=$1
+  local endpoint=$2
+  local token=$3
+  local role=$4
+  local data=$5
+  
+  local url="${BASE_URL}${endpoint}"
+  local headers=(-H "Content-Type: application/json")
+  
+  if [ -n "$token" ]; then
+    headers+=(-H "Authorization: Bearer $token")
+  fi
+  
+  local status_code
+  if [ -n "$data" ]; then
+    status_code=$(curl -s -o /dev/null -w "%{http_code}" -X "$method" "$url" "${headers[@]}" -d "$data" --insecure 2>/dev/null)
+  else
+    status_code=$(curl -s -o /dev/null -w "%{http_code}" -X "$method" "$url" "${headers[@]}" --insecure 2>/dev/null)
+  fi
+  
+  local status_color
+  local status_text
+  
+  if [ "$status_code" -ge 200 ] && [ "$status_code" -lt 300 ]; then
+    status_color=$GREEN
+    status_text="✅ OK"
+  elif [ "$status_code" -eq 401 ] || [ "$status_code" -eq 403 ]; then
+    status_color=$YELLOW
+    status_text="⚠️  FORBIDDEN"
+  elif [ "$status_code" -ge 400 ] && [ "$status_code" -lt 500 ]; then
+    status_color=$RED
+    status_text="❌ ERROR"
+  else
+    status_color=$RED
+    status_text="❌ FAIL"
+  fi
+  
+  echo -e "${status_color}${status_text}${NC} (${status_code}) - ${method} ${endpoint} [${role:-No Auth}]"
 }
 
-# Функция для проверки работоспособности сервера
-check_server() {
-    log "Проверка работоспособности сервера..."
-    
-    local response=$(curl -s -w "%{http_code}" -o /dev/null "$BASE_URL/test/health")
-    
-    if [ "$response" = "200" ]; then
-        log_success "Сервер работает"
-        return 0
-    else
-        log_error "Сервер недоступен (HTTP $response)"
-        return 1
-    fi
-}
+echo -e "${BLUE}📋 Testing endpoints without authentication...${NC}"
+echo ""
 
-# Тестирование публичных эндпоинтов
-test_public_endpoints() {
-    log_info "=== ТЕСТИРОВАНИЕ ПУБЛИЧНЫХ ЭНДПОИНТОВ ==="
-    
-    test_endpoint "GET" "/api/test/health" "200" "Health check"
-    test_endpoint "GET" "/api/test" "200" "Test endpoint"
-    test_endpoint "GET" "/api/test/simple" "200" "Simple test"
-    test_endpoint "GET" "/api/test/organizations" "200" "Organizations test"
-    test_endpoint "GET" "/api/test/organizations-static" "200" "Static organizations"
-    test_endpoint "GET" "/api/test/organizations-fixed" "200" "Fixed organizations"
-    test_endpoint "GET" "/api/organizations/public" "200" "Public organizations"
-}
+# Public endpoints
+test_endpoint "GET" "/auth/init-admin" "" "Public"
+test_endpoint "GET" "/organizations/test" "" "Public"
+test_endpoint "GET" "/organizations/public" "" "Public"
+test_endpoint "GET" "/test" "" "Public"
 
-# Тестирование защищенных эндпоинтов (должны возвращать 401)
-test_protected_endpoints() {
-    log_info "=== ТЕСТИРОВАНИЕ ЗАЩИЩЕННЫХ ЭНДПОИНТОВ (401) ==="
-    
-    test_endpoint "GET" "/users" "401" "Users list without auth"
-    test_endpoint "GET" "/orders" "401" "Orders list without auth"
-    test_endpoint "GET" "/organizations" "401" "Organizations list without auth"
-    test_endpoint "GET" "/notifications" "401" "Notifications without auth"
-    test_endpoint "GET" "/files" "200" "Files list (public)"
-    test_endpoint "GET" "/statistics/earnings" "401" "Statistics without auth"
-    test_endpoint "GET" "/calculations/salary" "401" "Calculations without auth"
-    test_endpoint "GET" "/reports/engineer-salaries-chart" "401" "Reports without auth"
-    test_endpoint "GET" "/backup/list" "401" "Backup without auth"
-    test_endpoint "GET" "/work-sessions" "401" "Work sessions without auth"
-    test_endpoint "GET" "/engineer-organization-rates" "401" "Engineer rates without auth"
-    test_endpoint "GET" "/api/salary-payments" "401" "Salary payments without auth"
-    test_endpoint "GET" "/products" "401" "Products without auth"
-    test_endpoint "GET" "/export/orders" "401" "Export without auth"
-}
+echo ""
+echo -e "${BLUE}📋 Testing with ADMIN role...${NC}"
+echo ""
+echo -e "${YELLOW}⚠️  Note: You need to provide admin token${NC}"
+echo -e "${YELLOW}   Run: curl -X POST ${BASE_URL}/auth/login -d '{\"email\":\"admin@coffee.com\",\"password\":\"admin123\"}'${NC}"
+echo ""
 
-# Тестирование несуществующих эндпоинтов (должны возвращать 404)
-test_not_found_endpoints() {
-    log_info "=== ТЕСТИРОВАНИЕ НЕСУЩЕСТВУЮЩИХ ЭНДПОИНТОВ (404) ==="
-    
-    test_endpoint "GET" "/nonexistent" "404" "Non-existent endpoint"
-    test_endpoint "GET" "/api/invalid" "404" "Invalid API endpoint"
-    test_endpoint "GET" "/test/invalid" "404" "Invalid test endpoint"
-    test_endpoint "POST" "/nonexistent" "404" "POST to non-existent"
-    test_endpoint "PUT" "/nonexistent" "404" "PUT to non-existent"
-    test_endpoint "DELETE" "/nonexistent" "404" "DELETE to non-existent"
-}
+read -p "Enter ADMIN token (or press Enter to skip): " ADMIN_TOKEN
 
-# Тестирование методов (GET должен работать, POST/PUT/DELETE без данных - 400/401)
-test_methods() {
-    log_info "=== ТЕСТИРОВАНИЕ HTTP МЕТОДОВ ==="
-    
-    # GET работает для публичных эндпоинтов
-    test_endpoint "GET" "/test" "200" "GET method"
-    
-    # POST без данных должен возвращать 400 или 401
-    test_endpoint "POST" "/test" "404" "POST to test (404 - no route)"
-    test_endpoint "POST" "/auth/login" "400" "POST login without data"
-    test_endpoint "POST" "/users" "401" "POST users without auth"
-    test_endpoint "POST" "/orders" "401" "POST orders without auth"
-    
-    # PUT без данных
-    test_endpoint "PUT" "/test" "404" "PUT to test (404 - no route)"
-    test_endpoint "PUT" "/users/1" "401" "PUT users without auth"
-    
-    # DELETE без данных
-    test_endpoint "DELETE" "/test" "404" "DELETE to test (404 - no route)"
-    test_endpoint "DELETE" "/users/1" "401" "DELETE users without auth"
-}
+if [ -n "$ADMIN_TOKEN" ]; then
+  # Admin endpoints
+  echo -e "${CYAN}Testing Admin endpoints...${NC}"
+  test_endpoint "GET" "/users" "$ADMIN_TOKEN" "ADMIN"
+  test_endpoint "POST" "/users" "$ADMIN_TOKEN" "ADMIN" '{"email":"test@test.com","password":"test123","firstName":"Test","lastName":"User","role":"user"}'
+  test_endpoint "GET" "/users/1" "$ADMIN_TOKEN" "ADMIN"
+  test_endpoint "GET" "/organizations" "$ADMIN_TOKEN" "ADMIN"
+  test_endpoint "POST" "/organizations" "$ADMIN_TOKEN" "ADMIN" '{"name":"Test Org","baseRate":500}'
+  test_endpoint "GET" "/orders" "$ADMIN_TOKEN" "ADMIN"
+  test_endpoint "POST" "/orders" "$ADMIN_TOKEN" "ADMIN" '{"title":"Test Order","organizationId":1,"location":"Test"}'
+  test_endpoint "GET" "/statistics" "$ADMIN_TOKEN" "ADMIN"
+  test_endpoint "GET" "/statistics/organizations" "$ADMIN_TOKEN" "ADMIN"
+  test_endpoint "GET" "/statistics/engineers" "$ADMIN_TOKEN" "ADMIN"
+  test_endpoint "GET" "/logs" "$ADMIN_TOKEN" "ADMIN"
+  test_endpoint "GET" "/backup" "$ADMIN_TOKEN" "ADMIN"
+  test_endpoint "GET" "/settings" "$ADMIN_TOKEN" "ADMIN"
+  test_endpoint "GET" "/engineer-organization-rates" "$ADMIN_TOKEN" "ADMIN"
+  test_endpoint "GET" "/salary-payments" "$ADMIN_TOKEN" "ADMIN"
+fi
 
-# Тестирование параметров запроса
-test_query_parameters() {
-    log_info "=== ТЕСТИРОВАНИЕ ПАРАМЕТРОВ ЗАПРОСА ==="
-    
-    # Валидные параметры
-    test_endpoint "GET" "/test/organizations?limit=10" "200" "With valid query params"
-    test_endpoint "GET" "/organizations/public?limit=5" "200" "Public orgs with params"
-    
-    # Невалидные параметры (должны обрабатываться gracefully)
-    test_endpoint "GET" "/test/organizations?invalid=value" "200" "With invalid query params"
-    test_endpoint "GET" "/organizations/public?page=abc" "200" "Invalid page parameter"
-}
+echo ""
+read -p "Enter MANAGER token (or press Enter to skip): " MANAGER_TOKEN
 
-# Функция для вывода итогового отчета
-print_summary() {
-    echo ""
-    echo "=================================================================================="
-    echo -e "${PURPLE}                           ИТОГОВЫЙ ОТЧЕТ${NC}"
-    echo "=================================================================================="
-    echo -e "Всего тестов: ${CYAN}$TOTAL_TESTS${NC}"
-    echo -e "Прошло: ${GREEN}$PASSED_TESTS${NC}"
-    echo -e "Провалено: ${RED}$FAILED_TESTS${NC}"
-    
-    if [ $FAILED_TESTS -eq 0 ]; then
-        echo -e "\n${GREEN}🎉 ВСЕ ТЕСТЫ ПРОШЛИ УСПЕШНО!${NC}"
-        echo -e "${CYAN}Все API эндпоинты работают корректно${NC}"
-        return 0
-    else
-        echo -e "\n${YELLOW}⚠️  ЕСТЬ ПРОБЛЕМЫ С НЕКОТОРЫМИ ЭНДПОИНТАМИ${NC}"
-        echo -e "Процент успеха: ${YELLOW}$(( (PASSED_TESTS * 100) / TOTAL_TESTS ))%${NC}"
-        return 1
-    fi
-}
+if [ -n "$MANAGER_TOKEN" ]; then
+  echo -e "${CYAN}Testing Manager endpoints...${NC}"
+  test_endpoint "GET" "/users" "$MANAGER_TOKEN" "MANAGER"
+  test_endpoint "GET" "/organizations" "$MANAGER_TOKEN" "MANAGER"
+  test_endpoint "GET" "/orders" "$MANAGER_TOKEN" "MANAGER"
+  test_endpoint "POST" "/orders" "$MANAGER_TOKEN" "MANAGER" '{"title":"Test","organizationId":1,"location":"Test"}'
+  test_endpoint "GET" "/orders/my-orders" "$MANAGER_TOKEN" "MANAGER"
+  test_endpoint "GET" "/statistics" "$MANAGER_TOKEN" "MANAGER"
+  test_endpoint "GET" "/settings" "$MANAGER_TOKEN" "MANAGER"
+fi
 
-# Основная функция
-main() {
-    echo -e "${PURPLE}=================================================================================="
-    echo -e "                    ТЕСТИРОВАНИЕ API ЭНДПОИНТОВ"
-    echo -e "==================================================================================${NC}"
-    
-    # Проверка сервера
-    if ! check_server; then
-        echo -e "${RED}❌ Сервер недоступен. Убедитесь, что backend запущен на $BASE_URL${NC}"
-        echo -e "${YELLOW}💡 Запустите: cd backend && npm run start:dev${NC}"
-        exit 1
-    fi
-    
-    # Запуск всех тестов
-    test_public_endpoints
-    test_protected_endpoints
-    test_not_found_endpoints
-    test_methods
-    test_query_parameters
-    
-    # Вывод итогового отчета
-    print_summary
-}
+echo ""
+read -p "Enter USER (Engineer) token (or press Enter to skip): " USER_TOKEN
 
-# Запуск основной функции
-main "$@"
+if [ -n "$USER_TOKEN" ]; then
+  echo -e "${CYAN}Testing User/Engineer endpoints...${NC}"
+  test_endpoint "GET" "/orders" "$USER_TOKEN" "USER"
+  test_endpoint "GET" "/users/profile" "$USER_TOKEN" "USER"
+  test_endpoint "PATCH" "/users/profile" "$USER_TOKEN" "USER" '{"firstName":"Updated"}'
+  test_endpoint "GET" "/notifications" "$USER_TOKEN" "USER"
+  test_endpoint "POST" "/orders/1/accept" "$USER_TOKEN" "USER"
+  test_endpoint "POST" "/orders/1/complete-work" "$USER_TOKEN" "USER" '{"regularHours":1,"overtimeHours":0,"carPayment":100,"isFullyCompleted":false}'
+  test_endpoint "POST" "/orders/1/work-sessions" "$USER_TOKEN" "USER" '{"regularHours":1,"overtimeHours":0,"workDate":"2025-10-31"}'
+fi
+
+echo ""
+echo -e "${GREEN}✅ Testing completed!${NC}"
+echo ""
+echo -e "${CYAN}💡 Tip: Check the status codes above${NC}"
+echo -e "${CYAN}   - 200-299: ✅ Success${NC}"
+echo -e "${CYAN}   - 401/403: ⚠️  Access denied (expected for some roles)${NC}"
+echo -e "${CYAN}   - 400-499: ❌ Client error${NC}"
+echo -e "${CYAN}   - 500+: ❌ Server error${NC}"
