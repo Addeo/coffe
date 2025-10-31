@@ -106,7 +106,7 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ConnectTimeout=30 -o TCPKeepAlive=yes ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             set -e
             
             echo "🚀 Starting deployment with fallback mechanism..."
@@ -140,7 +140,29 @@ jobs:
 
             # Create .env from CI secrets if missing
             if [ ! -f ~/coffe/.env ]; then
-              echo -e "JWT_SECRET=${JWT_SECRET}\nMYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}\nMYSQL_DATABASE=${MYSQL_DATABASE}\nMYSQL_USER=${MYSQL_USER}\nMYSQL_PASSWORD=${MYSQL_PASSWORD}\nSMTP_HOST=${SMTP_HOST}\nSMTP_PORT=${SMTP_PORT}\nSMTP_USER=${SMTP_USER}\nSMTP_PASS=${SMTP_PASS}" > ~/coffe/.env
+              cat > ~/coffe/.env <<EOF
+NODE_ENV=production
+PORT=3001
+
+DB_HOST=mysql
+DB_PORT=3306
+DB_USERNAME=${MYSQL_USER}
+DB_PASSWORD=${MYSQL_PASSWORD}
+DB_DATABASE=${MYSQL_DATABASE}
+DB_SSL=false
+
+JWT_SECRET=${JWT_SECRET}
+
+SMTP_HOST=${SMTP_HOST}
+SMTP_PORT=${SMTP_PORT}
+SMTP_USER=${SMTP_USER}
+SMTP_PASS=${SMTP_PASS}
+
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+MYSQL_DATABASE=${MYSQL_DATABASE}
+MYSQL_USER=${MYSQL_USER}
+MYSQL_PASSWORD=${MYSQL_PASSWORD}
+EOF
             fi
 
             # Ensure Dockerfiles exist with expected names
@@ -230,7 +252,7 @@ jobs:
         run: |
           echo "🔄 Health check failed, attempting rollback..."
           
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ConnectTimeout=30 -o TCPKeepAlive=yes ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             set -e
             
             echo "🔄 Starting rollback process..."
