@@ -86,6 +86,7 @@ jobs:
             backend/Dockerfile.fallback \
             backend/package*.json \
             backend/tsconfig.json \
+            backend/shared/ \
             frontend/dist \
             frontend/Dockerfile \
             frontend/Dockerfile.fallback \
