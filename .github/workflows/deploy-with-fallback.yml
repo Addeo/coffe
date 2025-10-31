@@ -70,17 +70,20 @@ jobs:
       - name: 📦 Create deployment package
         run: |
           echo "Creating deployment package..."
-          # Archive entire repository excluding heavy/unused directories
-          tar -czf deploy-package.tar.gz \
+          # Create archive in /tmp to avoid "file changed as we read it" error
+          cd "${{ github.workspace }}"
+          tar -czf /tmp/deploy-package.tar.gz \
             --exclude='.git' \
             --exclude='.github' \
             --exclude='node_modules' \
             --exclude='backend/node_modules' \
             --exclude='frontend/node_modules' \
             --exclude='dist' \
-            --exclude='deploy-package.tar.gz' \
+            --exclude='*.tar.gz' \
+            --exclude='*.log' \
             .
-
+          # Move archive back to workspace
+          mv /tmp/deploy-package.tar.gz ./deploy-package.tar.gz
           echo "✅ Deployment package created"
 
       - name: 📤 Upload to VPS
