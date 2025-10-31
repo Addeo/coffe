@@ -140,29 +140,27 @@ jobs:
 
             # Create .env from CI secrets if missing
             if [ ! -f ~/coffe/.env ]; then
-              cat > ~/coffe/.env <<EOF
-NODE_ENV=production
-PORT=3001
-
-DB_HOST=mysql
-DB_PORT=3306
-DB_USERNAME=${MYSQL_USER}
-DB_PASSWORD=${MYSQL_PASSWORD}
-DB_DATABASE=${MYSQL_DATABASE}
-DB_SSL=false
-
-JWT_SECRET=${JWT_SECRET}
-
-SMTP_HOST=${SMTP_HOST}
-SMTP_PORT=${SMTP_PORT}
-SMTP_USER=${SMTP_USER}
-SMTP_PASS=${SMTP_PASS}
-
-MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-MYSQL_DATABASE=${MYSQL_DATABASE}
-MYSQL_USER=${MYSQL_USER}
-MYSQL_PASSWORD=${MYSQL_PASSWORD}
-EOF
+              echo "NODE_ENV=production" > ~/coffe/.env
+              echo "PORT=3001" >> ~/coffe/.env
+              echo "" >> ~/coffe/.env
+              echo "DB_HOST=mysql" >> ~/coffe/.env
+              echo "DB_PORT=3306" >> ~/coffe/.env
+              echo "DB_USERNAME=${MYSQL_USER}" >> ~/coffe/.env
+              echo "DB_PASSWORD=${MYSQL_PASSWORD}" >> ~/coffe/.env
+              echo "DB_DATABASE=${MYSQL_DATABASE}" >> ~/coffe/.env
+              echo "DB_SSL=false" >> ~/coffe/.env
+              echo "" >> ~/coffe/.env
+              echo "JWT_SECRET=${JWT_SECRET}" >> ~/coffe/.env
+              echo "" >> ~/coffe/.env
+              echo "SMTP_HOST=${SMTP_HOST}" >> ~/coffe/.env
+              echo "SMTP_PORT=${SMTP_PORT}" >> ~/coffe/.env
+              echo "SMTP_USER=${SMTP_USER}" >> ~/coffe/.env
+              echo "SMTP_PASS=${SMTP_PASS}" >> ~/coffe/.env
+              echo "" >> ~/coffe/.env
+              echo "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" >> ~/coffe/.env
+              echo "MYSQL_DATABASE=${MYSQL_DATABASE}" >> ~/coffe/.env
+              echo "MYSQL_USER=${MYSQL_USER}" >> ~/coffe/.env
+              echo "MYSQL_PASSWORD=${MYSQL_PASSWORD}" >> ~/coffe/.env
             fi
 
             # Ensure Dockerfiles exist with expected names
