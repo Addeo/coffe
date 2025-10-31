@@ -106,8 +106,18 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
-          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ConnectTimeout=30 -o TCPKeepAlive=yes ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ConnectTimeout=30 -o TCPKeepAlive=yes ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash -s << 'EOF' "$JWT_SECRET" "$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" "$MYSQL_USER" "$MYSQL_PASSWORD" "$SMTP_HOST" "$SMTP_PORT" "$SMTP_USER" "$SMTP_PASS"
             set -e
+            
+            JWT_SECRET="$1"
+            MYSQL_ROOT_PASSWORD="$2"
+            MYSQL_DATABASE="$3"
+            MYSQL_USER="$4"
+            MYSQL_PASSWORD="$5"
+            SMTP_HOST="$6"
+            SMTP_PORT="$7"
+            SMTP_USER="$8"
+            SMTP_PASS="$9"
             
             echo "🚀 Starting deployment with fallback mechanism..."
 
