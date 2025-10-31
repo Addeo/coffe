@@ -1,6 +1,7 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe, HttpStatus, HttpException } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './filters/http-exception.filter';
 import * as express from 'express';
 import { join } from 'path';
 
@@ -31,14 +32,33 @@ async function bootstrap() {
 
     console.log('Middleware configured');
 
-    // Enable global validation pipe
+    // Enable global validation pipe with detailed error messages
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
-        forbidNonWhitelisted: false,
+        forbidNonWhitelisted: true,
         transform: true,
         transformOptions: {
           enableImplicitConversion: true,
+        },
+        exceptionFactory: (errors) => {
+          const messages = errors.map(error => {
+            const constraints = error.constraints || {};
+            return {
+              property: error.property,
+              value: error.value,
+              constraints: Object.values(constraints),
+            };
+          });
+          
+          return new HttpException(
+            {
+              statusCode: HttpStatus.BAD_REQUEST,
+              message: 'Validation failed',
+              errors: messages,
+            },
+            HttpStatus.BAD_REQUEST,
+          );
         },
       })
     );
@@ -47,6 +67,10 @@ async function bootstrap() {
     // Enable class-transformer serialization globally
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
     console.log('ClassSerializerInterceptor enabled');
+
+    // Enable global exception filter for better error handling
+    app.useGlobalFilters(new AllExceptionsFilter());
+    console.log('AllExceptionsFilter enabled');
 
     // Global prefix for all routes
     app.setGlobalPrefix('api');
