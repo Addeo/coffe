@@ -99,34 +99,25 @@ jobs:
               exit 1
             }
           
-          # Verify archive contains the compose file
-          echo "🔍 Verifying archive contents..."
-          tar -tzf deploy-package.tar.gz | grep docker-compose.fallback.yml || {
-            echo "❌ docker-compose.fallback.yml not in archive!"
-            echo "Archive contents:"
-            tar -tzf deploy-package.tar.gz | head -20
-            exit 1
-          }
-          
-          # Verify archive contains compose file with correct size
+          # Verify archive contains compose file and check size
           echo "🔍 Verifying archive..."
           if ! tar -tzf deploy-package.tar.gz | grep -q docker-compose.fallback.yml; then
             echo "❌ ERROR: docker-compose.fallback.yml not in archive!"
+            echo "Archive contents:"
             tar -tzf deploy-package.tar.gz | head -20
             exit 1
           fi
           
           # Extract and check file size from archive
           TEMP_CHECK=$(mktemp -d)
-          tar -xzf deploy-package.tar.gz -C "$TEMP_CHECK" docker-compose.fallback.yml
+          tar -xzf deploy-package.tar.gz -C "$TEMP_CHECK" docker-compose.fallback.yml 2>&1
           ARCHIVED_SIZE=$(wc -c < "$TEMP_CHECK/docker-compose.fallback.yml")
           rm -rf "$TEMP_CHECK"
           
-          echo "📏 Original size: $COMPOSE_SIZE bytes"
-          echo "📏 Archived size: $ARCHIVED_SIZE bytes"
+          echo "📏 Archived file size: $ARCHIVED_SIZE bytes"
           
           if [ "$ARCHIVED_SIZE" -lt 100 ]; then
-            echo "❌ ERROR: File in archive is too small!"
+            echo "❌ ERROR: File in archive is too small ($ARCHIVED_SIZE bytes)!"
             exit 1
           fi
           
