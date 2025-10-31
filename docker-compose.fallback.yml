@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # MySQL Database
   mysql:
@@ -111,3 +109,4 @@ volumes:
 networks:
   coffee_fallback_network:
     driver: bridge
+
