@@ -15,10 +15,13 @@ services:
       - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - coffee_fallback_network
+    command: --default-authentication-plugin=mysql_native_password --max_allowed_packet=256M --innodb_buffer_pool_size=256M
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
       retries: 10
+      start_period: 30s
 
   # NestJS Backend with fallback mechanism
   backend:

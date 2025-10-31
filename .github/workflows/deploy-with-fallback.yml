@@ -174,22 +174,44 @@ jobs:
               COMPOSE="docker-compose"
             fi
             
-            # Stop current containers
-            echo "🛑 Stopping current containers..."
-            cd ~/coffe && $COMPOSE -f docker-compose.fallback.yml down -v --remove-orphans || true
+            # Stop current containers and force remove all project containers
+            echo "🛑 Stopping and removing all containers..."
+            cd ~/coffe
             
-            # Clean old images
-            echo "🧹 Cleaning old images..."
-            # Clean old containers/volumes/networks that may conflict (mysql/orphans)
+            # Force remove all containers by name (including orphans)
+            docker ps -a --format "{{.Names}}" | grep -E "(coffee_|coffe_)" | xargs -r docker rm -f || true
+            
+            # Use compose down if possible
+            $COMPOSE -f docker-compose.fallback.yml down -v --remove-orphans 2>/dev/null || true
+            
+            # Clean old images and networks
+            echo "🧹 Cleaning old images and networks..."
             docker image prune -af || true
-            docker ps -aq --filter "name=coffee_mysql_fallback" | xargs -r docker rm -f || true
-            docker ps -aq --filter "name=coffe_mysql" | xargs -r docker rm -f || true
-            docker volume ls -q --filter name=coffe_ | xargs -r docker volume rm || true
+            docker network ls -q --filter name=coffee_fallback | xargs -r docker network rm || true
             docker network ls -q --filter name=coffe_ | xargs -r docker network rm || true
             
             # Build and start with fallback
             echo "🏗️ Building and starting with fallback..."
-            cd ~/coffe && $COMPOSE -f docker-compose.fallback.yml up -d --build --remove-orphans
+            cd ~/coffe && $COMPOSE -f docker-compose.fallback.yml up -d --build --force-recreate --remove-orphans
+            
+            # Wait for MySQL to start and check status
+            echo "⏳ Waiting for MySQL to initialize..."
+            sleep 15
+            if ! docker ps | grep -q coffee_mysql_fallback; then
+              echo "❌ MySQL container failed to start. Logs:"
+              docker logs coffee_mysql_fallback --tail=50 || true
+              exit 1
+            fi
+            
+            # Check MySQL health
+            for i in {1..30}; do
+              if docker exec coffee_mysql_fallback mysqladmin ping -h localhost -u root -prootpassword >/dev/null 2>&1; then
+                echo "✅ MySQL is healthy"
+                break
+              fi
+              echo "⏳ Waiting for MySQL health check (attempt $i/30)..."
+              sleep 2
+            done
             
             echo "✅ Deployment completed"
           EOF
