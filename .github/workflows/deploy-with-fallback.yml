@@ -22,8 +22,30 @@ jobs:
           echo "SSH key saved, first line:"
           head -n 1 ~/.ssh/id_rsa
           echo "VPS Host: ${{ secrets.VPS_HOST }}"
+          
+          # Configure SSH client for better reliability
+          cat >> ~/.ssh/config << 'SSH_CONFIG'
+          Host *
+            ServerAliveInterval 15
+            ServerAliveCountMax 3
+            TCPKeepAlive yes
+            ConnectTimeout 30
+            Compression yes
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+          SSH_CONFIG
+          
           echo "Adding known hosts..."
           ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts 2>&1 || echo "ssh-keyscan failed, continuing..."
+          
+          # Test connection
+          echo "Testing SSH connection..."
+          if ssh -o ConnectTimeout=10 ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "echo 'Connection OK'"; then
+            echo "✅ SSH connection successful"
+          else
+            echo "⚠️ SSH test connection failed, but continuing..."
+          fi
+          
           echo "SSH setup complete"
 
       - name: 🛠️ Setup Node.js
@@ -132,8 +154,34 @@ jobs:
       - name: 📤 Upload to VPS
         run: |
           echo "Uploading to VPS..."
-          scp -o StrictHostKeyChecking=no deploy-package.tar.gz ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/
-          echo "✅ Files uploaded to VPS"
+          
+          # Retry logic for SCP
+          MAX_RETRIES=3
+          RETRY_DELAY=10
+          
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Upload attempt $i of $MAX_RETRIES..."
+            
+            if scp -o StrictHostKeyChecking=no \
+                   -o ConnectTimeout=30 \
+                   -o ServerAliveInterval=15 \
+                   -o ServerAliveCountMax=3 \
+                   -o TCPKeepAlive=yes \
+                   -o Compression=yes \
+                   deploy-package.tar.gz ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/; then
+              echo "✅ Files uploaded to VPS"
+              exit 0
+            else
+              echo "❌ Upload failed (attempt $i)"
+              if [ $i -lt $MAX_RETRIES ]; then
+                echo "Waiting ${RETRY_DELAY}s before retry..."
+                sleep $RETRY_DELAY
+              fi
+            fi
+          done
+          
+          echo "❌ Failed to upload after $MAX_RETRIES attempts"
+          exit 1
 
       - name: 🔧 Deploy on VPS with Fallback
         env:
@@ -147,7 +195,20 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
-          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ConnectTimeout=30 -o TCPKeepAlive=yes ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash -s << 'EOF' "$JWT_SECRET" "$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" "$MYSQL_USER" "$MYSQL_PASSWORD" "$SMTP_HOST" "$SMTP_PORT" "$SMTP_USER" "$SMTP_PASS"
+          # Retry logic for SSH deployment
+          MAX_RETRIES=2
+          RETRY_DELAY=15
+          
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Deployment attempt $i of $MAX_RETRIES..."
+            
+            if ssh -o StrictHostKeyChecking=no \
+                   -o ServerAliveInterval=30 \
+                   -o ServerAliveCountMax=3 \
+                   -o ConnectTimeout=30 \
+                   -o TCPKeepAlive=yes \
+                   -o Compression=yes \
+                   ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash -s << 'EOF' "$JWT_SECRET" "$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" "$MYSQL_USER" "$MYSQL_PASSWORD" "$SMTP_HOST" "$SMTP_PORT" "$SMTP_USER" "$SMTP_PASS"
             set -e
             
             JWT_SECRET="$1"
@@ -362,6 +423,20 @@ jobs:
             
             echo "✅ Deployment completed"
           EOF
+            then
+              echo "✅ Deployment successful on attempt $i"
+              break
+            else
+              echo "❌ Deployment failed on attempt $i"
+              if [ $i -lt $MAX_RETRIES ]; then
+                echo "Waiting ${RETRY_DELAY}s before retry..."
+                sleep $RETRY_DELAY
+              else
+                echo "❌ Failed to deploy after $MAX_RETRIES attempts"
+                exit 1
+              fi
+            fi
+          done
 
       - name: ⏳ Wait for services to start
         run: sleep 30

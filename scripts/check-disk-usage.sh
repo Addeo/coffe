@@ -4,23 +4,52 @@
 # Display disk usage summary on production server
 # ============================================
 
-set -e
-
 VPS_HOST="192.144.12.102"
 VPS_USER="user1"
+SSH_PORT="${SSH_PORT:-22}"
 PROJECT_DIR="~/coffe"
 SSH_KEY="${SSH_KEY:-$HOME/.ssh/coffe_key}"
-SSH_OPTS="-i ${SSH_KEY} -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ConnectTimeout=30"
 
-ssh_exec() {
-  ssh ${SSH_OPTS} "${VPS_USER}@${VPS_HOST}" "$@"
-}
+echo "🔍 Checking disk usage on ${VPS_HOST}..."
+echo ""
+
+# Test connection first
+if ! ssh -i "${SSH_KEY}" -p "${SSH_PORT}" \
+     -o StrictHostKeyChecking=no \
+     -o ConnectTimeout=5 \
+     -o BatchMode=yes \
+     "${VPS_USER}@${VPS_HOST}" "echo 'OK'" &>/dev/null; then
+  echo "❌ Cannot connect to server ${VPS_HOST}"
+  echo ""
+  echo "Possible reasons:"
+  echo "  • SSH service is not responding"
+  echo "  • Firewall blocking connections"
+  echo "  • Network issues"
+  echo ""
+  echo "Try connecting manually:"
+  echo "  ssh -i ${SSH_KEY} ${VPS_USER}@${VPS_HOST}"
+  exit 1
+fi
+
+echo "✅ Connected to server"
+echo ""
 
 echo "💾 Disk usage (root filesystem):"
-ssh_exec "df -h /"
+ssh -i "${SSH_KEY}" -p "${SSH_PORT}" \
+    -o StrictHostKeyChecking=no \
+    -o ConnectTimeout=10 \
+    "${VPS_USER}@${VPS_HOST}" "df -h /"
 
 echo ""
 echo "📂 Top directories in ${PROJECT_DIR}:"
-ssh_exec "du -h --max-depth=1 ${PROJECT_DIR} | sort -h"
+ssh -i "${SSH_KEY}" -p "${SSH_PORT}" \
+    -o StrictHostKeyChecking=no \
+    -o ConnectTimeout=10 \
+    "${VPS_USER}@${VPS_HOST}" "du -h --max-depth=1 ${PROJECT_DIR} 2>/dev/null | sort -h"
 
-
+echo ""
+echo "🐳 Docker disk usage:"
+ssh -i "${SSH_KEY}" -p "${SSH_PORT}" \
+    -o StrictHostKeyChecking=no \
+    -o ConnectTimeout=10 \
+    "${VPS_USER}@${VPS_HOST}" "docker system df 2>/dev/null || echo 'Docker not available'"

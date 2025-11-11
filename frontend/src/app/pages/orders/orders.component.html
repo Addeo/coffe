@@ -440,10 +440,7 @@
   <!-- Mobile Engineer Summary (replaces desktop engineer-summary-card) -->
   <mat-card class="mobile-summary-card" *ngIf="isMobileView() && isEngineerView()">
         <mat-card-header style="flex-wrap: wrap !important;">
-          <mat-card-title  (click)="toggleEngineerSummary()">
-            <mat-icon>dashboard</mat-icon>
-            Статистика
-          </mat-card-title>
+         
           <div class="header-actions-right" (click)="toggleEngineerSummary()">
             <button
               mat-icon-button
@@ -465,7 +462,15 @@
               <mat-icon>chevron_left</mat-icon>
             </button>
             <span class="current-month" *ngIf="engineerSummary() as summary">
-              {{ getMonthName(summary.month) }} {{ summary.year }}
+              <div class="month-header">
+                <div class="month-label">
+                  <mat-icon>dashboard</mat-icon>
+                  <span>Статистика</span>
+                </div>
+                <div class="month-date">
+                  {{ getMonthName(summary.month) }} {{ summary.year }}
+                </div>
+              </div>
             </span>
             <button
               mat-icon-button
