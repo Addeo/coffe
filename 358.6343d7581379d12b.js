@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkcoffee_admin=self.webpackChunkcoffee_admin||[]).push([[358],{7358:(f,s,n)=>{n.r(s),n.d(s,{Browser:()=>d});const d=(0,n(1225).F3)("Browser",{web:()=>n.e(396).then(n.bind(n,8396)).then(e=>new e.BrowserWeb)})}}]);
