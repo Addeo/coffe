@@ -203,6 +203,30 @@ export interface OrderPaymentStatsDto {
   paidToEngineer: number;
   pendingToEngineer: number;
 }
+export interface OrderStatsDto {
+  total: number;
+  waiting: number;
+  assigned: number;
+  processing: number;
+  working: number;
+  review: number;
+  completed: number;
+  paid_to_engineer: number;
+  bySource: {
+    manual: number;
+    automatic: number;
+    email: number;
+    api: number;
+  };
+  paymentStats: {
+    totalCompleted: number;
+    receivedFromOrganization: number;
+    pendingFromOrganization: number;
+    paidToEngineer: number;
+    pendingToEngineer: number;
+  };
+  engineerSummary?: EngineerOrderSummaryDto | null;
+}
 
 export interface EngineerOrderSummaryDto {
   engineerId: number;
@@ -217,16 +241,16 @@ export interface EngineerOrderSummaryDto {
   plannedCarAmount: number;
 }
 
-export interface OrderStatsDto {
-  total: number;
-  waiting: number;
-  assigned: number;
-  processing: number;
-  working: number;
-  review: number;
-  completed: number;
-  paid_to_engineer: number;
-  bySource: OrderStatsBySourceDto;
-  paymentStats: OrderPaymentStatsDto;
-  engineerSummary?: EngineerOrderSummaryDto | null;
-}
+// export interface OrderStatsDto {
+//   total: number;
+//   waiting: number;
+//   assigned: number;
+//   processing: number;
+//   working: number;
+//   review: number;
+//   completed: number;
+//   paid_to_engineer: number;
+//   bySource: OrderStatsBySourceDto;
+//   paymentStats: OrderPaymentStatsDto;
+//   engineerSummary?: EngineerOrderSummaryDto | null;
+// }
