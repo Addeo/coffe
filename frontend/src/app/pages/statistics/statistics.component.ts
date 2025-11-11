@@ -17,6 +17,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { StatisticsService } from '../../services/statistics.service';
 import { UsersService } from '../../services/users.service';
 import { AuthService } from '../../services/auth.service';
+import { EarningsSummaryComponent } from '../../components/earnings-summary/earnings-summary.component';
 import { UserRole } from '@shared/interfaces/user.interface';
 import {
   MonthlyStatisticsDto,
@@ -77,6 +78,7 @@ interface ComprehensiveStatisticsDto {
     MatTabsModule,
     MatButtonToggleModule,
     BaseChartDirective,
+    EarningsSummaryComponent,
   ],
   templateUrl: './statistics.component.html',
   styleUrls: ['./statistics.component.scss'],
@@ -107,8 +109,20 @@ export class StatisticsComponent implements OnInit {
   });
   // Car payment status
   carPaymentStatus = signal<any>(null);
-  carPaymentOrgColumns = ['organizationName', 'totalCarAmount', 'paidCarAmount', 'pendingCarAmount', 'paymentStatus'];
-  carPaymentEngineerColumns = ['engineerName', 'totalCarAmount', 'paidCarAmount', 'pendingCarAmount', 'paymentStatus'];
+  carPaymentOrgColumns = [
+    'organizationName',
+    'totalCarAmount',
+    'paidCarAmount',
+    'pendingCarAmount',
+    'paymentStatus',
+  ];
+  carPaymentEngineerColumns = [
+    'engineerName',
+    'totalCarAmount',
+    'paidCarAmount',
+    'pendingCarAmount',
+    'paymentStatus',
+  ];
 
   // Month and year selection
   selectedYear = signal(new Date().getFullYear());
@@ -412,13 +426,13 @@ export class StatisticsComponent implements OnInit {
     try {
       const year = this.selectedYear();
       const month = this.selectedMonth();
-      
+
       console.log('🚗 Загрузка автомобильных отчислений для:', { year, month });
       console.log('🚗 canViewAllData:', this.canViewAllData);
-      
+
       const response = await this.statisticsService.getCarPaymentStatus(year, month).toPromise();
       console.log('🚗 Ответ от сервера:', response);
-      
+
       this.carPaymentStatus.set(response);
     } catch (error) {
       console.error('🚗 Ошибка загрузки статуса автомобильных отчислений:', error);

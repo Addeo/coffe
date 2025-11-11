@@ -1,0 +1,103 @@
+<section class="company-hero">
+  <div class="company-hero__content">
+    <p class="company-hero__tagline">Сервисный центр кофейного оборудования Южного федерального округа</p>
+    <h1 class="company-hero__title">
+      {{ companyName }} поддерживает кофемашины кофеен, офисов и АЗС, чтобы каждая чашка была стабильной
+    </h1>
+    <p class="company-hero__mission">
+      {{ mission }}
+    </p>
+    <ul class="company-hero__values">
+      <li *ngFor="let value of valueProposition; trackBy: trackValue">
+        {{ value }}
+      </li>
+    </ul>
+  </div>
+  <div class="company-hero__card">
+    <h2 class="company-hero__card-title">Что получают наши клиенты</h2>
+    <p>Быстрый выезд · Оригинальные запчасти · Отчет и рекомендации после визита</p>
+  </div>
+</section>
+
+<section class="partners" *ngIf="partners.length > 0">
+  <div class="partners__header">
+    <h2>Клиенты, которые доверяют свою кофейную технику</h2>
+    <p>
+      Работаем напрямую с владельцами и управляющими. Без посредников и кол-центров — только мастера, которые знают, как
+      чувствует себя каждая кофемашина в вашем зале.
+    </p>
+  </div>
+  <div class="partners__grid">
+    <article class="partners__card" *ngFor="let partner of partners; trackBy: trackPartner">
+      <header>
+        <h3>{{ partner.name }}</h3>
+        <span class="partners__badge">{{ partner.industry }}</span>
+      </header>
+      <p>
+        {{ partner.description }}
+      </p>
+    </article>
+  </div>
+</section>
+
+<section class="stability" *ngIf="stabilityHighlights.length > 0">
+  <div class="stability__header">
+    <h2>Небольшая команда, на которую можно положиться</h2>
+    <p>
+      {{ companyName }} — это мастера, которые живут в вашем регионе. Приезжаем быстро, бережно относимся к оборудованию и
+      фиксируем каждую заявку в единой истории обслуживания.
+    </p>
+  </div>
+  <div class="stability__grid">
+    <article class="stability__card" *ngFor="let highlight of stabilityHighlights; trackBy: trackHighlight">
+      <h3>{{ highlight.title }}</h3>
+      <p>{{ highlight.detail }}</p>
+    </article>
+  </div>
+</section>
+
+<section class="industries" *ngIf="industries.length > 0">
+  <div class="industries__header">
+    <h2>Где мы работаем</h2>
+    <p>Поддерживаем кофейное оборудование по всему Южному федеральному округу — от камерных кофеен до крупных сетей.</p>
+  </div>
+  <div class="industries__grid">
+    <article class="industries__card" *ngFor="let industry of industries; trackBy: trackIndustry">
+      <h3>{{ industry.name }}</h3>
+      <p>{{ industry.summary }}</p>
+      <span class="industries__metric">{{ industry.keyMetric }}</span>
+    </article>
+  </div>
+</section>
+
+<section class="gallery" *ngIf="gallery.length > 0">
+  <div class="gallery__header">
+    <h2>Как мы заботимся о кофемашинах</h2>
+    <p>Выездной ремонт, профилактика и обучение персонала — наша техника и внимание помогают клиентам работать без простоев.</p>
+  </div>
+  <div class="gallery__grid">
+    <figure class="gallery__item" *ngFor="let item of gallery; let i = index; trackBy: trackGallery">
+      <img
+        [ngSrc]="item.src"
+        [alt]="item.alt"
+        width="320"
+        height="220"
+        class="gallery__image"
+        [priority]="i === 0"
+      />
+      <figcaption class="gallery__caption">{{ item.caption }}</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="cta__content">
+    <h2>Нужен ремонт или обслуживание кофемашины?</h2>
+    <p>
+      Оставьте заявку — договоримся о времени выезда, подготовим запчасти и вернем вашу кофемашину в строй без лишних
+      вопросов и скрытых оплат.
+    </p>
+  </div>
+  <a class="cta__link" routerLink="/login">Оставить заявку на выезд мастера</a>
+</section>
+

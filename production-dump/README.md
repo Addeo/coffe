@@ -62,3 +62,6 @@ sqlite3 production.db < production_seed_20251016_225347.sql
 
 Дата: Thu Oct 16 22:53:47 MSK 2025
 Версия SQLite: 3.39.5 2022-10-14 20:58:05 554764a6e721fab307c63a4f98cd958c8428a5d9d8edfde951858d6fd02daapl
+
+
+sudo cloudflared service install eyJhIjoiYzM5MmU4MDk5NjJhMzJmYjM4NTZkMjQ4NjMyODgxNzMiLCJ0IjoiNjc1NTdkZDctZTczMS00ODJhLTk0ZWQtMTM3ZGY0ZmM3MjliIiwicyI6IlkyUmhaakk0TW1RdE5UUmlPUzAwTWpsakxXSm1NR010WVROalptSTVZemN6TVRGbSJ9

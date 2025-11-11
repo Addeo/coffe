@@ -73,7 +73,7 @@ async function seed() {
       isActive: true,
     });
     const savedEngineerUser = await userRepo.save(engineerUser);
-    
+
     // Create engineer record
     const engineer = engineerRepo.create({
       userId: savedEngineerUser.id,

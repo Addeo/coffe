@@ -787,10 +787,7 @@ export class StatisticsService {
 
   // Вспомогательные методы для комплексной статистики
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private async getSalaryTimeChart(
-    year: number,
-    month: number
-  ): Promise<EngineerTimeBasedData[]> {
+  private async getSalaryTimeChart(year: number, month: number): Promise<EngineerTimeBasedData[]> {
     // TODO: Реализовать получение данных по дням месяца
     console.log('getSalaryTimeChart called with:', { year, month });
     return [];
@@ -924,7 +921,10 @@ export class StatisticsService {
   }
 
   // Новая статистика по долгам и обязательствам
-  async getPaymentDebtsStatistics(year: number, month: number): Promise<{
+  async getPaymentDebtsStatistics(
+    year: number,
+    month: number
+  ): Promise<{
     engineerDebts: Array<{
       engineerId: number;
       engineerName: string;
@@ -956,8 +956,14 @@ export class StatisticsService {
       .select('engineer.userId', 'engineerId')
       .addSelect('user.firstName', 'firstName')
       .addSelect('user.lastName', 'lastName')
-      .addSelect('SUM(CASE WHEN order.status = "completed" THEN order.calculatedAmount + order.carUsageAmount ELSE 0 END)', 'totalDebt')
-      .addSelect('COUNT(CASE WHEN order.status IN ("completed", "paid_to_engineer") THEN 1 END)', 'completedOrders')
+      .addSelect(
+        'SUM(CASE WHEN order.status = "completed" THEN order.calculatedAmount + order.carUsageAmount ELSE 0 END)',
+        'totalDebt'
+      )
+      .addSelect(
+        'COUNT(CASE WHEN order.status IN ("completed", "paid_to_engineer") THEN 1 END)',
+        'completedOrders'
+      )
       .addSelect('COUNT(CASE WHEN order.status = "paid_to_engineer" THEN 1 END)', 'paidOrders')
       .addSelect('COUNT(CASE WHEN order.status = "completed" THEN 1 END)', 'pendingOrders')
       .innerJoin('order.assignedEngineer', 'engineer')
@@ -975,10 +981,19 @@ export class StatisticsService {
       .createQueryBuilder('order')
       .select('order.organizationId', 'organizationId')
       .addSelect('organization.name', 'organizationName')
-      .addSelect('SUM(CASE WHEN order.status IN ("completed", "paid_to_engineer") AND NOT order.receivedFromOrganization THEN order.organizationPayment ELSE 0 END)', 'totalDebt')
-      .addSelect('COUNT(CASE WHEN order.status IN ("completed", "paid_to_engineer") THEN 1 END)', 'completedOrders')
+      .addSelect(
+        'SUM(CASE WHEN order.status IN ("completed", "paid_to_engineer") AND NOT order.receivedFromOrganization THEN order.organizationPayment ELSE 0 END)',
+        'totalDebt'
+      )
+      .addSelect(
+        'COUNT(CASE WHEN order.status IN ("completed", "paid_to_engineer") THEN 1 END)',
+        'completedOrders'
+      )
       .addSelect('COUNT(CASE WHEN order.receivedFromOrganization THEN 1 END)', 'receivedOrders')
-      .addSelect('COUNT(CASE WHEN order.status IN ("completed", "paid_to_engineer") AND NOT order.receivedFromOrganization THEN 1 END)', 'pendingOrders')
+      .addSelect(
+        'COUNT(CASE WHEN order.status IN ("completed", "paid_to_engineer") AND NOT order.receivedFromOrganization THEN 1 END)',
+        'pendingOrders'
+      )
       .leftJoin('order.organization', 'organization')
       .where('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
       .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
@@ -988,8 +1003,14 @@ export class StatisticsService {
       .getRawMany();
 
     // Подсчет общей суммы долгов
-    const totalEngineerDebt = engineerDebts.reduce((sum, debt) => sum + (Number(debt.totalDebt) || 0), 0);
-    const totalOrganizationDebt = organizationDebts.reduce((sum, debt) => sum + (Number(debt.totalDebt) || 0), 0);
+    const totalEngineerDebt = engineerDebts.reduce(
+      (sum, debt) => sum + (Number(debt.totalDebt) || 0),
+      0
+    );
+    const totalOrganizationDebt = organizationDebts.reduce(
+      (sum, debt) => sum + (Number(debt.totalDebt) || 0),
+      0
+    );
 
     return {
       engineerDebts: engineerDebts.map(debt => ({
@@ -1023,7 +1044,12 @@ export class StatisticsService {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
-    console.log('🚗 Backend - Поиск автомобильных отчислений:', { year, month, startDate, endDate });
+    console.log('🚗 Backend - Поиск автомобильных отчислений:', {
+      year,
+      month,
+      startDate,
+      endDate,
+    });
 
     // Сначала проверим все рабочие сессии за период
     const allSessions = await this.workSessionRepository
@@ -1037,14 +1063,17 @@ export class StatisticsService {
       .getMany();
 
     console.log('🚗 Backend - Все рабочие сессии за период:', allSessions.length);
-    console.log('🚗 Backend - Детали всех сессий:', allSessions.map(s => ({
-      id: s.id,
-      carUsageAmount: s.carUsageAmount,
-      workDate: s.workDate,
-      status: s.status,
-      orderId: s.order?.id,
-      organizationName: s.order?.organization?.name
-    })));
+    console.log(
+      '🚗 Backend - Детали всех сессий:',
+      allSessions.map(s => ({
+        id: s.id,
+        carUsageAmount: s.carUsageAmount,
+        workDate: s.workDate,
+        status: s.status,
+        orderId: s.order?.id,
+        organizationName: s.order?.organization?.name,
+      }))
+    );
 
     // Получаем все рабочие сессии с автомобильными отчислениями
     const carPayments = await this.workSessionRepository
@@ -1059,20 +1088,25 @@ export class StatisticsService {
       .andWhere('session.status = :status', { status: 'completed' })
       .getMany();
 
-    console.log('🚗 Backend - Найдено рабочих сессий с автомобильными отчислениями:', carPayments.length);
-    console.log('🚗 Backend - Данные сессий:', carPayments.map(s => ({
-      id: s.id,
-      carUsageAmount: s.carUsageAmount,
-      workDate: s.workDate,
-      status: s.status,
-      orderId: s.order?.id,
-      organizationName: s.order?.organization?.name
-    })));
+    console.log(
+      '🚗 Backend - Найдено рабочих сессий с автомобильными отчислениями:',
+      carPayments.length
+    );
+    console.log(
+      '🚗 Backend - Данные сессий:',
+      carPayments.map(s => ({
+        id: s.id,
+        carUsageAmount: s.carUsageAmount,
+        workDate: s.workDate,
+        status: s.status,
+        orderId: s.order?.id,
+        organizationName: s.order?.organization?.name,
+      }))
+    );
 
     // Общая сумма к доплате за автомобили
-    const totalCarAmount = carPayments.reduce((sum, session) => 
-      sum + session.carUsageAmount, 0);
-    
+    const totalCarAmount = carPayments.reduce((sum, session) => sum + session.carUsageAmount, 0);
+
     // Уже заплачено за автомобили (пока используем все как неоплаченные)
     const paidCarAmount = carPayments
       .filter(session => session.status === 'completed') // Временно используем статус
@@ -1090,8 +1124,7 @@ export class StatisticsService {
       pendingCarAmount: totalCarAmount - paidCarAmount,
       organizationBreakdown,
       engineerBreakdown,
-      paymentStatus: totalCarAmount > 0 ? 
-        (paidCarAmount / totalCarAmount) * 100 : 0
+      paymentStatus: totalCarAmount > 0 ? (paidCarAmount / totalCarAmount) * 100 : 0,
     };
 
     console.log('🚗 Backend - Результат автомобильных отчислений:', result);
@@ -1102,31 +1135,35 @@ export class StatisticsService {
    * Группировка автомобильных отчислений по организациям
    */
   private groupCarPaymentsByOrganization(carPayments: WorkSession[]) {
-    const orgMap = new Map<number, {
-      organizationId: number;
-      organizationName: string;
-      totalCarAmount: number;
-      paidCarAmount: number;
-      sessions: WorkSession[];
-    }>();
+    const orgMap = new Map<
+      number,
+      {
+        organizationId: number;
+        organizationName: string;
+        totalCarAmount: number;
+        paidCarAmount: number;
+        sessions: WorkSession[];
+      }
+    >();
 
     for (const session of carPayments) {
       const orgId = session.order?.organization?.id;
       const orgName = session.order?.organization?.name || 'Неизвестная организация';
-      
+
       if (!orgMap.has(orgId)) {
         orgMap.set(orgId, {
           organizationId: orgId,
           organizationName: orgName,
           totalCarAmount: 0,
           paidCarAmount: 0,
-          sessions: []
+          sessions: [],
         });
       }
 
       const orgData = orgMap.get(orgId);
       orgData.totalCarAmount += session.carUsageAmount;
-      if (session.status === 'completed') { // Временно используем статус
+      if (session.status === 'completed') {
+        // Временно используем статус
         orgData.paidCarAmount += session.carUsageAmount;
       }
       orgData.sessions.push(session);
@@ -1135,8 +1172,7 @@ export class StatisticsService {
     return Array.from(orgMap.values()).map(org => ({
       ...org,
       pendingCarAmount: org.totalCarAmount - org.paidCarAmount,
-      paymentStatus: org.totalCarAmount > 0 ? 
-        (org.paidCarAmount / org.totalCarAmount) * 100 : 0
+      paymentStatus: org.totalCarAmount > 0 ? (org.paidCarAmount / org.totalCarAmount) * 100 : 0,
     }));
   }
 
@@ -1144,43 +1180,47 @@ export class StatisticsService {
    * Группировка автомобильных отчислений по инженерам
    */
   private groupCarPaymentsByEngineer(carPayments: WorkSession[]) {
-    const engineerMap = new Map<number, {
-      engineerId: number;
-      engineerName: string;
-      totalCarAmount: number;
-      paidCarAmount: number;
-      sessions: WorkSession[];
-    }>();
+    const engineerMap = new Map<
+      number,
+      {
+        engineerId: number;
+        engineerName: string;
+        totalCarAmount: number;
+        paidCarAmount: number;
+        sessions: WorkSession[];
+      }
+    >();
 
     for (const session of carPayments) {
       const engineerId = session.engineerId;
-      const engineerName = session.engineer?.user ? 
-        `${session.engineer.user.firstName} ${session.engineer.user.lastName}` : 
-        'Неизвестный инженер';
-      
+      const engineerName = session.engineer?.user
+        ? `${session.engineer.user.firstName} ${session.engineer.user.lastName}`
+        : 'Неизвестный инженер';
+
       if (!engineerMap.has(engineerId)) {
         engineerMap.set(engineerId, {
           engineerId,
           engineerName,
           totalCarAmount: 0,
           paidCarAmount: 0,
-          sessions: []
+          sessions: [],
         });
       }
 
       const engineerData = engineerMap.get(engineerId);
       engineerData.totalCarAmount += session.carUsageAmount;
-      if (session.status === 'completed') { // Временно используем статус
+      if (session.status === 'completed') {
+        // Временно используем статус
         engineerData.paidCarAmount += session.carUsageAmount;
       }
       engineerData.sessions.push(session);
     }
 
-  return Array.from(engineerMap.values()).map(engineer => ({
-    ...engineer,
-    pendingCarAmount: engineer.totalCarAmount - engineer.paidCarAmount,
-    paymentStatus: engineer.totalCarAmount > 0 ? 
-      (engineer.paidCarAmount / engineer.totalCarAmount) * 100 : 0
-  }));
-}
+    return Array.from(engineerMap.values()).map(engineer => ({
+      ...engineer,
+      pendingCarAmount: engineer.totalCarAmount - engineer.paidCarAmount,
+      paymentStatus:
+        engineer.totalCarAmount > 0 ? (engineer.paidCarAmount / engineer.totalCarAmount) * 100 : 0,
+    }));
+  }
 }

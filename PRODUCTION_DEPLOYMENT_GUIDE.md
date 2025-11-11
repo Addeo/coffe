@@ -15,6 +15,7 @@ mv .github/workflows/deploy-vps.yml .github/workflows/deploy-vps.yml.backup
 ### 2. Настроить переменные окружения (3 минуты)
 
 В GitHub Secrets добавить:
+
 ```
 VPS_HOST=your-server-ip
 VPS_USER=root
@@ -57,11 +58,13 @@ ssh root@your-server "crontab -e"
 ## 🎯 Что изменилось
 
 ### До:
+
 - ❌ Сервер падал при неудачной сборке
 - ❌ Нет механизма отката
 - ❌ Нет health checks
 
 ### После:
+
 - ✅ **Автоматический fallback** на последнюю рабочую версию
 - ✅ **Health checks** для всех сервисов
 - ✅ **Автоматические бэкапы** успешных сборок
@@ -71,10 +74,12 @@ ssh root@your-server "crontab -e"
 ## 🔍 Проверка работы
 
 ### Health Check URLs:
+
 - Backend: `http://your-server:3001/api/health`
 - Frontend: `http://your-server:4000`
 
 ### Команды для проверки:
+
 ```bash
 # Проверить статус системы
 ssh root@your-server "/root/coffe/scripts/system-monitor.sh status"
@@ -91,16 +96,19 @@ ssh root@your-server "/root/coffe/scripts/fallback-manager.sh list backend"
 ### Если система не работает:
 
 1. **Проверить статус:**
+
 ```bash
 ssh root@your-server "/root/coffe/scripts/system-monitor.sh status"
 ```
 
 2. **Попытаться восстановление:**
+
 ```bash
 ssh root@your-server "/root/coffe/scripts/system-monitor.sh recover"
 ```
 
 3. **Ручной откат:**
+
 ```bash
 # Найти последний бэкап
 ssh root@your-server "ls -la /root/coffe/backups/"
@@ -117,5 +125,3 @@ ssh root@your-server "cd /root/coffe && docker-compose -f docker-compose.fallbac
 Теперь при неудачной сборке приложения система автоматически подставит последнюю успешную сборку, обеспечивая непрерывную работу сервиса.
 
 **Система защищена от падений!** 🛡️
-
-

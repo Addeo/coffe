@@ -193,7 +193,7 @@ export class StatisticsService {
    */
   getCarPaymentStatus(year: number, month: number): Observable<any> {
     return this.http.get<any>(`${environment.apiUrl}/statistics/car-payment-status`, {
-      params: { year: year.toString(), month: month.toString() }
+      params: { year: year.toString(), month: month.toString() },
     });
   }
 }

@@ -46,10 +46,15 @@ export class ThemeService {
     const savedTheme = localStorage.getItem(this.THEME_KEY) as Theme | null;
 
     if (savedTheme && this.isValidTheme(savedTheme)) {
-      this.currentTheme.set(savedTheme);
+      if (savedTheme === 'auto') {
+        this.currentTheme.set('light');
+        localStorage.setItem(this.THEME_KEY, 'light');
+      } else {
+        this.currentTheme.set(savedTheme);
+      }
     } else {
-      // Default to auto if no preference saved
-      this.currentTheme.set('auto');
+      // Default to light theme when no preference is saved
+      this.currentTheme.set('light');
     }
   }
 

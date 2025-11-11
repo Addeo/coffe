@@ -68,3 +68,6 @@ id_rsa
 GITHUB_SECRETS_VALUES.txt
 YOUR_GITHUB_SECRETS.txt
 *_SECRETS.txt
+# Backend build outputs
+backend/public/
+ssh-key*.pem

@@ -36,17 +36,47 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.userRepository.findOne({ where: { email } });
+    // Try to load user with primaryRole and activeRole if columns exist
+    // Fallback to simple query if columns don't exist yet
+    let user;
+    
+    try {
+      // Try with explicit select for role hierarchy fields
+      user = await this.userRepository
+        .createQueryBuilder('user')
+        .where('user.email = :email', { email })
+        .addSelect('user.primaryRole')
+        .addSelect('user.activeRole')
+        .getOne();
+    } catch (error) {
+      // If columns don't exist, fallback to simple query
+      console.warn('⚠️ Role hierarchy columns may not exist, using fallback query:', error.message);
+      user = await this.userRepository.findOne({ where: { email } });
+    }
 
     if (user && (await bcrypt.compare(password, user.password))) {
       // Remove password from result for security
       const result = { ...user };
       delete result.password;
 
+      // Ensure role hierarchy is set properly
+      // primaryRole falls back to role, activeRole falls back to primaryRole
+      if (!result.role) {
+        result.role = UserRole.USER; // Default fallback
+      }
+      if (!result.primaryRole) {
+        result.primaryRole = result.role;
+      }
+      if (!result.activeRole && result.primaryRole) {
+        result.activeRole = result.primaryRole;
+      }
+
       console.log('🔐 AuthService.validateUser - User from DB:', {
         id: result.id,
         email: result.email,
         role: result.role,
+        primaryRole: result.primaryRole,
+        activeRole: result.activeRole,
       });
 
       return result;
@@ -56,28 +86,35 @@ export class AuthService {
   }
 
   async login(user: any) {
+    // Get primary and active roles (fallback to role if not set)
+    const primaryRole = user.primaryRole || user.role;
+    const activeRole = user.activeRole || primaryRole;
+    const effectiveRole = activeRole || user.role;
+
     // Debug logging
     console.log('🔐 AuthService.login - User data:', {
       id: user.id,
       email: user.email,
       role: user.role,
+      primaryRole: primaryRole,
+      activeRole: activeRole,
+      effectiveRole: effectiveRole,
     });
-
-    // Use user.role directly
-    const effectiveRole = user.role;
-
-    console.log('🔐 AuthService.login - Role:', effectiveRole);
 
     const payload = {
       email: user.email,
       sub: user.id,
       role: effectiveRole,
+      primaryRole: primaryRole,
+      activeRole: activeRole,
     };
 
-    // Include role info in response
+    // Include role info in response with proper role hierarchy
     const userResponse = {
       ...user,
       role: effectiveRole,
+      primaryRole: primaryRole,
+      activeRole: activeRole,
     };
 
     delete userResponse.password;
@@ -190,7 +227,7 @@ export class AuthService {
       engineer: null as any,
     };
 
-    // Create admin user (password: admin123)
+    // Create or update admin user (password: admin123)
     const existingAdmin = await this.userRepository.findOne({
       where: { email: 'admin@coffee.com' },
     });
@@ -214,18 +251,25 @@ export class AuthService {
         firstName: savedAdmin.firstName,
         lastName: savedAdmin.lastName,
         role: savedAdmin.role,
+        primaryRole: savedAdmin.primaryRole,
       };
     } else {
+      // Update existing admin to ensure correct role
+      existingAdmin.role = UserRole.ADMIN;
+      existingAdmin.primaryRole = UserRole.ADMIN;
+      existingAdmin.isActive = true;
+      const updatedAdmin = await this.userRepository.save(existingAdmin);
       results.admin = {
-        id: existingAdmin.id,
-        email: existingAdmin.email,
-        firstName: existingAdmin.firstName,
-        lastName: existingAdmin.lastName,
-        role: existingAdmin.role,
+        id: updatedAdmin.id,
+        email: updatedAdmin.email,
+        firstName: updatedAdmin.firstName,
+        lastName: updatedAdmin.lastName,
+        role: updatedAdmin.role,
+        primaryRole: updatedAdmin.primaryRole,
       };
     }
 
-    // Create manager user (password: manager123)
+    // Create or update manager user (password: manager123)
     const existingManager = await this.userRepository.findOne({
       where: { email: 'manager@coffee.com' },
     });
@@ -249,14 +293,21 @@ export class AuthService {
         firstName: savedManager.firstName,
         lastName: savedManager.lastName,
         role: savedManager.role,
+        primaryRole: savedManager.primaryRole,
       };
     } else {
+      // Update existing manager to ensure correct role
+      existingManager.role = UserRole.MANAGER;
+      existingManager.primaryRole = UserRole.MANAGER;
+      existingManager.isActive = true;
+      const updatedManager = await this.userRepository.save(existingManager);
       results.manager = {
-        id: existingManager.id,
-        email: existingManager.email,
-        firstName: existingManager.firstName,
-        lastName: existingManager.lastName,
-        role: existingManager.role,
+        id: updatedManager.id,
+        email: updatedManager.email,
+        firstName: updatedManager.firstName,
+        lastName: updatedManager.lastName,
+        role: updatedManager.role,
+        primaryRole: updatedManager.primaryRole,
       };
     }
 
@@ -314,6 +365,12 @@ export class AuthService {
       success: true,
       message: 'Users initialized successfully',
       users: results,
+      passwords: {
+        admin: results.admin ? 'admin123' : null,
+        manager: results.manager ? 'manager123' : null,
+        engineer: results.engineer ? 'engineer123' : null,
+      },
+      note: 'Пароли для входа: admin123, manager123, engineer123. Измените их после первого входа.',
     };
   }
 }

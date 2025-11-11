@@ -98,15 +98,28 @@ export class AppComponent implements OnInit, OnDestroy {
 
   /* Reactive computed values */
   isAuthenticated = this.authService.isAuthenticated;
+  private readonly routerUrl = signal(this.router.url);
 
   /* Check if current route is login */
-  isLoginRoute = computed(() => {
-    return this.router.url === '/login';
+  private readonly publicRoutes = ['/login', '/company'];
+
+  isPublicRoute = computed(() => {
+    const currentUrl = this.routerUrl();
+    const sanitizedUrl = currentUrl.split('?')[0]?.split('#')[0]?.split(';')[0] ?? currentUrl;
+    const normalizedUrl = sanitizedUrl !== '/' && sanitizedUrl.endsWith('/')
+      ? sanitizedUrl.replace(/\/+$/, '')
+      : sanitizedUrl;
+    const urlToCheck = normalizedUrl.toLowerCase();
+
+    return this.publicRoutes.some(route => {
+      const normalizedRoute = route.toLowerCase();
+      return urlToCheck === normalizedRoute || urlToCheck.startsWith(`${normalizedRoute}/`);
+    });
   });
 
   /* Computed values for template */
   shouldShowNav = computed(() => {
-    return this.isAuthenticated() && !this.isLoginRoute();
+    return this.isAuthenticated() && !this.isPublicRoute();
   });
 
   constructor() {
@@ -120,25 +133,14 @@ export class AppComponent implements OnInit, OnDestroy {
     // Проверяем наличие обновлений при старте приложения
     this.startupService.checkForUpdates();
 
-    // Listen for navigation events to ensure auth state is properly updated
+    // Auth state is reactive and managed by signals - no need to refresh on navigation
+    // Signals will automatically update UI when auth state changes
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(event => {
       const navigationEnd = event as NavigationEnd;
-      console.log('🏠 Navigation ended:', navigationEnd.url);
-
-      // Force auth state refresh after navigation
-      setTimeout(() => {
-        console.log('🏠 Auth state after navigation:', this.isAuthenticated());
-        this.authService.refreshAuthState();
-
-        // Force change detection using Angular's ChangeDetectorRef
-        this.cdr.detectChanges();
-
-        // Additional change detection trigger
-        setTimeout(() => {
-          this.cdr.markForCheck();
-          console.log('🏠 Change detection completed');
-        }, 50);
-      }, 100);
+      const latestUrl = navigationEnd.urlAfterRedirects ?? navigationEnd.url;
+      this.routerUrl.set(latestUrl);
+      console.log('🏠 Navigation ended:', latestUrl);
+      // No need to refresh auth state - it's already reactive via signals
     });
   }
 

@@ -108,8 +108,8 @@ export class EarningsSummaryComponent implements OnInit {
           this.isLoading.set(false);
         },
       });
-    } else {
-      // For admin/manager, use the admin endpoint
+    } else if (this.isAdmin) {
+      // For admin only, use the admin endpoint
       this.statisticsService.getAdminEngineerStatistics(year, month).subscribe({
         next: (data: AdminEngineerStatistics) => {
           this.summary.set({
@@ -127,6 +127,44 @@ export class EarningsSummaryComponent implements OnInit {
           this.isLoading.set(false);
         },
       });
+    } else if (this.isManager) {
+      // For managers, use the monthly statistics endpoint (has admin+manager access)
+      this.statisticsService.getMonthlyStatistics(year, month).subscribe({
+        next: (data: any) => {
+          const totals = data.agentEarnings?.reduce(
+            (acc: any, agent: any) => ({
+              engineerEarnings: (acc.engineerEarnings || 0) + (agent.totalEarnings || 0),
+              completedOrders: (acc.completedOrders || 0) + (agent.completedOrders || 0),
+              totalHours: (acc.totalHours || 0) + (agent.totalHours || 0),
+            }),
+            { engineerEarnings: 0, completedOrders: 0, totalHours: 0 }
+          ) || { engineerEarnings: 0, completedOrders: 0, totalHours: 0 };
+
+          this.summary.set({
+            workEarnings: totals.engineerEarnings || 0,
+            carEarnings: 0, // Managers don't see car earnings in this endpoint
+            totalEarnings: totals.engineerEarnings || 0,
+            completedOrders: totals.completedOrders || 0,
+            totalHours: totals.totalHours || 0,
+          });
+          this.isLoading.set(false);
+        },
+        error: error => {
+          console.error('Error loading manager earnings data:', error);
+          this.toastService.error('Ошибка загрузки статистики по заработку');
+          this.isLoading.set(false);
+        },
+      });
+    } else {
+      // Unknown role - set empty data
+      this.summary.set({
+        workEarnings: 0,
+        carEarnings: 0,
+        totalEarnings: 0,
+        completedOrders: 0,
+        totalHours: 0,
+      });
+      this.isLoading.set(false);
     }
   }
 

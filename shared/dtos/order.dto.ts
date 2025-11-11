@@ -188,3 +188,45 @@ export interface OrdersQueryDto {
   completionDateTo?: Date;
   assignedById?: number;
 }
+
+export interface OrderStatsBySourceDto {
+  manual: number;
+  automatic: number;
+  email: number;
+  api: number;
+}
+
+export interface OrderPaymentStatsDto {
+  totalCompleted: number;
+  receivedFromOrganization: number;
+  pendingFromOrganization: number;
+  paidToEngineer: number;
+  pendingToEngineer: number;
+}
+
+export interface EngineerOrderSummaryDto {
+  engineerId: number;
+  month: number;
+  year: number;
+  planHours: number;
+  workedHours: number;
+  overtimeHours: number;
+  planEarnings: number;
+  earnedAmount: number;
+  carPayments: number;
+  plannedCarAmount: number;
+}
+
+export interface OrderStatsDto {
+  total: number;
+  waiting: number;
+  assigned: number;
+  processing: number;
+  working: number;
+  review: number;
+  completed: number;
+  paid_to_engineer: number;
+  bySource: OrderStatsBySourceDto;
+  paymentStats: OrderPaymentStatsDto;
+  engineerSummary?: EngineerOrderSummaryDto | null;
+}

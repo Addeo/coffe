@@ -81,7 +81,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     console.log('🧭 Navigation - Current role:', role);
     console.log('🧭 Navigation - UserRole.MANAGER:', UserRole.MANAGER);
     console.log('🧭 Navigation - Role comparison:', role === UserRole.MANAGER);
-    
+
     const items: NavigationItem[] = [];
 
     // Админские разделы (только для админа)
@@ -105,7 +105,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
           route: '/settings',
           icon: 'settings',
           i18nKey: '@@navigation.settings',
-        },
+        }
         // {
         //   label: 'Резервные копии',
         //   route: '/backups',
@@ -133,9 +133,12 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
     // Заказы только для менеджеров и инженеров (НЕ для админа)
     if (role === UserRole.MANAGER || role === UserRole.USER) {
-      items.push(
-        { label: 'Заказы', route: '/orders', icon: 'shopping_cart', i18nKey: '@@navigation.orders' }
-      );
+      items.push({
+        label: 'Заказы',
+        route: '/orders',
+        icon: 'shopping_cart',
+        i18nKey: '@@navigation.orders',
+      });
     }
 
     // Базовые разделы для всех ролей
@@ -150,21 +153,13 @@ export class NavigationComponent implements OnInit, OnDestroy {
       }
     );
 
-    // Добавляем кнопки переключения ролей для пользователей с несколькими ролями
-    if (this.canSwitchRoles()) {
-      this.availableRoles().forEach(role => {
-        if (!this.isRoleActive(role)) {
-          items.push({
-            label: this.getRoleDisplayName(role),
-            route: '#',
-            icon: this.getRoleIcon(role),
-            i18nKey: `@@navigation.switchTo${role}`,
-          });
-        }
-      });
-    }
+    // Кнопки переключения ролей убраны из навигации - они теперь в отдельном разделе мобильного меню
+    // Не добавляем их в navigationItems, чтобы избежать дублирования
 
-    console.log('🧭 Navigation - Final items:', items.map(item => item.label));
+    console.log(
+      '🧭 Navigation - Final items:',
+      items.map(item => item.label)
+    );
     return items;
   });
 
@@ -173,24 +168,15 @@ export class NavigationComponent implements OnInit, OnDestroy {
     console.log('🧭 Initial auth state:', this.isAuthenticated());
     console.log('🧭 Current user:', this.currentUser());
 
-    // Load notifications if authenticated
+    // Load notifications only once if authenticated
+    // Signals will handle reactive updates automatically
     if (this.isAuthenticated()) {
       this.loadNotifications();
       this.loadUnreadCount();
     }
 
-    // Force change detection to ensure UI updates
+    // Force change detection once to ensure initial UI updates
     this.cdr.detectChanges();
-
-    // Single delayed check to handle async auth state updates
-    setTimeout(() => {
-      console.log('🧭 Delayed auth state check:', this.isAuthenticated());
-      if (this.isAuthenticated()) {
-        this.loadNotifications();
-        this.loadUnreadCount();
-        this.cdr.markForCheck();
-      }
-    }, 100);
   }
 
   ngOnDestroy(): void {
@@ -211,14 +197,21 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   private loadUnreadCount(): void {
+    // Subscribe to unread count observable (will be updated when count changes)
     this.subscriptions.push(
       this.notificationsService.unreadCount$.subscribe(count => {
         this.unreadCount.set(count);
       })
     );
 
-    // Initial load
-    this.notificationsService.getUnreadCount().subscribe();
+    // Initial load once - subsequent updates will come through the observable
+    this.subscriptions.push(
+      this.notificationsService.getUnreadCount().subscribe({
+        error: error => {
+          console.error('Failed to load unread count:', error);
+        },
+      })
+    );
   }
 
   logout(): void {
@@ -297,8 +290,54 @@ export class NavigationComponent implements OnInit, OnDestroy {
         console.log('✅ Role switched successfully in navigation');
         this.isLoadingRoleSwitch.set(false);
 
-        // Reload the page to reflect new role permissions
-        window.location.reload();
+        // Определяем доступную страницу для новой роли
+        let redirectPath: string;
+        
+        switch (newRole) {
+          case UserRole.ADMIN:
+            redirectPath = '/statistics';
+            break;
+          case UserRole.MANAGER:
+          case UserRole.USER:
+            redirectPath = '/orders';
+            break;
+          default:
+            redirectPath = '/orders';
+            break;
+        }
+
+        // Проверяем текущий URL - если он недоступен для новой роли, перенаправляем
+        const currentUrl = this.router.url;
+        const currentPath = currentUrl.split('?')[0]; // Убираем query params
+        
+        // Список страниц, доступных только админу
+        const adminOnlyRoutes = ['/users', '/organizations', '/statistics', '/reports', '/settings', '/dashboard'];
+        
+        // Список страниц, доступных только менеджеру/админу (не инженеру)
+        const managerOnlyRoutes = ['/engineer-rates'];
+        
+        // Для админа всегда перенаправляем на страницу статистики
+        if (newRole === UserRole.ADMIN) {
+          console.log(`🔄 Redirecting ${newRole} from ${currentPath} to ${redirectPath}`);
+          this.router.navigate([redirectPath]);
+        }
+        // Если менеджер/инженер пытается попасть на админскую страницу или dashboard - перенаправляем
+        else if ((newRole === UserRole.MANAGER || newRole === UserRole.USER) && 
+            adminOnlyRoutes.includes(currentPath)) {
+          console.log(`🔄 Redirecting ${newRole} from ${currentPath} to ${redirectPath}`);
+          this.router.navigate([redirectPath]);
+        }
+        // Если инженер пытается попасть на страницу менеджера - перенаправляем
+        else if (newRole === UserRole.USER && managerOnlyRoutes.includes(currentPath)) {
+          console.log(`🔄 Redirecting ${newRole} from ${currentPath} to ${redirectPath}`);
+          this.router.navigate([redirectPath]);
+        }
+        // Если текущая страница доступна - остаемся на ней
+        else {
+          console.log(`✅ Current page ${currentPath} is accessible for ${newRole}, staying here`);
+          // Просто обновляем сигналы, не перезагружаем страницу
+          // Сигналы уже обновлены в authService.switchRole
+        }
       },
       error: error => {
         console.error('❌ Failed to switch role:', error);
@@ -343,10 +382,9 @@ export class NavigationComponent implements OnInit, OnDestroy {
   onRoleSwitchClick(item: NavigationItem): void {
     // Находим роль по label (теперь label = название роли)
     const role = this.availableRoles().find(r => this.getRoleDisplayName(r) === item.label);
-    
+
     if (role) {
       this.switchRole(role);
     }
   }
 }
-

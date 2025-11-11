@@ -8,6 +8,7 @@ import {
   AssignEngineerDto,
   OrdersQueryDto,
   OrderDto,
+  OrderStatsDto,
 } from '@shared/dtos/order.dto';
 import { PaginatedResponse } from '@shared/types/api.types';
 import { OrderStatus } from '@shared/interfaces/order.interface';
@@ -38,52 +39,8 @@ export class OrdersService {
     return this.http.get<PaginatedResponse<OrderDto>>(`${environment.apiUrl}/orders`, { params });
   }
 
-  getOrderStats(): Observable<{
-    total: number;
-    waiting: number;
-    assigned: number;
-    processing: number;
-    working: number;
-    review: number;
-    completed: number;
-    paid_to_engineer: number;
-    bySource: {
-      manual: number;
-      automatic: number;
-      email: number;
-      api: number;
-    };
-    paymentStats: {
-      totalCompleted: number;
-      receivedFromOrganization: number;
-      pendingFromOrganization: number;
-      paidToEngineer: number;
-      pendingToEngineer: number;
-    };
-  }> {
-    return this.http.get<{
-      total: number;
-      waiting: number;
-      assigned: number;
-      processing: number;
-      working: number;
-      review: number;
-      completed: number;
-      paid_to_engineer: number;
-      bySource: {
-        manual: number;
-        automatic: number;
-        email: number;
-        api: number;
-      };
-      paymentStats: {
-        totalCompleted: number;
-        receivedFromOrganization: number;
-        pendingFromOrganization: number;
-        paidToEngineer: number;
-        pendingToEngineer: number;
-      };
-    }>(`${environment.apiUrl}/orders/stats`);
+  getOrderStats(): Observable<OrderStatsDto> {
+    return this.http.get<OrderStatsDto>(`${environment.apiUrl}/orders/stats`);
   }
 
   getOrder(id: number): Observable<OrderDto> {

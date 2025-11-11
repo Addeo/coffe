@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -38,4 +38,33 @@ import { LocalStrategy } from './local.strategy';
   providers: [AuthService, JwtStrategy, LocalStrategy],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule implements OnModuleInit {
+  constructor(private authService: AuthService) {}
+
+  async onModuleInit() {
+    // Wait for database connection to be established
+    // In Docker, MySQL needs time to be ready
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    
+    try {
+      console.log('🔄 Auto-initializing default users...');
+      const result = await this.authService.initializeAdmin();
+      
+      if (result.users.admin || result.users.manager || result.users.engineer) {
+        console.log('✅ Default users initialized:', {
+          admin: result.users.admin ? 'created/updated' : 'skipped',
+          manager: result.users.manager ? 'created/updated' : 'skipped',
+          engineer: result.users.engineer ? 'created/updated' : 'skipped',
+        });
+        console.log('📝 Default passwords:', result.passwords);
+        console.log('📌 Note:', result.note);
+      } else {
+        console.log('ℹ️ All default users already exist');
+      }
+    } catch (error) {
+      console.error('❌ Failed to auto-initialize users:', error.message);
+      console.error('   This is not critical - users can be initialized manually via GET /api/auth/init-admin');
+      // Don't fail app startup if initialization fails
+    }
+  }
+}

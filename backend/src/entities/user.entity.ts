@@ -43,8 +43,9 @@ export class User {
     type: 'varchar',
     length: 20,
     default: UserRole.USER,
+    nullable: true,
   })
-  primaryRole: UserRole; // Highest role assigned to user
+  primaryRole?: UserRole; // Highest role assigned to user (falls back to role if not set)
 
   @Column({
     name: 'active_role',
@@ -52,7 +53,7 @@ export class User {
     length: 20,
     nullable: true,
   })
-  activeRole: UserRole | null; // Currently active role in session (null = use primaryRole)
+  activeRole?: UserRole | null; // Currently active role in session (null = use primaryRole or role)
 
   @Column({ name: 'is_active', default: true })
   isActive: boolean;

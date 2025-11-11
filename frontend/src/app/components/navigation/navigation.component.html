@@ -54,6 +54,7 @@
         </div>
 
         <nav class="mobile-nav-links">
+          <!-- Navigation Items -->
           <a
             mat-button
             *ngFor="let item of navigationItems()"
@@ -71,58 +72,51 @@
               matBadgeColor="warn"
             ></span>
           </a>
-        </nav>
 
-        <div class="mobile-menu-footer">
-          <div class="user-info-mobile">
-            <div class="user-details">
-              <div class="user-full-name">{{ userName() }}</div>
-              <div class="user-role-mobile">
-                <mat-icon class="role-icon">{{ getRoleIcon(activeRole()!) }}</mat-icon>
-                <span>{{ getRoleDisplayName(activeRole()!) }}</span>
+          <!-- User Info Section (as link style) - hidden in mobile -->
+          <!-- <a mat-button class="user-info-link" (click)="closeMobileMenu()">
+            <mat-icon class="nav-icon">person</mat-icon>
+            <div class="user-info-content mobile-hidden">
+              <span class="user-full-name">{{ userName() }}</span>
+              <span class="user-role-text">
+                <mat-icon class="role-icon-small">{{ getRoleIcon(activeRole()!) }}</mat-icon>
+                {{ getRoleDisplayName(activeRole()!) }}
                 @if (canSwitchRoles()) {
-                  <mat-icon class="switch-icon">sync_alt</mat-icon>
+                  <mat-icon class="switch-icon-small">sync_alt</mat-icon>
                 }
-              </div>
-              <div class="user-email">{{ currentUser()?.email }}</div>
+              </span>
+              <span class="user-email-text">{{ currentUser()?.email }}</span>
             </div>
-          </div>
+          </a> -->
 
           <!-- Role Switcher for Mobile -->
           @if (canSwitchRoles()) {
-            <div class="role-switcher-mobile">
-              <div class="section-title">
-                <span i18n="@@navigation.switchRole">Переключить роль</span>
-              </div>
-              @for (role of availableRoles(); track role) {
-                <button
-                  mat-button
-                  class="role-option"
-                  (click)="switchRole(role)"
-                  [disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
-                  [class.active-role]="isRoleActive(role)"
-                >
-                  <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
-                  <span>{{ getRoleDisplayName(role) }}</span>
-                  @if (isRoleActive(role)) {
-                    <mat-icon class="check-icon">check</mat-icon>
-                  }
-                </button>
-              }
+            <div class="role-switcher-header">
+              <span i18n="@@navigation.switchRole">Переключить роль</span>
             </div>
+            @for (role of availableRoles(); track role) {
+              <a
+                mat-button
+                class="role-option-link"
+                [class.active-role]="isRoleActive(role)"
+                [class.disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
+                (click)="!isRoleActive(role) && !isLoadingRoleSwitch() && switchRole(role); closeMobileMenu()"
+              >
+                <mat-icon class="nav-icon">{{ getRoleIcon(role) }}</mat-icon>
+                <span>{{ getRoleDisplayName(role) }}</span>
+                @if (isRoleActive(role)) {
+                  <mat-icon class="check-icon">check</mat-icon>
+                }
+              </a>
+            }
           }
 
-          <div class="mobile-actions">
-            <button mat-stroked-button (click)="toggleTheme()" class="theme-toggle-mobile">
-              <mat-icon>{{ themeIcon() }}</mat-icon>
-              <span>{{ currentTheme() === 'dark' ? 'Светлая тема' : 'Темная тема' }}</span>
-            </button>
-            <button mat-stroked-button (click)="logout()" class="logout-mobile">
-              <mat-icon>logout</mat-icon>
-              <span i18n="@@navigation.logout">Выход</span>
-            </button>
-          </div>
-        </div>
+          <!-- Actions (Logout only - theme toggle removed in mobile) -->
+          <a mat-button class="logout-link" (click)="logout(); closeMobileMenu()">
+            <mat-icon class="nav-icon">logout</mat-icon>
+            <span i18n="@@navigation.logout">Выход</span>
+          </a>
+        </nav>
       </div>
     </div>
 
@@ -207,8 +201,8 @@
         </mat-menu>
       </div>
 
-      <!-- User Menu -->
-      <div class="user-menu">
+      <!-- User Menu (Desktop only) -->
+      <div class="user-menu desktop-only">
         <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
           <mat-icon class="user-icon">account_circle</mat-icon>
           <span class="user-name">{{ userName() }}</span>
@@ -217,17 +211,43 @@
 
         <mat-menu #userMenu="matMenu" class="user-dropdown">
           <!-- Current Role Display -->
-          <div style="padding: 12px 16px; border-bottom: 1px solid rgba(0,0,0,0.1);">
-            <div style="font-size: 12px; color: rgba(0,0,0,0.5); margin-bottom: 4px;">
+          <div style="padding: 12px 16px; border-bottom: 1px solid rgba(0, 0, 0, 0.1)">
+            <div style="font-size: 12px; color: rgba(0, 0, 0, 0.5); margin-bottom: 4px">
               Текущая роль
             </div>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <mat-icon style="font-size: 18px;">{{ getRoleIcon(activeRole()!) }}</mat-icon>
-              <span style="font-weight: 500;">{{ getRoleDisplayName(activeRole()!) }}</span>
+            <div style="display: flex; align-items: center; gap: 8px">
+              <mat-icon style="font-size: 18px">{{ getRoleIcon(activeRole()!) }}</mat-icon>
+              <span style="font-weight: 500">{{ getRoleDisplayName(activeRole()!) }}</span>
             </div>
           </div>
 
           <mat-divider></mat-divider>
+
+          <!-- Role Switcher for Desktop -->
+          @if (canSwitchRoles()) {
+            <div class="role-switcher-section">
+              <div class="section-title">
+                <span>Переключить роль</span>
+              </div>
+              @for (role of availableRoles(); track role) {
+                <button
+                  (click)="!isRoleActive(role) && !isLoadingRoleSwitch() && switchRole(role)"
+                  [disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
+                  [class.active-role]="isRoleActive(role)"
+                >
+                  <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
+                  <span>{{ getRoleDisplayName(role) }}</span>
+                  @if (isRoleActive(role)) {
+                    <mat-icon class="check-icon">check</mat-icon>
+                  }
+                  @if (isLoadingRoleSwitch() && !isRoleActive(role)) {
+                    <mat-icon class="loading-icon">sync</mat-icon>
+                  }
+                </button>
+              }
+            </div>
+            <mat-divider></mat-divider>
+          }
 
           <!-- Test with regular buttons -->
           <button

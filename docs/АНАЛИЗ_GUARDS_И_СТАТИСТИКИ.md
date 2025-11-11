@@ -10,6 +10,7 @@
 ### ✅ Статус: **РАБОТАЕТ ПРАВИЛЬНО**
 
 #### Frontend Guards (`auth.guard.ts`):
+
 ```typescript
 // ✅ Проверяет аутентификацию
 if (!this.authService.isAuthenticated()) {
@@ -25,6 +26,7 @@ if (!this.authService.hasAnyRole(userRoles)) {
 ```
 
 #### Backend Guards (`roles.guard.ts`):
+
 ```typescript
 // ✅ Использует activeRole
 const effectiveRole = user?.activeRole || user?.primaryRole || user?.role;
@@ -32,26 +34,25 @@ const effectiveRole = user?.activeRole || user?.primaryRole || user?.role;
 // ✅ Проверяет иерархию
 const hasAccess = requiredRoles.some(requiredRole => {
   if (effectiveRole === requiredRole) return true;
-  return hasRoleAccess(primaryRole, requiredRole) && 
-         hasRoleAccess(effectiveRole, requiredRole);
+  return hasRoleAccess(primaryRole, requiredRole) && hasRoleAccess(effectiveRole, requiredRole);
 });
 ```
 
 ### 📋 Таблица защиты маршрутов:
 
-| Маршрут | Frontend Guard | Backend Guard | ADMIN | MANAGER | USER |
-|---------|----------------|---------------|-------|----------|------|
-| `/users` | ✅ AuthGuard | ✅ RolesGuard | ✅ | ✅ | ❌ |
-| `/users/create` | ✅ AuthGuard | ✅ RolesGuard | ✅ | ❌ | ❌ |
-| `/organizations` | ✅ AuthGuard | ✅ RolesGuard | ✅ | ✅ | ❌ |
-| `/organizations/create` | ✅ AuthGuard | ✅ RolesGuard | ✅ | ❌ | ❌ |
-| `/engineer-rates` | ✅ AuthGuard | ✅ RolesGuard | ✅ | ✅ | ❌ |
-| `/statistics` | ✅ AuthGuard | ✅ RolesGuard | ✅ | ✅ | ❌ |
-| `/reports` | ✅ AuthGuard | ✅ RolesGuard | ✅ | ✅ | ❌ |
-| `/settings` | ✅ AuthGuard | ✅ RolesGuard | ✅ | ❌ | ❌ |
-| `/backups` | ✅ AuthGuard | ✅ RolesGuard | ✅ | ❌ | ❌ |
-| `/logs` | ✅ AuthGuard | ✅ RolesGuard | ✅ | ❌ | ❌ |
-| `/orders` | ✅ AuthGuard | ✅ RolesGuard | ✅ | ✅ | ✅ |
+| Маршрут                 | Frontend Guard | Backend Guard | ADMIN | MANAGER | USER |
+| ----------------------- | -------------- | ------------- | ----- | ------- | ---- |
+| `/users`                | ✅ AuthGuard   | ✅ RolesGuard | ✅    | ✅      | ❌   |
+| `/users/create`         | ✅ AuthGuard   | ✅ RolesGuard | ✅    | ❌      | ❌   |
+| `/organizations`        | ✅ AuthGuard   | ✅ RolesGuard | ✅    | ✅      | ❌   |
+| `/organizations/create` | ✅ AuthGuard   | ✅ RolesGuard | ✅    | ❌      | ❌   |
+| `/engineer-rates`       | ✅ AuthGuard   | ✅ RolesGuard | ✅    | ✅      | ❌   |
+| `/statistics`           | ✅ AuthGuard   | ✅ RolesGuard | ✅    | ✅      | ❌   |
+| `/reports`              | ✅ AuthGuard   | ✅ RolesGuard | ✅    | ✅      | ❌   |
+| `/settings`             | ✅ AuthGuard   | ✅ RolesGuard | ✅    | ❌      | ❌   |
+| `/backups`              | ✅ AuthGuard   | ✅ RolesGuard | ✅    | ❌      | ❌   |
+| `/logs`                 | ✅ AuthGuard   | ✅ RolesGuard | ✅    | ❌      | ❌   |
+| `/orders`               | ✅ AuthGuard   | ✅ RolesGuard | ✅    | ✅      | ✅   |
 
 ---
 
@@ -80,10 +81,11 @@ const hasAccess = requiredRoles.some(requiredRole => {
    - Общий заработок
 
 #### Backend логика (`statistics.service.ts`):
+
 ```typescript
 // ✅ Автомобильные отчисления считаются отдельно
 const engineerEarnings = Number(stat.engineerEarnings) || 0; // Работа
-const carUsageAmount = Number(stat.carUsageAmount) || 0;     // Машина
+const carUsageAmount = Number(stat.carUsageAmount) || 0; // Машина
 
 // ✅ Прибыль = (оплата от организации) - (оплата за работу)
 // Доплата за машину НЕ влияет на прибыль
@@ -95,13 +97,12 @@ const totalEngineerPayment = engineerEarnings + carUsageAmount;
 ```
 
 #### Frontend отображение (`statistics.component.html`):
+
 ```html
 <!-- ✅ Автомобильные отчисления показаны отдельно -->
 <ng-container matColumnDef="carPayment">
   <th mat-header-cell *matHeaderCellDef>Оплата за автомобиль (₽)</th>
-  <td mat-cell *matCellDef="let element">
-    {{ formatCurrency(element.carPayment) }}
-  </td>
+  <td mat-cell *matCellDef="let element">{{ formatCurrency(element.carPayment) }}</td>
 </ng-container>
 ```
 
@@ -112,6 +113,7 @@ const totalEngineerPayment = engineerEarnings + carUsageAmount;
 ### ✅ Статус: **ПРАВИЛЬНО РЕАЛИЗОВАНО**
 
 #### Логика расчета (`calculation.service.ts`):
+
 ```typescript
 async calculateCarUsage(
   engineer: Engineer,
@@ -123,20 +125,21 @@ async calculateCarUsage(
   if (engineer.type === EngineerType.CONTRACT) {
     return distanceKm * 14;
   }
-  
+
   // ✅ Для штатных: фиксированная сумма
   return engineer.fixedCarAmount;
 }
 ```
 
 #### Отдельный учет в WorkSession:
+
 ```typescript
 // ✅ В salary-calculation.service.ts
 let carUsageAmount = 0;
 let clientRevenue = 0;
 
 for (const session of workSessions) {
-  carUsageAmount += session.carUsageAmount;  // Отдельно
+  carUsageAmount += session.carUsageAmount; // Отдельно
   clientRevenue += session.organizationPayment; // Включает машину
 }
 
@@ -145,14 +148,15 @@ const totalAmount = baseAmount + overtimeAmount + carUsageAmount;
 ```
 
 #### Отображение в статистике:
+
 ```typescript
 // ✅ Backend возвращает отдельно
 return {
-  engineerEarnings: engineerEarnings,     // Оплата за работу (без машины)
-  carUsageAmount: carUsageAmount,         // Доплата за машину отдельно
-  totalEarnings: totalEngineerPayment,    // Общая сумма (работа + машина)
+  engineerEarnings: engineerEarnings, // Оплата за работу (без машины)
+  carUsageAmount: carUsageAmount, // Доплата за машину отдельно
+  totalEarnings: totalEngineerPayment, // Общая сумма (работа + машина)
   organizationPayments: totalOrganizationPayment, // Включаем доплату за машину
-  profit,                                 // Прибыль БЕЗ учета машины
+  profit, // Прибыль БЕЗ учета машины
   profitMargin,
 };
 ```
@@ -166,12 +170,13 @@ return {
 **Проблема:** Нет информации о том, сколько компания должна заплатить за автомобиль и сколько уже заплачено.
 
 **Нужно добавить:**
+
 ```typescript
 // В статистику добавить поля:
 interface CarPaymentStatus {
-  totalCarAmount: number;        // Общая сумма к доплате за автомобили
-  paidCarAmount: number;         // Уже заплачено за автомобили
-  pendingCarAmount: number;      // Осталось доплатить за автомобили
+  totalCarAmount: number; // Общая сумма к доплате за автомобили
+  paidCarAmount: number; // Уже заплачено за автомобили
+  pendingCarAmount: number; // Осталось доплатить за автомобили
 }
 ```
 
@@ -180,6 +185,7 @@ interface CarPaymentStatus {
 **Проблема:** Нет разбивки автомобильных отчислений по организациям.
 
 **Нужно добавить:**
+
 ```typescript
 interface OrganizationCarPayments {
   organizationId: number;
@@ -195,6 +201,7 @@ interface OrganizationCarPayments {
 **Проблема:** Автомобильные отчисления смешаны с общей статистикой.
 
 **Нужно добавить:**
+
 - Отдельную вкладку "Автомобильные отчисления"
 - Таблицу с разбивкой по инженерам и организациям
 - Статус оплаты (заплачено/не заплачено)
@@ -221,9 +228,9 @@ async getCarPaymentStatus(year: number, month: number) {
     .andWhere('session.carUsageAmount > 0')
     .getMany();
 
-  const totalCarAmount = carPayments.reduce((sum, session) => 
+  const totalCarAmount = carPayments.reduce((sum, session) =>
     sum + session.carUsageAmount, 0);
-  
+
   const paidCarAmount = carPayments
     .filter(session => session.isPaidToEngineer)
     .reduce((sum, session) => sum + session.carUsageAmount, 0);
@@ -272,6 +279,7 @@ async getCarPaymentStatus(year: number, month: number) {
 ## 🎯 ИТОГОВАЯ ОЦЕНКА
 
 ### ✅ Что работает отлично:
+
 1. **Guards на роутингах** - полностью исправлены
 2. **Разграничение прав** - работает корректно
 3. **Автомобильные отчисления** - правильно считаются отдельно
@@ -279,6 +287,7 @@ async getCarPaymentStatus(year: number, month: number) {
 5. **Статистика по инженерам** - показывает автомобильные отчисления отдельно
 
 ### ⚠️ Что нужно доработать:
+
 1. **Статус оплаты автомобильных отчислений** - добавить отслеживание
 2. **Детализация по организациям** - разбивка автомобильных отчислений
 3. **Отдельная таблица** - для автомобильных отчислений
@@ -289,4 +298,4 @@ async getCarPaymentStatus(year: number, month: number) {
 
 ---
 
-*Анализ выполнен: 21 января 2025*
+_Анализ выполнен: 21 января 2025_

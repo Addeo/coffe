@@ -4,18 +4,33 @@ import { AuthGuard } from './guards/auth.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./components/smart-redirect/smart-redirect.component').then(m => m.SmartRedirectComponent),
-    canActivate: [AuthGuard],
+    redirectTo: '/orders',
+    pathMatch: 'full',
   },
   {
     path: 'login',
     loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent),
   },
   {
+    path: 'company',
+    loadComponent: () =>
+      import('./layouts/public-layout/public-layout.component').then(m => m.PublicLayoutComponent),
+    data: { title: 'О компании' },
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./pages/company-info/company-info.component').then(m => m.CompanyInfoComponent),
+        data: { title: 'О компании CoffeeCare Юг' },
+      },
+    ],
+  },
+  {
     path: 'dashboard',
     loadComponent: () =>
       import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [AuthGuard],
+    data: { roles: ['admin'], title: 'Dashboard' },
   },
   {
     path: 'users',

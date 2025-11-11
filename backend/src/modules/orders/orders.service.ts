@@ -23,6 +23,8 @@ import {
   UpdateOrderDto,
   AssignEngineerDto,
   OrdersQueryDto,
+  OrderStatsDto,
+  EngineerOrderSummaryDto,
 } from '../../shared/dtos/order.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 
@@ -849,42 +851,22 @@ export class OrdersService {
     }
   }
 
-  async getOrderStats(user: User): Promise<{
-    total: number;
-    waiting: number;
-    assigned: number;
-    processing: number;
-    working: number;
-    review: number;
-    completed: number;
-    paid_to_engineer: number;
-    bySource: {
-      manual: number;
-      automatic: number;
-      email: number;
-      api: number;
-    };
-    paymentStats: {
-      totalCompleted: number;
-      receivedFromOrganization: number;
-      pendingFromOrganization: number;
-      paidToEngineer: number;
-      pendingToEngineer: number;
-    };
-  }> {
+  async getOrderStats(user: User): Promise<OrderStatsDto> {
     const queryBuilder = this.ordersRepository.createQueryBuilder('order');
+
+    let engineerProfile: Engineer | null = null;
 
     // Apply role-based filtering
     if (user.role === UserRole.USER) {
       // Regular users can only see orders assigned to them
       // Find engineer profile for this user
-      const engineer = await this.engineersRepository.findOne({
+      engineerProfile = await this.engineersRepository.findOne({
         where: { userId: user.id, isActive: true },
       });
 
-      if (engineer) {
+      if (engineerProfile) {
         queryBuilder.where('order.assignedEngineerId = :engineerId', {
-          engineerId: engineer.id,
+          engineerId: engineerProfile.id,
         });
       } else {
         // If no engineer profile found, return empty stats
@@ -910,6 +892,7 @@ export class OrdersService {
             paidToEngineer: 0,
             pendingToEngineer: 0,
           },
+          engineerSummary: null,
         };
       }
     }
@@ -943,6 +926,7 @@ export class OrdersService {
         paidToEngineer: 0,
         pendingToEngineer: 0,
       },
+      engineerSummary: null,
     };
 
     stats.forEach(stat => {
@@ -957,19 +941,10 @@ export class OrdersService {
       .addSelect('COUNT(*)', 'count');
 
     // Apply same role-based filtering
-    if (user.role === UserRole.USER) {
-      // Find engineer profile for this user
-      const engineer = await this.engineersRepository.findOne({
-        where: { userId: user.id, isActive: true },
+    if (user.role === UserRole.USER && engineerProfile) {
+      sourceQuery.where('order.assignedEngineerId = :engineerId', {
+        engineerId: engineerProfile.id,
       });
-
-      if (engineer) {
-        sourceQuery.where('order.assignedEngineerId = :engineerId', {
-          engineerId: engineer.id,
-        });
-      } else {
-        // No engineer profile, skip source stats
-      }
     }
 
     sourceQuery.groupBy('order.source');
@@ -996,24 +971,19 @@ export class OrdersService {
 
     // Calculate payment statistics
     const paymentQuery = this.ordersRepository.createQueryBuilder('order');
-    
+
     // Apply same role-based filtering
-    if (user.role === UserRole.USER) {
-      const engineer = await this.engineersRepository.findOne({
-        where: { userId: user.id, isActive: true },
+    if (user.role === UserRole.USER && engineerProfile) {
+      paymentQuery.where('order.assignedEngineerId = :engineerId', {
+        engineerId: engineerProfile.id,
       });
-      if (engineer) {
-        paymentQuery.where('order.assignedEngineerId = :engineerId', {
-          engineerId: engineer.id,
-        });
-      }
     }
 
     // Get completed orders statistics
     const completedOrdersQuery = paymentQuery.clone();
     const completedOrders = await completedOrdersQuery
-      .andWhere('order.status IN (:...statuses)', { 
-        statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER] 
+      .andWhere('order.status IN (:...statuses)', {
+        statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER],
       })
       .getCount();
 
@@ -1022,8 +992,8 @@ export class OrdersService {
     // Get payment status statistics
     const receivedFromOrgQuery = paymentQuery.clone();
     const receivedFromOrg = await receivedFromOrgQuery
-      .andWhere('order.status IN (:...statuses)', { 
-        statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER] 
+      .andWhere('order.status IN (:...statuses)', {
+        statuses: [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER],
       })
       .andWhere('order.receivedFromOrganization = :received', { received: true })
       .getCount();
@@ -1039,6 +1009,63 @@ export class OrdersService {
 
     result.paymentStats.paidToEngineer = paidToEngineer;
     result.paymentStats.pendingToEngineer = completedOrders - paidToEngineer;
+
+    if (engineerProfile) {
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+      const engineerOrders = await this.ordersRepository
+        .createQueryBuilder('monthlyOrder')
+        .where('monthlyOrder.assignedEngineerId = :engineerId', {
+          engineerId: engineerProfile.id,
+        })
+        .andWhere(
+          'COALESCE(monthlyOrder.actualStartDate, monthlyOrder.completionDate, monthlyOrder.createdAt) >= :startOfMonth',
+          { startOfMonth }
+        )
+        .andWhere(
+          'COALESCE(monthlyOrder.actualStartDate, monthlyOrder.completionDate, monthlyOrder.createdAt) < :endOfMonth',
+          { endOfMonth }
+        )
+        .getMany();
+
+      let workedHours = 0;
+      let overtimeHours = 0;
+      let earnedAmount = 0;
+      let carPayments = 0;
+
+      engineerOrders.forEach(order => {
+        const regularHours = Number(order.regularHours ?? 0);
+        const overtime = Number(order.overtimeHours ?? 0);
+        workedHours += regularHours + overtime;
+        overtimeHours += overtime;
+        earnedAmount += Number(order.calculatedAmount ?? 0);
+        carPayments += Number(order.carUsageAmount ?? 0);
+      });
+
+      const planHours = Number(engineerProfile.planHoursMonth ?? 0);
+      const baseRate = Number(engineerProfile.baseRate ?? 0);
+      const fixedSalary = Number(engineerProfile.fixedSalary ?? 0);
+      const plannedCarAmount = Number(engineerProfile.fixedCarAmount ?? 0);
+
+      const planEarnings = fixedSalary + planHours * baseRate;
+
+      const engineerSummary: EngineerOrderSummaryDto = {
+        engineerId: engineerProfile.id,
+        month: now.getMonth() + 1,
+        year: now.getFullYear(),
+        planHours,
+        workedHours,
+        overtimeHours,
+        planEarnings,
+        earnedAmount,
+        carPayments,
+        plannedCarAmount,
+      };
+
+      result.engineerSummary = engineerSummary;
+    }
 
     return result;
   }

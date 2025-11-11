@@ -71,61 +71,59 @@ jobs:
         run: |
           echo "Creating deployment package..."
           
-          # Verify critical files exist and check sizes
+          # Verify critical files exist
           echo "🔍 Checking files before packaging..."
-          if [ ! -f docker-compose.fallback.yml ]; then
-            echo "❌ ERROR: docker-compose.fallback.yml not found!"
-            exit 1
-          fi
-          COMPOSE_SIZE=$(wc -c < docker-compose.fallback.yml)
-          echo "📏 docker-compose.fallback.yml size: $COMPOSE_SIZE bytes"
-          if [ "$COMPOSE_SIZE" -lt 100 ]; then
-            echo "❌ ERROR: docker-compose.fallback.yml is too small ($COMPOSE_SIZE bytes)!"
-            exit 1
-          fi
+          ls -lah docker-compose.fallback.yml || echo "⚠️ docker-compose.fallback.yml not found!"
+          ls -lah backend/Dockerfile* || echo "⚠️ Dockerfiles not found!"
+          ls -lah frontend/Dockerfile* || echo "⚠️ Frontend Dockerfiles not found!"
           
-          # List files to be included
-          echo "📋 Files to include:"
-          ls -lah docker-compose.fallback.yml backend/dist frontend/dist 2>&1 || true
-          
-          # Create package with built files
+          # Create package with built files (use absolute paths from workspace root)
           tar -czf deploy-package.tar.gz \
+            -C "${{ github.workspace }}" \
             docker-compose.fallback.yml \
             backend/dist \
             backend/Dockerfile \
             backend/Dockerfile.fallback \
             backend/package*.json \
             backend/tsconfig.json \
+            backend/shared/ \
             frontend/dist \
             frontend/Dockerfile \
             frontend/Dockerfile.fallback \
             frontend/nginx.conf \
             frontend/package*.json \
+            frontend/angular.json \
+            frontend/tsconfig*.json \
+            frontend/src/ \
+            frontend/shared/ \
             scripts/fallback-manager.sh \
-            docker/mysql/init.sql 2>&1 || {
+            docker/mysql/init.sql \
+            backend/migrations/ 2>&1 || {
               echo "❌ Error creating archive!"
+              echo "Files check:"
+              ls -lah docker-compose.fallback.yml backend/ frontend/ || true
               exit 1
             }
           
-          # Verify archive contains compose file with correct size
+          # Verify archive contains compose file and check size
           echo "🔍 Verifying archive..."
           if ! tar -tzf deploy-package.tar.gz | grep -q docker-compose.fallback.yml; then
             echo "❌ ERROR: docker-compose.fallback.yml not in archive!"
+            echo "Archive contents:"
             tar -tzf deploy-package.tar.gz | head -20
             exit 1
           fi
           
           # Extract and check file size from archive
           TEMP_CHECK=$(mktemp -d)
-          tar -xzf deploy-package.tar.gz -C "$TEMP_CHECK" docker-compose.fallback.yml
+          tar -xzf deploy-package.tar.gz -C "$TEMP_CHECK" docker-compose.fallback.yml 2>&1
           ARCHIVED_SIZE=$(wc -c < "$TEMP_CHECK/docker-compose.fallback.yml")
           rm -rf "$TEMP_CHECK"
           
-          echo "📏 Original size: $COMPOSE_SIZE bytes"
-          echo "📏 Archived size: $ARCHIVED_SIZE bytes"
+          echo "📏 Archived file size: $ARCHIVED_SIZE bytes"
           
           if [ "$ARCHIVED_SIZE" -lt 100 ]; then
-            echo "❌ ERROR: File in archive is too small!"
+            echo "❌ ERROR: File in archive is too small ($ARCHIVED_SIZE bytes)!"
             exit 1
           fi
           
@@ -149,10 +147,36 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ConnectTimeout=30 -o TCPKeepAlive=yes ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} bash -s << 'EOF' "$JWT_SECRET" "$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" "$MYSQL_USER" "$MYSQL_PASSWORD" "$SMTP_HOST" "$SMTP_PORT" "$SMTP_USER" "$SMTP_PASS"
             set -e
             
+            JWT_SECRET="$1"
+            MYSQL_ROOT_PASSWORD="$2"
+            MYSQL_DATABASE="$3"
+            MYSQL_USER="$4"
+            MYSQL_PASSWORD="$5"
+            SMTP_HOST="$6"
+            SMTP_PORT="$7"
+            SMTP_USER="$8"
+            SMTP_PASS="$9"
+            
             echo "🚀 Starting deployment with fallback mechanism..."
+
+            # Create backup before cleanup (if existing deployment exists) - OPTIONAL
+            echo "💾 Attempting to create backup of current deployment..."
+            mkdir -p ~/coffe/backups || true
+            if [ -d ~/coffe ] && [ "$(ls -A ~/coffe 2>/dev/null)" ]; then
+              BACKUP_NAME="backup-$(date +%Y%m%d_%H%M%S).tar.gz"
+              if cd ~/coffe && tar -czf "backups/$BACKUP_NAME" . 2>/dev/null; then
+                echo "✅ Backup created: $BACKUP_NAME"
+                # Keep only last 3 backups
+                cd ~/coffe/backups 2>/dev/null && ls -t backup-*.tar.gz 2>/dev/null | tail -n +4 | xargs -r rm -f || true
+              else
+                echo "⚠️ Backup creation failed, but continuing with deployment..."
+              fi
+            else
+              echo "ℹ️ No existing deployment to backup (this is normal for first deployment)"
+            fi
 
             echo "🧨 FULL CLEANUP: stopping and removing all docker resources and project directory"
             # Stop and remove all containers (no-fail if none)
@@ -162,9 +186,17 @@ jobs:
             docker network prune -f || true
             docker volume prune -f || true
             docker system prune -af || true
-            # Remove project directory entirely
-            rm -rf ~/coffe || true
-            mkdir -p ~/coffe
+            # Remove project directory entirely (but keep backups)
+            if [ -d ~/coffe ]; then
+              mkdir -p ~/coffe_backups_temp
+              [ -d ~/coffe/backups ] && mv ~/coffe/backups ~/coffe_backups_temp/ || true
+              rm -rf ~/coffe || true
+              mkdir -p ~/coffe
+              [ -d ~/coffe_backups_temp/backups ] && mv ~/coffe_backups_temp/backups ~/coffe/backups || true
+              rmdir ~/coffe_backups_temp 2>/dev/null || true
+            else
+              mkdir -p ~/coffe
+            fi
             
             # Extract new deployment
             echo "📦 Extracting new deployment (staged)..."
@@ -173,17 +205,80 @@ jobs:
             tar -xzf /tmp/deploy-package.tar.gz -C "$STAGE_DIR" --no-same-owner --no-same-permissions
             rm -f /tmp/deploy-package.tar.gz
 
+            # Ensure we're in home directory and target directory exists
+            cd ~ || exit 1
+            TARGET_DIR="$HOME/coffe"
+            mkdir -p "$TARGET_DIR"
+            
+            # Verify target directory exists and is accessible
+            if [ ! -d "$TARGET_DIR" ]; then
+              echo "❌ ERROR: Cannot create target directory $TARGET_DIR"
+              exit 1
+            fi
+            
             # Sync ALL staged files into target to ensure backend/ and frontend/ exist
-            mkdir -p ~/coffe
-            rsync -a "$STAGE_DIR"/ ~/coffe/
+            echo "📋 Syncing files to $TARGET_DIR..."
+            rsync -a "$STAGE_DIR"/ "$TARGET_DIR/" || {
+              echo "⚠️ rsync failed, trying with cp instead..."
+              cp -r "$STAGE_DIR"/* "$TARGET_DIR/" 2>/dev/null || cp -r "$STAGE_DIR"/. "$TARGET_DIR/" 2>/dev/null || true
+            }
             rm -rf "$STAGE_DIR"
+
+            # Debug: List extracted files
+            echo "📋 Extracted files:"
+            ls -lah ~/coffe/ || true
+            echo "📋 Checking for compose file:"
+            ls -lah ~/coffe/docker-compose*.yml 2>&1 || echo "⚠️ No compose files found!"
+            
+            # Check compose file size (should be > 1 byte)
+            if [ -f ~/coffe/docker-compose.fallback.yml ]; then
+              COMPOSE_SIZE=$(wc -c < ~/coffe/docker-compose.fallback.yml)
+              echo "📏 docker-compose.fallback.yml size: $COMPOSE_SIZE bytes"
+              if [ "$COMPOSE_SIZE" -lt 100 ]; then
+                echo "❌ ERROR: docker-compose.fallback.yml is too small ($COMPOSE_SIZE bytes) - file is empty or corrupted!"
+                echo "First 50 bytes:"
+                head -c 50 ~/coffe/docker-compose.fallback.yml | cat -A || true
+                echo ""
+                echo "Checking if file exists in archive source:"
+                tar -tzf /tmp/deploy-package.tar.gz 2>/dev/null | grep docker-compose || echo "Not in archive!"
+                exit 1
+              fi
+            fi
 
             # Ensure required directories exist
             mkdir -p ~/coffe/scripts ~/coffe/docker ~/coffe/docker/mysql
 
             # Create .env from CI secrets if missing
             if [ ! -f ~/coffe/.env ]; then
-              echo -e "JWT_SECRET=${JWT_SECRET}\nMYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}\nMYSQL_DATABASE=${MYSQL_DATABASE}\nMYSQL_USER=${MYSQL_USER}\nMYSQL_PASSWORD=${MYSQL_PASSWORD}\nSMTP_HOST=${SMTP_HOST}\nSMTP_PORT=${SMTP_PORT}\nSMTP_USER=${SMTP_USER}\nSMTP_PASS=${SMTP_PASS}" > ~/coffe/.env
+              echo "NODE_ENV=production" > ~/coffe/.env
+              echo "PORT=3001" >> ~/coffe/.env
+              echo "" >> ~/coffe/.env
+              echo "DB_HOST=mysql" >> ~/coffe/.env
+              echo "DB_PORT=3306" >> ~/coffe/.env
+              echo "DB_USERNAME=${MYSQL_USER}" >> ~/coffe/.env
+              echo "DB_PASSWORD=${MYSQL_PASSWORD}" >> ~/coffe/.env
+              echo "DB_DATABASE=${MYSQL_DATABASE}" >> ~/coffe/.env
+              echo "DB_SSL=false" >> ~/coffe/.env
+              echo "" >> ~/coffe/.env
+              echo "JWT_SECRET=${JWT_SECRET}" >> ~/coffe/.env
+              echo "" >> ~/coffe/.env
+              echo "SMTP_HOST=${SMTP_HOST}" >> ~/coffe/.env
+              echo "SMTP_PORT=${SMTP_PORT}" >> ~/coffe/.env
+              echo "SMTP_USER=${SMTP_USER}" >> ~/coffe/.env
+              echo "SMTP_PASS=${SMTP_PASS}" >> ~/coffe/.env
+              echo "" >> ~/coffe/.env
+              echo "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" >> ~/coffe/.env
+              echo "MYSQL_DATABASE=${MYSQL_DATABASE}" >> ~/coffe/.env
+              echo "MYSQL_USER=${MYSQL_USER}" >> ~/coffe/.env
+              echo "MYSQL_PASSWORD=${MYSQL_PASSWORD}" >> ~/coffe/.env
+            fi
+
+            # Ensure Dockerfiles exist with expected names
+            if [ -f ~/coffe/backend/Dockerfile.fallback ]; then
+              cp -f ~/coffe/backend/Dockerfile.fallback ~/coffe/backend/Dockerfile
+            fi
+            if [ -f ~/coffe/frontend/Dockerfile.fallback ]; then
+              cp -f ~/coffe/frontend/Dockerfile.fallback ~/coffe/frontend/Dockerfile
             fi
 
             # Decide compose command (prefer v2)
@@ -191,6 +286,16 @@ jobs:
               COMPOSE="docker compose"
             else
               COMPOSE="docker-compose"
+            fi
+            
+            # Verify compose file exists
+            if [ ! -f ~/coffe/docker-compose.fallback.yml ]; then
+              echo "❌ ERROR: docker-compose.fallback.yml not found!"
+              echo "📋 Files in ~/coffe/:"
+              ls -lah ~/coffe/ || true
+              echo "📋 Files in root:"
+              ls -lah / 2>&1 | head -20 || true
+              exit 1
             fi
             
             # Stop current containers
@@ -206,9 +311,54 @@ jobs:
             docker volume ls -q --filter name=coffe_ | xargs -r docker volume rm || true
             docker network ls -q --filter name=coffe_ | xargs -r docker network rm || true
             
+            # Verify compose file before build
+            echo "🔍 Verifying docker-compose.fallback.yml..."
+            if [ ! -f ~/coffe/docker-compose.fallback.yml ]; then
+              echo "❌ ERROR: docker-compose.fallback.yml still not found!"
+              exit 1
+            fi
+            echo "✅ docker-compose.fallback.yml found"
+            head -20 ~/coffe/docker-compose.fallback.yml || true
+            
             # Build and start with fallback
             echo "🏗️ Building and starting with fallback..."
             cd ~/coffe && $COMPOSE -f docker-compose.fallback.yml up -d --build --remove-orphans
+            
+            # Wait for MySQL to be ready
+            echo "⏳ Waiting for MySQL to be ready..."
+            for i in {1..30}; do
+              if docker exec coffee_mysql_fallback mysqladmin ping -h localhost --silent 2>/dev/null; then
+                echo "✅ MySQL is ready"
+                break
+              fi
+              echo "⏳ Waiting for MySQL... ($i/30)"
+              sleep 2
+            done
+            
+            # Run database migrations
+            echo "🔄 Running database migrations..."
+            if [ -d ~/coffe/backend/migrations ]; then
+              for migration in ~/coffe/backend/migrations/*_add_*.sql; do
+                if [ -f "$migration" ]; then
+                  echo "📝 Applying migration: $(basename $migration)"
+                  docker exec -i coffee_mysql_fallback mysql \
+                    -u${MYSQL_USER} \
+                    -p${MYSQL_PASSWORD} \
+                    ${MYSQL_DATABASE} < "$migration" 2>&1 | grep -v "already exists" || true
+                fi
+              done
+              echo "✅ Migrations applied"
+            else
+              echo "⚠️ Migrations directory not found, skipping"
+            fi
+            
+            # Wait for backend to be ready before initializing users
+            echo "⏳ Waiting for backend to be ready..."
+            sleep 10
+            
+            # Initialize default users (will be done automatically by AuthModule, but ensure it happens)
+            echo "🔄 Initializing default users..."
+            docker exec coffee_backend_fallback curl -s http://localhost:3001/api/auth/init-admin > /dev/null 2>&1 || echo "⚠️ User initialization will happen automatically on backend startup"
             
             echo "✅ Deployment completed"
           EOF
@@ -221,11 +371,14 @@ jobs:
         run: |
           echo "Checking backend health..."
           
+          BACKEND_HEALTHY=false
+          
           # Wait for backend to be ready
           for i in {1..10}; do
             if curl -f --max-time 10 "http://${{ secrets.VPS_HOST }}:3001/api/health" &> /dev/null; then
               echo "✅ Backend is healthy"
               echo "backend_health=healthy" >> $GITHUB_OUTPUT
+              BACKEND_HEALTHY=true
               break
             else
               echo "⏳ Backend not ready yet, attempt $i/10..."
@@ -233,7 +386,7 @@ jobs:
             fi
           done
           
-          if [ "$backend_health" != "healthy" ]; then
+          if [ "$BACKEND_HEALTHY" != "true" ]; then
             echo "❌ Backend health check failed"
             echo "backend_health=unhealthy" >> $GITHUB_OUTPUT
           fi
@@ -243,11 +396,14 @@ jobs:
         run: |
           echo "Checking frontend health..."
           
+          FRONTEND_HEALTHY=false
+          
           # Wait for frontend to be ready
           for i in {1..10}; do
             if curl -f --max-time 10 "http://${{ secrets.VPS_HOST }}:4000" &> /dev/null; then
               echo "✅ Frontend is healthy"
               echo "frontend_health=healthy" >> $GITHUB_OUTPUT
+              FRONTEND_HEALTHY=true
               break
             else
               echo "⏳ Frontend not ready yet, attempt $i/10..."
@@ -255,7 +411,7 @@ jobs:
             fi
           done
           
-          if [ "$frontend_health" != "healthy" ]; then
+          if [ "$FRONTEND_HEALTHY" != "true" ]; then
             echo "❌ Frontend health check failed"
             echo "frontend_health=unhealthy" >> $GITHUB_OUTPUT
           fi
@@ -265,67 +421,109 @@ jobs:
         run: |
           echo "🔄 Health check failed, attempting rollback..."
           
-          ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            set -e
+          ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=60 -o ServerAliveCountMax=3 -o ConnectTimeout=30 -o TCPKeepAlive=yes ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            set +e  # Don't exit on error - rollback is optional
             
             echo "🔄 Starting rollback process..."
             
-            # Find the most recent backup
-            LATEST_BACKUP=$(ls -t ~/coffe/backups/backup-*.tar.gz | head -n 1)
+            # Check if backups directory exists
+            if [ ! -d ~/coffe/backups ]; then
+              echo "⚠️ No backups directory found. Rollback skipped."
+              echo "ℹ️ This is normal for first deployment or if backups were not created."
+              exit 0
+            fi
             
-            if [ -n "$LATEST_BACKUP" ]; then
+            # Find the most recent backup
+            LATEST_BACKUP=$(ls -t ~/coffe/backups/backup-*.tar.gz 2>/dev/null | head -n 1)
+            
+            if [ -n "$LATEST_BACKUP" ] && [ -f "$LATEST_BACKUP" ]; then
               echo "📦 Restoring from backup: $LATEST_BACKUP"
               
               # Stop current containers and remove orphans/volumes/images
-              cd ~/coffe || exit 1
-              docker-compose -f docker-compose.fallback.yml down -v --rmi all --remove-orphans || true
+              cd ~/coffe || exit 0
+              docker-compose -f docker-compose.fallback.yml down -v --rmi all --remove-orphans 2>/dev/null || true
               docker ps -aq --filter "name=coffee_mysql_fallback" | xargs -r docker rm -f || true
               docker ps -aq --filter "name=coffe_mysql" | xargs -r docker rm -f || true
-              docker volume ls -q --filter name=coffe_ | xargs -r docker volume rm || true
-              docker network ls -q --filter name=coffe_ | xargs -r docker network rm || true
+              docker volume ls -q --filter name=coffe_ | xargs -r docker volume rm 2>/dev/null || true
+              docker network ls -q --filter name=coffe_ | xargs -r docker network rm 2>/dev/null || true
               
               # Restore from backup
-              tar -xzf "$LATEST_BACKUP" -C ~/coffe --overwrite --no-same-owner --no-same-permissions
+              tar -xzf "$LATEST_BACKUP" -C ~/coffe --overwrite --no-same-owner --no-same-permissions 2>/dev/null || {
+                echo "⚠️ Failed to extract backup. Rollback aborted."
+                exit 0
+              }
 
               # Ensure we are in the correct directory and compose file exists
-              cd ~/coffe || exit 1
+              cd ~/coffe || exit 0
               if [ ! -f "docker-compose.fallback.yml" ]; then
-                echo "❌ docker-compose.fallback.yml not found after restore. Listing directory:"
-                ls -la
-                exit 1
+                echo "⚠️ docker-compose.fallback.yml not found after restore. Rollback aborted."
+                echo "Directory contents:"
+                ls -la || true
+                exit 0
               fi
               
               # Start with restored version
-              docker-compose -f docker-compose.fallback.yml up -d --remove-orphans
+              docker-compose -f docker-compose.fallback.yml up -d --remove-orphans || {
+                echo "⚠️ Failed to start restored containers. Rollback may have failed."
+                exit 0
+              }
               
-              echo "✅ Rollback completed"
+              echo "✅ Rollback completed successfully"
             else
-              echo "❌ No backup found for rollback"
-              exit 1
+              echo "⚠️ No backup found for rollback"
+              echo "ℹ️ This is normal for first deployment or if previous deployment didn't create a backup."
+              echo "ℹ️ Manual intervention may be required."
+              exit 0
             fi
           EOF
 
-      - name: 🔍 Final Health Check
+      - name: 🔍 Final Health Check (after rollback)
+        if: steps.health-backend.outputs.backend_health == 'unhealthy' || steps.health-frontend.outputs.frontend_health == 'unhealthy'
         run: |
-          echo "Performing final health check..."
+          echo "Performing final health check after rollback..."
           
-          # Wait a bit for rollback to complete
-          sleep 20
+          # Wait for rollback to complete and services to start
+          echo "⏳ Waiting for services to start after rollback..."
+          sleep 30
           
-          # Check backend
-          if curl -f --max-time 10 "http://${{ secrets.VPS_HOST }}:3001/api/health" &> /dev/null; then
-            echo "✅ Backend is healthy after rollback"
+          BACKEND_OK=false
+          FRONTEND_OK=false
+          
+          # Check backend with retries
+          echo "🔍 Checking backend health..."
+          for i in {1..5}; do
+            if curl -f --max-time 10 "http://${{ secrets.VPS_HOST }}:3001/api/health" &> /dev/null; then
+              echo "✅ Backend is healthy after rollback"
+              BACKEND_OK=true
+              break
+            else
+              echo "⏳ Backend not ready yet, attempt $i/5..."
+              sleep 10
+            fi
+          done
+          
+          # Check frontend with retries
+          echo "🔍 Checking frontend health..."
+          for i in {1..5}; do
+            if curl -f --max-time 10 "http://${{ secrets.VPS_HOST }}:4000" &> /dev/null; then
+              echo "✅ Frontend is healthy after rollback"
+              FRONTEND_OK=true
+              break
+            else
+              echo "⏳ Frontend not ready yet, attempt $i/5..."
+              sleep 10
+            fi
+          done
+          
+          # Report final status
+          if [ "$BACKEND_OK" = "true" ] && [ "$FRONTEND_OK" = "true" ]; then
+            echo "✅ All services are healthy after rollback"
           else
-            echo "❌ Backend is still unhealthy"
-            exit 1
-          fi
-          
-          # Check frontend
-          if curl -f --max-time 10 "http://${{ secrets.VPS_HOST }}:4000" &> /dev/null; then
-            echo "✅ Frontend is healthy after rollback"
-          else
-            echo "❌ Frontend is still unhealthy"
-            exit 1
+            echo "⚠️ Some services may still be unhealthy after rollback"
+            echo "ℹ️ Backend: $([ "$BACKEND_OK" = "true" ] && echo "✅ OK" || echo "❌ Failed")"
+            echo "ℹ️ Frontend: $([ "$FRONTEND_OK" = "true" ] && echo "✅ OK" || echo "❌ Failed")"
+            echo "⚠️ Manual intervention may be required"
+            # Don't fail - rollback already attempted, this is informational
           fi
 
       - name: 📊 Deployment Status

@@ -7,12 +7,14 @@
 ## 🎯 Проблема, которую решает
 
 **До внедрения:**
+
 - При неудачной сборке весь сервер падал
 - Нет механизма отката на рабочую версию
 - Отсутствуют health checks
 - Нет автоматического восстановления
 
 **После внедрения:**
+
 - ✅ Автоматический fallback на последнюю рабочую версию
 - ✅ Health checks для всех сервисов
 - ✅ Автоматическое создание бэкапов
@@ -24,6 +26,7 @@
 ### 1. Docker с Fallback механизмом
 
 #### Backend (`Dockerfile.fallback`)
+
 ```dockerfile
 # Сборка с автоматическим fallback
 RUN /app/build-with-fallback.sh
@@ -35,6 +38,7 @@ RUN /app/build-with-fallback.sh
 ```
 
 #### Frontend (`Dockerfile.fallback`)
+
 ```dockerfile
 # Аналогичный механизм для frontend
 # Создает maintenance page при полном отсутствии бэкапов
@@ -48,24 +52,26 @@ services:
     build:
       dockerfile: Dockerfile.fallback
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
-  
+      test:
+        ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3001/api/health']
+
   frontend:
     build:
       dockerfile: Dockerfile.fallback
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:80 || exit 1"]
+      test: ['CMD-SHELL', 'wget --no-verbose --tries=1 --spider http://localhost:80 || exit 1']
 ```
 
 ### 3. Health Check Endpoint
 
 Добавлен endpoint `/api/health` в backend:
+
 ```typescript
 @Get('health')
 getHealth() {
-  return { 
-    status: 'ok', 
-    message: 'Service is healthy', 
+  return {
+    status: 'ok',
+    message: 'Service is healthy',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     memory: process.memoryUsage(),
@@ -147,18 +153,21 @@ getHealth() {
 ### Быстрый старт
 
 1. **Использование fallback Docker Compose:**
+
 ```bash
 # Запуск с fallback механизмом
 docker-compose -f docker-compose.fallback.yml up -d --build
 ```
 
 2. **Деплой с fallback:**
+
 ```bash
 # Деплой с автоматическим fallback
 ./deploy-with-fallback.sh
 ```
 
 3. **Мониторинг:**
+
 ```bash
 # Проверка здоровья системы
 ./scripts/system-monitor.sh check
@@ -270,16 +279,19 @@ graph TD
 ## 📈 Преимущества
 
 ### Надежность
+
 - ✅ Нулевое время простоя при неудачной сборке
 - ✅ Автоматическое восстановление
 - ✅ Graceful degradation
 
 ### Мониторинг
+
 - ✅ Комплексные health checks
 - ✅ Автоматические алерты
 - ✅ Детальная диагностика
 
 ### Управление
+
 - ✅ Автоматические бэкапы
 - ✅ Простое восстановление
 - ✅ Централизованное управление
@@ -325,16 +337,19 @@ docker-compose -f docker-compose.fallback.yml restart
 ### Полный отказ системы
 
 1. **Проверить статус:**
+
 ```bash
 ./scripts/system-monitor.sh status
 ```
 
 2. **Попытаться восстановление:**
+
 ```bash
 ./scripts/system-monitor.sh recover
 ```
 
 3. **Ручной откат:**
+
 ```bash
 # Найти последний бэкап
 ls -la ~/coffe/backups/
@@ -344,6 +359,7 @@ tar -xzf ~/coffe/backups/backup-YYYYMMDD_HHMMSS.tar.gz -C ~/coffe --overwrite
 ```
 
 4. **Перезапуск:**
+
 ```bash
 docker-compose -f docker-compose.fallback.yml up -d
 ```
@@ -358,5 +374,3 @@ docker-compose -f docker-compose.fallback.yml up -d
 - **Простое управление** - все операции автоматизированы
 
 Теперь при неудачной сборке приложения система автоматически подставит последнюю успешную сборку, обеспечивая непрерывную работу сервиса.
-
-

@@ -3,6 +3,7 @@
 ## 🎯 Обзор
 
 Система автообновления Android приложения реализована с использованием следующих технологий:
+
 - **Capacitor** - для создания нативного Android приложения
 - **Backend API** - для хранения информации о версиях
 - **Angular сервисы** - для проверки и загрузки обновлений
@@ -12,6 +13,7 @@
 ### 1. Frontend (Angular)
 
 #### Сервисы:
+
 - **`AppUpdateService`** (`frontend/src/app/services/app-update.service.ts`)
   - Проверяет наличие новых версий
   - Загружает обновления
@@ -22,6 +24,7 @@
   - Показывает диалог обновления
 
 #### Компоненты:
+
 - **`AppUpdateComponent`** (`frontend/src/app/components/app-update/app-update.component.ts`)
   - Диалог с предложением обновить приложение
   - Кнопки "Обновить сейчас" и "Напомнить позже"
@@ -29,6 +32,7 @@
 ### 2. Backend (NestJS)
 
 #### Endpoint:
+
 - **`GET /api/app/version`** - возвращает информацию о текущей версии приложения
 
 ```json
@@ -96,7 +100,7 @@ scp android/app/build/outputs/apk/release/app-release.apk user@server:/var/www/a
 Укажите URL для скачивания APK в backend:
 
 ```typescript
-downloadUrl: 'https://your-server.com/app-v1.0.2.apk'
+downloadUrl: 'https://your-server.com/app-v1.0.2.apk';
 ```
 
 ## 🔒 Безопасность
@@ -127,7 +131,7 @@ template: `
     <h2>Доступно обновление</h2>
     <!-- Ваш кастомный дизайн -->
   </div>
-`
+`;
 ```
 
 ### Изменение логики проверки
@@ -207,4 +211,3 @@ curl -I https://your-server.com/app-v1.0.2.apk
 - [Capacitor Documentation](https://capacitorjs.com/docs)
 - [Android In-App Updates](https://developer.android.com/guide/play/core/in-app-updates)
 - [Angular Signals](https://angular.dev/guide/signals)
-

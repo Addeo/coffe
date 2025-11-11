@@ -146,10 +146,22 @@
           border-radius: 8px;
           background: rgba(0, 0, 0, 0.02);
           transition: all 0.3s;
+          cursor: pointer;
+          user-select: none;
 
           &:hover {
             background: rgba(0, 0, 0, 0.05);
             transform: translateY(-2px);
+          }
+
+          &:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.25);
+          }
+
+          &.active {
+            background: rgba(63, 81, 181, 0.08);
+            box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
           }
 
           mat-icon {

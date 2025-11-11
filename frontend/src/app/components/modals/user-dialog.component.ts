@@ -642,13 +642,24 @@ export class UserDialogComponent {
         formValue.role === UserRole.USER ? formValue.homeTerritoryFixedAmount : undefined,
     };
 
+    // Save password before sending (it will be hashed on backend)
+    const createdPassword = formValue.password;
+
     this.usersService.createUser(userData).subscribe({
       next: user => {
         const isEngineer = user.role === UserRole.USER;
         const message = isEngineer
           ? 'Инженер создан успешно. Ставки по организациям настроены автоматически.'
           : 'Пользователь создан успешно';
+        
+        // Show password in success message for initial setup
+        const passwordMessage = `\n\n📝 Данные для входа:\nEmail: ${user.email}\nПароль: ${createdPassword}\n\n⚠️ Сохраните эти данные - пароль больше не будет показан!`;
+        
+        // Show password in alert for better visibility
+        alert(message + '\n\n' + `📝 Данные для входа:\nEmail: ${user.email}\nПароль: ${createdPassword}\n\n⚠️ Сохраните эти данные - пароль больше не будет показан!`);
+        
         this.toastService.success(message);
+        
         this.dialogRef.close(user);
       },
       error: error => {

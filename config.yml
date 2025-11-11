@@ -2,6 +2,10 @@ tunnel: d722d85b-87fc-46aa-af20-c48eddc78c76
 credentials-file: /Users/sergejkosilov/.cloudflared/d722d85b-87fc-46aa-af20-c48eddc78c76.json
 
 ingress:
+  - hostname: coffe-ug.ru
+    service: http://localhost:4200
+  - hostname: www.coffe-ug.ru
+    service: http://localhost:4200
   - hostname: app.coffe-ug.ru
     service: http://localhost:4200
   - hostname: api.coffe-ug.ru

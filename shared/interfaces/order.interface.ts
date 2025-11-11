@@ -11,13 +11,13 @@ export enum OrderStatus {
 }
 
 export enum OrderStatusLabel {
-  WAITING = 'Waiting',
-  ASSIGNED = 'Assigned',
-  PROCESSING = 'Processing',
-  WORKING = 'In Progress',
-  REVIEW = 'Under Review',
-  COMPLETED = 'Completed',
-  PAID_TO_ENGINEER = 'Paid to Engineer',
+  WAITING = 'Ожидает',
+  ASSIGNED = 'Назначен',
+  PROCESSING = 'В обработке',
+  WORKING = 'В работе',
+  REVIEW = 'На проверке',
+  COMPLETED = 'Завершен',
+  PAID_TO_ENGINEER = 'Выплачено инженеру',
 }
 
 export enum TerritoryType {
