@@ -67,4 +67,7 @@ id_rsa
 # Secret files - НЕ ЗАГРУЖАТЬ В GIT!
 GITHUB_SECRETS_VALUES.txt
 YOUR_GITHUB_SECRETS.txt
-*_SECRETS.txt
+*_SECRETS.txtbackend/public/
+
+# Build outputs
+backend/public/

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, ViewChild } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -27,7 +27,7 @@ import { OrdersService } from '../../services/orders.service';
 import { AuthService } from '../../services/auth.service';
 import { ModalService } from '../../services/modal.service';
 import { ToastService } from '../../services/toast.service';
-import { OrderDto, OrdersQueryDto } from '../../../../shared/dtos/order.dto';
+import { OrderDto, OrdersQueryDto, OrderStatsDto, EngineerOrderSummaryDto } from '../../../../shared/dtos/order.dto';
 import { OrderStatus, OrderStatusLabel } from '../../../../shared/interfaces/order.interface';
 import { UserRole } from '../../../../shared/interfaces/user.interface';
 import { OrderDialogComponent } from '../../components/modals/order-dialog.component';
@@ -35,7 +35,7 @@ import { OrderDeleteConfirmationDialogComponent } from '../../components/modals/
 import { AssignEngineerDialogComponent } from '../../components/modals/assign-engineer-dialog.component';
 import { WorkCompletionDialogComponent } from '../../components/modals/work-completion-dialog.component';
 import { OrderStatusDialogComponent } from '../../components/modals/order-status-dialog.component';
-import { EarningsSummaryComponent } from '../../components/earnings-summary/earnings-summary.component';
+import { EngineerSummaryCardComponent } from '../../components/engineer-summary-card/engineer-summary-card.component';
 
 @Component({
   selector: 'app-orders',
@@ -60,23 +60,25 @@ import { EarningsSummaryComponent } from '../../components/earnings-summary/earn
     MatProgressBarModule,
     MatDividerModule,
     BaseChartDirective,
+    EngineerSummaryCardComponent,
     OrderDialogComponent,
     OrderDeleteConfirmationDialogComponent,
     AssignEngineerDialogComponent,
     WorkCompletionDialogComponent,
     OrderStatusDialogComponent,
-    EarningsSummaryComponent,
   ],
   templateUrl: './orders.component.html',
   styleUrls: ['./orders.component.scss', './orders-stats.scss'],
 })
-export class OrdersComponent implements OnInit {
+export class OrdersComponent implements OnInit, OnDestroy {
   private ordersService = inject(OrdersService);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
   private modalService = inject(ModalService);
   private toastService = inject(ToastService);
   private router = inject(Router);
+
+  OrderStatus = OrderStatus;
 
   displayedColumns: string[] = [
     'id',
@@ -90,9 +92,10 @@ export class OrdersComponent implements OnInit {
   ];
   dataSource = new MatTableDataSource<OrderDto>([]);
   isLoading = signal(false);
-  orderStats = signal({
+  orderStats = signal<OrderStatsDto>({
     total: 0,
     waiting: 0,
+    assigned: 0,
     processing: 0,
     working: 0,
     review: 0,
@@ -111,15 +114,40 @@ export class OrdersComponent implements OnInit {
       paidToEngineer: 0,
       pendingToEngineer: 0,
     },
+    engineerSummary: null,
   });
 
-  // Role-based permissions
-  readonly canCreateOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
-  readonly canAssignEngineers = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
-  readonly canViewAllOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
-  readonly canEditOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
-  readonly canDeleteOrders = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
-  readonly canExportOrders = this.authService.hasRole(UserRole.ADMIN);
+  // Role-based permissions - using computed signals for reactivity
+  readonly canCreateOrders = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
+  readonly canAssignEngineers = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
+  readonly canViewAllOrders = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
+  readonly canEditOrders = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
+  readonly canDeleteOrders = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
+  readonly canExportOrders = computed(() => this.authService.hasRole(UserRole.ADMIN));
+  readonly isEngineerView = computed(() => this.authService.hasRole(UserRole.USER));
+  readonly engineerSummary = computed<EngineerOrderSummaryDto | null>(() => {
+    if (!this.isEngineerView()) {
+      return null;
+    }
+
+    const statsSummary = this.orderStats().engineerSummary;
+    const now = new Date();
+
+    const planHours = statsSummary?.planHours ?? 120;
+
+    return {
+      engineerId: statsSummary?.engineerId ?? 0,
+      month: statsSummary?.month ?? now.getMonth() + 1,
+      year: statsSummary?.year ?? now.getFullYear(),
+      planHours,
+      workedHours: statsSummary?.workedHours ?? 0,
+      overtimeHours: statsSummary?.overtimeHours ?? 0,
+      planEarnings: statsSummary?.planEarnings ?? 0,
+      earnedAmount: statsSummary?.earnedAmount ?? 0,
+      carPayments: statsSummary?.carPayments ?? 0,
+      plannedCarAmount: statsSummary?.plannedCarAmount ?? 0,
+    };
+  });
 
   // Engineers can edit their assigned orders
   canEditOrder(order: OrderDto): boolean {
@@ -130,7 +158,7 @@ export class OrdersComponent implements OnInit {
     if (order.status === OrderStatus.COMPLETED) return false;
 
     // Admins and managers can always edit non-completed orders
-    if (this.canEditOrders) return true;
+    if (this.canEditOrders()) return true;
 
     // Engineers can only edit their own assigned orders
     return currentUser.role === UserRole.USER && order.assignedEngineerId === currentUser.id;
@@ -145,7 +173,7 @@ export class OrdersComponent implements OnInit {
     }
 
     // Admins and managers can always update
-    if (this.canEditOrders) {
+    if (this.canEditOrders()) {
       return true;
     }
 
@@ -163,7 +191,7 @@ export class OrdersComponent implements OnInit {
     if (!currentUser) return false;
 
     // Only admins and managers can manage payment status
-    if (!this.canEditOrders) return false;
+    if (!this.canEditOrders()) return false;
 
     // Can only manage payment status for completed orders
     return order.status === OrderStatus.COMPLETED || order.status === OrderStatus.PAID_TO_ENGINEER;
@@ -178,7 +206,7 @@ export class OrdersComponent implements OnInit {
     }
 
     // Admins and managers can set any status
-    if (this.canEditOrders) {
+    if (this.canEditOrders()) {
       return Object.values(OrderStatus);
     }
 
@@ -192,7 +220,7 @@ export class OrdersComponent implements OnInit {
     }
 
     // Only admins and managers can set PAID_TO_ENGINEER status
-    if (this.canEditOrders && order.status === OrderStatus.COMPLETED) {
+    if (this.canEditOrders() && order.status === OrderStatus.COMPLETED) {
       return [OrderStatus.COMPLETED, OrderStatus.PAID_TO_ENGINEER];
     }
 
@@ -216,8 +244,13 @@ export class OrdersComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+    // Set paginator and sort after a slight delay to ensure view is fully initialized
+    setTimeout(() => {
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+      console.log('📄 Paginator initialized:', this.paginator);
+      console.log('📄 DataSource length:', this.dataSource.data.length);
+    });
   }
 
   private loadOrders(query: OrdersQueryDto = {}) {
@@ -253,7 +286,10 @@ export class OrdersComponent implements OnInit {
   private loadOrderStats() {
     this.ordersService.getOrderStats().subscribe({
       next: stats => {
-        this.orderStats.set(stats);
+        this.orderStats.set({
+          ...stats,
+          engineerSummary: stats.engineerSummary ?? null,
+        });
       },
       error: error => {
         console.error('Ошибка загрузки статистики заказов:', error);
@@ -261,10 +297,208 @@ export class OrdersComponent implements OnInit {
     });
   }
 
+  // Month navigation for engineer summary
+  private currentYear = signal(new Date().getFullYear());
+  private currentMonth = signal(new Date().getMonth() + 1);
+
+  private readonly monthNames = [
+    'Январь',
+    'Февраль',
+    'Март',
+    'Апрель',
+    'Май',
+    'Июнь',
+    'Июль',
+    'Август',
+    'Сентябрь',
+    'Октябрь',
+    'Ноябрь',
+    'Декабрь',
+  ];
+
+  getMonthName(month: number): string {
+    return this.monthNames[month - 1] || '';
+  }
+
+  previousMonth(): void {
+    let newMonth = this.currentMonth() - 1;
+    let newYear = this.currentYear();
+
+    if (newMonth < 1) {
+      newMonth = 12;
+      newYear--;
+    }
+
+    this.currentMonth.set(newMonth);
+    this.currentYear.set(newYear);
+    this.loadEngineerStatsForMonth(newYear, newMonth);
+  }
+
+  nextMonth(): void {
+    let newMonth = this.currentMonth() + 1;
+    let newYear = this.currentYear();
+
+    if (newMonth > 12) {
+      newMonth = 1;
+      newYear++;
+    }
+
+    this.currentMonth.set(newMonth);
+    this.currentYear.set(newYear);
+    this.loadEngineerStatsForMonth(newYear, newMonth);
+  }
+
+  onEngineerMonthChanged(event: { year: number; month: number }): void {
+    this.currentMonth.set(event.month);
+    this.currentYear.set(event.year);
+    this.loadEngineerStatsForMonth(event.year, event.month);
+  }
+
+  private loadEngineerStatsForMonth(year: number, month: number): void {
+    console.log('Loading engineer stats for:', { year, month });
+    this.isLoading.set(true);
+
+    // Load orders stats with engineer summary for the selected month
+    // Since backend getOrderStats doesn't support month/year params,
+    // we need to manually calculate from orders
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 1);
+
+    // Load orders for the selected month
+    this.ordersService
+      .getOrders({
+        actualStartDateFrom: startOfMonth,
+        actualStartDateTo: endOfMonth,
+      } as OrdersQueryDto)
+      .subscribe({
+        next: response => {
+          // Calculate engineer summary from orders
+          const currentUser = this.authService.currentUser();
+          if (currentUser && this.isEngineerView()) {
+            const userOrders = response.data.filter(
+              order => order.assignedEngineerId === currentUser.id
+            );
+
+            let workedHours = 0;
+            let overtimeHours = 0;
+            let earnedAmount = 0;
+            let carPayments = 0;
+
+            userOrders.forEach(order => {
+              const regularHours = Number(order.regularHours ?? 0);
+              const overtime = Number(order.overtimeHours ?? 0);
+              workedHours += regularHours + overtime;
+              overtimeHours += overtime;
+              earnedAmount += Number(order.calculatedAmount ?? 0);
+              carPayments += Number(order.carUsageAmount ?? 0);
+            });
+
+            // Get current engineer profile for plan data
+            const currentSummary = this.orderStats().engineerSummary;
+            const updatedSummary: EngineerOrderSummaryDto = {
+              engineerId: currentSummary?.engineerId ?? 0,
+              month,
+              year,
+              planHours: currentSummary?.planHours ?? 120,
+              workedHours,
+              overtimeHours,
+              planEarnings: currentSummary?.planEarnings ?? 0,
+              earnedAmount,
+              carPayments,
+              plannedCarAmount: currentSummary?.plannedCarAmount ?? 0,
+            };
+
+            // Update orderStats with new engineer summary
+            this.orderStats.update(stats => ({
+              ...stats,
+              engineerSummary: updatedSummary,
+            }));
+          }
+          this.isLoading.set(false);
+        },
+        error: error => {
+          console.error('Error loading engineer stats for month:', error);
+          this.toastService.error('Ошибка загрузки статистики за месяц');
+          this.isLoading.set(false);
+        },
+      });
+  }
+
+  getEarningsProgress(summary: EngineerOrderSummaryDto): number {
+    if (!summary.planEarnings || summary.planEarnings <= 0) {
+      return 0;
+    }
+    return Math.min(100, ((summary.earnedAmount ?? 0) / summary.planEarnings) * 100);
+  }
+
+  getHoursProgress(summary: EngineerOrderSummaryDto): number {
+    if (!summary.planHours || summary.planHours <= 0) {
+      return 0;
+    }
+    return Math.min(100, ((summary.workedHours ?? 0) / summary.planHours) * 100);
+  }
+
   onStatusFilterChange(status: OrderStatus | '') {
     console.log('🔄 Status filter changed to:', status);
     this.selectedStatus.set(status);
     this.loadOrders();
+  }
+
+  onSummaryStatusClick(
+    key:
+      | 'total'
+      | 'waiting'
+      | 'processing'
+      | 'working'
+      | 'review'
+      | 'completed'
+      | 'paid_to_engineer'
+  ): void {
+    let status: OrderStatus | '' = '';
+
+    switch (key) {
+      case 'waiting':
+        status = OrderStatus.WAITING;
+        break;
+      case 'processing':
+        status = OrderStatus.PROCESSING;
+        break;
+      case 'working':
+        status = OrderStatus.WORKING;
+        break;
+      case 'review':
+        status = OrderStatus.REVIEW;
+        break;
+      case 'completed':
+        status = OrderStatus.COMPLETED;
+        break;
+      case 'paid_to_engineer':
+        status = OrderStatus.PAID_TO_ENGINEER;
+        break;
+      case 'total':
+      default:
+        status = '';
+        break;
+    }
+
+    this.onStatusFilterChange(status);
+  }
+
+  onSummaryStatusKeydown(
+    event: KeyboardEvent,
+    key:
+      | 'total'
+      | 'waiting'
+      | 'processing'
+      | 'working'
+      | 'review'
+      | 'completed'
+      | 'paid_to_engineer'
+  ): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.onSummaryStatusClick(key);
+    }
   }
 
   onEditOrder(order: OrderDto) {
@@ -364,7 +598,7 @@ export class OrdersComponent implements OnInit {
           this.dataSource.data[index] = updatedOrder;
           this.dataSource._updateChangeSubscription();
         }
-        
+
         const statusText = newStatus ? 'отмечен как оплаченный' : 'отмечен как неоплаченный';
         this.toastService.success(`Заказ ${statusText}`);
       },
@@ -526,6 +760,20 @@ export class OrdersComponent implements OnInit {
     return order.organization?.name || 'N/A';
   }
 
+  trackByOrderId(index: number, order: OrderDto): number {
+    return order.id;
+  }
+
+  formatDate(date: string | Date): string {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toLocaleDateString('ru-RU', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  }
+
   getEngineerName(order: OrderDto): string {
     if (!order.assignedEngineer) return 'Не назначен';
 
@@ -639,15 +887,45 @@ export class OrdersComponent implements OnInit {
 
   // Order statistics collapse state
   orderStatsCollapsed = signal(false);
+  
+  // Collapse states for blocks
+  ordersOverviewCollapsed = signal(false);
+  ordersHeaderCollapsed = signal(false);
+  engineerSummaryCollapsed = signal(false);
+  mobileStatisticsCollapsed = signal(false);
 
-  // Mobile view detection
-  isMobileView(): boolean {
-    return window.innerWidth <= 768;
+  // Mobile view detection - reactive signal
+  private windowWidth = signal(window.innerWidth);
+  isMobileView = computed(() => this.windowWidth() <= 768);
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: Event): void {
+    this.windowWidth.set(window.innerWidth);
   }
 
   // Toggle order statistics visibility
   toggleOrderStats() {
     this.orderStatsCollapsed.set(!this.orderStatsCollapsed());
+  }
+
+  // Toggle orders overview block
+  toggleOrdersOverview() {
+    this.ordersOverviewCollapsed.set(!this.ordersOverviewCollapsed());
+  }
+
+  // Toggle orders header block
+  toggleOrdersHeader() {
+    this.ordersHeaderCollapsed.set(!this.ordersHeaderCollapsed());
+  }
+
+  // Toggle engineer summary block
+  toggleEngineerSummary() {
+    this.engineerSummaryCollapsed.set(!this.engineerSummaryCollapsed());
+  }
+
+  // Toggle mobile statistics block
+  toggleMobileStatistics() {
+    this.mobileStatisticsCollapsed.set(!this.mobileStatisticsCollapsed());
   }
 
   // Get unaccepted orders count
@@ -660,7 +938,7 @@ export class OrdersComponent implements OnInit {
     const currentUser = this.authService.currentUser();
     if (!currentUser) return false;
 
-    if (this.canViewAllOrders) {
+    if (this.canViewAllOrders()) {
       // Admin/Manager sees all unaccepted orders
       return this.getUnacceptedOrdersCount() > 0;
     } else {
@@ -675,7 +953,14 @@ export class OrdersComponent implements OnInit {
   // Данные для графика статусов (Donut)
   get statusChartData(): ChartData<'doughnut'> {
     return {
-      labels: ['Ожидают', 'В обработке', 'В работе', 'На проверке', 'Завершено', 'Выплачено инженеру'],
+      labels: [
+        'Ожидают',
+        'В обработке',
+        'В работе',
+        'На проверке',
+        'Завершено',
+        'Выплачено инженеру',
+      ],
       datasets: [
         {
           data: [
@@ -792,7 +1077,12 @@ export class OrdersComponent implements OnInit {
   // Данные для графика платежей (Donut)
   get paymentChartData(): ChartData<'doughnut'> {
     return {
-      labels: ['Получено от организаций', 'Ожидает от организаций', 'Выплачено инженерам', 'Ожидает выплаты'],
+      labels: [
+        'Получено от организаций',
+        'Ожидает от организаций',
+        'Выплачено инженерам',
+        'Ожидает выплаты',
+      ],
       datasets: [
         {
           data: [
@@ -829,10 +1119,26 @@ export class OrdersComponent implements OnInit {
   // Статистика для бейджей под графиком платежей
   get paymentStats() {
     return [
-      { label: 'Получено от организаций', value: this.orderStats().paymentStats.receivedFromOrganization, color: '#4CAF50' },
-      { label: 'Ожидает от организаций', value: this.orderStats().paymentStats.pendingFromOrganization, color: '#FF9800' },
-      { label: 'Выплачено инженерам', value: this.orderStats().paymentStats.paidToEngineer, color: '#2196F3' },
-      { label: 'Ожидает выплаты', value: this.orderStats().paymentStats.pendingToEngineer, color: '#FFC107' },
+      {
+        label: 'Получено от организаций',
+        value: this.orderStats().paymentStats.receivedFromOrganization,
+        color: '#4CAF50',
+      },
+      {
+        label: 'Ожидает от организаций',
+        value: this.orderStats().paymentStats.pendingFromOrganization,
+        color: '#FF9800',
+      },
+      {
+        label: 'Выплачено инженерам',
+        value: this.orderStats().paymentStats.paidToEngineer,
+        color: '#2196F3',
+      },
+      {
+        label: 'Ожидает выплаты',
+        value: this.orderStats().paymentStats.pendingToEngineer,
+        color: '#FFC107',
+      },
     ];
   }
 
@@ -1021,5 +1327,9 @@ export class OrdersComponent implements OnInit {
     const pageSize = this.paginator.pageSize;
 
     return currentPage * pageSize + index + 1;
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup if needed
   }
 }
