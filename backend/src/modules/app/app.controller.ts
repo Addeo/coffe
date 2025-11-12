@@ -11,7 +11,7 @@ export class AppController {
         : 'http://localhost:3001';
 
     return {
-      version: '1.0.7', // Server version - should match latest APK version
+      version: '1.0.8', // Server version - should match latest APK version
       downloadUrl: `${baseUrl}/app-debug.apk`,
       required: false,
       releaseNotes: 'Обновление включает новые функции и исправления ошибок.',
