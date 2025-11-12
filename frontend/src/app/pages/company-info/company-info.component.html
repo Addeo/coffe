@@ -1,6 +1,6 @@
 <section class="company-hero">
   <div class="company-hero__content">
-    <p class="company-hero__tagline">Сервисный центр кофейного оборудования Южного федерального округа</p>
+    <p class="company-hero__tagline">Сервисный центр кофейного оборудования КМВ, Ставропольского края и ближайших республик</p>
     <h1 class="company-hero__title">
       {{ companyName }} поддерживает кофемашины кофеен, офисов и АЗС, чтобы каждая чашка была стабильной
     </h1>
@@ -14,12 +14,30 @@
     </ul>
   </div>
   <div class="company-hero__card">
-    <h2 class="company-hero__card-title">Что получают наши клиенты</h2>
-    <p>Быстрый выезд · Оригинальные запчасти · Отчет и рекомендации после визита</p>
+    <div class="company-hero__card-image">
+      <img
+        ngSrc="https://images.unsplash.com/photo-1517487881594-2787fef5ebf7?auto=format&fit=crop&w=800&q=80"
+        alt="Профессиональное обслуживание кофемашин"
+        width="400"
+        height="300"
+        class="company-hero__image"
+        priority
+      />
+    </div>
+    <div class="company-hero__card-content">
+      <h2 class="company-hero__card-title">Что получают наши клиенты</h2>
+      <p>Быстрый выезд · Оригинальные запчасти · Отчет и рекомендации после визита</p>
+      <p class="company-hero__location">
+        <strong>Главный офис:</strong> {{ officeLocation }}
+      </p>
+      <p class="company-hero__location">
+        <strong>Регион обслуживания:</strong> КМВ, Ставропольский край, ближайшие республики
+      </p>
+    </div>
   </div>
 </section>
 
-<section class="partners" *ngIf="partners.length > 0">
+<section class="partners" *ngIf="partners().length > 0 || isLoadingPartners()">
   <div class="partners__header">
     <h2>Клиенты, которые доверяют свою кофейную технику</h2>
     <p>
@@ -27,8 +45,8 @@
       чувствует себя каждая кофемашина в вашем зале.
     </p>
   </div>
-  <div class="partners__grid">
-    <article class="partners__card" *ngFor="let partner of partners; trackBy: trackPartner">
+  <div class="partners__grid" *ngIf="!isLoadingPartners()">
+    <article class="partners__card" *ngFor="let partner of partners(); trackBy: trackPartner">
       <header>
         <h3>{{ partner.name }}</h3>
         <span class="partners__badge">{{ partner.industry }}</span>
@@ -37,6 +55,9 @@
         {{ partner.description }}
       </p>
     </article>
+  </div>
+  <div class="partners__loading" *ngIf="isLoadingPartners()">
+    <p>Загрузка клиентов...</p>
   </div>
 </section>
 
@@ -59,7 +80,7 @@
 <section class="industries" *ngIf="industries.length > 0">
   <div class="industries__header">
     <h2>Где мы работаем</h2>
-    <p>Поддерживаем кофейное оборудование по всему Южному федеральному округу — от камерных кофеен до крупных сетей.</p>
+    <p>Поддерживаем кофейное оборудование по КМВ, Ставропольскому краю и ближайшим республикам — от камерных кофеен до крупных сетей.</p>
   </div>
   <div class="industries__grid">
     <article class="industries__card" *ngFor="let industry of industries; trackBy: trackIndustry">
@@ -70,10 +91,91 @@
   </div>
 </section>
 
+<section class="work-process">
+  <div class="work-process__header">
+    <h2>Как мы работаем</h2>
+    <p>Простой и понятный процесс от заявки до завершения работ. Всего 5 шагов до восстановления вашей кофемашины.</p>
+  </div>
+  <div class="work-process__steps">
+    <article class="work-process__step" *ngFor="let step of workProcessSteps; trackBy: trackWorkProcess">
+      <div class="work-process__step-number">{{ step.step }}</div>
+      <div class="work-process__step-icon">{{ step.icon }}</div>
+      <h3 class="work-process__step-title">{{ step.title }}</h3>
+      <p class="work-process__step-description">{{ step.description }}</p>
+    </article>
+  </div>
+</section>
+
+<section class="advantages">
+  <div class="advantages__header">
+    <h2>Почему выбирают нас</h2>
+    <p>Мы не просто ремонтируем кофемашины — мы обеспечиваем стабильную работу вашего бизнеса.</p>
+  </div>
+  <div class="advantages__grid">
+    <article class="advantages__card" *ngFor="let advantage of advantages; trackBy: trackAdvantage">
+      <div class="advantages__icon">{{ advantage.icon }}</div>
+      <h3 class="advantages__title">{{ advantage.title }}</h3>
+      <p class="advantages__description">{{ advantage.description }}</p>
+    </article>
+  </div>
+</section>
+
+<section class="statistics">
+  <div class="statistics__header">
+    <h2>Наши достижения в цифрах</h2>
+    <p>Результаты нашей работы говорят сами за себя.</p>
+  </div>
+  <div class="statistics__grid">
+    <article class="statistics__card" *ngFor="let stat of statistics; trackBy: trackStatistic">
+      <div class="statistics__value">{{ stat.value }}</div>
+      <div class="statistics__label">{{ stat.label }}</div>
+      <p class="statistics__description" *ngIf="stat.description">{{ stat.description }}</p>
+    </article>
+  </div>
+</section>
+
 <section class="gallery" *ngIf="gallery.length > 0">
   <div class="gallery__header">
     <h2>Как мы заботимся о кофемашинах</h2>
     <p>Выездной ремонт, профилактика и обучение персонала — наша техника и внимание помогают клиентам работать без простоев.</p>
+  </div>
+  <div class="gallery__carousel" (mouseenter)="onCarouselMouseEnter()" (mouseleave)="onCarouselMouseLeave()">
+    <div class="gallery__carousel-container">
+      <button class="gallery__carousel-button gallery__carousel-button--prev" (click)="prevSlide()" aria-label="Предыдущее фото" type="button">
+        <span>&#8249;</span>
+      </button>
+      <div class="gallery__carousel-slides">
+        <figure 
+          class="gallery__carousel-slide" 
+          *ngFor="let item of gallery; let i = index; trackBy: trackGallery"
+          [class.gallery__carousel-slide--active]="currentSlideIndex() === i"
+        >
+          <img
+            [ngSrc]="item.src"
+            [alt]="item.alt"
+            width="960"
+            height="640"
+            class="gallery__carousel-image"
+            [priority]="i === 0"
+            loading="lazy"
+          />
+          <figcaption class="gallery__carousel-caption">{{ item.caption }}</figcaption>
+        </figure>
+      </div>
+      <button class="gallery__carousel-button gallery__carousel-button--next" (click)="nextSlide()" aria-label="Следующее фото" type="button">
+        <span>&#8250;</span>
+      </button>
+    </div>
+    <div class="gallery__carousel-dots">
+      <button
+        *ngFor="let item of gallery; let i = index"
+        class="gallery__carousel-dot"
+        [class.gallery__carousel-dot--active]="currentSlideIndex() === i"
+        (click)="goToSlide(i)"
+        [attr.aria-label]="'Перейти к фото ' + (i + 1)"
+        type="button"
+      ></button>
+    </div>
   </div>
   <div class="gallery__grid">
     <figure class="gallery__item" *ngFor="let item of gallery; let i = index; trackBy: trackGallery">
@@ -97,7 +199,21 @@
       Оставьте заявку — договоримся о времени выезда, подготовим запчасти и вернем вашу кофемашину в строй без лишних
       вопросов и скрытых оплат.
     </p>
+    <div class="cta__contacts">
+      <p class="cta__contact-item">
+        <strong>Email:</strong>
+        <a [href]="'mailto:' + contactEmail" class="cta__contact-link">{{ contactEmail }}</a>
+      </p>
+      <p class="cta__contact-item">
+        <strong>Телефон:</strong>
+        <a [href]="getPhoneHref(contactPhone)" class="cta__contact-link">{{ contactPhone }}</a>
+      </p>
+    </div>
   </div>
-  <a class="cta__link" routerLink="/login">Оставить заявку на выезд мастера</a>
+  <div class="cta__actions">
+    <a class="cta__link" routerLink="/login">Оставить заявку на выезд мастера</a>
+    <a [href]="'mailto:' + contactEmail" class="cta__link cta__link--secondary">Написать на почту</a>
+    <a [href]="getPhoneHref(contactPhone)" class="cta__link cta__link--secondary">Позвонить</a>
+  </div>
 </section>
 
