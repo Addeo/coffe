@@ -109,39 +109,28 @@ export class StatisticsComponent implements OnInit {
   });
   // Car payment status
   carPaymentStatus = signal<any>(null);
-  carPaymentOrgColumns = [
-    'organizationName',
-    'totalCarAmount',
-    'paidCarAmount',
-    'pendingCarAmount',
-    'paymentStatus',
-  ];
-  carPaymentEngineerColumns = [
-    'engineerName',
-    'totalCarAmount',
-    'paidCarAmount',
-    'pendingCarAmount',
-    'paymentStatus',
-  ];
+  carPaymentOrgColumns = ['organizationName', 'totalCarAmount', 'paidCarAmount', 'pendingCarAmount', 'paymentStatus'];
+  carPaymentEngineerColumns = ['engineerName', 'totalCarAmount', 'paidCarAmount', 'pendingCarAmount', 'paymentStatus'];
 
   // Month and year selection
   selectedYear = signal(new Date().getFullYear());
   selectedMonth = signal(new Date().getMonth() + 1);
 
-  // Available months (year is automatically determined)
+  // Available years and months
+  availableYears = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
   availableMonths = [
-    { value: 1, name: 'Январь' },
-    { value: 2, name: 'Февраль' },
-    { value: 3, name: 'Март' },
-    { value: 4, name: 'Апрель' },
-    { value: 5, name: 'Май' },
-    { value: 6, name: 'Июнь' },
-    { value: 7, name: 'Июль' },
-    { value: 8, name: 'Август' },
-    { value: 9, name: 'Сентябрь' },
-    { value: 10, name: 'Октябрь' },
-    { value: 11, name: 'Ноябрь' },
-    { value: 12, name: 'Декабрь' },
+    { value: 1, name: 'January' },
+    { value: 2, name: 'February' },
+    { value: 3, name: 'March' },
+    { value: 4, name: 'April' },
+    { value: 5, name: 'May' },
+    { value: 6, name: 'June' },
+    { value: 7, name: 'July' },
+    { value: 8, name: 'August' },
+    { value: 9, name: 'September' },
+    { value: 10, name: 'October' },
+    { value: 11, name: 'November' },
+    { value: 12, name: 'December' },
   ];
 
   // View mode toggle
@@ -152,7 +141,11 @@ export class StatisticsComponent implements OnInit {
     return window.innerWidth <= 768;
   }
 
-  // User role checks (statistics is admin-only)
+  // User role checks
+  readonly isAdmin = this.authService.hasRole(UserRole.ADMIN);
+  readonly isManager = this.authService.hasRole(UserRole.MANAGER);
+  readonly isEngineer = this.authService.hasRole(UserRole.USER);
+  readonly canViewAllData = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
   readonly currentUser = this.authService.currentUser;
 
   // Table columns
@@ -421,49 +414,11 @@ export class StatisticsComponent implements OnInit {
     try {
       const year = this.selectedYear();
       const month = this.selectedMonth();
-
-      console.log('🚗 Загрузка автомобильных отчислений для:', { year, month });
-
+      
       const response = await this.statisticsService.getCarPaymentStatus(year, month).toPromise();
-      console.log('🚗 Ответ от сервера:', response);
-
-      // Убеждаемся, что response не null и имеет правильную структуру
-      if (response) {
-        // Нормализуем данные - убеждаемся, что все поля присутствуют
-        const normalizedResponse = {
-          totalCarAmount: response.totalCarAmount || 0,
-          paidCarAmount: response.paidCarAmount || 0,
-          pendingCarAmount: response.pendingCarAmount || (response.totalCarAmount || 0) - (response.paidCarAmount || 0),
-          organizationBreakdown: response.organizationBreakdown || [],
-          engineerBreakdown: response.engineerBreakdown || [],
-          paymentStatus: response.paymentStatus || 0,
-        };
-
-        console.log('🚗 Нормализованные данные:', normalizedResponse);
-        this.carPaymentStatus.set(normalizedResponse);
-      } else {
-        // Если ответ пустой, устанавливаем пустые данные
-        console.warn('🚗 Получен пустой ответ от сервера');
-        this.carPaymentStatus.set({
-          totalCarAmount: 0,
-          paidCarAmount: 0,
-          pendingCarAmount: 0,
-          organizationBreakdown: [],
-          engineerBreakdown: [],
-          paymentStatus: 0,
-        });
-      }
+      this.carPaymentStatus.set(response);
     } catch (error) {
-      console.error('🚗 Ошибка загрузки статуса автомобильных отчислений:', error);
-      // Устанавливаем пустые данные при ошибке
-      this.carPaymentStatus.set({
-        totalCarAmount: 0,
-        paidCarAmount: 0,
-        pendingCarAmount: 0,
-        organizationBreakdown: [],
-        engineerBreakdown: [],
-        paymentStatus: 0,
-      });
+      console.error('Ошибка загрузки статуса автомобильных отчислений:', error);
       this.snackBar.open('Не удалось загрузить данные автомобильных отчислений', 'Закрыть', {
         duration: 3000,
       });
@@ -625,13 +580,74 @@ export class StatisticsComponent implements OnInit {
   ngOnInit() {
     this.loadStatistics();
     this.loadUserStats();
-    this.loadCarPaymentStatus();
   }
 
   loadStatistics() {
     this.isLoading.set(true);
-    // Загружаем статистику для админов
-    this.loadAdminStatistics();
+
+    // Для инженеров загружаем только их статистику
+    if (this.isEngineer) {
+      this.loadEngineerStatistics();
+    } else {
+      // Для админов/менеджеров загружаем общую статистику
+      this.loadAdminStatistics();
+    }
+  }
+
+  private loadEngineerStatistics() {
+    const currentUser = this.currentUser();
+    if (!currentUser) {
+      this.isLoading.set(false);
+      return;
+    }
+
+    // Use engineer-specific endpoint instead of admin endpoint
+    this.statisticsService
+      .getEngineerDetailedStats(this.selectedYear(), this.selectedMonth())
+      .subscribe({
+        next: (data: any) => {
+          // Create statistics object for the engineer
+          const engineerStats = {
+            year: this.selectedYear(),
+            month: this.selectedMonth(),
+            monthName: this.getMonthName(this.selectedMonth()),
+            agentEarnings: [
+              {
+                agentId: data.engineerId || currentUser.id,
+                agentName: data.engineerName || `${currentUser.firstName} ${currentUser.lastName}`,
+                totalEarnings: data.totalEarnings || 0,
+                completedOrders: data.totalOrders || 0,
+                averageOrderValue:
+                  data.totalOrders > 0 ? (data.totalEarnings || 0) / data.totalOrders : 0,
+              },
+            ],
+            organizationEarnings: [],
+            overtimeStatistics: [],
+            totalEarnings: data.totalEarnings || 0,
+            totalOrders: data.totalOrders || 0,
+            totalOvertimeHours: 0,
+          };
+
+          this.statistics.set(engineerStats);
+          this.isLoading.set(false);
+        },
+        error: (error: any) => {
+          console.error('Error loading engineer statistics:', error);
+          // Create empty statistics on error
+          this.statistics.set({
+            year: this.selectedYear(),
+            month: this.selectedMonth(),
+            monthName: this.getMonthName(this.selectedMonth()),
+            agentEarnings: [],
+            organizationEarnings: [],
+            overtimeStatistics: [],
+            totalEarnings: 0,
+            totalOrders: 0,
+            totalOvertimeHours: 0,
+          });
+          this.isLoading.set(false);
+        },
+      });
   }
 
   private loadAdminStatistics() {
@@ -668,35 +684,29 @@ export class StatisticsComponent implements OnInit {
       });
   }
 
-  /**
-   * Handle month change from earnings-summary component
-   */
+  onYearChange(year: number) {
+    this.selectedYear.set(year);
+    this.loadStatistics();
+  }
+
+  onMonthChange(month: number) {
+    const previousMonth = this.selectedMonth();
+    this.selectedMonth.set(month);
+    // Автоматически изменяем год при переходе через границы (формат месяца: 1-12)
+    if (previousMonth === 12 && month === 1) {
+      // Переход с декабря на январь - увеличиваем год
+      this.selectedYear.update(year => year + 1);
+    } else if (previousMonth === 1 && month === 12) {
+      // Переход с января на декабрь - уменьшаем год
+      this.selectedYear.update(year => year - 1);
+    }
+    this.loadStatistics();
+  }
+
   onMonthChangedFromEarnings(event: { month: number; year: number }) {
     this.selectedMonth.set(event.month);
     this.selectedYear.set(event.year);
     this.loadStatistics();
-    this.loadCarPaymentStatus();
-  }
-
-  /**
-   * Handle month change - automatically adjusts year when crossing December/January boundary
-   */
-  onMonthChange(month: number) {
-    const currentMonth = this.selectedMonth();
-    const currentYear = this.selectedYear();
-
-    // If moving from December (12) to January (1), increment year
-    if (currentMonth === 12 && month === 1) {
-      this.selectedYear.set(currentYear + 1);
-    }
-    // If moving from January (1) to December (12), decrement year
-    else if (currentMonth === 1 && month === 12) {
-      this.selectedYear.set(currentYear - 1);
-    }
-
-    this.selectedMonth.set(month);
-    this.loadStatistics();
-    this.loadCarPaymentStatus();
   }
 
   refreshStatistics() {
@@ -736,23 +746,63 @@ export class StatisticsComponent implements OnInit {
     return '#f44336'; // red for negative margin
   }
 
+  // Engineer personal statistics methods
+  getMyEarnings(): number {
+    if (!this.isEngineer || !this.statistics()) return 0;
+    const currentUser = this.currentUser();
+    if (!currentUser) return 0;
+
+    const myAgentData = this.statistics()?.agentEarnings?.find(
+      agent => agent.agentId === currentUser.id
+    );
+    return myAgentData?.totalEarnings || 0;
+  }
+
+  getMyOrders(): number {
+    if (!this.isEngineer || !this.statistics()) return 0;
+    const currentUser = this.currentUser();
+    if (!currentUser) return 0;
+
+    const myAgentData = this.statistics()?.agentEarnings?.find(
+      agent => agent.agentId === currentUser.id
+    );
+    return myAgentData?.completedOrders || 0;
+  }
+
+  getMyHours(): number {
+    if (!this.isEngineer || !this.statistics()) return 0;
+    const currentUser = this.currentUser();
+    if (!currentUser) return 0;
+
+    const myAgentData = this.statistics()?.agentEarnings?.find(
+      agent => agent.agentId === currentUser.id
+    );
+    // Предполагаем 8 часов на заказ
+    return myAgentData?.completedOrders ? myAgentData.completedOrders * 8 : 0;
+  }
+
+  getMyAverageOrder(): number {
+    const orders = this.getMyOrders();
+    if (orders === 0) return 0;
+    return this.getMyEarnings() / orders;
+  }
 
   getMonthName(month: number): string {
     const monthNames = [
-      'Январь',
-      'Февраль',
-      'Март',
-      'Апрель',
-      'Май',
-      'Июнь',
-      'Июль',
-      'Август',
-      'Сентябрь',
-      'Октябрь',
-      'Ноябрь',
-      'Декабрь',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
-    return monthNames[month - 1] || 'Неизвестно';
+    return monthNames[month - 1] || 'Unknown';
   }
 
   loadUserStats() {

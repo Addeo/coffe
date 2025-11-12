@@ -47,9 +47,9 @@
             *ngIf="collapsible"
             mat-icon-button
             (click)="toggleCollapse($event)"
+            type="button"
             matTooltip="Свернуть/Развернуть"
             class="collapse-btn"
-            type="button"
           >
             <mat-icon>{{ isCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
           </button>

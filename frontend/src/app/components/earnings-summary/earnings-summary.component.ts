@@ -1,14 +1,4 @@
-import {
-  Component,
-  inject,
-  signal,
-  OnInit,
-  OnChanges,
-  SimpleChanges,
-  Input,
-  Output,
-  EventEmitter,
-} from '@angular/core';
+import { Component, inject, signal, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -54,8 +44,8 @@ export class EarningsSummaryComponent implements OnInit, OnChanges {
   private ordersService = inject(OrdersService);
 
   @Input() collapsible = true;
-  @Input() month: number = new Date().getMonth() + 1;
-  @Input() year: number = new Date().getFullYear();
+  @Input() month?: number;
+  @Input() year?: number;
   @Output() monthChanged = new EventEmitter<{ month: number; year: number }>();
   @Output() viewUnacceptedOrders = new EventEmitter<void>();
 
@@ -70,7 +60,7 @@ export class EarningsSummaryComponent implements OnInit, OnChanges {
     totalHours: 0,
   });
 
-  // Current month and year - synced with parent
+  // Current month and year
   currentYear = signal(new Date().getFullYear());
   currentMonth = signal(new Date().getMonth() + 1);
 
@@ -86,21 +76,27 @@ export class EarningsSummaryComponent implements OnInit, OnChanges {
   private touchEndX = 0;
 
   ngOnInit() {
-    // Sync with parent inputs
-    this.currentMonth.set(this.month);
-    this.currentYear.set(this.year);
+    // Если month и year не переданы извне, используем текущие значения
+    if (this.month !== undefined) {
+      this.currentMonth.set(this.month);
+    }
+    if (this.year !== undefined) {
+      this.currentYear.set(this.year);
+    }
     this.loadEarningsData();
     this.loadUnacceptedOrders();
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // Update when parent changes month/year
-    if (
-      (changes['month'] && !changes['month'].firstChange) ||
-      (changes['year'] && !changes['year'].firstChange)
-    ) {
-      this.currentMonth.set(this.month);
-      this.currentYear.set(this.year);
+    // Реагируем на изменения month и year извне
+    if (changes['month'] && changes['month'].currentValue !== undefined) {
+      this.currentMonth.set(changes['month'].currentValue);
+    }
+    if (changes['year'] && changes['year'].currentValue !== undefined) {
+      this.currentYear.set(changes['year'].currentValue);
+    }
+    // Перезагружаем данные при изменении месяца или года
+    if (changes['month'] || changes['year']) {
       this.loadEarningsData();
     }
   }
@@ -200,7 +196,6 @@ export class EarningsSummaryComponent implements OnInit, OnChanges {
       event.stopPropagation();
       event.preventDefault();
     }
-    // Используем update для гарантированного обновления
     this.isCollapsed.update(current => !current);
   }
 

@@ -10,10 +10,11 @@
   overflow: hidden;
 
   mat-card-header {
-    background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 16px 24px;
+    padding: 20px 24px;
     border-radius: 16px 16px 0 0;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 
     .header-content {
       display: flex;
@@ -21,6 +22,7 @@
       justify-content: space-between;
       width: 100%;
       gap: 16px;
+      flex-wrap: wrap;
 
       .header-actions {
         display: flex;
@@ -33,12 +35,14 @@
         align-items: center;
         gap: 8px;
         flex: 1;
+        min-width: 0;
 
         mat-icon {
           color: white;
           font-size: 24px;
           width: 24px;
           height: 24px;
+          flex-shrink: 0;
         }
 
         .title {
@@ -94,6 +98,57 @@
 
   mat-card-content {
     padding: 24px;
+  }
+
+  // Mobile responsive header
+  @media (max-width: 768px) {
+    mat-card-header {
+      padding: 16px;
+
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+
+        .title-section {
+          width: 100%;
+
+          .title {
+            font-size: 16px;
+          }
+        }
+
+        .month-selector {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .header-actions {
+          width: 100%;
+          justify-content: flex-end;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    mat-card-header {
+      padding: 12px;
+
+      .header-content {
+        .title-section {
+          .title {
+            font-size: 14px;
+          }
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+        }
+      }
+    }
   }
 }
 
