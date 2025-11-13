@@ -65,14 +65,26 @@ jobs:
           cd backend
           echo "Building backend..."
           
-          # Try to build
-          if npm run build; then
-            echo "✅ Backend build successful"
-            echo "backend_status=success" >> $GITHUB_OUTPUT
-          else
+          # Build backend - fail if build fails
+          npm run build || {
             echo "❌ Backend build failed"
             echo "backend_status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          }
+          
+          # Verify build output exists
+          if [ ! -d "dist" ]; then
+            echo "❌ ERROR: Backend build output not found at dist"
+            echo "Contents of backend directory:"
+            ls -lah . 2>&1 || true
+            echo "backend_status=failed" >> $GITHUB_OUTPUT
+            exit 1
           fi
+          
+          echo "✅ Backend build successful"
+          echo "Build output verified at dist"
+          ls -lah dist/ | head -10
+          echo "backend_status=success" >> $GITHUB_OUTPUT
 
       - name: 🔨 Build Frontend with Fallback
         id: build-frontend
@@ -80,14 +92,26 @@ jobs:
           cd frontend
           echo "Building frontend..."
           
-          # Try to build
-          if npm run build; then
-            echo "✅ Frontend build successful"
-            echo "frontend_status=success" >> $GITHUB_OUTPUT
-          else
+          # Build frontend - fail if build fails
+          npm run build || {
             echo "❌ Frontend build failed"
             echo "frontend_status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          }
+          
+          # Verify build output exists
+          if [ ! -d "dist/coffee-admin" ]; then
+            echo "❌ ERROR: Frontend build output not found at dist/coffee-admin"
+            echo "Contents of dist directory:"
+            ls -lah dist/ 2>&1 || echo "dist directory does not exist"
+            echo "frontend_status=failed" >> $GITHUB_OUTPUT
+            exit 1
           fi
+          
+          echo "✅ Frontend build successful"
+          echo "Build output verified at dist/coffee-admin"
+          ls -lah dist/coffee-admin/ | head -10
+          echo "frontend_status=success" >> $GITHUB_OUTPUT
 
       - name: 📦 Create deployment package
         run: |
@@ -98,6 +122,26 @@ jobs:
           ls -lah docker-compose.fallback.yml || echo "⚠️ docker-compose.fallback.yml not found!"
           ls -lah backend/Dockerfile* || echo "⚠️ Dockerfiles not found!"
           ls -lah frontend/Dockerfile* || echo "⚠️ Frontend Dockerfiles not found!"
+          
+          # Verify build outputs exist
+          echo "🔍 Verifying build outputs..."
+          if [ ! -d "backend/dist" ]; then
+            echo "❌ ERROR: backend/dist does not exist!"
+            exit 1
+          fi
+          if [ ! -d "frontend/dist" ]; then
+            echo "❌ ERROR: frontend/dist does not exist!"
+            echo "Frontend directory contents:"
+            ls -lah frontend/ || true
+            exit 1
+          fi
+          if [ ! -d "frontend/dist/coffee-admin" ]; then
+            echo "❌ ERROR: frontend/dist/coffee-admin does not exist!"
+            echo "Frontend dist directory contents:"
+            ls -lah frontend/dist/ || true
+            exit 1
+          fi
+          echo "✅ Build outputs verified"
           
           # Create package with built files (use absolute paths from workspace root)
           tar -czf deploy-package.tar.gz \
@@ -124,6 +168,10 @@ jobs:
               echo "❌ Error creating archive!"
               echo "Files check:"
               ls -lah docker-compose.fallback.yml backend/ frontend/ || true
+              echo "Backend dist check:"
+              ls -lah backend/dist/ 2>&1 | head -5 || true
+              echo "Frontend dist check:"
+              ls -lah frontend/dist/ 2>&1 | head -5 || true
               exit 1
             }
           

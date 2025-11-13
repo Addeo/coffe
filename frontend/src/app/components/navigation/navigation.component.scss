@@ -357,10 +357,12 @@
   overflow: hidden;
 
   .user-menu-role-display {
-    padding: 16px 20px;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 16px 20px !important;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
     display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 
     .user-menu-role-label {
       font-size: 11px !important;
@@ -369,25 +371,32 @@
       letter-spacing: 0.5px !important;
       color: rgba(0, 0, 0, 0.5) !important;
       margin-bottom: 8px !important;
+      margin-top: 0 !important;
       display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      line-height: 1.4 !important;
     }
 
     .user-menu-role-value {
       display: flex !important;
       align-items: center !important;
       gap: 10px !important;
+      width: 100% !important;
 
       mat-icon {
         font-size: 20px !important;
         height: 20px !important;
         width: 20px !important;
         color: #667eea !important;
+        flex-shrink: 0 !important;
       }
 
       span {
         font-weight: 600 !important;
         font-size: 15px !important;
         color: rgba(0, 0, 0, 0.87) !important;
+        display: inline-block !important;
       }
     }
   }
@@ -1423,4 +1432,50 @@ button {
 ::ng-deep .mat-mdc-menu-content {
   // height: 50vh;
   overflow: scroll;
+}
+
+// Force styles for user menu role elements - applied directly without nesting
+::ng-deep .user-menu-role-display {
+  padding: 16px 20px !important;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+::ng-deep .user-menu-role-label {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  color: rgba(0, 0, 0, 0.5) !important;
+  margin-bottom: 8px !important;
+  margin-top: 0 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  line-height: 1.4 !important;
+}
+
+::ng-deep .user-menu-role-value {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+
+  mat-icon {
+    font-size: 20px !important;
+    height: 20px !important;
+    width: 20px !important;
+    color: #667eea !important;
+    flex-shrink: 0 !important;
+  }
+
+  span {
+    font-weight: 600 !important;
+    font-size: 15px !important;
+    color: rgba(0, 0, 0, 0.87) !important;
+    display: inline-block !important;
+  }
 }

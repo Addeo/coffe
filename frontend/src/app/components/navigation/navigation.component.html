@@ -332,7 +332,7 @@
               </div>
               <div class="role-switcher-grid">
                 @for (role of availableRoles(); track role) {
-                  <button
+          <button
                     class="role-switcher-button"
                     (click)="!isRoleActive(role) && !isLoadingRoleSwitch() && switchRole(role)"
                     [disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
@@ -356,14 +356,14 @@
           <!-- Profile and Logout buttons -->
           <div class="user-menu-actions">
             <button class="user-menu-button" (click)="navigateToProfile()">
-              <mat-icon>person</mat-icon>
-              <span>Мой профиль</span>
-            </button>
+            <mat-icon>person</mat-icon>
+            <span>Мой профиль</span>
+          </button>
 
             <button class="user-menu-button user-menu-button-logout" (click)="logout()">
-              <mat-icon>logout</mat-icon>
-              <span>Выход</span>
-            </button>
+            <mat-icon>logout</mat-icon>
+            <span>Выход</span>
+          </button>
           </div>
         </mat-menu>
       </div>
