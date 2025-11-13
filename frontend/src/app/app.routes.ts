@@ -15,7 +15,7 @@ export const routes: Routes = [
     path: 'company',
     loadComponent: () =>
       import('./layouts/public-layout/public-layout.component').then(m => m.PublicLayoutComponent),
-    data: { title: 'О компании' },
+    // data: { title: 'О компании' },
     children: [
       {
         path: '',
