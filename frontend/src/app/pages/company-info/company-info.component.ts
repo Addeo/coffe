@@ -3,6 +3,7 @@ import { NgFor, NgIf, NgOptimizedImage, CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 import { OrganizationsService } from '../../services/organizations.service';
+import { AuthService } from '../../services/auth.service';
 
 interface PartnerInfo {
   readonly name: string;
@@ -55,6 +56,7 @@ interface Statistic {
 })
 export class CompanyInfoComponent implements OnInit, OnDestroy {
   private organizationsService = inject(OrganizationsService);
+  private authService = inject(AuthService);
 
   readonly companyName = 'CoffeeCare Юг';
   readonly officeLocation = 'Пятигорск';
@@ -296,6 +298,15 @@ export class CompanyInfoComponent implements OnInit, OnDestroy {
   }
 
   private loadOrganizations(): void {
+    // Only load organizations if user is authenticated
+    // This is a public page, so we don't want to trigger auth redirects
+    if (!this.authService.isAuthenticated()) {
+      // Use default partners for unauthenticated users
+      this.partners.set(this.getDefaultPartners());
+      this.isLoadingPartners.set(false);
+      return;
+    }
+
     this.isLoadingPartners.set(true);
     this.organizationsService.getOrganizations({ isActive: true, limit: 100 }).subscribe({
       next: response => {

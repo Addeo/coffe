@@ -164,6 +164,27 @@ export const routes: Routes = [
     data: { title: 'Access Denied' },
   },
   {
+    path: 'documents/rules',
+    loadComponent: () =>
+      import('./pages/documents/rules/rules.component').then(m => m.RulesComponent),
+    canActivate: [AuthGuard],
+    data: { title: 'Общие правила' },
+  },
+  {
+    path: 'documents/terms',
+    loadComponent: () =>
+      import('./pages/documents/terms/terms.component').then(m => m.TermsComponent),
+    canActivate: [AuthGuard],
+    data: { title: 'Условия' },
+  },
+  {
+    path: 'documents/regulations',
+    loadComponent: () =>
+      import('./pages/documents/regulations/regulations.component').then(m => m.RegulationsComponent),
+    canActivate: [AuthGuard],
+    data: { title: 'Регламент' },
+  },
+  {
     path: '**',
     redirectTo: '/dashboard',
   },

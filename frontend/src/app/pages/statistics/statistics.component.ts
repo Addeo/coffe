@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
@@ -10,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
@@ -17,6 +19,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { StatisticsService } from '../../services/statistics.service';
 import { UsersService } from '../../services/users.service';
 import { AuthService } from '../../services/auth.service';
+import { OrdersService } from '../../services/orders.service';
 import { EarningsSummaryComponent } from '../../components/earnings-summary/earnings-summary.component';
 import { UserRole } from '@shared/interfaces/user.interface';
 import {
@@ -25,6 +28,7 @@ import {
   OrganizationEarningsData,
   OvertimeStatisticsData,
 } from '@shared/dtos/reports.dto';
+import { OrderStatsDto } from '@shared/dtos/order.dto';
 
 // Временный интерфейс до обновления shared модуля
 interface ComprehensiveStatisticsDto {
@@ -77,6 +81,7 @@ interface ComprehensiveStatisticsDto {
     MatIconModule,
     MatTabsModule,
     MatButtonToggleModule,
+    MatTooltipModule,
     BaseChartDirective,
     EarningsSummaryComponent,
   ],
@@ -87,6 +92,8 @@ export class StatisticsComponent implements OnInit {
   private statisticsService = inject(StatisticsService);
   private usersService = inject(UsersService);
   private authService = inject(AuthService);
+  private ordersService = inject(OrdersService);
+  private router = inject(Router);
   private snackBar = inject(MatSnackBar);
 
   // Плагины для диаграмм
@@ -111,6 +118,10 @@ export class StatisticsComponent implements OnInit {
   carPaymentStatus = signal<any>(null);
   carPaymentOrgColumns = ['organizationName', 'totalCarAmount', 'paidCarAmount', 'pendingCarAmount', 'paymentStatus'];
   carPaymentEngineerColumns = ['engineerName', 'totalCarAmount', 'paidCarAmount', 'pendingCarAmount', 'paymentStatus'];
+
+  // Orders statistics for overview
+  orderStats = signal<OrderStatsDto | null>(null);
+  mobileStatisticsCollapsed = signal(false);
 
   // Month and year selection
   selectedYear = signal(new Date().getFullYear());
@@ -580,6 +591,31 @@ export class StatisticsComponent implements OnInit {
   ngOnInit() {
     this.loadStatistics();
     this.loadUserStats();
+    this.loadOrderStats();
+  }
+
+  loadOrderStats(): void {
+    this.ordersService.getOrderStats().subscribe({
+      next: stats => {
+        this.orderStats.set(stats);
+      },
+      error: error => {
+        console.error('Failed to load order stats:', error);
+        this.orderStats.set(null);
+      },
+    });
+  }
+
+  toggleMobileStatistics(): void {
+    this.mobileStatisticsCollapsed.set(!this.mobileStatisticsCollapsed());
+  }
+
+  navigateToOrders(status?: string): void {
+    if (status) {
+      this.router.navigate(['/orders'], { queryParams: { status } });
+    } else {
+      this.router.navigate(['/orders']);
+    }
   }
 
   loadStatistics() {

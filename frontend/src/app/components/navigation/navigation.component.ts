@@ -8,15 +8,17 @@ import {
   ChangeDetectorRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
+import { Subscription, filter } from 'rxjs';
 
 import { MaterialModule } from '../../shared/material/material.module';
 
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
 import { NotificationsService, NotificationDto } from '../../services/notifications.service';
+import { OrdersService } from '../../services/orders.service';
 import { UserRole } from '../../../../shared/interfaces/user.interface';
+import { OrderStatsDto } from '../../../../shared/dtos/order.dto';
 
 interface NavigationItem {
   label: string;
@@ -38,13 +40,25 @@ export class NavigationComponent implements OnInit, OnDestroy {
   private themeService = inject(ThemeService);
   private router = inject(Router);
   private notificationsService = inject(NotificationsService);
+  private ordersService = inject(OrdersService);
   private cdr = inject(ChangeDetectorRef);
   private subscriptions: Subscription[] = [];
+
+  // Export UserRole for template use
+  readonly UserRole = UserRole;
 
   // Reactive signals
   unreadCount = signal(0);
   recentNotifications = signal<NotificationDto[]>([]);
   isMobileMenuOpen = signal(false);
+  isStatisticsMobileExpanded = signal(false);
+  isDocumentsMobileExpanded = signal(false);
+  orderStats = signal<OrderStatsDto | null>(null);
+
+  // Check if current route is orders page
+  isOrdersPage = computed(() => {
+    return this.router.url.startsWith('/orders');
+  });
 
   // Theme signals
   currentTheme = this.themeService.currentTheme;
@@ -131,10 +145,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Заказы только для менеджеров и инженеров (НЕ для админа)
+    // Заявки только для менеджеров и инженеров (НЕ для админа)
     if (role === UserRole.MANAGER || role === UserRole.USER) {
       items.push({
-        label: 'Заказы',
+        label: 'Заявки',
         route: '/orders',
         icon: 'shopping_cart',
         i18nKey: '@@navigation.orders',
@@ -173,6 +187,24 @@ export class NavigationComponent implements OnInit, OnDestroy {
     if (this.isAuthenticated()) {
       this.loadNotifications();
       this.loadUnreadCount();
+    }
+
+    // Subscribe to router events to load order stats when on orders page
+    this.subscriptions.push(
+      this.router.events
+        .pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe(() => {
+          if (this.isOrdersPage() && this.isAuthenticated()) {
+            this.loadOrderStats();
+          } else {
+            this.orderStats.set(null);
+          }
+        })
+    );
+
+    // Load order stats if already on orders page
+    if (this.isOrdersPage() && this.isAuthenticated()) {
+      this.loadOrderStats();
     }
 
     // Force change detection once to ensure initial UI updates
@@ -214,6 +246,20 @@ export class NavigationComponent implements OnInit, OnDestroy {
     );
   }
 
+  private loadOrderStats(): void {
+    this.subscriptions.push(
+      this.ordersService.getOrderStats().subscribe({
+        next: stats => {
+          this.orderStats.set(stats);
+        },
+        error: error => {
+          console.error('Failed to load order stats:', error);
+          this.orderStats.set(null);
+        },
+      })
+    );
+  }
+
   logout(): void {
     console.log('🚪 Logout button clicked');
     // alert('Logout clicked!'); // Temporary alert for testing
@@ -226,6 +272,14 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   closeMobileMenu(): void {
     this.isMobileMenuOpen.set(false);
+  }
+
+  toggleStatisticsMobile(): void {
+    this.isStatisticsMobileExpanded.set(!this.isStatisticsMobileExpanded());
+  }
+
+  toggleDocumentsMobile(): void {
+    this.isDocumentsMobileExpanded.set(!this.isDocumentsMobileExpanded());
   }
 
   onNotificationClick(notification: NotificationDto): void {

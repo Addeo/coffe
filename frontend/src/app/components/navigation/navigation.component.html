@@ -1,5 +1,16 @@
 <mat-toolbar color="primary" class="navbar">
   <div class="navbar-content">
+    <!-- Home Button (Leftmost) -->
+    <button
+      mat-icon-button
+      class="home-button"
+      *ngIf="isAuthenticated()"
+      routerLink="/orders"
+      aria-label="Главная страница"
+    >
+      <mat-icon>local_cafe</mat-icon>
+    </button>
+
     <!-- Mobile Menu Button -->
     <button
       mat-icon-button
@@ -33,13 +44,6 @@
       </a>
     </nav>
 
-    <!-- Desktop Logout Button -->
-    <div class="desktop-logout" *ngIf="isAuthenticated()">
-      <button mat-icon-button (click)="logout()" matTooltip="Logout" aria-label="Logout">
-        <mat-icon>logout</mat-icon>
-      </button>
-    </div>
-
     <!-- Mobile Navigation Menu -->
     <div class="mobile-menu-overlay" *ngIf="isMobileMenuOpen()" (click)="closeMobileMenu()">
       <div class="mobile-menu-content" (click)="$event.stopPropagation()">
@@ -53,75 +57,155 @@
           </button>
         </div>
 
-        <nav class="mobile-nav-links">
-          <!-- Navigation Items -->
-          <a
-            mat-button
-            *ngFor="let item of navigationItems()"
-            [routerLink]="item.route"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: false }"
-            (click)="closeMobileMenu()"
-          >
-            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
-            <span [attr.i18n]="item.i18nKey">{{ item.label }}</span>
-            <span
-              *ngIf="item.badge"
-              class="mobile-badge"
-              matBadge="{{ item.badge }}"
-              matBadgeColor="warn"
-            ></span>
-          </a>
-
-          <!-- User Info Section (as link style) - hidden in mobile -->
-          <!-- <a mat-button class="user-info-link" (click)="closeMobileMenu()">
-            <mat-icon class="nav-icon">person</mat-icon>
-            <div class="user-info-content mobile-hidden">
-              <span class="user-full-name">{{ userName() }}</span>
-              <span class="user-role-text">
-                <mat-icon class="role-icon-small">{{ getRoleIcon(activeRole()!) }}</mat-icon>
-                {{ getRoleDisplayName(activeRole()!) }}
-                @if (canSwitchRoles()) {
-                  <mat-icon class="switch-icon-small">sync_alt</mat-icon>
-                }
-              </span>
-              <span class="user-email-text">{{ currentUser()?.email }}</span>
+        <div class="mobile-nav-links">
+          <!-- Documents Dropdown -->
+          <div class="documents-mobile-section">
+            <button
+              mat-button
+              class="documents-toggle-button"
+              (click)="toggleDocumentsMobile()"
+            >
+              <mat-icon class="nav-icon">description</mat-icon>
+              <span>Документы</span>
+              <mat-icon class="expand-icon">{{ isDocumentsMobileExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </button>
+            <div class="documents-content" [class.expanded]="isDocumentsMobileExpanded()">
+              <a
+                mat-button
+                routerLink="/documents/rules"
+                routerLinkActive="active"
+                (click)="closeMobileMenu()"
+                class="document-link"
+              >
+                <mat-icon class="nav-icon">rule</mat-icon>
+                <span>Общие правила</span>
+              </a>
+              <a
+                mat-button
+                routerLink="/documents/terms"
+                routerLinkActive="active"
+                (click)="closeMobileMenu()"
+                class="document-link"
+              >
+                <mat-icon class="nav-icon">gavel</mat-icon>
+                <span>Условия</span>
+              </a>
+              <a
+                mat-button
+                routerLink="/documents/regulations"
+                routerLinkActive="active"
+                (click)="closeMobileMenu()"
+                class="document-link"
+              >
+                <mat-icon class="nav-icon">description</mat-icon>
+                <span>Регламент</span>
+              </a>
             </div>
-          </a> -->
+          </div>
+
+          <!-- Statistics with collapse/expand for mobile (only on orders page) -->
+          @if (isOrdersPage() && orderStats()) {
+            <div class="statistics-mobile-section">
+              <button
+                mat-button
+                class="statistics-toggle-button"
+                (click)="toggleStatisticsMobile()"
+              >
+                <mat-icon class="nav-icon">analytics</mat-icon>
+                <span>Обзор заявок</span>
+                <mat-icon class="expand-icon">{{ isStatisticsMobileExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </button>
+              <div class="statistics-content" [class.expanded]="isStatisticsMobileExpanded()">
+                <div class="orders-overview">
+                  <div class="overview-item">
+                    <mat-icon class="overview-icon">assignment</mat-icon>
+                    <div class="overview-content">
+                      <div class="overview-value">{{ orderStats()!.total }}</div>
+                      <div class="overview-label">Всего заявок</div>
+                    </div>
+                  </div>
+                  <div class="overview-item">
+                    <mat-icon class="overview-icon">schedule</mat-icon>
+                    <div class="overview-content">
+                      <div class="overview-value">{{ orderStats()!.waiting }}</div>
+                      <div class="overview-label">Ожидают</div>
+                    </div>
+                  </div>
+                  <div class="overview-item">
+                    <mat-icon class="overview-icon">build</mat-icon>
+                    <div class="overview-content">
+                      <div class="overview-value">{{ orderStats()!.working }}</div>
+                      <div class="overview-label">В работе</div>
+                    </div>
+                  </div>
+                  <div class="overview-item">
+                    <mat-icon class="overview-icon">check_circle</mat-icon>
+                    <div class="overview-content">
+                      <div class="overview-value">{{ orderStats()!.completed }}</div>
+                      <div class="overview-label">Завершено</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="mobile-menu-footer" style="display: none">
+          <div class="user-info-mobile">
+            <div class="user-details">
+              <div class="user-full-name">{{ userName() }}</div>
+              <div class="user-role-mobile">
+                <mat-icon class="role-icon">{{ getRoleIcon(activeRole()!) }}</mat-icon>
+                <span>{{ getRoleDisplayName(activeRole()!) }}</span>
+                @if (canSwitchRoles()) {
+                  <mat-icon class="switch-icon">sync_alt</mat-icon>
+                }
+              </div>
+              <div class="user-email">{{ currentUser()?.email }}</div>
+            </div>
+          </div>
 
           <!-- Role Switcher for Mobile -->
           @if (canSwitchRoles()) {
-            <div class="role-switcher-header">
-              <span i18n="@@navigation.switchRole">Переключить роль</span>
+            <div class="role-switcher-mobile">
+              <div class="section-title">
+                <span i18n="@@navigation.switchRole">Переключить роль</span>
+              </div>
+              @for (role of availableRoles(); track role) {
+                <button
+                  mat-button
+                  class="role-option"
+                  (click)="switchRole(role)"
+                  [disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
+                  [class.active-role]="isRoleActive(role)"
+                >
+                  <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
+                  <span>{{ getRoleDisplayName(role) }}</span>
+                  @if (isRoleActive(role)) {
+                    <mat-icon class="check-icon">check</mat-icon>
+                  }
+                </button>
+              }
             </div>
-            @for (role of availableRoles(); track role) {
-              <a
-                mat-button
-                class="role-option-link"
-                [class.active-role]="isRoleActive(role)"
-                [class.disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
-                (click)="!isRoleActive(role) && !isLoadingRoleSwitch() && switchRole(role); closeMobileMenu()"
-              >
-                <mat-icon class="nav-icon">{{ getRoleIcon(role) }}</mat-icon>
-                <span>{{ getRoleDisplayName(role) }}</span>
-                @if (isRoleActive(role)) {
-                  <mat-icon class="check-icon">check</mat-icon>
-                }
-              </a>
-            }
           }
 
-          <!-- Actions (Logout only - theme toggle removed in mobile) -->
-          <a mat-button class="logout-link" (click)="logout(); closeMobileMenu()">
-            <mat-icon class="nav-icon">logout</mat-icon>
-            <span i18n="@@navigation.logout">Выход</span>
-          </a>
-        </nav>
+          <div class="mobile-actions">
+            <button mat-stroked-button (click)="toggleTheme()" class="theme-toggle-mobile">
+              <mat-icon>{{ themeIcon() }}</mat-icon>
+              <span>{{ currentTheme() === 'dark' ? 'Светлая тема' : 'Темная тема' }}</span>
+            </button>
+            <button mat-stroked-button (click)="logout()" class="logout-mobile">
+              <mat-icon>logout</mat-icon>
+              <span i18n="@@navigation.logout">Выход</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Right Section -->
-    <div class="right-section" *ngIf="isAuthenticated()">
+    <!-- <div class="right-section" *ngIf="isAuthenticated()"> -->
       <!-- Theme Toggle -->
       <!-- <button
         mat-icon-button
@@ -199,25 +283,26 @@
             <span i18n="@@notifications.viewAllNotifications">Показать все уведомления</span>
           </button>
         </mat-menu>
+      
+      
       </div>
 
-      <!-- User Menu (Desktop only) -->
-      <div class="user-menu desktop-only">
+      <!-- User Menu -->
+      <div class="user-menu">
         <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
-          <mat-icon class="user-icon">account_circle</mat-icon>
-          <span class="user-name">{{ userName() }}</span>
-          <mat-icon class="dropdown-icon">expand_more</mat-icon>
+          <mat-icon class="user-icon desktop-only">account_circle</mat-icon>
+          <span class="user-name desktop-only">{{ userName() }}</span>
+          <mat-icon class="dropdown-icon desktop-only">expand_more</mat-icon>
+          <mat-icon class="mobile-profile-icon mobile-only">account_circle</mat-icon>
         </button>
 
         <mat-menu #userMenu="matMenu" class="user-dropdown">
           <!-- Current Role Display -->
-          <div style="padding: 12px 16px; border-bottom: 1px solid rgba(0, 0, 0, 0.1)">
-            <div style="font-size: 12px; color: rgba(0, 0, 0, 0.5); margin-bottom: 4px">
-              Текущая роль
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px">
-              <mat-icon style="font-size: 18px">{{ getRoleIcon(activeRole()!) }}</mat-icon>
-              <span style="font-weight: 500">{{ getRoleDisplayName(activeRole()!) }}</span>
+          <div class="user-menu-role-display">
+            <div class="user-menu-role-label">Текущая роль</div>
+            <div class="user-menu-role-value">
+              <mat-icon>{{ getRoleIcon(activeRole()!) }}</mat-icon>
+              <span>{{ getRoleDisplayName(activeRole()!) }}</span>
             </div>
           </div>
 
@@ -229,58 +314,47 @@
               <div class="section-title">
                 <span>Переключить роль</span>
               </div>
-              @for (role of availableRoles(); track role) {
-                <button
-                  (click)="!isRoleActive(role) && !isLoadingRoleSwitch() && switchRole(role)"
-                  [disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
-                  [class.active-role]="isRoleActive(role)"
-                >
-                  <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
-                  <span>{{ getRoleDisplayName(role) }}</span>
-                  @if (isRoleActive(role)) {
-                    <mat-icon class="check-icon">check</mat-icon>
-                  }
-                  @if (isLoadingRoleSwitch() && !isRoleActive(role)) {
-                    <mat-icon class="loading-icon">sync</mat-icon>
-                  }
-                </button>
-              }
+              <div class="role-switcher-grid">
+                @for (role of availableRoles(); track role) {
+                  <button
+                    class="role-switcher-button"
+                    (click)="!isRoleActive(role) && !isLoadingRoleSwitch() && switchRole(role)"
+                    [disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
+                    [class.active-role]="isRoleActive(role)"
+                  >
+                    <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
+                    <span>{{ getRoleDisplayName(role) }}</span>
+                    @if (isRoleActive(role)) {
+                      <mat-icon class="check-icon">check</mat-icon>
+                    }
+                    @if (isLoadingRoleSwitch() && !isRoleActive(role)) {
+                      <mat-icon class="loading-icon">sync</mat-icon>
+                    }
+                  </button>
+                }
+              </div>
             </div>
             <mat-divider></mat-divider>
           }
 
-          <!-- Test with regular buttons -->
-          <button
-            (click)="navigateToProfile()"
-            style="
-              width: 100%;
-              text-align: left;
-              padding: 12px 16px;
-              border: none;
-              background: none;
-              cursor: pointer;
-            "
-          >
-            <mat-icon>person</mat-icon>
-            <span>Мой профиль</span>
-          </button>
+          <!-- Profile and Logout buttons -->
+          <div class="user-menu-actions">
+            <button class="user-menu-button" (click)="navigateToProfile()">
+              <mat-icon>person</mat-icon>
+              <span>Мой профиль</span>
+            </button>
 
-          <button
-            (click)="logout()"
-            style="
-              width: 100%;
-              text-align: left;
-              padding: 12px 16px;
-              border: none;
-              background: none;
-              cursor: pointer;
-            "
-          >
-            <mat-icon>logout</mat-icon>
-            <span>Выход</span>
-          </button>
+            <button class="user-menu-button user-menu-button-logout" (click)="logout()">
+              <mat-icon>logout</mat-icon>
+              <span>Выход</span>
+            </button>
+          </div>
         </mat-menu>
       </div>
-    </div>
+    
+    
+    
+    
+    <!-- </div> -->
   </div>
 </mat-toolbar>

@@ -30,7 +30,7 @@
     <mat-card-header>
       <mat-card-title>
         <mat-icon>bar_chart</mat-icon>
-        Статистика заказов
+        Статистика заявок
       </mat-card-title>
       <div class="export-btn-container" *ngIf="canExportOrders()">
         <button
@@ -53,7 +53,7 @@
               class="stat-item"
               role="button"
               tabindex="0"
-              aria-label="Показать все заказы"
+              aria-label="Показать все заявки"
               [class.active]="selectedStatus() === ''"
               (click)="onSummaryStatusClick('total')"
               (keydown)="onSummaryStatusKeydown($event, 'total')"
@@ -66,7 +66,7 @@
               class="stat-item"
               role="button"
               tabindex="0"
-              aria-label="Показать ожидающие заказы"
+              aria-label="Показать ожидающие заявки"
               [class.active]="selectedStatus() === OrderStatus.WAITING"
               (click)="onSummaryStatusClick('waiting')"
               (keydown)="onSummaryStatusKeydown($event, 'waiting')"
@@ -79,7 +79,7 @@
               class="stat-item"
               role="button"
               tabindex="0"
-              aria-label="Показать заказы в обработке"
+              aria-label="Показать заявки в обработке"
               [class.active]="selectedStatus() === OrderStatus.PROCESSING"
               (click)="onSummaryStatusClick('processing')"
               (keydown)="onSummaryStatusKeydown($event, 'processing')"
@@ -92,7 +92,7 @@
               class="stat-item"
               role="button"
               tabindex="0"
-              aria-label="Показать заказы в работе"
+              aria-label="Показать заявки в работе"
               [class.active]="selectedStatus() === OrderStatus.WORKING"
               (click)="onSummaryStatusClick('working')"
               (keydown)="onSummaryStatusKeydown($event, 'working')"
@@ -105,7 +105,7 @@
               class="stat-item"
               role="button"
               tabindex="0"
-              aria-label="Показать заказы на проверке"
+              aria-label="Показать заявки на проверке"
               [class.active]="selectedStatus() === OrderStatus.REVIEW"
               (click)="onSummaryStatusClick('review')"
               (keydown)="onSummaryStatusKeydown($event, 'review')"
@@ -131,7 +131,7 @@
               class="stat-item"
               role="button"
               tabindex="0"
-              aria-label="Показать заказы с выплатой инженерам"
+              aria-label="Показать заявки с выплатой инженерам"
               [class.active]="selectedStatus() === OrderStatus.PAID_TO_ENGINEER"
               (click)="onSummaryStatusClick('paid_to_engineer')"
               (keydown)="onSummaryStatusKeydown($event, 'paid_to_engineer')"
@@ -176,7 +176,7 @@
     <mat-card-header>
       <mat-card-title>
         <mat-icon>bar_chart</mat-icon>
-        Статистика заказов
+        Статистика заявок
       </mat-card-title>
       <div class="export-btn-container" *ngIf="canExportOrders()">
         <button
@@ -247,7 +247,7 @@
         <div class="total-item">
           <mat-icon color="primary">assignment</mat-icon>
           <div>
-            <div class="total-label">Всего заказов</div>
+            <div class="total-label">Всего заявок</div>
             <div class="total-value">{{ orderStats().total }}</div>
           </div>
         </div>
@@ -274,7 +274,7 @@
     <mat-card-header>
       <mat-card-title>
         <mat-icon>bar_chart</mat-icon>
-        Статистика заказов
+        Статистика заявок
       </mat-card-title>
       <div class="export-btn-container" *ngIf="canExportOrders()">
         <button 
@@ -292,7 +292,7 @@
         <mat-icon>assignment</mat-icon>
         <div class="counter-text">
           <span class="counter-value">{{ orderStats().total }}</span>
-          <span class="counter-label">Всего заказов</span>
+          <span class="counter-label">Всего заявок</span>
         </div>
       </div>
 
@@ -439,7 +439,7 @@
 
   <!-- Mobile Engineer Summary (replaces desktop engineer-summary-card) -->
   <mat-card class="mobile-summary-card" *ngIf="isMobileView() && isEngineerView()">
-        <mat-card-header style="flex-wrap: wrap !important;">
+        <mat-card-header style="flex-wrap: wrap !important; justify-content: center !important;">
          
         
           <div class="header-actions-right">
@@ -473,17 +473,10 @@
               <mat-icon>chevron_right</mat-icon>
             </button>
           </div>
-          <div class="header-actions-right" (click)="toggleEngineerSummary()">
-            <button
-              mat-icon-button
-             
-              matTooltip="{{ engineerSummaryCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-              class="collapse-toggle-btn"
-            >
-              <mat-icon>{{ engineerSummaryCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-            </button>
-          </div>
+ 
         </mat-card-header>
+
+      
 
     <mat-card-content [class.collapsed]="engineerSummaryCollapsed()">
       <div class="engineer-summary-grid" *ngIf="engineerSummary() as summary">
@@ -528,124 +521,136 @@
           </div>
         </div>
       </div>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Mobile Statistics Card (for all roles in mobile view) -->
+       <!-- Mobile Statistics Card (for all roles in mobile view) -->
   <mat-card class="mobile-summary-card" *ngIf="isMobileView()">
-        <mat-card-header  (click)="toggleMobileStatistics()">
-          <mat-card-title>
-            <mat-icon>dashboard</mat-icon>
-            Обзор заказов
-          </mat-card-title>
-          <div class="header-actions-right">
-            <button
-              mat-icon-button
-             
-              matTooltip="{{ mobileStatisticsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-              class="collapse-toggle-btn"
-            >
-              <mat-icon>{{ mobileStatisticsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-            </button>
+    <mat-card-header  (click)="toggleMobileStatistics()">
+      <mat-card-title>
+        <mat-icon>dashboard</mat-icon>
+        Обзор заказов
+      </mat-card-title>
+      <div class="header-actions-right">
+        <button
+          mat-icon-button
+         
+          matTooltip="{{ mobileStatisticsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+          class="collapse-toggle-btn"
+        >
+          <mat-icon>{{ mobileStatisticsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content [class.collapsed]="mobileStatisticsCollapsed()">
+      <div class="mobile-summary-grid">
+        <div
+          class="summary-item primary"
+          role="button"
+          tabindex="0"
+          aria-label="Показать все заказы"
+          [class.active]="selectedStatus() === ''"
+          (click)="onSummaryStatusClick('total')"
+          (keydown)="onSummaryStatusKeydown($event, 'total')"
+        >
+          <div class="summary-icon">
+            <mat-icon>assignment</mat-icon>
           </div>
-        </mat-card-header>
-
-        <mat-card-content [class.collapsed]="mobileStatisticsCollapsed()">
-          <div class="mobile-summary-grid">
-            <div
-              class="summary-item primary"
-              role="button"
-              tabindex="0"
-              aria-label="Показать все заказы"
-              [class.active]="selectedStatus() === ''"
-              (click)="onSummaryStatusClick('total')"
-              (keydown)="onSummaryStatusKeydown($event, 'total')"
-            >
-              <div class="summary-icon">
-                <mat-icon>assignment</mat-icon>
-              </div>
-              <div class="summary-content">
-                <div class="summary-value">{{ orderStats().total }}</div>
-                <div class="summary-label">Всего заказов</div>
-              </div>
-            </div>
-
-            <div
-              class="summary-item success"
-              role="button"
-              tabindex="0"
-              aria-label="Показать завершённые заказы"
-              [class.active]="selectedStatus() === OrderStatus.COMPLETED"
-              (click)="onSummaryStatusClick('completed')"
-              (keydown)="onSummaryStatusKeydown($event, 'completed')"
-            >
-              <div class="summary-icon">
-                <mat-icon>check_circle</mat-icon>
-              </div>
-              <div class="summary-content">
-                <div class="summary-value">{{ orderStats().completed }}</div>
-                <div class="summary-label">Завершено</div>
-              </div>
-            </div>
-
-            <div
-              class="summary-item warning"
-              role="button"
-              tabindex="0"
-              aria-label="Показать заказы в работе"
-              [class.active]="selectedStatus() === OrderStatus.WORKING"
-              (click)="onSummaryStatusClick('working')"
-              (keydown)="onSummaryStatusKeydown($event, 'working')"
-            >
-              <div class="summary-icon">
-                <mat-icon>build</mat-icon>
-              </div>
-              <div class="summary-content">
-                <div class="summary-value">{{ orderStats().working }}</div>
-                <div class="summary-label">В работе</div>
-              </div>
-            </div>
-
-            <div
-              class="summary-item info"
-              role="button"
-              tabindex="0"
-              aria-label="Показать ожидающие заказы"
-              [class.active]="selectedStatus() === OrderStatus.WAITING"
-              (click)="onSummaryStatusClick('waiting')"
-              (keydown)="onSummaryStatusKeydown($event, 'waiting')"
-            >
-              <div class="summary-icon">
-                <mat-icon>schedule</mat-icon>
-              </div>
-              <div class="summary-content">
-                <div class="summary-value">{{ orderStats().waiting }}</div>
-                <div class="summary-label">Ожидают</div>
-              </div>
-            </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats().total }}</div>
+            <div class="summary-label">Всего заказов</div>
           </div>
+        </div>
 
-          <!-- Search Field in Mobile -->
-          <div class="mobile-search-field">
-            <mat-form-field class="search-field" appearance="outline">
-              <mat-label>Поиск заказов</mat-label>
-              <input
-                matInput
-                (keyup)="applyFilter($event)"
-                placeholder="Поиск по названию, организации..."
-              />
-              <mat-icon matSuffix>search</mat-icon>
-            </mat-form-field>
+        <div
+          class="summary-item success"
+          role="button"
+          tabindex="0"
+          aria-label="Показать завершённые заказы"
+          [class.active]="selectedStatus() === OrderStatus.COMPLETED"
+          (click)="onSummaryStatusClick('completed')"
+          (keydown)="onSummaryStatusKeydown($event, 'completed')"
+        >
+          <div class="summary-icon">
+            <mat-icon>check_circle</mat-icon>
           </div>
-        </mat-card-content>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats().completed }}</div>
+            <div class="summary-label">Завершено</div>
+          </div>
+        </div>
+
+        <div
+          class="summary-item warning"
+          role="button"
+          tabindex="0"
+          aria-label="Показать заказы в работе"
+          [class.active]="selectedStatus() === OrderStatus.WORKING"
+          (click)="onSummaryStatusClick('working')"
+          (keydown)="onSummaryStatusKeydown($event, 'working')"
+        >
+          <div class="summary-icon">
+            <mat-icon>build</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats().working }}</div>
+            <div class="summary-label">В работе</div>
+          </div>
+        </div>
+
+        <div
+          class="summary-item info"
+          role="button"
+          tabindex="0"
+          aria-label="Показать ожидающие заказы"
+          [class.active]="selectedStatus() === OrderStatus.WAITING"
+          (click)="onSummaryStatusClick('waiting')"
+          (keydown)="onSummaryStatusKeydown($event, 'waiting')"
+        >
+          <div class="summary-icon">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats().waiting }}</div>
+            <div class="summary-label">Ожидают</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Field in Mobile -->
+      <div class="mobile-search-field">
+        <mat-form-field class="search-field" appearance="outline">
+          <mat-label>Поиск заказов</mat-label>
+          <input
+            matInput
+            (keyup)="applyFilter($event)"
+            placeholder="Поиск по названию, организации..."
+          />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+</mat-card>
+    </mat-card-content>
+
+    <div class="header-actions-right" (click)="toggleEngineerSummary()">
+      <button
+        mat-icon-button
+       
+        matTooltip="{{ engineerSummaryCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+        class="collapse-toggle-btn"
+      >
+        <mat-icon>{{ engineerSummaryCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+      </button>
+    </div>
   </mat-card>
+
+ 
 
   <!-- Main Content -->
   <mat-card class="main-content">
         <mat-card-header>
           <div class="header">
             <div class="header-title-section">
-              <h1 *ngIf="!isMobileView()" i18n="@@orders.management">Управление заказами</h1>
+              <h1 *ngIf="!isMobileView()" i18n="@@orders.management">Управление заявками</h1>
               <!-- Mobile action buttons in header -->
               <!-- <div class="mobile-header-actions" *ngIf="isMobileView()">
                 <button
@@ -716,7 +721,7 @@
               </mat-form-field>
 
               <mat-form-field class="search-field" *ngIf="!isMobileView()">
-                <mat-label>Поиск заказов</mat-label>
+                <mat-label>Поиск заявок</mat-label>
                 <input
                   matInput
                   (keyup)="applyFilter($event)"
@@ -767,22 +772,14 @@
         <mat-card-content>
           <div class="loading-container" *ngIf="isLoading()">
             <mat-spinner diameter="40"></mat-spinner>
-            <p i18n="@@orders.loading">Загрузка заказов...</p>
+            <p i18n="@@orders.loading">Загрузка заявок...</p>
           </div>
 
-          <!-- Заголовок "Управление заказами" для мобильной версии -->
-          <!-- <div class="orders-management-header" *ngIf="isMobileView()">
-            <h2>
-              <mat-icon>shopping_cart</mat-icon>
-              Управление заказами
-            </h2>
-          </div> -->
-
-          <!-- Сообщение об отсутствии заказов для мобильной версии -->
+          <!-- Сообщение об отсутствии заявок для мобильной версии -->
           <div class="no-data" *ngIf="!isLoading() && isMobileView() && dataSource.data.length === 0">
             <mat-icon>shopping_cart</mat-icon>
-            <h3>Заказы не найдены</h3>
-            <p>На данный момент нет заказов для отображения</p>
+            <h3>Заявки не найдены</h3>
+            <p>На данный момент нет заявок для отображения</p>
           </div>
 
           <!-- Mobile Orders List (Cards) -->
@@ -842,7 +839,7 @@
         <mat-card-header>
           <div class="header">
             <div class="header-title-section">
-              <h1 *ngIf="!isMobileView()" i18n="@@orders.management">Управление заказами</h1>
+              <h1 *ngIf="!isMobileView()" i18n="@@orders.management">Управление заявками</h1>
               <button
                 *ngIf="!isMobileView()"
                 mat-icon-button
@@ -868,7 +865,7 @@
               </mat-form-field>
 
               <mat-form-field class="search-field" *ngIf="!isMobileView()">
-                <mat-label>Поиск заказов</mat-label>
+                <mat-label>Поиск заявок</mat-label>
                 <input
                   matInput
                   (keyup)="applyFilter($event)"
@@ -919,7 +916,7 @@
         <mat-card-content>
           <div class="loading-container" *ngIf="isLoading()">
             <mat-spinner diameter="40"></mat-spinner>
-            <p i18n="@@orders.loading">Загрузка заказов...</p>
+            <p i18n="@@orders.loading">Загрузка заявок...</p>
           </div>
 
           <!-- Desktop Table -->
@@ -1179,8 +1176,8 @@
             <!-- No data message -->
             <div class="no-data" *ngIf="dataSource.data.length === 0">
               <mat-icon>assignment</mat-icon>
-              <h3>Заказы не найдены</h3>
-              <p>Нет заказов, соответствующих критериям поиска, или заказы еще не были созданы.</p>
+              <h3>Заявки не найдены</h3>
+              <p>Нет заявок, соответствующих критериям поиска, или заявки еще не были созданы.</p>
               <p><strong>Debug info:</strong></p>
               <p>Selected status: {{ selectedStatus() }}</p>
               <p>DataSource data length: {{ dataSource.data.length }}</p>
@@ -1188,7 +1185,6 @@
             </div>
           </div>
 
-        
         </mat-card-content>
       </mat-card>
 </div>
@@ -1197,7 +1193,7 @@
 <!-- <mat-paginator
 [pageSizeOptions]="[5, 10, 20, 50]"
 showFirstLastButtons
-aria-label="Выберите страницу заказов"
+aria-label="Выберите страницу заявок"
 >
 </mat-paginator> -->
 
@@ -1206,7 +1202,7 @@ aria-label="Выберите страницу заказов"
     [pageSize]="10"
     [hidePageSize]="true"
     showFirstLastButtons
-    aria-label="Выберите страницу заказов"
+    aria-label="Выберите страницу заявок"
   >
   </mat-paginator>
 </div>

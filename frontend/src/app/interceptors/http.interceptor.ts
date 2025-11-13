@@ -54,14 +54,19 @@ export const httpRequestInterceptor: HttpInterceptorFn = (req, next) => {
           errorMessage = 'Неверные учетные данные';
           toastService.error(errorMessage);
         } else {
-          // Для всех других запросов с 401 - выходим из системы
-          errorMessage = 'Сессия истекла. Пожалуйста, войдите снова.';
-          toastService.warning(errorMessage);
+          // Для всех других запросов с 401 - выходим из системы только если пользователь был авторизован
+          // Это предотвращает logout на публичных страницах (например, /company)
+          if (authService.isAuthenticated()) {
+            errorMessage = 'Сессия истекла. Пожалуйста, войдите снова.';
+            toastService.warning(errorMessage);
 
-          // Выходим из системы и перенаправляем на страницу логина
-          setTimeout(() => {
-            authService.logout();
-          }, 500); // Небольшая задержка чтобы toast успел показаться
+            // Выходим из системы и перенаправляем на страницу логина
+            setTimeout(() => {
+              authService.logout();
+            }, 500); // Небольшая задержка чтобы toast успел показаться
+          }
+          // Если пользователь не авторизован, просто игнорируем 401 ошибку
+          // Это нормально для публичных страниц, которые могут делать опциональные запросы
         }
       } else if (error.status === 403) {
         errorMessage = 'Недостаточно прав доступа';

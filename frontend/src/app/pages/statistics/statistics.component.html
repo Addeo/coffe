@@ -336,6 +336,92 @@
       </mat-card-content>
     </mat-card>
 
+    <!-- Mobile Orders Overview (only on mobile view) -->
+    <div class="mobile-orders-overview" *ngIf="isMobileView()">
+      <div class="overview-header">
+        <mat-icon>dashboard</mat-icon>
+        <span>Обзор заявок</span>
+      </div>
+      <div class="mobile-summary-grid" [class.collapsed]="mobileStatisticsCollapsed()">
+        <div
+          class="summary-item primary"
+          role="button"
+          tabindex="0"
+          aria-label="Показать все заявки"
+          (click)="navigateToOrders()"
+        >
+          <div class="summary-icon">
+            <mat-icon>assignment</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats()?.total || 0 }}</div>
+            <div class="summary-label">Всего заявок</div>
+          </div>
+        </div>
+
+        <div
+          class="summary-item success"
+          role="button"
+          tabindex="0"
+          aria-label="Показать завершённые заявки"
+          (click)="navigateToOrders('completed')"
+        >
+          <div class="summary-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats()?.completed || 0 }}</div>
+            <div class="summary-label">Завершено</div>
+          </div>
+        </div>
+
+        <div
+          class="summary-item warning"
+          role="button"
+          tabindex="0"
+          aria-label="Показать заявки в работе"
+          (click)="navigateToOrders('working')"
+        >
+          <div class="summary-icon">
+            <mat-icon>build</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats()?.working || 0 }}</div>
+            <div class="summary-label">В работе</div>
+          </div>
+        </div>
+
+        <div
+          class="summary-item info"
+          role="button"
+          tabindex="0"
+          aria-label="Показать ожидающие заявки"
+          (click)="navigateToOrders('waiting')"
+        >
+          <div class="summary-icon">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats()?.waiting || 0 }}</div>
+            <div class="summary-label">Ожидают</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collapse toggle button at the bottom -->
+      <div class="mobile-overview-toggle">
+        <button
+          mat-button
+          class="collapse-toggle-btn-bottom"
+          (click)="toggleMobileStatistics()"
+          matTooltip="{{ mobileStatisticsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+        >
+          <mat-icon>{{ mobileStatisticsCollapsed() ? 'expand_less' : 'expand_more' }}</mat-icon>
+          <span>{{ mobileStatisticsCollapsed() ? 'Развернуть обзор' : 'Свернуть обзор' }}</span>
+        </button>
+      </div>
+    </div>
+
     <!-- View Mode Toggle -->
     <div class="view-toggle">
       <mat-button-toggle-group [(ngModel)]="viewMode" aria-label="Режим отображения">
