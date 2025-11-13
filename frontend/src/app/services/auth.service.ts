@@ -68,13 +68,33 @@ export class AuthService {
   login(credentials: AuthLoginDto): Observable<AuthLoginResponse> {
     this.isLoadingSignal.set(true);
 
+    let authUrl = environment.authUrl;
+    const apiUrl = environment.apiUrl;
+    
+    // Проверяем, что authUrl абсолютный, а не относительный
+    if (authUrl.startsWith('/')) {
+      console.warn('⚠️ WARNING: authUrl is relative! Converting to absolute URL.');
+      // Если authUrl относительный, формируем абсолютный на основе apiUrl
+      if (authUrl.startsWith('/api')) {
+        // Если начинается с /api, убираем /api из apiUrl и добавляем authUrl
+        const baseUrl = apiUrl.replace('/api', '');
+        authUrl = `${baseUrl}${authUrl}`;
+      } else {
+        // Иначе просто добавляем к apiUrl
+        authUrl = `${apiUrl}${authUrl}`;
+      }
+      console.log('🔧 Converted authUrl to:', authUrl);
+    }
+    
     console.log('🔐 Login attempt:', {
       email: credentials.email,
       password: credentials.password ? '[HIDDEN]' : '',
-      apiUrl: `${environment.apiUrl}/auth/login`,
+      authUrl,
+      apiUrl,
+      production: environment.production,
     });
 
-    return this.http.post<AuthLoginResponse>(environment.authUrl, credentials).pipe(
+    return this.http.post<AuthLoginResponse>(authUrl, credentials).pipe(
       tap(response => {
         console.log('✅ Login successful:', {
           user: response.user,
