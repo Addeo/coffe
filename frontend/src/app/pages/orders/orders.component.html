@@ -482,9 +482,22 @@
       <div class="engineer-summary-grid" *ngIf="engineerSummary() as summary">
         <div class="summary-item">
           <div class="item-header">
+            <mat-icon color="accent">schedule</mat-icon>
+            <div>
+              <div class="item-label">Итого часов:</div>
+              <div class="item-value">
+                {{ summary.workedHours | number:'1.0-1' }} / {{ summary.planHours | number:'1.0-1' }}
+              </div>
+            </div>
+          </div>
+          <mat-progress-bar mode="determinate" [value]="getHoursProgress(summary)"></mat-progress-bar>
+        </div>
+        
+        <div class="summary-item">
+          <div class="item-header">
             <mat-icon color="primary">payments</mat-icon>
             <div>
-              <div class="item-label">Заработано</div>
+              <div class="item-label">Итого к оплате:</div>
               <div class="item-value">
                 {{ summary.earnedAmount | currency:'RUB':'symbol':'1.0-0':'ru-RU' }}
                 <span class="item-plan">
@@ -496,24 +509,11 @@
           <mat-progress-bar mode="determinate" [value]="getEarningsProgress(summary)"></mat-progress-bar>
         </div>
 
-        <div class="summary-item">
-          <div class="item-header">
-            <mat-icon color="accent">schedule</mat-icon>
-            <div>
-              <div class="item-label">Отработано часов</div>
-              <div class="item-value">
-                {{ summary.workedHours | number:'1.0-1' }} / {{ summary.planHours | number:'1.0-1' }}
-              </div>
-            </div>
-          </div>
-          <mat-progress-bar mode="determinate" [value]="getHoursProgress(summary)"></mat-progress-bar>
-        </div>
-
         <div class="summary-item summary-item--compact">
           <div class="item-header">
             <mat-icon color="warn">directions_car</mat-icon>
             <div>
-              <div class="item-label">Выплата за автомобиль</div>
+              <div class="item-label">Итого авто:</div>
               <div class="item-value">
                 {{ summary.carPayments | currency:'RUB':'symbol':'1.0-0':'ru-RU' }}
               </div>
@@ -531,7 +531,6 @@
       <div class="header-actions-right">
         <button
           mat-icon-button
-         
           matTooltip="{{ mobileStatisticsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
           class="collapse-toggle-btn"
         >
@@ -631,13 +630,13 @@
 </mat-card>
     </mat-card-content>
 
-    <div class="header-actions-right" (click)="toggleEngineerSummary()">
+    <div class="header-actions-right" (click)="toggleEngineerSummary()" style="display: flex; align-items: center; gap: 10px; justify-content: center;">
       <button
-        mat-icon-button
-       
+        style="display: flex; align-items: center; gap: 10px;"
+        class="collapse-toggle-btn-bottom"
         matTooltip="{{ engineerSummaryCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-        class="collapse-toggle-btn"
       >
+        {{engineerSummaryCollapsed() ? 'Развернуть' : 'Свернуть'}} 
         <mat-icon>{{ engineerSummaryCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
       </button>
     </div>

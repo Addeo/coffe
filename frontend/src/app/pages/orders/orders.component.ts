@@ -891,7 +891,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   // Collapse states for blocks
   ordersOverviewCollapsed = signal(false);
   ordersHeaderCollapsed = signal(false);
-  engineerSummaryCollapsed = signal(false);
+  engineerSummaryCollapsed = signal(true);
   mobileStatisticsCollapsed = signal(false);
 
   // Mobile view detection - reactive signal

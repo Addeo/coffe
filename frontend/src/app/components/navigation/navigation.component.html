@@ -58,6 +58,22 @@
         </div>
 
         <div class="mobile-nav-links">
+          <!-- Navigation Items -->
+          <a
+            *ngFor="let item of navigationItems()"
+            mat-button
+            [routerLink]="item.route === '#' ? null : item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: false }"
+            (click)="item.route === '#' ? onRoleSwitchClick(item) : closeMobileMenu()"
+            [class.role-switch-button]="item.route === '#'"
+            class="mobile-nav-link"
+          >
+            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+            <span [attr.i18n]="item.i18nKey">{{ item.label }}</span>
+            <span class="nav-badge" *ngIf="item.badge && item.badge > 0">{{ item.badge }}</span>
+          </a>
+
           <!-- Documents Dropdown -->
           <div class="documents-mobile-section">
             <button

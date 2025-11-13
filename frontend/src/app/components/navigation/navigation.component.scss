@@ -360,32 +360,34 @@
     padding: 16px 20px;
     background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    display: block !important;
 
     .user-menu-role-label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: rgba(0, 0, 0, 0.5);
-      margin-bottom: 8px;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.5px !important;
+      color: rgba(0, 0, 0, 0.5) !important;
+      margin-bottom: 8px !important;
+      display: block !important;
     }
 
     .user-menu-role-value {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
 
       mat-icon {
-        font-size: 20px;
-        height: 20px;
-        width: 20px;
-        color: #667eea;
+        font-size: 20px !important;
+        height: 20px !important;
+        width: 20px !important;
+        color: #667eea !important;
       }
 
       span {
-        font-weight: 600;
-        font-size: 15px;
-        color: rgba(0, 0, 0, 0.87);
+        font-weight: 600 !important;
+        font-size: 15px !important;
+        color: rgba(0, 0, 0, 0.87) !important;
       }
     }
   }
@@ -770,6 +772,53 @@
       flex: 1;
       padding: 16px 0;
       overflow-y: auto;
+
+      .mobile-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 24px;
+        width: 100%;
+        border-radius: 0;
+        justify-content: flex-start;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.95);
+        transition: background-color 0.2s ease;
+
+        .nav-icon {
+          font-size: 20px;
+          height: 20px;
+          width: 20px;
+          color: rgba(255, 255, 255, 0.9);
+        }
+
+        span:not(.nav-badge) {
+          font-weight: 500;
+          color: rgba(255, 255, 255, 0.95);
+        }
+
+        .nav-badge {
+          margin-left: auto;
+          background-color: #f44336;
+          color: white;
+          border-radius: 12px;
+          padding: 2px 8px;
+          font-size: 12px;
+          font-weight: 600;
+          min-width: 20px;
+          text-align: center;
+        }
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        &.active {
+          background-color: rgba(102, 126, 234, 0.2);
+          border-left: 3px solid #667eea;
+        }
+      }
 
       a {
         display: flex;
