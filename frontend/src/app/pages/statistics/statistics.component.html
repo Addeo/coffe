@@ -2,44 +2,32 @@
 
 
   <!-- Earnings Summary Component -->
-  <app-earnings-summary
-    [month]="selectedMonth()"
-    [year]="selectedYear()"
-    (monthChanged)="onMonthChangedFromEarnings($event)"
-  >
-  </app-earnings-summary>
-
-  <!-- Filters -->
-  <div class="filters">
-    <mat-form-field appearance="outline">
-      <mat-label>Год</mat-label>
-      <mat-select [value]="selectedYear()" (selectionChange)="onYearChange($event.value)">
-        <mat-option *ngFor="let year of availableYears" [value]="year">
-          {{ year }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Месяц</mat-label>
-      <mat-select [value]="selectedMonth()" (selectionChange)="onMonthChange($event.value)">
-        <mat-option *ngFor="let month of availableMonths" [value]="month.value">
-          {{ month.name }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-
-    <button
-      mat-raised-button
-      color="primary"
-      (click)="refreshStatistics()"
-      [disabled]="isLoading()"
-      class="refresh-button"
-    >
-      <mat-icon>refresh</mat-icon>
-      Обновить
-    </button>
-  </div>
+  <mat-card class="collapsible-section">
+    <mat-card-header (click)="toggleEarningsSummary()" class="collapsible-header">
+      <mat-card-title>
+        <mat-icon>account_balance_wallet</mat-icon>
+        Сводка по доходам
+      </mat-card-title>
+      <div class="header-actions-right">
+        <button
+          mat-icon-button
+          matTooltip="{{ earningsSummaryCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+          class="collapse-toggle-btn"
+          (click)="toggleEarningsSummary(); $event.stopPropagation()"
+        >
+          <mat-icon>{{ earningsSummaryCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+    <mat-card-content [class.collapsed]="earningsSummaryCollapsed()">
+      <app-earnings-summary
+        [month]="selectedMonth()"
+        [year]="selectedYear()"
+        (monthChanged)="onMonthChangedFromEarnings($event)"
+      >
+      </app-earnings-summary>
+    </mat-card-content>
+  </mat-card>
 
   <!-- Loading Spinner -->
   <div *ngIf="isLoading()" class="loading-container">
@@ -50,7 +38,25 @@
   <!-- Statistics Content -->
   <div *ngIf="!isLoading() && statistics()" class="statistics-content">
     <!-- Summary Cards - Unified for all devices -->
-    <div class="summary-cards">
+    <mat-card class="collapsible-section">
+      <mat-card-header (click)="toggleSummaryCards()" class="collapsible-header">
+        <mat-card-title>
+          <mat-icon>dashboard</mat-icon>
+          Сводные показатели
+        </mat-card-title>
+        <div class="header-actions-right">
+          <button
+            mat-icon-button
+            matTooltip="{{ summaryCardsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+            class="collapse-toggle-btn"
+            (click)="toggleSummaryCards(); $event.stopPropagation()"
+          >
+            <mat-icon>{{ summaryCardsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+          </button>
+        </div>
+      </mat-card-header>
+      <mat-card-content [class.collapsed]="summaryCardsCollapsed()">
+        <div class="summary-cards">
       <mat-card class="summary-card">
         <mat-card-header>
           <div class="card-icon">
@@ -133,21 +139,96 @@
           </div>
         </mat-card-content>
       </mat-card>
-    </div>
+
+      <!-- Orders Overview Cards -->
+      <mat-card class="summary-card orders-card" role="button" (click)="navigateToOrders()">
+        <mat-card-header>
+          <div class="card-icon">
+            <mat-icon>assignment</mat-icon>
+          </div>
+          <mat-card-title>Всего заявок</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="card-value">{{ orderStats()?.total || 0 }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card
+        class="summary-card orders-card success"
+        role="button"
+        (click)="navigateToOrders('completed')"
+      >
+        <mat-card-header>
+          <div class="card-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <mat-card-title>Завершено</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="card-value">{{ orderStats()?.completed || 0 }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card
+        class="summary-card orders-card warning"
+        role="button"
+        (click)="navigateToOrders('working')"
+      >
+        <mat-card-header>
+          <div class="card-icon">
+            <mat-icon>build</mat-icon>
+          </div>
+          <mat-card-title>В работе</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="card-value">{{ orderStats()?.working || 0 }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card
+        class="summary-card orders-card info"
+        role="button"
+        (click)="navigateToOrders('waiting')"
+      >
+        <mat-card-header>
+          <div class="card-icon">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <mat-card-title>Ожидают</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="card-value">{{ orderStats()?.waiting || 0 }}</div>
+        </mat-card-content>
+      </mat-card>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
     <!-- Car Payments Card -->
-    <mat-card class="car-payments-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>directions_car</mat-icon>
-          Автомобильные отчисления
-        </mat-card-title>
-        <mat-card-subtitle>
-          Статус оплаты за {{ selectedMonth() }}/{{ selectedYear() }}
-        </mat-card-subtitle>
+    <mat-card class="car-payments-card collapsible-section">
+      <mat-card-header (click)="toggleCarPayments()" class="collapsible-header">
+        <div class="header-title-section">
+          <mat-card-title>
+            <mat-icon>directions_car</mat-icon>
+            Автомобильные отчисления
+          </mat-card-title>
+          <mat-card-subtitle>
+            Статус оплаты за {{ selectedMonth() }}/{{ selectedYear() }}
+          </mat-card-subtitle>
+        </div>
+        <div class="header-actions-right">
+          <button
+            mat-icon-button
+            matTooltip="{{ carPaymentsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+            class="collapse-toggle-btn"
+            (click)="toggleCarPayments(); $event.stopPropagation()"
+          >
+            <mat-icon>{{ carPaymentsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+          </button>
+        </div>
       </mat-card-header>
 
-      <mat-card-content>
+      <mat-card-content [class.collapsed]="carPaymentsCollapsed()">
         <!-- No Data Message -->
         <div
           class="no-car-payments"
@@ -336,108 +417,38 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- Mobile Orders Overview (only on mobile view) -->
-    <div class="mobile-orders-overview" *ngIf="isMobileView()">
-      <div class="overview-header">
-        <mat-icon>dashboard</mat-icon>
-        <span>Обзор заявок</span>
-      </div>
-      <div class="mobile-summary-grid" [class.collapsed]="mobileStatisticsCollapsed()">
-        <div
-          class="summary-item primary"
-          role="button"
-          tabindex="0"
-          aria-label="Показать все заявки"
-          (click)="navigateToOrders()"
-        >
-          <div class="summary-icon">
-            <mat-icon>assignment</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats()?.total || 0 }}</div>
-            <div class="summary-label">Всего заявок</div>
-          </div>
-        </div>
-
-        <div
-          class="summary-item success"
-          role="button"
-          tabindex="0"
-          aria-label="Показать завершённые заявки"
-          (click)="navigateToOrders('completed')"
-        >
-          <div class="summary-icon">
-            <mat-icon>check_circle</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats()?.completed || 0 }}</div>
-            <div class="summary-label">Завершено</div>
-          </div>
-        </div>
-
-        <div
-          class="summary-item warning"
-          role="button"
-          tabindex="0"
-          aria-label="Показать заявки в работе"
-          (click)="navigateToOrders('working')"
-        >
-          <div class="summary-icon">
-            <mat-icon>build</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats()?.working || 0 }}</div>
-            <div class="summary-label">В работе</div>
-          </div>
-        </div>
-
-        <div
-          class="summary-item info"
-          role="button"
-          tabindex="0"
-          aria-label="Показать ожидающие заявки"
-          (click)="navigateToOrders('waiting')"
-        >
-          <div class="summary-icon">
-            <mat-icon>schedule</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats()?.waiting || 0 }}</div>
-            <div class="summary-label">Ожидают</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Collapse toggle button at the bottom -->
-      <div class="mobile-overview-toggle">
-        <button
-          mat-button
-          class="collapse-toggle-btn-bottom"
-          (click)="toggleMobileStatistics()"
-          matTooltip="{{ mobileStatisticsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-        >
-          <mat-icon>{{ mobileStatisticsCollapsed() ? 'expand_less' : 'expand_more' }}</mat-icon>
-          <span>{{ mobileStatisticsCollapsed() ? 'Развернуть обзор' : 'Свернуть обзор' }}</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- View Mode Toggle -->
-    <div class="view-toggle">
-      <mat-button-toggle-group [(ngModel)]="viewMode" aria-label="Режим отображения">
-        <mat-button-toggle value="charts">
+    <!-- Statistics Tabs with View Mode Toggle -->
+    <mat-card class="collapsible-section">
+      <mat-card-header (click)="toggleStatisticsTabs()" class="collapsible-header">
+        <mat-card-title>
           <mat-icon>bar_chart</mat-icon>
-          Графики
-        </mat-button-toggle>
-        <mat-button-toggle value="tables">
-          <mat-icon>table_chart</mat-icon>
-          Таблицы
-        </mat-button-toggle>
-      </mat-button-toggle-group>
-    </div>
-
-    <!-- Statistics Tabs - Simplified to 4 main tabs -->
-    <mat-tab-group>
+          Статистика и аналитика
+        </mat-card-title>
+        <div class="header-actions-right">
+          <div class="view-toggle-inline" (click)="$event.stopPropagation()">
+            <mat-button-toggle-group [(ngModel)]="viewMode" aria-label="Режим отображения">
+              <mat-button-toggle value="charts">
+                <mat-icon>bar_chart</mat-icon>
+                Графики
+              </mat-button-toggle>
+              <mat-button-toggle value="tables">
+                <mat-icon>table_chart</mat-icon>
+                Таблицы
+              </mat-button-toggle>
+            </mat-button-toggle-group>
+          </div>
+          <button
+            mat-icon-button
+            matTooltip="{{ statisticsTabsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+            class="collapse-toggle-btn"
+            (click)="toggleStatisticsTabs(); $event.stopPropagation()"
+          >
+            <mat-icon>{{ statisticsTabsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+          </button>
+        </div>
+      </mat-card-header>
+      <mat-card-content [class.collapsed]="statisticsTabsCollapsed()">
+        <mat-tab-group>
       <!-- Engineer Personal Statistics Tab (Engineer only) -->
       <mat-tab label="Моя статистика" *ngIf="isEngineer">
         <div class="tab-content">
@@ -844,7 +855,9 @@
           </mat-card>
         </div>
       </mat-tab>
-    </mat-tab-group>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
   </div>
 
   <!-- No Data Message -->
@@ -852,6 +865,367 @@
     <mat-icon>info</mat-icon>
     <p>Статистика недоступна для выбранного периода</p>
   </div>
+
+  <!-- Organizations Management -->
+  <mat-card class="collapsible-section" *ngIf="canViewAllData">
+    <mat-card-header (click)="toggleOrganizations()" class="collapsible-header">
+      <mat-card-title>
+        <mat-icon>business</mat-icon>
+        Управление организациями
+      </mat-card-title>
+      <div class="header-actions-right">
+        <button
+          mat-icon-button
+          matTooltip="{{ organizationsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+          class="collapse-toggle-btn"
+          (click)="toggleOrganizations(); $event.stopPropagation()"
+        >
+          <mat-icon>{{ organizationsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+    <mat-card-content [class.collapsed]="organizationsCollapsed()">
+      <div class="organizations-content">
+        <div class="actions-row">
+          <mat-form-field class="search-field" appearance="outline">
+            <mat-label>Поиск организаций</mat-label>
+            <input
+              matInput
+              (input)="onOrganizationsSearchChange($any($event.target).value)"
+              [value]="organizationsSearchQuery()"
+              placeholder="Поиск по названию..."
+            />
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="onCreateOrganization()"
+            *ngIf="canEditOrganizations()"
+          >
+            <mat-icon>add</mat-icon>
+            <span>Добавить организацию</span>
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table
+            mat-table
+            [dataSource]="organizationsDataSource"
+            matSort
+            #organizationsSort="matSort"
+            class="organizations-table"
+          >
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Название</th>
+              <td mat-cell *matCellDef="let organization">
+                <div class="name-cell">
+                  <strong>{{ organization.name }}</strong>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="baseRate">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Базовая ставка</th>
+              <td mat-cell *matCellDef="let organization">
+                {{ formatOrganizationCurrency(organization.baseRate) }}/час
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="overtimeMultiplier">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Ставка переработки</th>
+              <td mat-cell *matCellDef="let organization">
+                <span *ngIf="organization.overtimeMultiplier; else noOvertime">
+                  {{ organization.overtimeMultiplier }}x
+                </span>
+                <ng-template #noOvertime>
+                  <span class="no-data">—</span>
+                </ng-template>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="hasOvertime">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Переработка</th>
+              <td mat-cell *matCellDef="let organization">
+                <mat-chip [color]="organization.hasOvertime ? 'primary' : 'warn'" selected>
+                  {{ organization.hasOvertime ? 'Да' : 'Нет' }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="isActive">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Статус</th>
+              <td mat-cell *matCellDef="let organization">
+                <mat-chip [color]="getOrganizationStatusColor(organization.isActive)" selected>
+                  {{ getOrganizationStatusText(organization.isActive) }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="createdAt">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Создано</th>
+              <td mat-cell *matCellDef="let organization">
+                {{ formatOrganizationDate(organization.createdAt) }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Действия</th>
+              <td mat-cell *matCellDef="let organization">
+                <div class="action-buttons">
+                  <button
+                    mat-icon-button
+                    (click)="onEditOrganization(organization)"
+                    [disabled]="!canEditOrganizations()"
+                    color="primary"
+                    matTooltip="Редактировать организацию"
+                    aria-label="Редактировать"
+                    class="action-btn-icon edit-btn"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+
+                  <button
+                    mat-icon-button
+                    (click)="onToggleOrganizationStatus(organization)"
+                    [disabled]="!canEditOrganizations()"
+                    [color]="organization.isActive ? 'warn' : 'primary'"
+                    [matTooltip]="
+                      organization.isActive
+                        ? 'Деактивировать организацию'
+                        : 'Активировать организацию'
+                    "
+                    aria-label="Изменить статус"
+                    class="action-btn-icon status-btn"
+                  >
+                    <mat-icon>{{ organization.isActive ? 'block' : 'check_circle' }}</mat-icon>
+                  </button>
+
+                  <button
+                    mat-icon-button
+                    (click)="onDeleteOrganization(organization)"
+                    [disabled]="!canDeleteOrganizations()"
+                    color="warn"
+                    matTooltip="Удалить организацию"
+                    aria-label="Удалить"
+                    *ngIf="canDeleteOrganizations()"
+                    class="action-btn-icon delete-btn"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="organizationsDisplayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: organizationsDisplayedColumns"></tr>
+          </table>
+
+          <div *ngIf="organizationsLoading()" class="loading-container">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Загрузка организаций...</p>
+          </div>
+
+          <div
+            *ngIf="!organizationsLoading() && organizations().length === 0"
+            class="no-data-container"
+          >
+            <mat-icon class="no-data-icon">business</mat-icon>
+            <h3>Организации не найдены</h3>
+            <p *ngIf="organizationsSearchQuery()">
+              Нет организаций, соответствующих критериям поиска.
+            </p>
+            <p *ngIf="!organizationsSearchQuery()">Начните с создания первой организации.</p>
+            <button
+              *ngIf="canEditOrganizations() && !organizationsSearchQuery()"
+              mat-raised-button
+              color="primary"
+              (click)="onCreateOrganization()"
+            >
+              <mat-icon>add</mat-icon>
+              <span>Добавить организацию</span>
+            </button>
+          </div>
+        </div>
+
+        <mat-paginator
+          *ngIf="organizations().length > 0"
+          #organizationsPaginator
+          [pageSizeOptions]="[10, 25, 50]"
+          showFirstLastButtons
+        >
+        </mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Users Management -->
+  <mat-card class="collapsible-section" *ngIf="canViewUsers">
+    <mat-card-header (click)="toggleUsers()" class="collapsible-header">
+      <mat-card-title>
+        <mat-icon>people</mat-icon>
+        Управление пользователями
+      </mat-card-title>
+      <div class="header-actions-right">
+        <button
+          mat-icon-button
+          matTooltip="{{ usersCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+          class="collapse-toggle-btn"
+          (click)="toggleUsers(); $event.stopPropagation()"
+        >
+          <mat-icon>{{ usersCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+    <mat-card-content [class.collapsed]="usersCollapsed()">
+      <div class="users-content">
+        <div class="header-actions" *ngIf="canViewUsers">
+          <mat-form-field class="search-field">
+            <mat-label>Поиск пользователей</mat-label>
+            <input
+              matInput
+              (keyup)="applyUsersFilter($event)"
+              placeholder="Поиск по имени, email или роли"
+            />
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="onCreateUser()"
+            *ngIf="canCreateUsers"
+          >
+            <mat-icon>add</mat-icon>
+            <span>Добавить пользователя</span>
+          </button>
+        </div>
+
+        <div class="loading-container" *ngIf="usersLoading()">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Loading users...</p>
+        </div>
+
+        <div class="table-container" *ngIf="!usersLoading()">
+          <table
+            mat-table
+            [dataSource]="usersDataSource"
+            matSort
+            #usersSort="matSort"
+            class="users-table"
+          >
+            <ng-container matColumnDef="id">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+              <td mat-cell *matCellDef="let user">{{ user.id }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="firstName">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Имя</th>
+              <td mat-cell *matCellDef="let user">{{ user.firstName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="lastName">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Фамилия</th>
+              <td mat-cell *matCellDef="let user">{{ user.lastName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Электронная почта</th>
+              <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="role">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Роль</th>
+              <td mat-cell *matCellDef="let user">
+                <mat-chip [color]="getStatusColor(true)" selected>
+                  {{ getRoleDisplay(user.role) }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="engineerType">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Тип инженера</th>
+              <td mat-cell *matCellDef="let user">
+                <mat-chip *ngIf="user.engineer" color="accent" selected>
+                  {{ getEngineerTypeDisplay(user.engineer.type) }}
+                </mat-chip>
+                <span *ngIf="!user.engineer" class="no-engineer-label">—</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="isActive">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Статус</th>
+              <td mat-cell *matCellDef="let user">
+                <mat-chip [color]="getStatusColor(user.isActive)" selected>
+                  {{ getStatusDisplay(user.isActive) }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="createdAt">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Создан</th>
+              <td mat-cell *matCellDef="let user">{{ user.createdAt | date: 'short' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Действия</th>
+              <td mat-cell *matCellDef="let user">
+                <button
+                  mat-icon-button
+                  (click)="onEditUser(user)"
+                  color="primary"
+                  matTooltip="Редактировать пользователя"
+                  *ngIf="canEditUsers"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  (click)="onToggleUserStatus(user)"
+                  [color]="user.isActive ? 'warn' : 'primary'"
+                  [matTooltip]="
+                    user.isActive ? 'Деактивировать пользователя' : 'Активировать пользователя'
+                  "
+                  *ngIf="canEditUsers"
+                >
+                  <mat-icon>{{ user.isActive ? 'block' : 'check_circle' }}</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  (click)="onDeleteUser(user)"
+                  color="warn"
+                  matTooltip="Удалить пользователя"
+                  *ngIf="canDeleteUsers"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="usersDisplayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: usersDisplayedColumns"></tr>
+          </table>
+
+          <div class="no-data" *ngIf="usersDataSource.data.length === 0">
+            <mat-icon>people</mat-icon>
+            <h3>Пользователи не найдены</h3>
+            <p>
+              Нет пользователей, соответствующих критериям поиска, или пользователи еще не были
+              созданы.
+            </p>
+          </div>
+        </div>
+
+        <mat-paginator
+          #usersPaginator
+          [pageSizeOptions]="[5, 10, 20, 50]"
+          showFirstLastButtons
+          aria-label="Выберите страницу пользователей"
+        >
+        </mat-paginator>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>
 
 

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, effect, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -6,22 +6,38 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
+import { MatSortModule, MatSort } from '@angular/material/sort';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatInputModule } from '@angular/material/input';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { StatisticsService } from '../../services/statistics.service';
 import { UsersService } from '../../services/users.service';
+import { OrganizationsService } from '../../services/organizations.service';
 import { AuthService } from '../../services/auth.service';
 import { OrdersService } from '../../services/orders.service';
+import { ModalService } from '../../services/modal.service';
+import { ToastService } from '../../services/toast.service';
 import { EarningsSummaryComponent } from '../../components/earnings-summary/earnings-summary.component';
 import { UserRole } from '@shared/interfaces/user.interface';
+import { OrganizationDto, OrganizationsQueryDto } from '@shared/dtos/organization.dto';
+import { UserDto } from '@shared/dtos/user.dto';
+import { EngineerType } from '@shared/interfaces/order.interface';
+import { OrganizationDialogComponent } from '../../components/modals/organization-dialog.component';
+import { UserDialogComponent } from '../../components/modals/user-dialog.component';
+import { DeleteConfirmationDialogComponent } from '../../components/modals/delete-confirmation-dialog.component';
+import { ErrorHandlerUtil } from '../../utils/error-handler.util';
 import {
   MonthlyStatisticsDto,
   AgentEarningsData,
@@ -82,19 +98,27 @@ interface ComprehensiveStatisticsDto {
     MatTabsModule,
     MatButtonToggleModule,
     MatTooltipModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatChipsModule,
+    MatInputModule,
     BaseChartDirective,
     EarningsSummaryComponent,
   ],
   templateUrl: './statistics.component.html',
   styleUrls: ['./statistics.component.scss'],
 })
-export class StatisticsComponent implements OnInit {
+export class StatisticsComponent implements OnInit, AfterViewInit {
   private statisticsService = inject(StatisticsService);
   private usersService = inject(UsersService);
+  private organizationsService = inject(OrganizationsService);
   private authService = inject(AuthService);
   private ordersService = inject(OrdersService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  private modalService = inject(ModalService);
+  private toastService = inject(ToastService);
 
   // Плагины для диаграмм
   chartPlugins = [];
@@ -122,6 +146,49 @@ export class StatisticsComponent implements OnInit {
   // Orders statistics for overview
   orderStats = signal<OrderStatsDto | null>(null);
   mobileStatisticsCollapsed = signal(false);
+
+  // Organizations data
+  organizations = signal<OrganizationDto[]>([]);
+  organizationsDataSource = new MatTableDataSource<OrganizationDto>();
+  organizationsLoading = signal(false);
+  organizationsSearchQuery = signal('');
+  organizationsDisplayedColumns = [
+    'name',
+    'baseRate',
+    'overtimeMultiplier',
+    'hasOvertime',
+    'isActive',
+    'createdAt',
+    'actions',
+  ];
+
+  // Users data
+  usersDataSource = new MatTableDataSource<UserDto>([]);
+  usersLoading = signal(false);
+  usersDisplayedColumns: string[] = [
+    'id',
+    'firstName',
+    'lastName',
+    'email',
+    'role',
+    'engineerType',
+    'isActive',
+    'createdAt',
+    'actions',
+  ];
+
+  @ViewChild('organizationsPaginator') organizationsPaginator!: MatPaginator;
+  @ViewChild('organizationsSort') organizationsSort!: MatSort;
+  @ViewChild('usersPaginator') usersPaginator!: MatPaginator;
+  @ViewChild('usersSort') usersSort!: MatSort;
+
+  // Collapse states for blocks
+  earningsSummaryCollapsed = signal(false);
+  summaryCardsCollapsed = signal(false);
+  carPaymentsCollapsed = signal(false);
+  statisticsTabsCollapsed = signal(false);
+  organizationsCollapsed = signal(false);
+  usersCollapsed = signal(false);
 
   // Month and year selection
   selectedYear = signal(new Date().getFullYear());
@@ -158,6 +225,23 @@ export class StatisticsComponent implements OnInit {
   readonly isEngineer = this.authService.hasRole(UserRole.USER);
   readonly canViewAllData = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
   readonly currentUser = this.authService.currentUser;
+
+  // Organizations permissions
+  readonly canEditOrganizations = computed(() => {
+    const user = this.currentUser();
+    return user?.role === UserRole.ADMIN || user?.role === UserRole.MANAGER;
+  });
+
+  readonly canDeleteOrganizations = computed(() => {
+    const user = this.currentUser();
+    return user?.role === UserRole.ADMIN;
+  });
+
+  // Users permissions
+  readonly canViewUsers = this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]);
+  readonly canCreateUsers = this.authService.isAdmin();
+  readonly canEditUsers = this.authService.isAdmin();
+  readonly canDeleteUsers = this.authService.isAdmin();
 
   // Table columns
   agentEarningsColumns = ['agentName', 'totalEarnings', 'completedOrders', 'averageOrderValue'];
@@ -588,10 +672,44 @@ export class StatisticsComponent implements OnInit {
     },
   };
 
+  constructor() {
+    // Setup organizations data source filter predicate
+    this.organizationsDataSource.filterPredicate = (data: OrganizationDto, filter: string) => {
+      return data.name.toLowerCase().includes(filter);
+    };
+
+    // Watch for organizations search query changes
+    effect(() => {
+      const query = this.organizationsSearchQuery();
+      this.organizationsDataSource.filter = query.trim().toLowerCase();
+    });
+  }
+
   ngOnInit() {
     this.loadStatistics();
     this.loadUserStats();
     this.loadOrderStats();
+    if (this.canViewAllData) {
+      this.loadOrganizations();
+      if (this.canViewUsers) {
+        this.loadUsers();
+      }
+    }
+  }
+
+  ngAfterViewInit() {
+    if (this.organizationsPaginator) {
+      this.organizationsDataSource.paginator = this.organizationsPaginator;
+    }
+    if (this.organizationsSort) {
+      this.organizationsDataSource.sort = this.organizationsSort;
+    }
+    if (this.usersPaginator) {
+      this.usersDataSource.paginator = this.usersPaginator;
+    }
+    if (this.usersSort) {
+      this.usersDataSource.sort = this.usersSort;
+    }
   }
 
   loadOrderStats(): void {
@@ -608,6 +726,31 @@ export class StatisticsComponent implements OnInit {
 
   toggleMobileStatistics(): void {
     this.mobileStatisticsCollapsed.set(!this.mobileStatisticsCollapsed());
+  }
+
+  // Toggle methods for collapsible blocks
+  toggleEarningsSummary(): void {
+    this.earningsSummaryCollapsed.set(!this.earningsSummaryCollapsed());
+  }
+
+  toggleSummaryCards(): void {
+    this.summaryCardsCollapsed.set(!this.summaryCardsCollapsed());
+  }
+
+  toggleCarPayments(): void {
+    this.carPaymentsCollapsed.set(!this.carPaymentsCollapsed());
+  }
+
+  toggleStatisticsTabs(): void {
+    this.statisticsTabsCollapsed.set(!this.statisticsTabsCollapsed());
+  }
+
+  toggleOrganizations(): void {
+    this.organizationsCollapsed.set(!this.organizationsCollapsed());
+  }
+
+  toggleUsers(): void {
+    this.usersCollapsed.set(!this.usersCollapsed());
   }
 
   navigateToOrders(status?: string): void {
@@ -1184,6 +1327,293 @@ export class StatisticsComponent implements OnInit {
       this.currentWorkPace.set(comprehensiveData.forecast.currentWorkPace);
       this.monthEndForecast.set(comprehensiveData.forecast.monthEndForecast);
       this.growthPotential.set(comprehensiveData.forecast.growthPotential);
+    }
+  }
+
+  // Organizations methods
+  loadOrganizations(query?: OrganizationsQueryDto): void {
+    this.organizationsLoading.set(true);
+    this.organizationsService.getOrganizations(query).subscribe({
+      next: response => {
+        const organizations = response.data || [];
+        this.organizations.set(organizations);
+        this.organizationsDataSource.data = organizations;
+        this.organizationsLoading.set(false);
+      },
+      error: (error: HttpErrorResponse | unknown) => {
+        const errorMessage = ErrorHandlerUtil.getErrorMessage(error);
+        console.error('Failed to load organizations:', ErrorHandlerUtil.getErrorDetails(error));
+        this.toastService.showError(errorMessage);
+        this.organizations.set([]);
+        this.organizationsDataSource.data = [];
+        this.organizationsLoading.set(false);
+      },
+    });
+  }
+
+  onOrganizationsSearchChange(query: string): void {
+    this.organizationsSearchQuery.set(query);
+  }
+
+  onCreateOrganization(): void {
+    const dialogRef = this.dialog.open(OrganizationDialogComponent, {
+      data: { isEdit: false },
+      width: '600px',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const currentOrganizations = this.organizations() || [];
+        const updatedOrganizations = [...currentOrganizations, result];
+        this.organizations.set(updatedOrganizations);
+        this.organizationsDataSource.data = updatedOrganizations;
+      }
+    });
+  }
+
+  onEditOrganization(organization: OrganizationDto): void {
+    if (!this.canEditOrganizations()) {
+      this.toastService.showError('У вас нет прав на редактирование организаций');
+      return;
+    }
+
+    const dialogRef = this.dialog.open(OrganizationDialogComponent, {
+      data: { organization, isEdit: true },
+      width: '600px',
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const currentOrganizations = this.organizations() || [];
+        const updatedOrganizations = currentOrganizations.map(org =>
+          org.id === result.id ? result : org
+        );
+        this.organizations.set(updatedOrganizations);
+        this.organizationsDataSource.data = updatedOrganizations;
+      }
+    });
+  }
+
+  onToggleOrganizationStatus(organization: OrganizationDto): void {
+    if (!this.canEditOrganizations()) {
+      this.toastService.showError('У вас нет прав на изменение статуса организаций');
+      return;
+    }
+
+    this.organizationsService.toggleOrganizationStatus(organization.id).subscribe({
+      next: updatedOrg => {
+        const currentOrganizations = this.organizations() || [];
+        const updatedOrganizations = currentOrganizations.map(org =>
+          org.id === updatedOrg.id ? updatedOrg : org
+        );
+        this.organizations.set(updatedOrganizations);
+        this.organizationsDataSource.data = updatedOrganizations;
+
+        this.toastService.showSuccess(
+          `Организация ${updatedOrg.name} ${updatedOrg.isActive ? 'активирована' : 'деактивирована'}`
+        );
+      },
+      error: (error: HttpErrorResponse | unknown) => {
+        const errorMessage = ErrorHandlerUtil.getErrorMessage(error);
+        console.error('Не удалось изменить статус организации:', ErrorHandlerUtil.getErrorDetails(error));
+        this.toastService.showError(errorMessage);
+      },
+    });
+  }
+
+  onDeleteOrganization(organization: OrganizationDto): void {
+    if (!this.canDeleteOrganizations()) {
+      this.toastService.showError(
+        'У вас нет прав на удаление организаций. Требуется роль руководителя.'
+      );
+      return;
+    }
+
+    const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
+      data: {
+        title: 'Удалить организацию',
+        message: `Вы уверены, что хотите удалить организацию "${organization.name}"? Это действие нельзя отменить.`,
+        confirmText: 'Удалить',
+        cancelText: 'Отмена',
+      },
+      width: '500px',
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.organizationsService.deleteOrganization(organization.id).subscribe({
+          next: () => {
+            const currentOrganizations = this.organizations() || [];
+            const updatedOrganizations = currentOrganizations.filter(
+              org => org.id !== organization.id
+            );
+            this.organizations.set(updatedOrganizations);
+            this.organizationsDataSource.data = updatedOrganizations;
+
+            this.toastService.showSuccess('Организация успешно удалена');
+            this.loadOrganizations();
+          },
+          error: (error: HttpErrorResponse | unknown) => {
+            const errorMessage = ErrorHandlerUtil.getErrorMessage(error);
+            console.error('Не удалось удалить организацию:', ErrorHandlerUtil.getErrorDetails(error));
+            this.toastService.showError(errorMessage);
+          },
+        });
+      }
+    });
+  }
+
+  formatOrganizationCurrency(amount: number): string {
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: 'RUB',
+      minimumFractionDigits: 2,
+    }).format(amount);
+  }
+
+  formatOrganizationDate(date: Date | string): string {
+    return new Date(date).toLocaleDateString('ru-RU');
+  }
+
+  getOrganizationStatusColor(isActive: boolean): string {
+    return isActive ? 'primary' : 'warn';
+  }
+
+  getOrganizationStatusText(isActive: boolean): string {
+    return isActive ? 'Активна' : 'Неактивна';
+  }
+
+  // Users methods
+  loadUsers(): void {
+    this.usersLoading.set(true);
+    this.usersService.getUsers().subscribe({
+      next: response => {
+        this.usersDataSource.data = response.data;
+        this.usersLoading.set(false);
+      },
+      error: error => {
+        console.error('Error loading users:', error);
+        this.toastService.error('Error loading users');
+        this.usersLoading.set(false);
+      },
+    });
+  }
+
+  getFullName(user: UserDto): string {
+    return `${user.firstName} ${user.lastName}`;
+  }
+
+  getRoleDisplay(role: UserRole): string {
+    switch (role) {
+      case UserRole.ADMIN:
+        return 'Administrator';
+      case UserRole.MANAGER:
+        return 'Manager';
+      case UserRole.USER:
+        return 'User';
+      default:
+        return role;
+    }
+  }
+
+  getEngineerTypeDisplay(type: EngineerType | undefined): string {
+    if (!type) {
+      return '—';
+    }
+    switch (type) {
+      case EngineerType.STAFF:
+        return 'Штатный';
+      case EngineerType.CONTRACT:
+        return 'Наемный';
+      default:
+        return type;
+    }
+  }
+
+  getStatusDisplay(isActive: boolean): string {
+    return isActive ? 'Active' : 'Inactive';
+  }
+
+  getStatusColor(isActive: boolean): string {
+    return isActive ? 'primary' : 'warn';
+  }
+
+  onEditUser(user: UserDto) {
+    this.router.navigate(['/users', user.id, 'edit']);
+  }
+
+  onDeleteUser(user: UserDto) {
+    this.showCascadeDeleteConfirmation(user);
+  }
+
+  private showCascadeDeleteConfirmation(user: UserDto) {
+    const dialogRef = this.modalService.openDialog(DeleteConfirmationDialogComponent, {
+      user,
+      title: 'Удалить пользователя',
+      message: `Пользователь ${user.firstName} ${user.lastName} будет удален со всеми связанными данными (профиль инженера, логи активности, уведомления и т.д.).\n\nВы уверены, что хотите продолжить? Это действие нельзя отменить.`,
+      confirmText: 'Удалить',
+      cancelText: 'Отмена',
+    });
+
+    dialogRef.subscribe(result => {
+      if (result) {
+        this.performCascadeDelete(user.id);
+      }
+    });
+  }
+
+  private performCascadeDelete(userId: number) {
+    this.usersService.deleteUser(userId).subscribe({
+      next: () => {
+        this.toastService.success('Пользователь и все связанные данные успешно удалены');
+        this.loadUsers();
+      },
+      error: error => {
+        console.error('Error deleting user:', error);
+        this.usersService.forceDeleteUser(userId).subscribe({
+          next: () => {
+            this.toastService.success('Пользователь и все связанные данные успешно удалены');
+            this.loadUsers();
+          },
+          error: forceError => {
+            console.error('Error force deleting user:', forceError);
+            this.toastService.error('Ошибка при удалении пользователя');
+          },
+        });
+      },
+    });
+  }
+
+  onCreateUser() {
+    this.router.navigate(['/users/create']);
+  }
+
+  onToggleUserStatus(user: UserDto) {
+    const newStatus = !user.isActive;
+    this.usersService.updateUser(user.id, { isActive: newStatus }).subscribe({
+      next: updatedUser => {
+        const index = this.usersDataSource.data.findIndex(u => u.id === user.id);
+        if (index !== -1) {
+          this.usersDataSource.data[index] = updatedUser;
+          this.usersDataSource._updateChangeSubscription();
+        }
+        this.toastService.success(`User ${newStatus ? 'activated' : 'deactivated'} successfully`);
+      },
+      error: error => {
+        console.error('Error updating user status:', error);
+        this.toastService.error('Error updating user status');
+      },
+    });
+  }
+
+  applyUsersFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.usersDataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.usersDataSource.paginator) {
+      this.usersDataSource.paginator.firstPage();
     }
   }
 }
