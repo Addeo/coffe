@@ -37,6 +37,7 @@ import { AssignEngineerDialogComponent } from '../../components/modals/assign-en
 import { WorkCompletionDialogComponent } from '../../components/modals/work-completion-dialog.component';
 import { OrderStatusDialogComponent } from '../../components/modals/order-status-dialog.component';
 import { EngineerSummaryCardComponent } from '../../components/engineer-summary-card/engineer-summary-card.component';
+import { HoursProgressItemComponent } from '../../components/hours-progress-item/hours-progress-item.component';
 
 @Component({
   selector: 'app-orders',
@@ -62,6 +63,7 @@ import { EngineerSummaryCardComponent } from '../../components/engineer-summary-
     MatDividerModule,
     BaseChartDirective,
     EngineerSummaryCardComponent,
+    HoursProgressItemComponent,
     OrderDialogComponent,
     OrderDeleteConfirmationDialogComponent,
     AssignEngineerDialogComponent,

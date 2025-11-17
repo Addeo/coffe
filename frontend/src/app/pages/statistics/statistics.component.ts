@@ -888,6 +888,38 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     this.loadStatistics();
   }
 
+  previousMonthForEarnings() {
+    let month = this.selectedMonth();
+    let year = this.selectedYear();
+
+    if (month === 1) {
+      month = 12;
+      year--;
+    } else {
+      month--;
+    }
+
+    this.selectedMonth.set(month);
+    this.selectedYear.set(year);
+    this.loadStatistics();
+  }
+
+  nextMonthForEarnings() {
+    let month = this.selectedMonth();
+    let year = this.selectedYear();
+
+    if (month === 12) {
+      month = 1;
+      year++;
+    } else {
+      month++;
+    }
+
+    this.selectedMonth.set(month);
+    this.selectedYear.set(year);
+    this.loadStatistics();
+  }
+
   refreshStatistics() {
     this.loadStatistics();
     this.loadCarPaymentStatus();
@@ -968,20 +1000,20 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
 
   getMonthName(month: number): string {
     const monthNames = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
+      'Январь',
+      'Февраль',
+      'Март',
+      'Апрель',
+      'Май',
+      'Июнь',
+      'Июль',
+      'Август',
+      'Сентябрь',
+      'Октябрь',
+      'Ноябрь',
+      'Декабрь',
     ];
-    return monthNames[month - 1] || 'Unknown';
+    return monthNames[month - 1] || 'Неизвестно';
   }
 
   loadUserStats() {

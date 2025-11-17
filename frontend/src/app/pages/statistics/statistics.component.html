@@ -2,27 +2,55 @@
 
 
   <!-- Earnings Summary Component -->
-  <mat-card class="collapsible-section">
-    <mat-card-header (click)="toggleEarningsSummary()" class="collapsible-header">
-      <mat-card-title>
-        <mat-icon>account_balance_wallet</mat-icon>
-        Сводка по доходам
-      </mat-card-title>
-      <div class="header-actions-right">
-        <button
-          mat-icon-button
-          matTooltip="{{ earningsSummaryCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-          class="collapse-toggle-btn"
-          (click)="toggleEarningsSummary(); $event.stopPropagation()"
-        >
-          <mat-icon>{{ earningsSummaryCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-        </button>
+  <mat-card class="collapsible-section summary-cards-section">
+    <mat-card-header (click)="toggleEarningsSummary()" class="collapsible-header earnings-header">
+      <div class="header-content">
+        <div class="title-section">
+          <mat-icon>account_balance_wallet</mat-icon>
+          <span class="title">Сводка по доходам</span>
+        </div>
+
+        <div class="month-selector" (click)="$event.stopPropagation()">
+          <button
+            mat-icon-button
+            (click)="previousMonthForEarnings()"
+            matTooltip="Предыдущий месяц"
+            class="nav-btn"
+          >
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+
+          <span class="month-display">
+            {{ getMonthName(selectedMonth()) }} {{ selectedYear() }}
+          </span>
+
+          <button
+            mat-icon-button
+            (click)="nextMonthForEarnings()"
+            matTooltip="Следующий месяц"
+            class="nav-btn"
+          >
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+
+        <div class="header-actions">
+          <button
+            mat-icon-button
+            matTooltip="{{ earningsSummaryCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+            class="collapse-btn"
+            (click)="toggleEarningsSummary(); $event.stopPropagation()"
+          >
+            <mat-icon>{{ earningsSummaryCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+          </button>
+        </div>
       </div>
     </mat-card-header>
     <mat-card-content [class.collapsed]="earningsSummaryCollapsed()">
       <app-earnings-summary
         [month]="selectedMonth()"
         [year]="selectedYear()"
+        [collapsible]="false"
         (monthChanged)="onMonthChangedFromEarnings($event)"
       >
       </app-earnings-summary>
@@ -38,183 +66,170 @@
   <!-- Statistics Content -->
   <div *ngIf="!isLoading() && statistics()" class="statistics-content">
     <!-- Summary Cards - Unified for all devices -->
-    <mat-card class="collapsible-section">
-      <mat-card-header (click)="toggleSummaryCards()" class="collapsible-header">
-        <mat-card-title>
-          <mat-icon>dashboard</mat-icon>
-          Сводные показатели
-        </mat-card-title>
-        <div class="header-actions-right">
-          <button
-            mat-icon-button
-            matTooltip="{{ summaryCardsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-            class="collapse-toggle-btn"
-            (click)="toggleSummaryCards(); $event.stopPropagation()"
-          >
-            <mat-icon>{{ summaryCardsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-          </button>
+    <mat-card class="collapsible-section summary-cards-section">
+      <mat-card-header (click)="toggleSummaryCards()" class="collapsible-header earnings-header">
+        <div class="header-content">
+          <div class="title-section">
+            <mat-icon>dashboard</mat-icon>
+            <span class="title">Сводные показатели</span>
+          </div>
+          <div class="header-actions">
+            <button
+              mat-icon-button
+              matTooltip="{{ summaryCardsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+              class="collapse-btn"
+              (click)="toggleSummaryCards(); $event.stopPropagation()"
+            >
+              <mat-icon>{{ summaryCardsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+            </button>
+          </div>
         </div>
       </mat-card-header>
       <mat-card-content [class.collapsed]="summaryCardsCollapsed()">
-        <div class="summary-cards">
-      <mat-card class="summary-card">
-        <mat-card-header>
-          <div class="card-icon">
-            <mat-icon>attach_money</mat-icon>
+        <div class="earnings-grid">
+          <!-- Total Earnings -->
+          <div class="earning-card total-earnings">
+            <div class="earning-icon">
+              <mat-icon>attach_money</mat-icon>
+            </div>
+            <div class="earning-content">
+              <div class="earning-label">Общий доход</div>
+              <div class="earning-value">{{ formatCurrency(statistics()!.totalEarnings) }}</div>
+            </div>
           </div>
-          <mat-card-title>Общий доход</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="card-value">{{ formatCurrency(statistics()!.totalEarnings) }}</div>
-        </mat-card-content>
-      </mat-card>
 
-      <mat-card class="summary-card">
-        <mat-card-header>
-          <div class="card-icon">
+          <!-- Total Orders -->
+          <div class="earning-card orders-count">
+            <div class="earning-icon">
             <mat-icon>shopping_cart</mat-icon>
           </div>
-          <mat-card-title>Всего заказов</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="card-value">{{ formatNumber(statistics()!.totalOrders) }}</div>
-        </mat-card-content>
-      </mat-card>
+            <div class="earning-content">
+              <div class="earning-label">Всего заказов</div>
+              <div class="earning-value">{{ formatNumber(statistics()!.totalOrders) }}</div>
+            </div>
+          </div>
 
-      <mat-card class="summary-card">
-        <mat-card-header>
-          <div class="card-icon">
+          <!-- Overtime Hours -->
+          <div class="earning-card hours-count">
+            <div class="earning-icon">
             <mat-icon>schedule</mat-icon>
           </div>
-          <mat-card-title>Сверхурочные часы</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="card-value">{{ formatNumber(statistics()!.totalOvertimeHours) }}</div>
-        </mat-card-content>
-      </mat-card>
+            <div class="earning-content">
+              <div class="earning-label">Сверхурочные часы</div>
+              <div class="earning-value">{{ formatNumber(statistics()!.totalOvertimeHours) }}</div>
+            </div>
+          </div>
 
-      <!-- Financial Summary Cards -->
-      <mat-card class="summary-card">
-        <mat-card-header>
-          <div class="card-icon">
+          <!-- Organization Revenue -->
+          <div class="earning-card work-earnings">
+            <div class="earning-icon">
             <mat-icon>account_balance</mat-icon>
           </div>
-          <mat-card-title>Выручка от организаций</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="card-value">
+            <div class="earning-content">
+              <div class="earning-label">Выручка от организаций</div>
+              <div class="earning-value">
             {{ totalOrganizationRevenue | currency: 'RUB' : 'symbol' : '1.0-0' }}
           </div>
-        </mat-card-content>
-      </mat-card>
+            </div>
+          </div>
 
-      <mat-card class="summary-card">
-        <mat-card-header>
-          <div class="card-icon">
+          <!-- Agent Earnings -->
+          <div class="earning-card car-earnings">
+            <div class="earning-icon">
             <mat-icon>account_balance_wallet</mat-icon>
           </div>
-          <mat-card-title>Заработок инженеров</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="card-value">
+            <div class="earning-content">
+              <div class="earning-label">Заработок инженеров</div>
+              <div class="earning-value">
             {{ totalAgentEarnings | currency: 'RUB' : 'symbol' : '1.0-0' }}
           </div>
-        </mat-card-content>
-      </mat-card>
+            </div>
+          </div>
 
-      <mat-card class="summary-card">
-        <mat-card-header>
-          <div class="card-icon">
+          <!-- Company Profit -->
+          <div
+            class="earning-card"
+            [class.total-earnings]="companyProfit > 0"
+            [class.warning-earnings]="companyProfit < 0"
+          >
+            <div class="earning-icon">
             <mat-icon>trending_up</mat-icon>
           </div>
-          <mat-card-title>Прибыль компании</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
+            <div class="earning-content">
+              <div class="earning-label">Прибыль компании</div>
+              <div class="earning-value">
+                {{ companyProfit | currency: 'RUB' : 'symbol' : '1.0-0' }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Orders Overview Cards -->
+          <div class="earning-card work-earnings" role="button" (click)="navigateToOrders()">
+            <div class="earning-icon">
+              <mat-icon>assignment</mat-icon>
+            </div>
+            <div class="earning-content">
+              <div class="earning-label">Всего заявок</div>
+              <div class="earning-value">{{ orderStats()?.total || 0 }}</div>
+            </div>
+          </div>
+
           <div
-            class="card-value"
-            [class.profit-positive]="companyProfit > 0"
-            [class.profit-negative]="companyProfit < 0"
+            class="earning-card total-earnings"
+            role="button"
+            (click)="navigateToOrders('completed')"
           >
-            {{ companyProfit | currency: 'RUB' : 'symbol' : '1.0-0' }}
+            <div class="earning-icon">
+              <mat-icon>check_circle</mat-icon>
+            </div>
+            <div class="earning-content">
+              <div class="earning-label">Завершено</div>
+              <div class="earning-value">{{ orderStats()?.completed || 0 }}</div>
+            </div>
           </div>
-        </mat-card-content>
-      </mat-card>
 
-      <!-- Orders Overview Cards -->
-      <mat-card class="summary-card orders-card" role="button" (click)="navigateToOrders()">
-        <mat-card-header>
-          <div class="card-icon">
-            <mat-icon>assignment</mat-icon>
+          <div
+            class="earning-card car-earnings"
+            role="button"
+            (click)="navigateToOrders('working')"
+          >
+            <div class="earning-icon">
+              <mat-icon>build</mat-icon>
+            </div>
+            <div class="earning-content">
+              <div class="earning-label">В работе</div>
+              <div class="earning-value">{{ orderStats()?.working || 0 }}</div>
+            </div>
           </div>
-          <mat-card-title>Всего заявок</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="card-value">{{ orderStats()?.total || 0 }}</div>
-        </mat-card-content>
-      </mat-card>
 
-      <mat-card
-        class="summary-card orders-card success"
-        role="button"
-        (click)="navigateToOrders('completed')"
-      >
-        <mat-card-header>
-          <div class="card-icon">
-            <mat-icon>check_circle</mat-icon>
+          <div
+            class="earning-card hours-count"
+            role="button"
+            (click)="navigateToOrders('waiting')"
+          >
+            <div class="earning-icon">
+              <mat-icon>schedule</mat-icon>
+            </div>
+            <div class="earning-content">
+              <div class="earning-label">Ожидают</div>
+              <div class="earning-value">{{ orderStats()?.waiting || 0 }}</div>
+            </div>
           </div>
-          <mat-card-title>Завершено</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="card-value">{{ orderStats()?.completed || 0 }}</div>
+          </div>
         </mat-card-content>
       </mat-card>
-
-      <mat-card
-        class="summary-card orders-card warning"
-        role="button"
-        (click)="navigateToOrders('working')"
-      >
-        <mat-card-header>
-          <div class="card-icon">
-            <mat-icon>build</mat-icon>
-          </div>
-          <mat-card-title>В работе</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="card-value">{{ orderStats()?.working || 0 }}</div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card
-        class="summary-card orders-card info"
-        role="button"
-        (click)="navigateToOrders('waiting')"
-      >
-        <mat-card-header>
-          <div class="card-icon">
-            <mat-icon>schedule</mat-icon>
-          </div>
-          <mat-card-title>Ожидают</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="card-value">{{ orderStats()?.waiting || 0 }}</div>
-        </mat-card-content>
-      </mat-card>
-        </div>
-      </mat-card-content>
-    </mat-card>
 
     <!-- Car Payments Card -->
     <mat-card class="car-payments-card collapsible-section">
       <mat-card-header (click)="toggleCarPayments()" class="collapsible-header">
         <div class="header-title-section">
-          <mat-card-title>
-            <mat-icon>directions_car</mat-icon>
-            Автомобильные отчисления
-          </mat-card-title>
-          <mat-card-subtitle>
-            Статус оплаты за {{ selectedMonth() }}/{{ selectedYear() }}
-          </mat-card-subtitle>
+        <mat-card-title>
+          <mat-icon>directions_car</mat-icon>
+          Автомобильные отчисления
+        </mat-card-title>
+        <mat-card-subtitle>
+          Статус оплаты за {{ selectedMonth() }}/{{ selectedYear() }}
+        </mat-card-subtitle>
         </div>
         <div class="header-actions-right">
           <button
@@ -426,17 +441,17 @@
         </mat-card-title>
         <div class="header-actions-right">
           <div class="view-toggle-inline" (click)="$event.stopPropagation()">
-            <mat-button-toggle-group [(ngModel)]="viewMode" aria-label="Режим отображения">
-              <mat-button-toggle value="charts">
-                <mat-icon>bar_chart</mat-icon>
-                Графики
-              </mat-button-toggle>
-              <mat-button-toggle value="tables">
-                <mat-icon>table_chart</mat-icon>
-                Таблицы
-              </mat-button-toggle>
-            </mat-button-toggle-group>
-          </div>
+      <mat-button-toggle-group [(ngModel)]="viewMode" aria-label="Режим отображения">
+        <mat-button-toggle value="charts">
+          <mat-icon>bar_chart</mat-icon>
+          Графики
+        </mat-button-toggle>
+        <mat-button-toggle value="tables">
+          <mat-icon>table_chart</mat-icon>
+          Таблицы
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
           <button
             mat-icon-button
             matTooltip="{{ statisticsTabsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
@@ -448,7 +463,7 @@
         </div>
       </mat-card-header>
       <mat-card-content [class.collapsed]="statisticsTabsCollapsed()">
-        <mat-tab-group>
+    <mat-tab-group>
       <!-- Engineer Personal Statistics Tab (Engineer only) -->
       <mat-tab label="Моя статистика" *ngIf="isEngineer">
         <div class="tab-content">
@@ -855,7 +870,7 @@
           </mat-card>
         </div>
       </mat-tab>
-        </mat-tab-group>
+    </mat-tab-group>
       </mat-card-content>
     </mat-card>
   </div>
@@ -882,7 +897,7 @@
         >
           <mat-icon>{{ organizationsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
         </button>
-      </div>
+</div>
     </mat-card-header>
     <mat-card-content [class.collapsed]="organizationsCollapsed()">
       <div class="organizations-content">

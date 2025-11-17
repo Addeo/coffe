@@ -1,0 +1,224 @@
+.summary-item {
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 4px 12px rgba(57, 73, 171, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 6px 16px rgba(57, 73, 171, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .item-header {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    position: relative;
+
+    &.clickable {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    mat-icon {
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+    }
+
+    .item-content {
+      flex: 1;
+    }
+
+    .item-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: rgba(0, 0, 0, 0.54);
+      margin-bottom: 6px;
+    }
+
+    .item-value {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      flex-wrap: wrap;
+
+      .item-separator {
+        color: rgba(0, 0, 0, 0.4);
+        font-weight: 400;
+      }
+
+      .item-plan {
+        color: rgba(0, 0, 0, 0.6);
+        font-weight: 500;
+      }
+
+      // Color classes for worked hours
+      .progress-low {
+        color: #f44336; // красный
+        font-weight: 700;
+      }
+
+      .progress-medium {
+        color: #ff9800; // желтый/оранжевый
+        font-weight: 700;
+      }
+
+      .progress-high {
+        color: #4caf50; // зеленый
+        font-weight: 700;
+      }
+    }
+
+    .expand-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      color: rgba(0, 0, 0, 0.54);
+      transition: transform 0.3s ease;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.04);
+      }
+    }
+  }
+
+  mat-progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+
+    // Default color
+    --mdc-linear-progress-active-indicator-color: #667eea;
+    --mdc-linear-progress-track-color: rgba(102, 126, 234, 0.15);
+
+    // Color classes based on progress
+    &.progress-low {
+      --mdc-linear-progress-active-indicator-color: #f44336; // красный
+      --mdc-linear-progress-track-color: rgba(244, 67, 54, 0.15);
+    }
+
+    &.progress-medium {
+      --mdc-linear-progress-active-indicator-color: #ff9800; // желтый/оранжевый
+      --mdc-linear-progress-track-color: rgba(255, 152, 0, 0.15);
+    }
+
+    &.progress-high {
+      --mdc-linear-progress-active-indicator-color: #4caf50; // зеленый
+      --mdc-linear-progress-track-color: rgba(76, 175, 80, 0.15);
+    }
+  }
+
+  // Statistics content
+  .statistics-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s ease,
+                margin 0.3s ease,
+                padding 0.3s ease;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+
+    &.expanded {
+      max-height: 500px;
+      opacity: 1;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .statistics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background: #e9ecef;
+        }
+
+        .stat-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          border-radius: 8px;
+          background: rgba(102, 126, 234, 0.1);
+
+          mat-icon {
+            color: #667eea;
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+        }
+
+        .stat-info {
+          flex: 1;
+
+          .stat-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.54);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+          }
+
+          .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a237e;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Mobile responsive styles
+@media (max-width: 768px) {
+  .summary-item {
+    padding: 16px;
+    gap: 12px;
+
+    .item-header {
+      gap: 12px;
+
+      mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+
+      .item-label {
+        font-size: 11px;
+      }
+
+      .item-value {
+        font-size: 16px;
+      }
+    }
+  }
+}
+

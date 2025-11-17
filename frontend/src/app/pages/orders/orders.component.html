@@ -684,18 +684,17 @@
 
     <mat-card-content [class.collapsed]="engineerSummaryCollapsed()">
       <div class="engineer-summary-grid" *ngIf="engineerSummary() as summary">
-        <div class="summary-item">
-          <div class="item-header">
-            <mat-icon color="accent">schedule</mat-icon>
-            <div>
-              <div class="item-label">Итого часов:</div>
-              <div class="item-value">
-                {{ summary.workedHours | number:'1.0-1' }} / {{ summary.planHours | number:'1.0-1' }}
-              </div>
-            </div>
-          </div>
-          <mat-progress-bar mode="determinate" [value]="getHoursProgress(summary)"></mat-progress-bar>
-        </div>
+        <app-hours-progress-item
+          [workedHours]="summary.workedHours"
+          [planHours]="summary.planHours"
+          label="Итого часов:"
+          icon="schedule"
+          iconColor="accent"
+          [statistics]="{
+            regularHours: (summary.workedHours ?? 0) - (summary.overtimeHours ?? 0),
+            overtimeHours: summary.overtimeHours
+          }"
+        ></app-hours-progress-item>
         
         <div class="summary-item">
           <div class="item-header">
@@ -710,7 +709,7 @@
               </div>
             </div>
           </div>
-          <mat-progress-bar mode="determinate" [value]="getEarningsProgress(summary)"></mat-progress-bar>
+          <!-- <mat-progress-bar mode="determinate" [value]="getEarningsProgress(summary)"></mat-progress-bar> -->
         </div>
 
         <div class="summary-item summary-item--compact">

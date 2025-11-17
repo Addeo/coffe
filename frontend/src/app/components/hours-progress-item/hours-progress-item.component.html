@@ -1,0 +1,87 @@
+<div class="summary-item">
+  <div class="item-header" (click)="toggleCollapse()" [class.clickable]="statistics">
+    <mat-icon [color]="iconColor">{{ icon }}</mat-icon>
+    <div class="item-content">
+      <div class="item-label">{{ label }}</div>
+      <div class="item-value">
+        <span [class]="workedHoursColorClass()">
+          {{ workedHours | number: '1.0-1' }}
+        </span>
+        <span class="item-separator">/</span>
+        <span class="item-plan">{{ planHours | number: '1.0-1' }}</span>
+      </div>
+    </div>
+    <button
+      *ngIf="statistics"
+      mat-icon-button
+      class="expand-btn"
+      (click)="toggleCollapse(); $event.stopPropagation()"
+      matTooltip="{{ isCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+    >
+      <mat-icon>{{ isCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+    </button>
+  </div>
+  <mat-progress-bar
+    *ngIf="showProgressBar"
+    mode="determinate"
+    [value]="progressPercentage()"
+    [color]="progressColor()"
+    [class]="progressColorClass()"
+  ></mat-progress-bar>
+
+  <!-- Expanded Statistics -->
+  <div class="statistics-content" *ngIf="statistics && !isCollapsed()" [class.expanded]="!isCollapsed()">
+    <div class="statistics-grid">
+      <div class="stat-item" *ngIf="statistics.regularHours !== undefined">
+        <div class="stat-icon">
+          <mat-icon>schedule</mat-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Обычные часы</div>
+          <div class="stat-value">{{ statistics.regularHours | number: '1.0-1' }}</div>
+        </div>
+      </div>
+
+      <div class="stat-item" *ngIf="statistics.overtimeHours !== undefined">
+        <div class="stat-icon">
+          <mat-icon>access_time</mat-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Сверхурочные часы</div>
+          <div class="stat-value">{{ statistics.overtimeHours | number: '1.0-1' }}</div>
+        </div>
+      </div>
+
+      <div class="stat-item" *ngIf="statistics.completedOrders !== undefined">
+        <div class="stat-icon">
+          <mat-icon>assignment_turned_in</mat-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Завершено заказов</div>
+          <div class="stat-value">{{ statistics.completedOrders }}</div>
+        </div>
+      </div>
+
+      <div class="stat-item" *ngIf="statistics.averageHoursPerOrder !== undefined">
+        <div class="stat-icon">
+          <mat-icon>trending_up</mat-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Среднее часов на заказ</div>
+          <div class="stat-value">{{ statistics.averageHoursPerOrder | number: '1.1-1' }}</div>
+        </div>
+      </div>
+
+      <div class="stat-item" *ngIf="statistics.efficiency !== undefined">
+        <div class="stat-icon">
+          <mat-icon>speed</mat-icon>
+        </div>
+        <div class="stat-info">
+          <div class="stat-label">Эффективность</div>
+          <div class="stat-value">{{ statistics.efficiency | number: '1.1-1' }}%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
