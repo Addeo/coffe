@@ -26,8 +26,8 @@ export class Document {
   title: string;
 
   @Column({
-    type: 'enum',
-    enum: DocumentCategory,
+    type: 'varchar',
+    length: 50,
     default: DocumentCategory.OTHER,
   })
   category: DocumentCategory;

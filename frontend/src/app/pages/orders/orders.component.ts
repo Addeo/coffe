@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, OnDestroy, ViewChild, HostListener } from '@angular/core';
+import { Component, inject, signal, computed, effect, OnInit, OnDestroy, ViewChild, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -245,7 +245,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
       engineerId: number;
       engineerName: string;
       totalHours: number;
+      regularHours: number;
+      overtimeHours: number;
+      planHours: number;
       completedOrders: number;
+      averageHoursPerOrder?: number;
     }>;
     totalHours: number;
     totalOrders: number;
@@ -254,10 +258,46 @@ export class OrdersComponent implements OnInit, OnDestroy {
   managerStatsMonth = signal(new Date().getMonth() + 1);
   managerStatsYear = signal(new Date().getFullYear());
 
+  // Track previous role to detect role changes
+  private previousRole: UserRole | null = null;
+
+  constructor() {
+    // Track role changes and reload data when role changes
+    effect(() => {
+      const currentRole = this.authService.activeRole();
+      
+      // Skip on initial load (when previousRole is null)
+      if (this.previousRole !== null && this.previousRole !== currentRole) {
+        console.log('🔄 Role changed detected:', {
+          previous: this.previousRole,
+          current: currentRole,
+        });
+        
+        // Reload all data when role changes
+        this.loadOrders();
+        this.loadOrderStats();
+        
+        // Load manager statistics if user switched to manager role
+        if (this.isManager()) {
+          this.loadManagerEngineerHoursStats();
+        } else {
+          // Clear manager stats if switched away from manager role
+          this.managerEngineerHoursStats.set(null);
+        }
+      }
+      
+      // Update previous role
+      this.previousRole = currentRole ?? null;
+    });
+  }
+
   ngOnInit() {
     console.log('🚀 OrdersComponent initialized');
     console.log('🚀 Initial selected status:', this.selectedStatus());
     console.log('🚀 Status options:', this.statusOptions);
+
+    // Set initial role
+    this.previousRole = this.authService.activeRole() ?? null;
 
     this.loadOrders();
     this.loadOrderStats();
@@ -463,8 +503,18 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
     this.statisticsService.getMonthlyStatistics(year, month).subscribe({
       next: (data) => {
-        // Use overtimeStatistics which has totalHours, and merge with agentEarnings for completedOrders
-        const engineerMap = new Map<number, { engineerId: number; engineerName: string; totalHours: number; completedOrders: number }>();
+        // Use overtimeStatistics which has totalHours, regularHours, overtimeHours
+        // and merge with agentEarnings for completedOrders
+        const engineerMap = new Map<number, {
+          engineerId: number;
+          engineerName: string;
+          totalHours: number;
+          regularHours: number;
+          overtimeHours: number;
+          planHours: number;
+          completedOrders: number;
+          averageHoursPerOrder?: number;
+        }>();
         
         // First, add hours from overtimeStatistics
         data.overtimeStatistics.forEach(stat => {
@@ -472,21 +522,31 @@ export class OrdersComponent implements OnInit, OnDestroy {
             engineerId: stat.agentId,
             engineerName: stat.agentName,
             totalHours: stat.totalHours || 0,
+            regularHours: stat.regularHours || 0,
+            overtimeHours: stat.overtimeHours || 0,
+            planHours: 120, // Default plan hours, can be improved by fetching from engineer profile
             completedOrders: 0,
           });
         });
         
-        // Then, add completedOrders from agentEarnings
+        // Then, add completedOrders from agentEarnings and calculate averageHoursPerOrder
         data.agentEarnings.forEach(agent => {
           const existing = engineerMap.get(agent.agentId);
           if (existing) {
             existing.completedOrders = agent.completedOrders || 0;
+            existing.averageHoursPerOrder = existing.completedOrders > 0
+              ? existing.totalHours / existing.completedOrders
+              : 0;
           } else {
             engineerMap.set(agent.agentId, {
               engineerId: agent.agentId,
               engineerName: agent.agentName,
               totalHours: 0,
+              regularHours: 0,
+              overtimeHours: 0,
+              planHours: 120, // Default plan hours
               completedOrders: agent.completedOrders || 0,
+              averageHoursPerOrder: 0,
             });
           }
         });
@@ -511,6 +571,26 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Load orders for manager's selected month
+   */
+  private loadManagerOrdersForMonth(): void {
+    if (!this.isManager()) {
+      return;
+    }
+
+    const year = this.managerStatsYear();
+    const month = this.managerStatsMonth();
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 1);
+
+    // Load orders for the selected month
+    this.loadOrders({
+      actualStartDateFrom: startOfMonth,
+      actualStartDateTo: endOfMonth,
+    } as OrdersQueryDto);
+  }
+
+  /**
    * Navigate to previous month for manager statistics
    */
   previousManagerMonth(): void {
@@ -527,6 +607,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.managerStatsMonth.set(month);
     this.managerStatsYear.set(year);
     this.loadManagerEngineerHoursStats();
+    this.loadManagerOrdersForMonth();
   }
 
   /**
@@ -546,6 +627,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
     this.managerStatsMonth.set(month);
     this.managerStatsYear.set(year);
     this.loadManagerEngineerHoursStats();
+    this.loadManagerOrdersForMonth();
   }
 
   getEarningsProgress(summary: EngineerOrderSummaryDto): number {

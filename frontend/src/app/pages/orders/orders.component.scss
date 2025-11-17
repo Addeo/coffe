@@ -1944,6 +1944,17 @@
           color: rgba(0, 0, 0, 0.87);
         }
 
+        .engineers-progress-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+
+          app-hours-progress-item {
+            display: block;
+            width: 100%;
+          }
+        }
+
         .engineers-table {
           display: flex;
           flex-direction: column;
@@ -2081,6 +2092,17 @@
     font-size: 14px;
     font-weight: 600;
     color: rgba(0, 0, 0, 0.87);
+  }
+
+  .engineers-progress-list-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    app-hours-progress-item {
+      display: block;
+      width: 100%;
+    }
   }
 
   .engineer-card-mobile {

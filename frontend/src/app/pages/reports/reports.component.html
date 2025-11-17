@@ -1,7 +1,7 @@
 <div class="reports-container">
   <div class="header">
-    <h1 i18n="@@reports.title">Reports & Analytics</h1>
-    <p i18n="@@reports.subtitle">Generate and view various system reports</p>
+    <h1 i18n="@@reports.title">Отчеты и аналитика</h1>
+    <p i18n="@@reports.subtitle">Генерация и просмотр различных системных отчетов</p>
   </div>
 
   <div class="reports-grid">
@@ -21,11 +21,11 @@
       <mat-card-actions>
         <button mat-button (click)="generateReport(report.type)" [disabled]="isLoading()">
           <mat-icon>play_arrow</mat-icon>
-          <span i18n="@@reports.generate">Generate</span>
+          <span i18n="@@reports.generate">Сгенерировать</span>
         </button>
         <button mat-button (click)="exportReport(report.type)">
           <mat-icon>download</mat-icon>
-          <span i18n="@@reports.export">Export</span>
+          <span i18n="@@reports.export">Экспорт</span>
         </button>
       </mat-card-actions>
     </mat-card>
@@ -34,6 +34,6 @@
   <!-- Loading overlay -->
   <div class="loading-overlay" *ngIf="isLoading()">
     <mat-spinner diameter="50"></mat-spinner>
-    <p i18n="@@reports.generating">Generating report...</p>
+    <p i18n="@@reports.generating">Генерация отчета...</p>
   </div>
 </div>

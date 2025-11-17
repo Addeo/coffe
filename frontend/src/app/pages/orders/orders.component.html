@@ -95,26 +95,24 @@
           </div>
         </div>
 
-        <!-- Engineers List -->
+        <!-- Engineers List with hours-progress-item -->
         <div class="engineers-list" *ngIf="stats.engineers.length > 0">
           <h3>Детализация по инженерам</h3>
-          <div class="engineers-table">
-            <div class="engineer-row" *ngFor="let engineer of stats.engineers">
-              <div class="engineer-name">
-                <mat-icon>person</mat-icon>
-                <span>{{ engineer.engineerName }}</span>
-              </div>
-              <div class="engineer-stats">
-                <div class="stat-badge">
-                  <mat-icon>schedule</mat-icon>
-                  <span>{{ engineer.totalHours | number:'1.0-1' }} ч</span>
-                </div>
-                <div class="stat-badge">
-                  <mat-icon>assignment</mat-icon>
-                  <span>{{ engineer.completedOrders }} заказов</span>
-                </div>
-              </div>
-            </div>
+          <div class="engineers-progress-list">
+            <app-hours-progress-item
+              *ngFor="let engineer of stats.engineers"
+              [workedHours]="engineer.totalHours"
+              [planHours]="engineer.planHours"
+              [label]="engineer.engineerName + ':'"
+              icon="person"
+              iconColor="primary"
+              [statistics]="{
+                regularHours: engineer.regularHours,
+                overtimeHours: engineer.overtimeHours,
+                completedOrders: engineer.completedOrders,
+                averageHoursPerOrder: engineer.averageHoursPerOrder
+              }"
+            ></app-hours-progress-item>
           </div>
         </div>
 
@@ -615,21 +613,21 @@
       <ng-container *ngIf="!isLoadingManagerStats() && managerEngineerHoursStats() as stats">
       <div class="engineers-list-mobile" *ngIf="stats.engineers.length > 0">
         <h3 style="margin: 16px 0 12px 0; font-size: 14px; font-weight: 600;">Детализация по инженерам</h3>
-        <div class="engineer-card-mobile" *ngFor="let engineer of stats.engineers">
-          <div class="engineer-name-mobile">
-            <mat-icon>person</mat-icon>
-            <span>{{ engineer.engineerName }}</span>
-          </div>
-          <div class="engineer-stats-mobile">
-            <div class="stat-badge-mobile">
-              <mat-icon>schedule</mat-icon>
-              <span>{{ engineer.totalHours | number:'1.0-1' }} ч</span>
-            </div>
-            <div class="stat-badge-mobile">
-              <mat-icon>assignment</mat-icon>
-              <span>{{ engineer.completedOrders }} заказов</span>
-            </div>
-          </div>
+        <div class="engineers-progress-list-mobile">
+          <app-hours-progress-item
+            *ngFor="let engineer of stats.engineers"
+            [workedHours]="engineer.totalHours"
+            [planHours]="engineer.planHours"
+            [label]="engineer.engineerName + ':'"
+            icon="person"
+            iconColor="primary"
+            [statistics]="{
+              regularHours: engineer.regularHours,
+              overtimeHours: engineer.overtimeHours,
+              completedOrders: engineer.completedOrders,
+              averageHoursPerOrder: engineer.averageHoursPerOrder
+            }"
+          ></app-hours-progress-item>
         </div>
       </div>
       </ng-container>
