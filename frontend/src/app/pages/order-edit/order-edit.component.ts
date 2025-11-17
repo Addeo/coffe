@@ -22,7 +22,7 @@ import { AuthService } from '../../services/auth.service';
 import { WorkSessionListComponent } from '../../components/work-session-list/work-session-list.component';
 import { WorkSessionFormComponent } from '../../components/work-session-form/work-session-form.component';
 import { CreateOrderDto, UpdateOrderDto, OrderDto } from '@shared/dtos/order.dto';
-import { TerritoryType, OrderStatus, OrderSource } from '@shared/interfaces/order.interface';
+import { TerritoryType, OrderStatus, OrderSource, OrderStatusLabel } from '@shared/interfaces/order.interface';
 import { UserRole } from '@shared/interfaces/user.interface';
 import { OrganizationDto } from '@shared/dtos/organization.dto';
 import { FileResponseDto, FileType } from '@shared/dtos/file.dto';
@@ -92,6 +92,34 @@ export class OrderEditComponent implements OnInit {
 
   // Tabs
   selectedTabIndex = 0;
+
+  // Get status display name
+  getStatusDisplay(status: OrderStatus): string {
+    switch (status) {
+      case OrderStatus.WAITING:
+        return OrderStatusLabel.WAITING;
+      case OrderStatus.ASSIGNED:
+        return OrderStatusLabel.ASSIGNED;
+      case OrderStatus.PROCESSING:
+        return OrderStatusLabel.PROCESSING;
+      case OrderStatus.WORKING:
+        return OrderStatusLabel.WORKING;
+      case OrderStatus.REVIEW:
+        return OrderStatusLabel.REVIEW;
+      case OrderStatus.COMPLETED:
+        return OrderStatusLabel.COMPLETED;
+      case OrderStatus.PAID_TO_ENGINEER:
+        return OrderStatusLabel.PAID_TO_ENGINEER;
+      default:
+        return status;
+    }
+  }
+
+  // Method for displayWith in mat-select
+  getStatusDisplayForSelect = (status: OrderStatus | null): string => {
+    if (!status) return '';
+    return this.getStatusDisplay(status);
+  };
 
   // Доступные статусы заказа в зависимости от роли пользователя
   get availableStatuses(): OrderStatus[] {

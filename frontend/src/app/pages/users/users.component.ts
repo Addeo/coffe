@@ -134,7 +134,7 @@ export class UsersComponent implements OnInit {
   }
 
   getStatusDisplay(isActive: boolean): string {
-    return isActive ? 'Active' : 'Inactive';
+    return isActive ? 'Активен' : 'Неактивен';
   }
 
   getStatusColor(isActive: boolean): string {

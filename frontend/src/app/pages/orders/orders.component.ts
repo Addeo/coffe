@@ -20,6 +20,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import * as XLSX from 'xlsx';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
@@ -28,6 +29,7 @@ import { AuthService } from '../../services/auth.service';
 import { ModalService } from '../../services/modal.service';
 import { ToastService } from '../../services/toast.service';
 import { StatisticsService } from '../../services/statistics.service';
+import { UsersService } from '../../services/users.service';
 import { OrderDto, OrdersQueryDto, OrderStatsDto, EngineerOrderSummaryDto } from '../../../../shared/dtos/order.dto';
 import { OrderStatus, OrderStatusLabel } from '../../../../shared/interfaces/order.interface';
 import { UserRole } from '../../../../shared/interfaces/user.interface';
@@ -81,6 +83,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   private toastService = inject(ToastService);
   private router = inject(Router);
   private statisticsService = inject(StatisticsService);
+  private usersService = inject(UsersService);
 
   OrderStatus = OrderStatus;
 
@@ -501,8 +504,20 @@ export class OrdersComponent implements OnInit, OnDestroy {
     const year = this.managerStatsYear();
     const month = this.managerStatsMonth();
 
-    this.statisticsService.getMonthlyStatistics(year, month).subscribe({
-      next: (data) => {
+    // Load statistics and engineer profiles in parallel
+    forkJoin({
+      statistics: this.statisticsService.getMonthlyStatistics(year, month),
+      engineers: this.usersService.getUsers({ role: UserRole.USER }), // Get all engineers
+    }).subscribe({
+      next: ({ statistics: data, engineers: usersResponse }) => {
+        // Create a map of engineerId -> planHours from user profiles
+        const engineerPlanHoursMap = new Map<number, number>();
+        usersResponse.data.forEach(user => {
+          if (user.engineer && user.engineer.planHoursMonth) {
+            engineerPlanHoursMap.set(user.id, user.engineer.planHoursMonth);
+          }
+        });
+
         // Use overtimeStatistics which has totalHours, regularHours, overtimeHours
         // and merge with agentEarnings for completedOrders
         const engineerMap = new Map<number, {
@@ -518,13 +533,14 @@ export class OrdersComponent implements OnInit, OnDestroy {
         
         // First, add hours from overtimeStatistics
         data.overtimeStatistics.forEach(stat => {
+          const planHours = engineerPlanHoursMap.get(stat.agentId) || 160; // Default 160 if not found
           engineerMap.set(stat.agentId, {
             engineerId: stat.agentId,
             engineerName: stat.agentName,
             totalHours: stat.totalHours || 0,
             regularHours: stat.regularHours || 0,
             overtimeHours: stat.overtimeHours || 0,
-            planHours: 120, // Default plan hours, can be improved by fetching from engineer profile
+            planHours,
             completedOrders: 0,
           });
         });
@@ -538,13 +554,14 @@ export class OrdersComponent implements OnInit, OnDestroy {
               ? existing.totalHours / existing.completedOrders
               : 0;
           } else {
+            const planHours = engineerPlanHoursMap.get(agent.agentId) || 160; // Default 160 if not found
             engineerMap.set(agent.agentId, {
               engineerId: agent.agentId,
               engineerName: agent.agentName,
               totalHours: 0,
               regularHours: 0,
               overtimeHours: 0,
-              planHours: 120, // Default plan hours
+              planHours,
               completedOrders: agent.completedOrders || 0,
               averageHoursPerOrder: 0,
             });
@@ -1037,6 +1054,13 @@ export class OrdersComponent implements OnInit, OnDestroy {
         return status;
     }
   }
+
+  // Method for displayWith in mat-select filter (deprecated, not used)
+  getStatusDisplayForFilter = (status: OrderStatus | string | null): string => {
+    if (!status || status === '') return 'Все статусы';
+    if (typeof status === 'string' && status !== '') return 'Все статусы';
+    return this.getStatusDisplay(status as OrderStatus);
+  };
 
   getStatusIcon(status: OrderStatus): string {
     switch (status) {

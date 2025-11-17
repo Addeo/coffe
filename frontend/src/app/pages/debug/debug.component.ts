@@ -323,7 +323,7 @@ interface LogEntry {
         margin-left: 120px;
         margin-bottom: 8px;
         padding: 8px;
-        background-color: #fafafa;
+        background-color: #ffffff;
         border-left: 3px solid #2196f3;
       }
 

@@ -44,7 +44,9 @@ export interface OrderStatusDialogData {
 
         <mat-form-field appearance="outline" class="status-select">
           <mat-label>Новый статус</mat-label>
-          <mat-select [(ngModel)]="selectedStatus">
+          <mat-select 
+            [(ngModel)]="selectedStatus"
+          >
             <mat-option
               *ngFor="let status of data.availableStatuses"
               [value]="status"
@@ -117,6 +119,12 @@ export class OrderStatusDialogComponent {
   data = inject<OrderStatusDialogData>(MAT_DIALOG_DATA);
 
   selectedStatus = signal<OrderStatus | null>(null);
+
+  // Method for displayWith in mat-select
+  getStatusDisplayForSelect = (status: OrderStatus | null): string => {
+    if (!status) return '';
+    return this.getStatusDisplay(status);
+  };
 
   getStatusDisplay(status: OrderStatus): string {
     switch (status) {

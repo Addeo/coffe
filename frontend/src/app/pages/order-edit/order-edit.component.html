@@ -96,21 +96,7 @@
               <mat-label>Статус заказа</mat-label>
               <mat-select formControlName="status">
                 <mat-option *ngFor="let status of availableStatuses" [value]="status">
-                  {{
-                    status === OrderStatus.WAITING
-                      ? 'Ожидает'
-                      : status === OrderStatus.ASSIGNED
-                        ? 'Назначен (ожидает принятия)'
-                        : status === OrderStatus.PROCESSING
-                          ? 'В обработке'
-                          : status === OrderStatus.WORKING
-                            ? 'В работе'
-                            : status === OrderStatus.REVIEW
-                              ? 'На проверке'
-                              : status === OrderStatus.COMPLETED
-                                ? 'Завершен'
-                                : status
-                  }}
+                  {{ getStatusDisplay(status) }}
                 </mat-option>
               </mat-select>
             </mat-form-field>

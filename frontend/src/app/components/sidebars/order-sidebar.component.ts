@@ -435,7 +435,7 @@ export interface OrderSidebarData {
         border-radius: 8px;
         padding: 24px;
         text-align: center;
-        background-color: #fafafa;
+        background-color: #ffffff;
         transition: all 0.3s ease;
         margin-bottom: 16px;
         cursor: pointer;

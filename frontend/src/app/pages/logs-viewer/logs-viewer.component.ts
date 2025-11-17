@@ -262,7 +262,7 @@ interface LogEntry {
         padding: 12px;
         border-radius: 4px;
         margin-bottom: 8px;
-        background-color: #fafafa;
+        background-color: #ffffff;
         transition: background-color 0.2s;
       }
 

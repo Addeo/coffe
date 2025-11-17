@@ -11,7 +11,7 @@ export class AppController {
         : 'http://localhost:3001';
 
     return {
-      version: '1.0.11', // Server version - should match latest APK version
+      version: '1.1.0', // Server version - should match latest APK version
       downloadUrl: `${baseUrl}/app-debug.apk`,
       required: false,
       releaseNotes: 'Улучшение UI статистики заказов и мобильной версии. Обновлены стили и компоненты.',
