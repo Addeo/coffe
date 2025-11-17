@@ -1,376 +1,245 @@
-<mat-toolbar color="primary" class="navbar">
-  <div class="navbar-content">
-    <!-- Home Button (Leftmost) -->
-    <button
-      mat-icon-button
-      class="home-button"
-      *ngIf="isAuthenticated()"
-      routerLink="/orders"
-      aria-label="Главная страница"
-    >
-      <mat-icon>local_cafe</mat-icon>
-    </button>
+<!-- Desktop Navigation -->
+@if (!isMobileView()) {
+  <ng-container *ngTemplateOutlet="desktopTemplate"></ng-container>
+}
 
-    <!-- Mobile Menu Button -->
-    <button
-      mat-icon-button
-      class="mobile-menu-button"
-      *ngIf="isAuthenticated()"
-      (click)="toggleMobileMenu()"
-      aria-label="Toggle mobile menu"
-    >
-      <mat-icon>{{ isMobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
-    </button>
+<!-- Mobile Navigation -->
+@if (isMobileView()) {
+  <ng-container *ngTemplateOutlet="mobileTemplate"></ng-container>
+}
 
-    <!-- Logo/Brand -->
-    <div class="brand">
-      <mat-icon class="brand-icon">local_cafe</mat-icon>
-      <span class="brand-text" i18n="@@navigation.brand">Coffee Admin</span>
-    </div>
+<!-- Desktop Template -->
+<ng-template #desktopTemplate>
+  <ng-container *ngTemplateOutlet="desktopContent"></ng-container>
+</ng-template>
 
-    <!-- Navigation Links -->
-    <nav class="nav-links" *ngIf="isAuthenticated()">
-      <a
-        mat-button
-        *ngFor="let item of navigationItems()"
-        [routerLink]="item.route === '#' ? null : item.route"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: false }"
-        (click)="item.route === '#' ? onRoleSwitchClick(item) : null"
-        [class.role-switch-button]="item.route === '#'"
-      >
-        <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
-        <span [attr.i18n]="item.i18nKey">{{ item.label }}</span>
-      </a>
-    </nav>
+<!-- Mobile Template -->
+<ng-template #mobileTemplate>
+  <ng-container *ngTemplateOutlet="mobileContent"></ng-container>
+</ng-template>
 
-    <!-- Mobile Navigation Menu -->
-    <div class="mobile-menu-overlay" *ngIf="isMobileMenuOpen()" (click)="closeMobileMenu()">
-      <div class="mobile-menu-content" (click)="$event.stopPropagation()">
-        <div class="mobile-menu-header">
-          <div class="brand">
-            <mat-icon class="brand-icon">local_cafe</mat-icon>
-            <span class="brand-text mobile-brand-text" i18n="@@navigation.brand">Coffee Admin</span>
-          </div>
-          <button mat-icon-button (click)="closeMobileMenu()" aria-label="Close menu">
-            <mat-icon>close</mat-icon>
+<!-- Desktop Content -->
+<ng-template #desktopContent>
+  <mat-toolbar color="primary" class="navbar">
+    <div class="navbar-content">
+      <!-- Logo/Brand -->
+      <div class="brand">
+        <mat-icon class="brand-icon">local_cafe</mat-icon>
+        <span class="brand-text" i18n="@@navigation.brand">Coffee Admin</span>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="nav-links" *ngIf="isAuthenticated()">
+        <a
+          mat-button
+          *ngFor="let item of navigationItems()"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: false }"
+        >
+          <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+          <span [attr.i18n]="item.i18nKey">{{ item.label }}</span>
+          <span class="nav-badge" *ngIf="item.badge && item.badge > 0">{{ item.badge }}</span>
+        </a>
+      </nav>
+
+      <!-- Right Section -->
+      <div class="right-section" *ngIf="isAuthenticated()">
+        <!-- Notifications -->
+        <div class="notifications-menu">
+          <button
+            mat-icon-button
+            (click)="onViewAllNotifications()"
+            class="notifications-button"
+            matTooltip="Перейти к уведомлениям"
+            aria-label="Уведомления"
+          >
+            <mat-icon class="notifications-icon">notifications</mat-icon>
+            <span
+              class="notifications-badge"
+              *ngIf="unreadCount() > 0"
+              matBadge="{{ unreadCount() }}"
+              matBadgeColor="warn"
+            ></span>
           </button>
         </div>
 
-        <div class="mobile-nav-links">
-          <!-- Navigation Items -->
-          <a
-            *ngFor="let item of navigationItems()"
-            mat-button
-            [routerLink]="item.route === '#' ? null : item.route"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: false }"
-            (click)="item.route === '#' ? onRoleSwitchClick(item) : closeMobileMenu()"
-            [class.role-switch-button]="item.route === '#'"
-            class="mobile-nav-link"
-          >
-            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
-            <span [attr.i18n]="item.i18nKey">{{ item.label }}</span>
-            <span class="nav-badge" *ngIf="item.badge && item.badge > 0">{{ item.badge }}</span>
-          </a>
+        <!-- User Menu -->
+        <div class="user-menu">
+          <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
+            <mat-icon class="user-icon">account_circle</mat-icon>
+            <span class="user-name">{{ userName() }}</span>
+            <mat-icon class="dropdown-icon">expand_more</mat-icon>
+          </button>
 
-          <!-- Documents Dropdown -->
-          <div class="documents-mobile-section">
-            <button
-              mat-button
-              class="documents-toggle-button"
-              (click)="toggleDocumentsMobile()"
-            >
-              <mat-icon class="nav-icon">description</mat-icon>
-              <span>Документы</span>
-              <mat-icon class="expand-icon">{{ isDocumentsMobileExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </button>
-            <div class="documents-content" [class.expanded]="isDocumentsMobileExpanded()">
-              <a
-                mat-button
-                routerLink="/documents/rules"
-                routerLinkActive="active"
-                (click)="closeMobileMenu()"
-                class="document-link"
-              >
-                <mat-icon class="nav-icon">rule</mat-icon>
-                <span>Общие правила</span>
-              </a>
-              <a
-                mat-button
-                routerLink="/documents/terms"
-                routerLinkActive="active"
-                (click)="closeMobileMenu()"
-                class="document-link"
-              >
-                <mat-icon class="nav-icon">gavel</mat-icon>
-                <span>Условия</span>
-              </a>
-              <a
-                mat-button
-                routerLink="/documents/regulations"
-                routerLinkActive="active"
-                (click)="closeMobileMenu()"
-                class="document-link"
-              >
-                <mat-icon class="nav-icon">description</mat-icon>
-                <span>Регламент</span>
-              </a>
+          <mat-menu #userMenu="matMenu" class="user-dropdown">
+            <!-- Current Role Display -->
+            <div class="user-menu-role-display">
+              <div class="user-menu-role-label">Текущая роль</div>
+              <div class="user-menu-role-value">
+                <mat-icon>{{ getRoleIcon(activeRole()!) }}</mat-icon>
+                <span>{{ getRoleDisplayName(activeRole()!) }}</span>
+              </div>
             </div>
-          </div>
 
-          <!-- Statistics with collapse/expand for mobile (only on orders page) -->
-          @if (isOrdersPage() && orderStats()) {
-            <div class="statistics-mobile-section">
-              <button
-                mat-button
-                class="statistics-toggle-button"
-                (click)="toggleStatisticsMobile()"
-              >
-                <mat-icon class="nav-icon">analytics</mat-icon>
-                <span>Обзор заявок</span>
-                <mat-icon class="expand-icon">{{ isStatisticsMobileExpanded() ? 'expand_less' : 'expand_more' }}</mat-icon>
-              </button>
-              <div class="statistics-content" [class.expanded]="isStatisticsMobileExpanded()">
-                <div class="orders-overview">
-                  <div class="overview-item">
-                    <mat-icon class="overview-icon">assignment</mat-icon>
-                    <div class="overview-content">
-                      <div class="overview-value">{{ orderStats()!.total }}</div>
-                      <div class="overview-label">Всего заявок</div>
-                    </div>
-                  </div>
-                  <div class="overview-item">
-                    <mat-icon class="overview-icon">schedule</mat-icon>
-                    <div class="overview-content">
-                      <div class="overview-value">{{ orderStats()!.waiting }}</div>
-                      <div class="overview-label">Ожидают</div>
-                    </div>
-                  </div>
-                  <div class="overview-item">
-                    <mat-icon class="overview-icon">build</mat-icon>
-                    <div class="overview-content">
-                      <div class="overview-value">{{ orderStats()!.working }}</div>
-                      <div class="overview-label">В работе</div>
-                    </div>
-                  </div>
-                  <div class="overview-item">
-                    <mat-icon class="overview-icon">check_circle</mat-icon>
-                    <div class="overview-content">
-                      <div class="overview-value">{{ orderStats()!.completed }}</div>
-                      <div class="overview-label">Завершено</div>
-                    </div>
-                  </div>
+            <mat-divider></mat-divider>
+
+            <!-- Role Switcher -->
+            @if (canSwitchRoles()) {
+              <div class="role-switcher-section">
+                <div class="section-title">
+                  <span>Переключить роль</span>
+                </div>
+                <div class="role-switcher-grid">
+                  @for (role of availableRoles(); track role) {
+                    <button
+                      class="role-switcher-button"
+                      (click)="!isRoleActive(role) && !isLoadingRoleSwitch() && switchRole(role)"
+                      [disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
+                      [class.active-role]="isRoleActive(role)"
+                    >
+                      <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
+                      <span>{{ getRoleDisplayName(role) }}</span>
+                      @if (isRoleActive(role)) {
+                        <mat-icon class="check-icon">check</mat-icon>
+                      }
+                      @if (isLoadingRoleSwitch() && !isRoleActive(role)) {
+                        <mat-icon class="loading-icon">sync</mat-icon>
+                      }
+                    </button>
+                  }
                 </div>
               </div>
-            </div>
-          }
-        </div>
+              <mat-divider></mat-divider>
+            }
 
-        <div class="mobile-menu-footer" style="display: none">
-          <div class="user-info-mobile">
-            <div class="user-details">
-              <div class="user-full-name">{{ userName() }}</div>
-              <div class="user-role-mobile">
-                <mat-icon class="role-icon">{{ getRoleIcon(activeRole()!) }}</mat-icon>
-                <span>{{ getRoleDisplayName(activeRole()!) }}</span>
-                @if (canSwitchRoles()) {
-                  <mat-icon class="switch-icon">sync_alt</mat-icon>
-                }
-              </div>
-              <div class="user-email">{{ currentUser()?.email }}</div>
-            </div>
-          </div>
+            <!-- Profile and Logout buttons -->
+            <div class="user-menu-actions">
+              <button class="user-menu-button" (click)="navigateToProfile()">
+                <mat-icon>person</mat-icon>
+                <span>Мой профиль</span>
+              </button>
 
-          <!-- Role Switcher for Mobile -->
-          @if (canSwitchRoles()) {
-            <div class="role-switcher-mobile">
-              <div class="section-title">
-                <span i18n="@@navigation.switchRole">Переключить роль</span>
-              </div>
-              @for (role of availableRoles(); track role) {
-                <button
-                  mat-button
-                  class="role-option"
-                  (click)="switchRole(role)"
-                  [disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
-                  [class.active-role]="isRoleActive(role)"
-                >
-                  <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
-                  <span>{{ getRoleDisplayName(role) }}</span>
-                  @if (isRoleActive(role)) {
-                    <mat-icon class="check-icon">check</mat-icon>
-                  }
-                </button>
-              }
+              <button class="user-menu-button user-menu-button-logout" (click)="logout()">
+                <mat-icon>logout</mat-icon>
+                <span>Выход</span>
+              </button>
             </div>
-          }
-
-          <div class="mobile-actions">
-            <button mat-stroked-button (click)="toggleTheme()" class="theme-toggle-mobile">
-              <mat-icon>{{ themeIcon() }}</mat-icon>
-              <span>{{ currentTheme() === 'dark' ? 'Светлая тема' : 'Темная тема' }}</span>
-            </button>
-            <button mat-stroked-button (click)="logout()" class="logout-mobile">
-              <mat-icon>logout</mat-icon>
-              <span i18n="@@navigation.logout">Выход</span>
-            </button>
-          </div>
+          </mat-menu>
         </div>
       </div>
     </div>
+  </mat-toolbar>
+</ng-template>
 
-    <!-- Right Section -->
-    <!-- <div class="right-section" *ngIf="isAuthenticated()"> -->
-      <!-- Theme Toggle -->
-      <!-- <button
+<!-- Mobile Content -->
+<ng-template #mobileContent>
+  <mat-toolbar color="primary" class="navbar mobile-navbar" *ngIf="isAuthenticated()">
+    <div class="mobile-navbar-content">
+      <!-- Home Button (Coffee Icon) -->
+      <button
         mat-icon-button
-        (click)="toggleTheme()"
-        [matTooltip]="getThemeTooltip()"
-        class="theme-toggle-button"
-        aria-label="Toggle theme"
+        class="mobile-nav-button"
+        [routerLink]="homeRoute()"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        aria-label="Главная страница"
       >
-        <mat-icon>{{ themeIcon() }}</mat-icon>
-      </button> -->
+        <mat-icon>local_cafe</mat-icon>
+      </button>
 
-      <!-- Notifications -->
-      <div class="notifications-menu">
-        <button
-          mat-icon-button
-          (click)="onViewAllNotifications()"
-          class="notifications-button"
-          matTooltip="Перейти к уведомлениям"
-          aria-label="Уведомления"
-        >
-          <mat-icon class="notifications-icon">notifications</mat-icon>
-          <span
-            class="notifications-badge"
-            *ngIf="unreadCount() > 0"
-            matBadge="{{ unreadCount() }}"
-            matBadgeColor="warn"
-          ></span>
-        </button>
+      <!-- Documents Button -->
+      <button
+        mat-icon-button
+        class="mobile-nav-button"
+        [routerLink]="['/documents']"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        aria-label="Документы"
+      >
+        <mat-icon>description</mat-icon>
+      </button>
 
-        <mat-menu #notificationsMenu="matMenu" class="notifications-dropdown" style="display: none">
-          <div class="notifications-header" mat-menu-item disabled>
-            <h4 i18n="@@navigation.notifications">Уведомления</h4>
-            <button
-              mat-button
-              *ngIf="unreadCount() > 0"
-              (click)="onMarkAllAsRead()"
-              i18n="@@notifications.markAllAsRead"
-            >
-              Отметить все как прочитанные
-            </button>
+      <!-- Notifications Button -->
+      <button
+        mat-icon-button
+        class="mobile-nav-button"
+        (click)="onViewAllNotifications()"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: false }"
+        aria-label="Уведомления"
+      >
+        <mat-icon>notifications</mat-icon>
+        <span
+          class="mobile-badge"
+          *ngIf="unreadCount() > 0"
+        >{{ unreadCount() }}</span>
+      </button>
+
+      <!-- User Menu Button -->
+      <button
+        mat-icon-button
+        class="mobile-nav-button"
+        [matMenuTriggerFor]="mobileUserMenu"
+        aria-label="Профиль пользователя"
+      >
+        <mat-icon>account_circle</mat-icon>
+      </button>
+
+      <!-- Mobile User Menu -->
+      <mat-menu #mobileUserMenu="matMenu" class="mobile-user-menu">
+        <!-- User Info -->
+        <div class="mobile-user-info">
+          <div class="user-full-name">{{ userName() }}</div>
+          <div class="user-role-mobile">
+            <mat-icon class="role-icon">{{ getRoleIcon(activeRole()!) }}</mat-icon>
+            <span>{{ getRoleDisplayName(activeRole()!) }}</span>
           </div>
+          <div class="user-email">{{ currentUser()?.email }}</div>
+        </div>
 
-          <mat-divider></mat-divider>
+        <mat-divider></mat-divider>
 
-          <div *ngIf="recentNotifications().length === 0" mat-menu-item disabled>
-            <mat-icon>notifications_none</mat-icon>
-            <span i18n="@@notifications.noNewNotifications">Нет новых уведомлений</span>
-          </div>
-
-          <div
-            *ngFor="let notification of recentNotifications()"
-            mat-menu-item
-            [class.unread]="notification.status === 'unread'"
-            (click)="onNotificationClick(notification)"
-          >
-            <div class="notification-item">
-              <mat-icon [style.color]="getPriorityColor(notification.priority)">
-                {{ getPriorityIcon(notification.priority) }}
-              </mat-icon>
-              <div class="notification-content">
-                <div class="notification-title">{{ notification.title }}</div>
-                <div class="notification-message">{{ notification.message }}</div>
-                <div class="notification-time">{{ notification.createdAt | date: 'short' }}</div>
-              </div>
-              <mat-icon *ngIf="notification.status === 'unread'" class="unread-indicator"
-                >fiber_manual_record</mat-icon
+        <!-- Role Switcher -->
+        @if (canSwitchRoles()) {
+          <div class="role-switcher-mobile-menu">
+            <div class="section-title">Переключить роль</div>
+            @for (role of availableRoles(); track role) {
+              <button
+                mat-menu-item
+                (click)="switchRole(role)"
+                [disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
+                [class.active-role]="isRoleActive(role)"
               >
-            </div>
+                <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
+                <span>{{ getRoleDisplayName(role) }}</span>
+                @if (isRoleActive(role)) {
+                  <mat-icon class="check-icon">check</mat-icon>
+                }
+              </button>
+            }
           </div>
+          <mat-divider></mat-divider>
+        }
 
-          <mat-divider *ngIf="recentNotifications().length > 0"></mat-divider>
-
-          <button mat-menu-item (click)="onViewAllNotifications()">
-            <mat-icon>visibility</mat-icon>
-            <span i18n="@@notifications.viewAllNotifications">Показать все уведомления</span>
-          </button>
-        </mat-menu>
-      
-      
-      </div>
-
-      <!-- User Menu -->
-      <div class="user-menu">
-        <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
-          <mat-icon class="user-icon desktop-only">account_circle</mat-icon>
-          <span class="user-name desktop-only">{{ userName() }}</span>
-          <mat-icon class="dropdown-icon desktop-only">expand_more</mat-icon>
-          <mat-icon class="mobile-profile-icon mobile-only">account_circle</mat-icon>
+        <!-- Actions -->
+        <button mat-menu-item (click)="navigateToProfile()">
+          <mat-icon>person</mat-icon>
+          <span>Мой профиль</span>
         </button>
 
-        <mat-menu #userMenu="matMenu" class="user-dropdown">
-          <!-- Current Role Display -->
-          <div class="user-menu-role-display">
-            <div class="user-menu-role-label">Текущая роль</div>
-            <div class="user-menu-role-value">
-              <mat-icon>{{ getRoleIcon(activeRole()!) }}</mat-icon>
-              <span>{{ getRoleDisplayName(activeRole()!) }}</span>
-            </div>
-          </div>
+        <button mat-menu-item (click)="toggleTheme()">
+          <mat-icon>{{ themeIcon() }}</mat-icon>
+          <span>{{ currentTheme() === 'dark' ? 'Светлая тема' : 'Темная тема' }}</span>
+        </button>
 
-          <mat-divider></mat-divider>
+        <mat-divider></mat-divider>
 
-          <!-- Role Switcher for Desktop -->
-          @if (canSwitchRoles()) {
-            <div class="role-switcher-section">
-              <div class="section-title">
-                <span>Переключить роль</span>
-              </div>
-              <div class="role-switcher-grid">
-                @for (role of availableRoles(); track role) {
-          <button
-                    class="role-switcher-button"
-                    (click)="!isRoleActive(role) && !isLoadingRoleSwitch() && switchRole(role)"
-                    [disabled]="isRoleActive(role) || isLoadingRoleSwitch()"
-                    [class.active-role]="isRoleActive(role)"
-                  >
-                    <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
-                    <span>{{ getRoleDisplayName(role) }}</span>
-                    @if (isRoleActive(role)) {
-                      <mat-icon class="check-icon">check</mat-icon>
-                    }
-                    @if (isLoadingRoleSwitch() && !isRoleActive(role)) {
-                      <mat-icon class="loading-icon">sync</mat-icon>
-                    }
-                  </button>
-                }
-              </div>
-            </div>
-            <mat-divider></mat-divider>
-          }
-
-          <!-- Profile and Logout buttons -->
-          <div class="user-menu-actions">
-            <button class="user-menu-button" (click)="navigateToProfile()">
-            <mat-icon>person</mat-icon>
-            <span>Мой профиль</span>
-          </button>
-
-            <button class="user-menu-button user-menu-button-logout" (click)="logout()">
-            <mat-icon>logout</mat-icon>
-            <span>Выход</span>
-          </button>
-          </div>
-        </mat-menu>
-      </div>
-    
-    
-    
-    
-    <!-- </div> -->
-  </div>
-</mat-toolbar>
+        <button mat-menu-item (click)="logout()" class="logout-menu-item">
+          <mat-icon>logout</mat-icon>
+          <span>Выход</span>
+        </button>
+      </mat-menu>
+    </div>
+  </mat-toolbar>
+</ng-template>

@@ -17,6 +17,7 @@ import { EngineerOrganizationRate } from './entities/engineer-organization-rate.
 import { WorkSession } from './entities/work-session.entity';
 import { SalaryPayment } from './entities/salary-payment.entity';
 import { EngineerBalance } from './entities/engineer-balance.entity';
+import { Document } from './entities/document.entity';
 import { AuthModule } from './modules/аутентификация/auth.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -36,6 +37,7 @@ import { WorkSessionsModule } from './modules/work-sessions/work-sessions.module
 import { PaymentsModule } from './modules/payments/payments.module';
 import { LogsModule } from './modules/logs/logs.module';
 import { AppUpdateModule } from './modules/app/app.module';
+import { DocumentsModule } from './modules/documents/documents.module';
 import { TestController } from './test.controller';
 
 @Module({
@@ -72,6 +74,7 @@ import { TestController } from './test.controller';
               WorkSession,
               SalaryPayment,
               EngineerBalance,
+              Document,
             ],
             synchronize: false, // NEVER use in production!
             ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
@@ -102,6 +105,7 @@ import { TestController } from './test.controller';
               WorkSession,
               SalaryPayment,
               EngineerBalance,
+              Document,
             ],
             synchronize: true,
             logging: false,
@@ -129,6 +133,7 @@ import { TestController } from './test.controller';
     PaymentsModule,
     LogsModule,
     AppUpdateModule,
+    DocumentsModule,
   ],
   controllers: [TestController],
   providers: [],

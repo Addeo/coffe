@@ -10,6 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { Subscription, filter } from 'rxjs';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 import { MaterialModule } from '../../shared/material/material.module';
 
@@ -42,7 +43,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
   private notificationsService = inject(NotificationsService);
   private ordersService = inject(OrdersService);
   private cdr = inject(ChangeDetectorRef);
+  private breakpointObserver = inject(BreakpointObserver);
   private subscriptions: Subscription[] = [];
+
+  // Check if mobile view (using signal for template)
+  isMobileView = signal(false);
 
   // Export UserRole for template use
   readonly UserRole = UserRole;
@@ -50,14 +55,20 @@ export class NavigationComponent implements OnInit, OnDestroy {
   // Reactive signals
   unreadCount = signal(0);
   recentNotifications = signal<NotificationDto[]>([]);
-  isMobileMenuOpen = signal(false);
-  isStatisticsMobileExpanded = signal(false);
-  isDocumentsMobileExpanded = signal(false);
   orderStats = signal<OrderStatsDto | null>(null);
 
   // Check if current route is orders page
   isOrdersPage = computed(() => {
     return this.router.url.startsWith('/orders');
+  });
+
+  // Get home route based on user role
+  homeRoute = computed(() => {
+    const role = this.userRole();
+    if (role === UserRole.ADMIN) {
+      return '/statistics';
+    }
+    return '/orders';
   });
 
   // Theme signals
@@ -92,60 +103,19 @@ export class NavigationComponent implements OnInit, OnDestroy {
   // Computed navigation items based on user role
   navigationItems = computed<NavigationItem[]>(() => {
     const role = this.userRole();
-    console.log('🧭 Navigation - Current role:', role);
-    console.log('🧭 Navigation - UserRole.MANAGER:', UserRole.MANAGER);
-    console.log('🧭 Navigation - Role comparison:', role === UserRole.MANAGER);
-
     const items: NavigationItem[] = [];
 
-    // Админские разделы (только для админа)
+    // Админские разделы
     if (role === UserRole.ADMIN) {
       items.push(
         { label: 'Пользователи', route: '/users', icon: 'people', i18nKey: '@@navigation.users' },
-        {
-          label: 'Организации',
-          route: '/organizations',
-          icon: 'business',
-          i18nKey: '@@navigation.organizations',
-        },
-        // {
-        //   label: 'Отчеты',
-        //   route: '/reports',
-        //   icon: 'assessment',
-        //   i18nKey: '@@navigation.reports',
-        // },
-        {
-          label: 'Настройки',
-          route: '/settings',
-          icon: 'settings',
-          i18nKey: '@@navigation.settings',
-        }
-        // {
-        //   label: 'Резервные копии',
-        //   route: '/backups',
-        //   icon: 'backup',
-        //   i18nKey: '@@navigation.backups',
-        // },
-        // {
-        //   label: 'Логи',
-        //   route: '/logs',
-        //   icon: 'description',
-        //   i18nKey: '@@navigation.logs',
-        // }
+        { label: 'Организации', route: '/organizations', icon: 'business', i18nKey: '@@navigation.organizations' },
+        { label: 'Настройки', route: '/settings', icon: 'settings', i18nKey: '@@navigation.settings' },
+        { label: 'Статистика', route: '/statistics', icon: 'analytics', i18nKey: '@@navigation.statistics' }
       );
     }
 
-    // Статистика только для админа
-    if (role === UserRole.ADMIN) {
-      items.push({
-        label: 'Статистика',
-        route: '/statistics',
-        icon: 'analytics',
-        i18nKey: '@@navigation.statistics',
-      });
-    }
-
-    // Заявки только для менеджеров и инженеров (НЕ для админа)
+    // Заявки для менеджеров и инженеров
     if (role === UserRole.MANAGER || role === UserRole.USER) {
       items.push({
         label: 'Заявки',
@@ -167,23 +137,20 @@ export class NavigationComponent implements OnInit, OnDestroy {
       }
     );
 
-    // Кнопки переключения ролей убраны из навигации - они теперь в отдельном разделе мобильного меню
-    // Не добавляем их в navigationItems, чтобы избежать дублирования
-
-    console.log(
-      '🧭 Navigation - Final items:',
-      items.map(item => item.label)
-    );
     return items;
   });
 
   ngOnInit(): void {
-    console.log('🧭 NavigationComponent initialized');
-    console.log('🧭 Initial auth state:', this.isAuthenticated());
-    console.log('🧭 Current user:', this.currentUser());
+    // Subscribe to breakpoint changes
+    this.subscriptions.push(
+      this.breakpointObserver
+        .observe([Breakpoints.Handset, Breakpoints.Tablet])
+        .subscribe(result => {
+          this.isMobileView.set(result.matches);
+        })
+    );
 
     // Load notifications only once if authenticated
-    // Signals will handle reactive updates automatically
     if (this.isAuthenticated()) {
       this.loadNotifications();
       this.loadUnreadCount();
@@ -206,9 +173,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
     if (this.isOrdersPage() && this.isAuthenticated()) {
       this.loadOrderStats();
     }
-
-    // Force change detection once to ensure initial UI updates
-    this.cdr.detectChanges();
   }
 
   ngOnDestroy(): void {
@@ -261,25 +225,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    console.log('🚪 Logout button clicked');
-    // alert('Logout clicked!'); // Temporary alert for testing
     this.authService.logout();
-  }
-
-  toggleMobileMenu(): void {
-    this.isMobileMenuOpen.set(!this.isMobileMenuOpen());
-  }
-
-  closeMobileMenu(): void {
-    this.isMobileMenuOpen.set(false);
-  }
-
-  toggleStatisticsMobile(): void {
-    this.isStatisticsMobileExpanded.set(!this.isStatisticsMobileExpanded());
-  }
-
-  toggleDocumentsMobile(): void {
-    this.isDocumentsMobileExpanded.set(!this.isDocumentsMobileExpanded());
   }
 
   onNotificationClick(notification: NotificationDto): void {
@@ -428,17 +374,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   }
 
   navigateToProfile(): void {
-    console.log('👤 Profile button clicked');
-    // alert('Profile clicked!'); // Temporary alert for testing
     this.router.navigate(['/profile']);
   }
 
-  onRoleSwitchClick(item: NavigationItem): void {
-    // Находим роль по label (теперь label = название роли)
-    const role = this.availableRoles().find(r => this.getRoleDisplayName(r) === item.label);
-
-    if (role) {
-      this.switchRole(role);
-    }
-  }
 }

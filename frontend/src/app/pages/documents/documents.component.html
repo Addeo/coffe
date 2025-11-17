@@ -1,0 +1,255 @@
+<div class="documents-page">
+  <div class="page-header">
+    <h1>
+      <mat-icon>description</mat-icon>
+      Документы
+    </h1>
+    <p class="page-description">Управление документами компании. Загружайте и просматривайте документы по категориям.</p>
+  </div>
+
+  <!-- Category Filter -->
+  <mat-card class="filter-card">
+    <mat-card-content>
+      <div class="category-filters">
+        <button
+          mat-button
+          [class.active]="selectedCategory() === null"
+          (click)="selectCategory(null)"
+        >
+          <mat-icon>apps</mat-icon>
+          Все документы
+        </button>
+        @for (category of categories; track category.id) {
+          <button
+            mat-button
+            [class.active]="selectedCategory() === category.id"
+            (click)="selectCategory(category.id)"
+          >
+            <mat-icon>{{ category.icon }}</mat-icon>
+            {{ category.title }}
+          </button>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Upload Progress -->
+  @if (uploadProgress().length > 0) {
+    <mat-card class="upload-progress-card">
+      <mat-card-header>
+        <mat-card-title>Загрузка файлов</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="progress-list">
+          @for (progress of uploadProgress(); track progress.file.name) {
+            <div class="progress-item">
+              <div class="progress-header">
+                <span class="file-name">{{ progress.file.name }}</span>
+                <span class="file-size">({{ formatFileSize(progress.file.size) }})</span>
+                <span class="progress-status" [class]="progress.status">
+                  @if (progress.status === 'uploading') {
+                    {{ progress.progress }}%
+                  } @else if (progress.status === 'completed') {
+                    Готово
+                  } @else if (progress.status === 'error') {
+                    Ошибка
+                  } @else {
+                    Ожидание
+                  }
+                </span>
+              </div>
+              <mat-progress-bar
+                mode="determinate"
+                [value]="progress.progress"
+                [class]="progress.status"
+              ></mat-progress-bar>
+              @if (progress.error) {
+                <div class="error-message">{{ progress.error }}</div>
+              }
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Documents by Category -->
+  @if (selectedCategory() === null) {
+    <!-- Show all categories -->
+    @for (category of categories; track category.id) {
+      <mat-card class="category-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>{{ category.icon }}</mat-icon>
+            {{ category.title }}
+          </mat-card-title>
+          <mat-card-subtitle>{{ category.description }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @if (isAdmin()) {
+            <div class="category-actions">
+              <input
+                type="file"
+                #fileInput
+                [id]="'file-input-' + category.id"
+                (change)="onFileSelected($event, category.id)"
+                multiple
+                accept=".pdf,.doc,.docx,.txt,.xlsx,.xls,image/*"
+                style="display: none"
+              />
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="fileInput.click()"
+              >
+                <mat-icon>upload</mat-icon>
+                Загрузить документы
+              </button>
+            </div>
+          }
+
+          @if (isLoading()) {
+            <div class="loading-container">
+              <mat-spinner diameter="40"></mat-spinner>
+            </div>
+          } @else {
+            @if (documentsByCategory()[category.id] && documentsByCategory()[category.id].length > 0) {
+              <div class="documents-grid">
+                @for (document of documentsByCategory()[category.id]; track document.id) {
+                  <div class="document-item">
+                    <div class="document-icon">
+                      <mat-icon>{{ getFileIcon(document.file?.mimetype || '') }}</mat-icon>
+                    </div>
+                    <div class="document-info">
+                      <div class="document-name" [matTooltip]="document.title">
+                        {{ document.title }}
+                      </div>
+                      <div class="document-meta">
+                        @if (document.file) {
+                          <span>{{ formatFileSize(document.file.size) }}</span>
+                          <span>•</span>
+                        }
+                        <span>{{ document.createdAt | date: 'dd.MM.yyyy' }}</span>
+                      </div>
+                    </div>
+                    <div class="document-actions">
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Просмотр'"
+                        (click)="viewDocument(document)"
+                      >
+                        <mat-icon>visibility</mat-icon>
+                      </button>
+                      <button
+                        mat-icon-button
+                        [matTooltip]="'Скачать'"
+                        (click)="downloadDocument(document)"
+                      >
+                        <mat-icon>download</mat-icon>
+                      </button>
+                      @if (isAdmin()) {
+                        <button
+                          mat-icon-button
+                          [matTooltip]="'Удалить'"
+                          color="warn"
+                          (click)="deleteDocument(document)"
+                        >
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-state">
+                <mat-icon>folder_open</mat-icon>
+                <p>Нет документов в этой категории</p>
+                @if (isAdmin()) {
+                  <input
+                    type="file"
+                    #emptyFileInput
+                    [id]="'empty-file-input-' + category.id"
+                    (change)="onFileSelected($event, category.id)"
+                    multiple
+                    accept=".pdf,.doc,.docx,.txt,.xlsx,.xls,image/*"
+                    style="display: none"
+                  />
+                  <button mat-stroked-button (click)="emptyFileInput.click()">
+                    <mat-icon>upload</mat-icon>
+                    Загрузить первый документ
+                  </button>
+                }
+              </div>
+            }
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+  } @else {
+    <!-- Show filtered documents -->
+    <mat-card class="filtered-documents-card">
+      <mat-card-content>
+        @if (isLoading()) {
+          <div class="loading-container">
+            <mat-spinner diameter="40"></mat-spinner>
+          </div>
+        } @else if (filteredDocuments().length > 0) {
+          <div class="documents-grid">
+            @for (document of filteredDocuments(); track document.id) {
+              <div class="document-item">
+                <div class="document-icon">
+                  <mat-icon>{{ getFileIcon(document.file?.mimetype || '') }}</mat-icon>
+                </div>
+                <div class="document-info">
+                  <div class="document-name" [matTooltip]="document.title">
+                    {{ document.title }}
+                  </div>
+                  <div class="document-meta">
+                    @if (document.file) {
+                      <span>{{ formatFileSize(document.file.size) }}</span>
+                      <span>•</span>
+                    }
+                    <span>{{ document.createdAt | date: 'dd.MM.yyyy' }}</span>
+                  </div>
+                </div>
+                <div class="document-actions">
+                  <button
+                    mat-icon-button
+                    [matTooltip]="'Просмотр'"
+                    (click)="viewDocument(document)"
+                  >
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    [matTooltip]="'Скачать'"
+                    (click)="downloadDocument(document)"
+                  >
+                    <mat-icon>download</mat-icon>
+                  </button>
+                  @if (isAdmin()) {
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Удалить'"
+                      color="warn"
+                      (click)="deleteDocument(document)"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <mat-icon>search_off</mat-icon>
+            <p>Документы не найдены</p>
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>
+

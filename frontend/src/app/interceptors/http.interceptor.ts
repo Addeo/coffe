@@ -4,6 +4,7 @@ import { throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { ToastService } from '../services/toast.service';
 import { AuthService } from '../services/auth.service';
+import { ErrorHandlerUtil } from '../utils/error-handler.util';
 
 export const httpRequestInterceptor: HttpInterceptorFn = (req, next) => {
   const toastService = inject(ToastService);
@@ -33,65 +34,53 @@ export const httpRequestInterceptor: HttpInterceptorFn = (req, next) => {
       }
     }),
     catchError((error: HttpErrorResponse) => {
+      const errorDetails = ErrorHandlerUtil.getErrorDetails(error);
       console.error('💥 HTTP Error:', {
         url: req.url,
         method: req.method,
-        status: error.status,
-        statusText: error.statusText,
-        message: error.message,
-        error: error.error,
+        ...errorDetails,
       });
 
-      // Показываем toast уведомление для HTTP ошибок
-      let errorMessage = 'Произошла ошибка при выполнении запроса';
+      // Получаем пользовательское сообщение об ошибке
+      const errorMessage = ErrorHandlerUtil.getErrorMessage(error);
+
+      // Для запроса логина не показываем toast здесь - компонент сам покажет ошибку
+      const isLoginRequest = req.url.includes('/auth/login');
 
       if (error.status === 401) {
-        // Проверяем, что это не сам запрос на логин
-        const isLoginRequest = req.url.includes('/auth/login');
-
         if (isLoginRequest) {
-          // Для запроса логина показываем ошибку о неверных учетных данных
-          errorMessage = 'Неверные учетные данные';
-          toastService.error(errorMessage);
+          // Для логина не показываем toast здесь - компонент сам обработает
+          // Просто обновляем ошибку с пользовательским сообщением
         } else {
           // Для всех других запросов с 401 - выходим из системы только если пользователь был авторизован
-          // Это предотвращает logout на публичных страницах (например, /company)
           if (authService.isAuthenticated()) {
-            errorMessage = 'Сессия истекла. Пожалуйста, войдите снова.';
             toastService.warning(errorMessage);
 
             // Выходим из системы и перенаправляем на страницу логина
             setTimeout(() => {
               authService.logout();
-            }, 500); // Небольшая задержка чтобы toast успел показаться
+            }, 500);
           }
-          // Если пользователь не авторизован, просто игнорируем 401 ошибку
-          // Это нормально для публичных страниц, которые могут делать опциональные запросы
         }
-      } else if (error.status === 403) {
-        errorMessage = 'Недостаточно прав доступа';
-        toastService.warning(errorMessage);
-      } else if (error.status === 404) {
-        errorMessage = 'Ресурс не найден';
-        toastService.warning(errorMessage);
-      } else if (error.status === 500) {
-        errorMessage = 'Внутренняя ошибка сервера';
-        toastService.error(errorMessage);
-      } else if (error.status >= 400 && error.status < 500) {
-        // Клиентские ошибки
-        if (error.error?.message) {
-          errorMessage = error.error.message;
-        }
-        toastService.error(errorMessage);
       } else if (error.status >= 500) {
-        // Серверные ошибки
-        toastService.error('Ошибка сервера. Попробуйте позже.');
-      } else {
-        // Сетевые ошибки
-        toastService.error('Проблема с подключением к серверу');
+        // Серверные ошибки - показываем toast
+        toastService.error(errorMessage);
+      } else if (error.status === 403) {
+        // Ошибки доступа - показываем предупреждение
+        toastService.warning(errorMessage);
       }
+      // Для остальных ошибок (400, 404, 422 и т.д.) компоненты сами покажут сообщения
+      // Это позволяет компонентам показывать более контекстные сообщения
 
-      return throwError(() => error);
+      // Создаем новую ошибку с пользовательским сообщением для компонентов
+      const userFriendlyError = new HttpErrorResponse({
+        error: { message: errorMessage },
+        status: error.status,
+        statusText: error.statusText,
+        url: error.url ?? undefined,
+      });
+
+      return throwError(() => userFriendlyError);
     })
   );
 };

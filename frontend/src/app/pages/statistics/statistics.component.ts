@@ -889,7 +889,7 @@ export class StatisticsComponent implements OnInit {
   get userStatsChartData(): ChartData<'doughnut'> {
     const stats = this.userStats();
     return {
-      labels: ['Администраторы', 'Менеджеры', 'Инженеры'],
+      labels: ['Руководители', 'Диспетчеры', 'Инженеры'],
       datasets: [
         {
           data: [stats.usersByRole.admin, stats.usersByRole.manager, stats.usersByRole.user],

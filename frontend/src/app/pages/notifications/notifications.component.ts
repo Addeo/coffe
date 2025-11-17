@@ -261,7 +261,7 @@ export class NotificationsComponent implements OnInit, AfterViewInit {
       order_updated: 'Заказ обновлен',
       system: 'Система',
       user: 'Пользователь',
-      admin: 'Администратор',
+      admin: 'Руководитель',
       reminder: 'Напоминание',
       alert: 'Предупреждение',
       info: 'Информация',

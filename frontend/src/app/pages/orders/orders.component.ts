@@ -27,6 +27,7 @@ import { OrdersService } from '../../services/orders.service';
 import { AuthService } from '../../services/auth.service';
 import { ModalService } from '../../services/modal.service';
 import { ToastService } from '../../services/toast.service';
+import { StatisticsService } from '../../services/statistics.service';
 import { OrderDto, OrdersQueryDto, OrderStatsDto, EngineerOrderSummaryDto } from '../../../../shared/dtos/order.dto';
 import { OrderStatus, OrderStatusLabel } from '../../../../shared/interfaces/order.interface';
 import { UserRole } from '../../../../shared/interfaces/user.interface';
@@ -77,6 +78,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   private modalService = inject(ModalService);
   private toastService = inject(ToastService);
   private router = inject(Router);
+  private statisticsService = inject(StatisticsService);
 
   OrderStatus = OrderStatus;
 
@@ -125,6 +127,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   readonly canDeleteOrders = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
   readonly canExportOrders = computed(() => this.authService.hasRole(UserRole.ADMIN));
   readonly isEngineerView = computed(() => this.authService.hasRole(UserRole.USER));
+  readonly isManager = computed(() => this.authService.hasRole(UserRole.MANAGER));
   readonly engineerSummary = computed<EngineerOrderSummaryDto | null>(() => {
     if (!this.isEngineerView()) {
       return null;
@@ -234,6 +237,21 @@ export class OrdersComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
+  // Manager statistics for engineer hours
+  managerEngineerHoursStats = signal<{
+    engineers: Array<{
+      engineerId: number;
+      engineerName: string;
+      totalHours: number;
+      completedOrders: number;
+    }>;
+    totalHours: number;
+    totalOrders: number;
+  } | null>(null);
+  isLoadingManagerStats = signal(false);
+  managerStatsMonth = signal(new Date().getMonth() + 1);
+  managerStatsYear = signal(new Date().getFullYear());
+
   ngOnInit() {
     console.log('🚀 OrdersComponent initialized');
     console.log('🚀 Initial selected status:', this.selectedStatus());
@@ -241,6 +259,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
     this.loadOrders();
     this.loadOrderStats();
+    
+    // Load manager statistics if user is manager
+    if (this.isManager()) {
+      this.loadManagerEngineerHoursStats();
+    }
   }
 
   ngAfterViewInit() {
@@ -422,6 +445,105 @@ export class OrdersComponent implements OnInit, OnDestroy {
           this.isLoading.set(false);
         },
       });
+  }
+
+  /**
+   * Load engineer hours statistics for manager
+   */
+  private loadManagerEngineerHoursStats(): void {
+    if (!this.isManager()) {
+      return;
+    }
+
+    this.isLoadingManagerStats.set(true);
+    const year = this.managerStatsYear();
+    const month = this.managerStatsMonth();
+
+    this.statisticsService.getMonthlyStatistics(year, month).subscribe({
+      next: (data) => {
+        // Use overtimeStatistics which has totalHours, and merge with agentEarnings for completedOrders
+        const engineerMap = new Map<number, { engineerId: number; engineerName: string; totalHours: number; completedOrders: number }>();
+        
+        // First, add hours from overtimeStatistics
+        data.overtimeStatistics.forEach(stat => {
+          engineerMap.set(stat.agentId, {
+            engineerId: stat.agentId,
+            engineerName: stat.agentName,
+            totalHours: stat.totalHours || 0,
+            completedOrders: 0,
+          });
+        });
+        
+        // Then, add completedOrders from agentEarnings
+        data.agentEarnings.forEach(agent => {
+          const existing = engineerMap.get(agent.agentId);
+          if (existing) {
+            existing.completedOrders = agent.completedOrders || 0;
+          } else {
+            engineerMap.set(agent.agentId, {
+              engineerId: agent.agentId,
+              engineerName: agent.agentName,
+              totalHours: 0,
+              completedOrders: agent.completedOrders || 0,
+            });
+          }
+        });
+
+        const engineers = Array.from(engineerMap.values());
+        const totalHours = engineers.reduce((sum, eng) => sum + eng.totalHours, 0);
+        const totalOrders = engineers.reduce((sum, eng) => sum + eng.completedOrders, 0);
+
+        this.managerEngineerHoursStats.set({
+          engineers,
+          totalHours,
+          totalOrders,
+        });
+        this.isLoadingManagerStats.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading manager engineer hours stats:', error);
+        this.toastService.error('Ошибка загрузки статистики по часам инженеров');
+        this.isLoadingManagerStats.set(false);
+      },
+    });
+  }
+
+  /**
+   * Navigate to previous month for manager statistics
+   */
+  previousManagerMonth(): void {
+    let month = this.managerStatsMonth();
+    let year = this.managerStatsYear();
+
+    if (month === 1) {
+      month = 12;
+      year--;
+    } else {
+      month--;
+    }
+
+    this.managerStatsMonth.set(month);
+    this.managerStatsYear.set(year);
+    this.loadManagerEngineerHoursStats();
+  }
+
+  /**
+   * Navigate to next month for manager statistics
+   */
+  nextManagerMonth(): void {
+    let month = this.managerStatsMonth();
+    let year = this.managerStatsYear();
+
+    if (month === 12) {
+      month = 1;
+      year++;
+    } else {
+      month++;
+    }
+
+    this.managerStatsMonth.set(month);
+    this.managerStatsYear.set(year);
+    this.loadManagerEngineerHoursStats();
   }
 
   getEarningsProgress(summary: EngineerOrderSummaryDto): number {

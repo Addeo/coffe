@@ -164,6 +164,13 @@ export const routes: Routes = [
     data: { title: 'Access Denied' },
   },
   {
+    path: 'documents',
+    loadComponent: () =>
+      import('./pages/documents/documents.component').then(m => m.DocumentsComponent),
+    canActivate: [AuthGuard],
+    data: { title: 'Документы' },
+  },
+  {
     path: 'documents/rules',
     loadComponent: () =>
       import('./pages/documents/rules/rules.component').then(m => m.RulesComponent),

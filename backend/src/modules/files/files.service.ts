@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Response } from 'express';
 import { File } from '../../entities/file.entity';
 import { User } from '../../entities/user.entity';
 import { Order } from '../../entities/order.entity';
@@ -184,9 +185,9 @@ export class FilesService {
   async remove(id: string): Promise<void> {
     const file = await this.findOne(id);
 
-    // Delete file from disk
+    // Delete file from disk (if path exists)
     try {
-      if (fs.existsSync(file.path)) {
+      if (file.path && fs.existsSync(file.path)) {
         fs.unlinkSync(file.path);
       }
     } catch (error) {
@@ -195,6 +196,36 @@ export class FilesService {
 
     // Delete from database
     await this.filesRepository.remove(file);
+  }
+
+  async viewFile(id: string, res: Response): Promise<void> {
+    const file = await this.findOne(id);
+    const fileData = await this.getFileData(id);
+
+    // Set cache headers for better performance
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.setHeader('Content-Type', file.mimetype);
+    res.setHeader('Content-Length', fileData.length.toString());
+
+    // Add filename for inline viewing
+    if (file.mimetype.startsWith('image/')) {
+      res.setHeader('Content-Disposition', `inline; filename="${file.originalName}"`);
+    }
+
+    res.send(fileData);
+  }
+
+  async downloadFile(id: string, res: Response): Promise<void> {
+    const file = await this.findOne(id);
+    const fileData = await this.getFileData(id);
+
+    // Set appropriate headers for download
+    res.setHeader('Content-Type', file.mimetype);
+    res.setHeader('Content-Disposition', `attachment; filename="${file.originalName}"`);
+    res.setHeader('Content-Length', fileData.length.toString());
+    res.setHeader('Cache-Control', 'private, no-cache');
+
+    res.send(fileData);
   }
 
   async getUserFiles(userId: number, query: FileQueryDto = {}): Promise<FilesResponse> {

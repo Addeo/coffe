@@ -107,8 +107,8 @@ import {
                   <mat-label>Роль</mat-label>
                   <mat-select formControlName="role" (selectionChange)="onRoleChange()">
                     <mat-option [value]="UserRole.USER">Пользователь</mat-option>
-                    <mat-option [value]="UserRole.MANAGER">Менеджер</mat-option>
-                    <mat-option [value]="UserRole.ADMIN">Администратор</mat-option>
+                    <mat-option [value]="UserRole.MANAGER">Диспетчер</mat-option>
+                    <mat-option [value]="UserRole.ADMIN">Руководитель</mat-option>
                   </mat-select>
                   <mat-error *ngIf="userForm.get('role')?.hasError('required')">
                     Роль обязательна

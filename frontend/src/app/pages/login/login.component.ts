@@ -19,6 +19,8 @@ import { ErrorStateMatcher } from '@angular/material/core';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { environment } from '../../../environments/environment';
+import { ErrorHandlerUtil } from '../../utils/error-handler.util';
+import { HttpErrorResponse } from '@angular/common/http';
 
 interface AuthLoginDto {
   email: string;
@@ -126,15 +128,11 @@ export class LoginComponent implements OnInit {
 
           this.toastService.success('Вход выполнен успешно!');
         },
-        error: error => {
+        error: (error: HttpErrorResponse | unknown) => {
           console.error('💥 Login component received error:', error);
           this.isLoading.set(false);
 
-          let errorMessage = 'Login failed. Please try again.';
-          if (error.error?.message) {
-            errorMessage = error.error.message;
-          }
-
+          const errorMessage = ErrorHandlerUtil.getErrorMessage(error);
           console.log('📢 Showing error message:', errorMessage);
           this.toastService.error(errorMessage);
         },

@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError, map } from 'rxjs';
 import {
@@ -16,6 +16,7 @@ import {
   hasRoleAccess,
 } from '@shared/interfaces/user.interface';
 import { environment } from '../../environments/environment';
+import { ErrorHandlerUtil } from '../utils/error-handler.util';
 
 @Injectable({
   providedIn: 'root',
@@ -103,16 +104,18 @@ export class AuthService {
         this.setSession(response);
         this.isLoadingSignal.set(false);
       }),
-      catchError(error => {
-        console.error('❌ Login failed:', {
+      catchError((error: HttpErrorResponse) => {
+        const errorDetails = ErrorHandlerUtil.getErrorDetails(error);
+        console.error('❌ Login failed:', errorDetails);
+        this.isLoadingSignal.set(false);
+        // Create a new error with user-friendly message
+        const userFriendlyError = new HttpErrorResponse({
+          error: { message: ErrorHandlerUtil.getErrorMessage(error) },
           status: error.status,
           statusText: error.statusText,
-          url: error.url,
-          message: error.error?.message || error.message,
-          fullError: error,
+          url: error.url ?? undefined,
         });
-        this.isLoadingSignal.set(false);
-        return throwError(() => error);
+        return throwError(() => userFriendlyError);
       })
     );
   }
@@ -335,10 +338,17 @@ export class AuthService {
 
           this.isLoadingSignal.set(false);
         }),
-        catchError(error => {
-          console.error('❌ Failed to switch role:', error);
+        catchError((error: HttpErrorResponse) => {
+          const errorDetails = ErrorHandlerUtil.getErrorDetails(error);
+          console.error('❌ Failed to switch role:', errorDetails);
           this.isLoadingSignal.set(false);
-          return throwError(() => error);
+          const userFriendlyError = new HttpErrorResponse({
+            error: { message: ErrorHandlerUtil.getErrorMessage(error) },
+            status: error.status,
+            statusText: error.statusText,
+            url: error.url ?? undefined,
+          });
+          return throwError(() => userFriendlyError);
         })
       );
   }
@@ -368,10 +378,17 @@ export class AuthService {
 
         this.isLoadingSignal.set(false);
       }),
-      catchError(error => {
-        console.error('❌ Failed to reset role:', error);
+      catchError((error: HttpErrorResponse) => {
+        const errorDetails = ErrorHandlerUtil.getErrorDetails(error);
+        console.error('❌ Failed to reset role:', errorDetails);
         this.isLoadingSignal.set(false);
-        return throwError(() => error);
+        const userFriendlyError = new HttpErrorResponse({
+          error: { message: ErrorHandlerUtil.getErrorMessage(error) },
+          status: error.status,
+          statusText: error.statusText,
+          url: error.url ?? undefined,
+        });
+        return throwError(() => userFriendlyError);
       })
     );
   }
@@ -382,9 +399,9 @@ export class AuthService {
   getRoleDisplayName(role: UserRole): string {
     switch (role) {
       case UserRole.ADMIN:
-        return 'Администратор';
+        return 'Руководитель';
       case UserRole.MANAGER:
-        return 'Менеджер';
+        return 'Диспетчер';
       case UserRole.USER:
         return 'Инженер';
       default:

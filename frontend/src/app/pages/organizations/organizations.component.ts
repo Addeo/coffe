@@ -24,6 +24,8 @@ import { OrganizationDto, OrganizationsQueryDto } from '@shared/dtos/organizatio
 import { UserRole } from '@shared/interfaces/user.interface';
 import { DeleteConfirmationDialogComponent } from '../../components/modals/delete-confirmation-dialog.component';
 import { OrganizationDialogComponent } from '../../components/modals/organization-dialog.component';
+import { ErrorHandlerUtil } from '../../utils/error-handler.util';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-organizations',
@@ -108,9 +110,10 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
         this.dataSource.data = organizations;
         this.isLoading.set(false);
       },
-      error: error => {
-        console.error('Failed to load organizations:', error);
-        this.toastService.showError('Не удалось загрузить организации');
+      error: (error: HttpErrorResponse | unknown) => {
+        const errorMessage = ErrorHandlerUtil.getErrorMessage(error);
+        console.error('Failed to load organizations:', ErrorHandlerUtil.getErrorDetails(error));
+        this.toastService.showError(errorMessage);
         // Ensure we set an empty array on error to prevent undefined
         this.organizations.set([]);
         this.dataSource.data = [];
@@ -215,9 +218,10 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
           `Организация ${updatedOrg.name} ${updatedOrg.isActive ? 'активирована' : 'деактивирована'}`
         );
       },
-      error: error => {
-        console.error('Не удалось изменить статус организации:', error);
-        this.toastService.showError('Не удалось обновить статус организации');
+      error: (error: HttpErrorResponse | unknown) => {
+        const errorMessage = ErrorHandlerUtil.getErrorMessage(error);
+        console.error('Не удалось изменить статус организации:', ErrorHandlerUtil.getErrorDetails(error));
+        this.toastService.showError(errorMessage);
       },
     });
   }
@@ -234,7 +238,7 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
     if (!this.canDelete()) {
       console.log('🗑️ User does not have delete permissions');
       this.toastService.showError(
-        'У вас нет прав на удаление организаций. Требуется роль администратора.'
+        'У вас нет прав на удаление организаций. Требуется роль руководителя.'
       );
       return;
     }
@@ -286,30 +290,15 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
             // Перезагрузим список для синхронизации с сервером
             this.loadOrganizations();
           },
-          error: error => {
+          error: (error: HttpErrorResponse | unknown) => {
+            const errorDetails = ErrorHandlerUtil.getErrorDetails(error);
             console.error('❌ Не удалось удалить организацию:', {
-              error: error,
+              ...errorDetails,
               organizationId: organization.id,
-              status: error.status,
-              statusText: error.statusText,
-              url: error.url,
               userRole: this.currentUser()?.role,
             });
 
-            let errorMessage = 'Не удалось удалить организацию';
-            if (error.status === 401) {
-              errorMessage = 'Не авторизован. Пожалуйста, войдите в систему снова.';
-              // Можно добавить редирект на страницу логина
-              // this.router.navigate(['/login']);
-            } else if (error.status === 403) {
-              errorMessage =
-                'Недостаточно прав для удаления организации. Требуется роль администратора.';
-            } else if (error.status === 404) {
-              errorMessage = 'Организация не найдена.';
-            } else if (error.error?.message) {
-              errorMessage = error.error.message;
-            }
-
+            const errorMessage = ErrorHandlerUtil.getErrorMessage(error);
             this.toastService.showError(errorMessage);
           },
         });

@@ -26,6 +26,106 @@
     (monthChanged)="onEngineerMonthChanged($event)"
   ></app-engineer-summary-card>
 
+  <!-- Manager Engineer Hours Statistics -->
+  <mat-card class="manager-hours-stats-card" *ngIf="isManager() && !isMobileView()">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>schedule</mat-icon>
+        Статистика по отработанным часам инженеров
+      </mat-card-title>
+      <div class="header-actions-right">
+        <button
+          mat-icon-button
+          (click)="previousManagerMonth()"
+          matTooltip="Предыдущий месяц"
+          class="month-nav-btn"
+          aria-label="Предыдущий месяц"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span class="current-month">
+          <div class="month-header">
+            <div class="month-label">
+              <mat-icon>calendar_today</mat-icon>
+              <span>{{ getMonthName(managerStatsMonth()) }} {{ managerStatsYear() }}</span>
+            </div>
+          </div>
+        </span>
+        <button
+          mat-icon-button
+          (click)="nextManagerMonth()"
+          matTooltip="Следующий месяц"
+          class="month-nav-btn"
+          aria-label="Следующий месяц"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-progress-bar
+        mode="indeterminate"
+        *ngIf="isLoadingManagerStats()"
+      ></mat-progress-bar>
+
+      <div class="manager-stats-content" *ngIf="!isLoadingManagerStats() && managerEngineerHoursStats() as stats">
+        <!-- Summary -->
+        <div class="manager-stats-summary">
+          <div class="summary-item">
+            <mat-icon color="primary">schedule</mat-icon>
+            <div>
+              <div class="item-label">Всего часов</div>
+              <div class="item-value">{{ stats.totalHours | number:'1.0-1' }}</div>
+            </div>
+          </div>
+          <div class="summary-item">
+            <mat-icon color="accent">assignment</mat-icon>
+            <div>
+              <div class="item-label">Всего заказов</div>
+              <div class="item-value">{{ stats.totalOrders }}</div>
+            </div>
+          </div>
+          <div class="summary-item">
+            <mat-icon color="warn">people</mat-icon>
+            <div>
+              <div class="item-label">Инженеров</div>
+              <div class="item-value">{{ stats.engineers.length }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Engineers List -->
+        <div class="engineers-list" *ngIf="stats.engineers.length > 0">
+          <h3>Детализация по инженерам</h3>
+          <div class="engineers-table">
+            <div class="engineer-row" *ngFor="let engineer of stats.engineers">
+              <div class="engineer-name">
+                <mat-icon>person</mat-icon>
+                <span>{{ engineer.engineerName }}</span>
+              </div>
+              <div class="engineer-stats">
+                <div class="stat-badge">
+                  <mat-icon>schedule</mat-icon>
+                  <span>{{ engineer.totalHours | number:'1.0-1' }} ч</span>
+                </div>
+                <div class="stat-badge">
+                  <mat-icon>assignment</mat-icon>
+                  <span>{{ engineer.completedOrders }} заказов</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="no-data" *ngIf="stats.engineers.length === 0">
+          <mat-icon>info</mat-icon>
+          <p>Нет данных за выбранный период</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
   <mat-card class="stats-card-unified" *ngIf="statsView === 'compact'">
     <mat-card-header>
       <mat-card-title>
@@ -436,6 +536,110 @@
       <mat-icon>add</mat-icon>
     </button>
   </div>
+
+  <!-- Mobile Manager Engineer Hours Statistics -->
+  <mat-card class="mobile-summary-card" *ngIf="isMobileView() && isManager()">
+    <mat-card-header style="flex-wrap: wrap !important; justify-content: center !important;">
+      <div class="header-actions-right">
+        <button
+          mat-icon-button
+          (click)="previousManagerMonth()"
+          matTooltip="Предыдущий месяц"
+          class="month-nav-btn"
+          aria-label="Предыдущий месяц"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span class="current-month">
+          <div class="month-header">
+            <div class="month-label">
+              <mat-icon>schedule</mat-icon>
+              <span>Часы инженеров</span>
+            </div>
+            <div class="month-date">
+              {{ getMonthName(managerStatsMonth()) }} {{ managerStatsYear() }}
+            </div>
+          </div>
+        </span>
+        <button
+          mat-icon-button
+          (click)="nextManagerMonth()"
+          matTooltip="Следующий месяц"
+          class="month-nav-btn"
+          aria-label="Следующий месяц"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-progress-bar
+        mode="indeterminate"
+        *ngIf="isLoadingManagerStats()"
+      ></mat-progress-bar>
+
+      <div class="mobile-summary-grid" *ngIf="!isLoadingManagerStats() && managerEngineerHoursStats() as stats">
+        <div class="summary-item">
+          <div class="item-header">
+            <mat-icon color="primary">schedule</mat-icon>
+            <div>
+              <div class="item-label">Всего часов</div>
+              <div class="item-value">{{ stats.totalHours | number:'1.0-1' }}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="summary-item">
+          <div class="item-header">
+            <mat-icon color="accent">assignment</mat-icon>
+            <div>
+              <div class="item-label">Всего заказов</div>
+              <div class="item-value">{{ stats.totalOrders }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-item">
+          <div class="item-header">
+            <mat-icon color="warn">people</mat-icon>
+            <div>
+              <div class="item-label">Инженеров</div>
+              <div class="item-value">{{ stats.engineers.length }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Engineers List for Mobile -->
+      <ng-container *ngIf="!isLoadingManagerStats() && managerEngineerHoursStats() as stats">
+      <div class="engineers-list-mobile" *ngIf="stats.engineers.length > 0">
+        <h3 style="margin: 16px 0 12px 0; font-size: 14px; font-weight: 600;">Детализация по инженерам</h3>
+        <div class="engineer-card-mobile" *ngFor="let engineer of stats.engineers">
+          <div class="engineer-name-mobile">
+            <mat-icon>person</mat-icon>
+            <span>{{ engineer.engineerName }}</span>
+          </div>
+          <div class="engineer-stats-mobile">
+            <div class="stat-badge-mobile">
+              <mat-icon>schedule</mat-icon>
+              <span>{{ engineer.totalHours | number:'1.0-1' }} ч</span>
+            </div>
+            <div class="stat-badge-mobile">
+              <mat-icon>assignment</mat-icon>
+              <span>{{ engineer.completedOrders }} заказов</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      </ng-container>
+
+      <div class="no-data" *ngIf="!isLoadingManagerStats() && managerEngineerHoursStats() && managerEngineerHoursStats()!.engineers.length === 0">
+        <mat-icon>info</mat-icon>
+        <p>Нет данных за выбранный период</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
 
   <!-- Mobile Engineer Summary (replaces desktop engineer-summary-card) -->
   <mat-card class="mobile-summary-card" *ngIf="isMobileView() && isEngineerView()">
