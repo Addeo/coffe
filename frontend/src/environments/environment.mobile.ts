@@ -3,6 +3,6 @@ export const environment = {
   authUrl: '/api/auth/login',
   apiUrl: '/api',
   appName: 'Coffee Admin Mobile',
-  appVersion: '1.0.10', // Текущая версия приложения (зашита в код)
+  appVersion: '1.0.11', // Текущая версия приложения (зашита в код)
   demo: false,
 };
