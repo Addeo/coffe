@@ -1,6 +1,6 @@
 {
   "name": "coffee-admin-panel",
-  "version": "1.0.0",
+  "version": "1.1.2",
   "description": "Coffee Admin Panel - Angular/Ionic frontend with NestJS backend",
   "private": true,
   "workspaces": [
