@@ -240,6 +240,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   readonly assignedStatus = OrderStatus.ASSIGNED;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild('mobilePaginator') mobilePaginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   // Manager statistics for engineer hours
@@ -320,9 +321,16 @@ export class OrdersComponent implements OnInit, OnDestroy {
   ngAfterViewInit() {
     // Set paginator and sort after a slight delay to ensure view is fully initialized
     setTimeout(() => {
-      this.dataSource.paginator = this.paginator;
+      // Use mobile paginator if in mobile view, otherwise use desktop paginator
+      if (this.isMobileView() && this.mobilePaginator) {
+        this.dataSource.paginator = this.mobilePaginator;
+        console.log('📄 Mobile paginator initialized:', this.mobilePaginator);
+      } else if (this.paginator) {
+        this.dataSource.paginator = this.paginator;
+        console.log('📄 Desktop paginator initialized:', this.paginator);
+      }
+      
       this.dataSource.sort = this.sort;
-      console.log('📄 Paginator initialized:', this.paginator);
       console.log('📄 DataSource length:', this.dataSource.data.length);
     });
   }
@@ -345,6 +353,15 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
         this.dataSource.data = response.data || [];
         this.isLoading.set(false);
+
+        // Re-assign paginator after data loads (important for mobile view)
+        setTimeout(() => {
+          if (this.isMobileView() && this.mobilePaginator) {
+            this.dataSource.paginator = this.mobilePaginator;
+          } else if (this.paginator) {
+            this.dataSource.paginator = this.paginator;
+          }
+        }, 100);
 
         console.log('📊 DataSource data after update:', this.dataSource.data);
         console.log('📊 DataSource data length:', this.dataSource.data.length);
@@ -542,6 +559,8 @@ export class OrdersComponent implements OnInit, OnDestroy {
           completedOrders: number;
           averageHoursPerOrder?: number;
           engineerType?: string; // STAFF или CONTRACT
+          earnedAmount?: number; // Оплата за часы
+          carPayments?: number; // Оплата за авто
         }>();
         
         // First, add hours from overtimeStatistics
@@ -1149,6 +1168,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   ordersHeaderCollapsed = signal(false);
   engineerSummaryCollapsed = signal(true);
   mobileStatisticsCollapsed = signal(false);
+  managerStatsCollapsed = signal(false);
 
   // Mobile view detection - reactive signal
   private windowWidth = signal(window.innerWidth);
@@ -1157,6 +1177,14 @@ export class OrdersComponent implements OnInit, OnDestroy {
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
     this.windowWidth.set(window.innerWidth);
+    // Re-assign paginator when view changes
+    setTimeout(() => {
+      if (this.isMobileView() && this.mobilePaginator) {
+        this.dataSource.paginator = this.mobilePaginator;
+      } else if (this.paginator) {
+        this.dataSource.paginator = this.paginator;
+      }
+    }, 100);
   }
 
   // Toggle order statistics visibility
@@ -1182,6 +1210,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
   // Toggle mobile statistics block
   toggleMobileStatistics() {
     this.mobileStatisticsCollapsed.set(!this.mobileStatisticsCollapsed());
+  }
+
+  // Toggle manager stats block
+  toggleManagerStats() {
+    this.managerStatsCollapsed.set(!this.managerStatsCollapsed());
   }
 
   // Toggle engineers list
@@ -1594,12 +1627,17 @@ export class OrdersComponent implements OnInit, OnDestroy {
    * @returns The sequential index number (1-based)
    */
   getRowIndex(index: number): number {
-    if (!this.paginator) {
+    // Use appropriate paginator based on view
+    const activePaginator = this.isMobileView() && this.mobilePaginator 
+      ? this.mobilePaginator 
+      : this.paginator;
+    
+    if (!activePaginator) {
       return index + 1;
     }
 
-    const currentPage = this.paginator.pageIndex;
-    const pageSize = this.paginator.pageSize;
+    const currentPage = activePaginator.pageIndex;
+    const pageSize = activePaginator.pageSize;
 
     return currentPage * pageSize + index + 1;
   }

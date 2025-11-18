@@ -39,7 +39,7 @@
           (click)="toggleOrdersOverview()"
           matTooltip="{{ ordersOverviewCollapsed() ? 'Развернуть' : 'Свернуть' }}"
           class="collapse-toggle-btn"
-          aria-label="{{ ordersOverviewCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+          [attr.aria-label]="ordersOverviewCollapsed() ? 'Развернуть' : 'Свернуть'"
         >
           <mat-icon>{{ ordersOverviewCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
         </button>
@@ -706,11 +706,11 @@
 
   <!-- Mobile Manager Engineer Hours Statistics -->
   <mat-card class="mobile-summary-card" *ngIf="isMobileView() && isManager()">
-    <mat-card-header style="flex-wrap: wrap !important; justify-content: center !important;">
+    <mat-card-header (click)="toggleManagerStats()" style="flex-wrap: wrap !important; justify-content: center !important;">
       <div class="header-actions-right">
         <button
           mat-icon-button
-          (click)="previousManagerMonth()"
+          (click)="previousManagerMonth(); $event.stopPropagation()"
           matTooltip="Предыдущий месяц"
           class="month-nav-btn"
           aria-label="Предыдущий месяц"
@@ -730,17 +730,26 @@
         </span>
         <button
           mat-icon-button
-          (click)="nextManagerMonth()"
+          (click)="nextManagerMonth(); $event.stopPropagation()"
           matTooltip="Следующий месяц"
           class="month-nav-btn"
           aria-label="Следующий месяц"
         >
           <mat-icon>chevron_right</mat-icon>
         </button>
+        <button
+          mat-icon-button
+          (click)="toggleManagerStats(); $event.stopPropagation()"
+          matTooltip="{{ managerStatsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+          class="collapse-toggle-btn"
+          [attr.aria-label]="managerStatsCollapsed() ? 'Развернуть' : 'Свернуть'"
+        >
+          <mat-icon>{{ managerStatsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
       </div>
     </mat-card-header>
 
-    <mat-card-content>
+    <mat-card-content [class.collapsed]="managerStatsCollapsed()">
       <mat-progress-bar
         mode="indeterminate"
         *ngIf="isLoadingManagerStats()"
@@ -806,13 +815,22 @@
         <p>Нет данных за выбранный период</p>
       </div>
     </mat-card-content>
+
+    <div class="header-actions-right" (click)="toggleManagerStats()" style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+      <button
+        style="display: flex; align-items: center; gap: 10px;"
+        class="collapse-toggle-btn-bottom"
+        matTooltip="{{ managerStatsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+      >
+        {{managerStatsCollapsed() ? 'Развернуть' : 'Свернуть'}} 
+        <mat-icon>{{ managerStatsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+      </button>
+    </div>
   </mat-card>
 
   <!-- Mobile Engineer Summary (replaces desktop engineer-summary-card) -->
   <mat-card class="mobile-summary-card" *ngIf="isMobileView() && isEngineerView()">
         <mat-card-header style="flex-wrap: wrap !important; justify-content: center !important;">
-         
-        
           <div class="header-actions-right">
             <button
               mat-icon-button
@@ -1020,39 +1038,6 @@
           <div class="header">
             <div class="header-title-section">
               <h1 *ngIf="!isMobileView()" i18n="@@orders.management">Управление заявками</h1>
-              <!-- Mobile action buttons in header -->
-              <!-- <div class="mobile-header-actions" *ngIf="isMobileView()">
-                <button
-                  mat-icon-button
-                  (click)="refreshData()"
-                  matTooltip="Обновить"
-                  class="mobile-header-btn"
-                  aria-label="Обновить"
-                >
-                  <mat-icon>refresh</mat-icon>
-                </button>
-                <button
-                  mat-icon-button
-                  (click)="exportToExcel()"
-                  matTooltip="Скачать Excel"
-                  *ngIf="canExportOrders()"
-                  class="mobile-header-btn"
-                  aria-label="Скачать Excel"
-                >
-                  <mat-icon>download</mat-icon>
-                </button>
-                <button
-                  mat-icon-button
-                  color="primary"
-                  (click)="onCreateOrder()"
-                  *ngIf="canCreateOrders()"
-                  class="mobile-header-btn create"
-                  matTooltip="Создать заказ"
-                  aria-label="Создать заказ"
-                >
-                  <mat-icon>add</mat-icon>
-                </button>
-              </div> -->
               <button
                 *ngIf="!isMobileView()"
                 mat-icon-button
@@ -1064,18 +1049,6 @@
               </button>
             </div>
             <div class="header-actions" [class.collapsed]="ordersHeaderCollapsed()">
-              <!-- <mat-form-field class="filter-field" *ngIf="!isMobileView()">
-                <mat-label>Фильтр по статусу</mat-label>
-                <mat-select
-                  [value]="selectedStatus()"
-                  (selectionChange)="onStatusFilterChange($event.value)"
-                >
-                  <mat-option value="">Все статусы</mat-option>
-                  <mat-option *ngFor="let status of statusOptions" [value]="status">
-                    {{ getStatusDisplay(status) }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field> -->
               <mat-form-field class="filter-field" *ngIf="!isMobileView()">
                 <mat-label>Фильтр по статусу</mat-label>
                 <mat-select
@@ -1225,123 +1198,6 @@
                 </button>
               </div>
             </div>
-          </div>
-
-          <!-- Mobile Paginator (fixed to bottom) -->
-        </mat-card-content>
-  </mat-card>
-
-  <!-- Main Content -->
-  <mat-card class="main-content">
-        <mat-card-header>
-          <div class="header">
-            <div class="header-title-section">
-              <h1 *ngIf="!isMobileView()" i18n="@@orders.management">Управление заявками</h1>
-              <button
-                *ngIf="!isMobileView()"
-                mat-icon-button
-                (click)="toggleOrdersHeader()"
-                matTooltip="{{ ordersHeaderCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-                class="collapse-toggle-btn"
-              >
-                <mat-icon>{{ ordersHeaderCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-              </button>
-            </div>
-            <div class="header-actions" [class.collapsed]="ordersHeaderCollapsed()">
-              <mat-form-field class="filter-field" *ngIf="!isMobileView()">
-                <mat-label>Фильтр по статусу</mat-label>
-                <mat-select
-                  [value]="selectedStatus()"
-                  (selectionChange)="onStatusFilterChange($event.value)"
-                >
-                  <mat-option value="">Все статусы</mat-option>
-                  <mat-option *ngFor="let status of statusOptions" [value]="status">
-                    {{ getStatusDisplay(status) }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field class="search-field" *ngIf="!isMobileView()">
-                <mat-label>Поиск заявок</mat-label>
-                <input
-                  matInput
-                  (keyup)="applyFilter($event)"
-                  placeholder="Поиск по названию, организации и т.д."
-                />
-                <mat-icon matSuffix>search</mat-icon>
-              </mat-form-field>
-
-              <div class="button-group" style="display: flex; gap: 10px" *ngIf="!isMobileView()">
-                <!-- For Manager: Only two buttons -->
-                <ng-container *ngIf="isManager()">
-                  <button
-                    mat-raised-button
-                    color="accent"
-                    (click)="exportToExcel()"
-                    matTooltip="Экспортировать данные в Excel"
-                    aria-label="Экспортировать в Excel"
-                    class="header-btn export-btn"
-                  >
-                    <mat-icon>download</mat-icon>
-                    <span class="btn-text">Скачать XLS</span>
-                  </button>
-
-                  <button
-                    mat-raised-button
-                    color="primary"
-                    (click)="onCreateOrder()"
-                    class="header-btn create-btn"
-                  >
-                    <mat-icon>add</mat-icon>
-                    <span class="btn-text">Создать заявку</span>
-                  </button>
-                </ng-container>
-
-                <!-- For Admin: All buttons -->
-                <ng-container *ngIf="!isManager()">
-                  <button
-                    mat-icon-button
-                    (click)="refreshData()"
-                    matTooltip="Обновить данные"
-                    aria-label="Обновить"
-                    class="header-btn refresh-btn"
-                  >
-                    <mat-icon>refresh</mat-icon>
-                  </button>
-
-                  <button
-                    mat-raised-button
-                    color="accent"
-                    (click)="exportToExcel()"
-                    matTooltip="Экспортировать данные в Excel"
-                    aria-label="Экспортировать в Excel"
-                    *ngIf="canExportOrders()"
-                    class="header-btn export-btn"
-                  >
-                    <mat-icon>download</mat-icon>
-                    <span class="btn-text">Скачать XLS</span>
-                  </button>
-
-                  <button
-                    mat-raised-button
-                    color="primary"
-                    (click)="onCreateOrder()"
-                    *ngIf="canCreateOrders()"
-                    class="header-btn create-btn"
-                  >
-                    <mat-icon>add</mat-icon>
-                    <span class="btn-text">Создать заявку</span>
-                  </button>
-                </ng-container>
-              </div>
-            </div>
-          </div>
-        </mat-card-header>
-
-        <mat-card-content>
-          <div class="loading-container" *ngIf="isLoading()">
-            <mat-spinner diameter="40"></mat-spinner>
-            <p i18n="@@orders.loading">Загрузка заявок...</p>
           </div>
 
           <!-- Desktop Table -->
@@ -1624,6 +1480,7 @@ aria-label="Выберите страницу заявок"
 
 <div class="mobile-paginator-fixed" *ngIf="isMobileView() && dataSource.data.length > 0">
   <mat-paginator
+    #mobilePaginator
     [pageSize]="10"
     [hidePageSize]="true"
     showFirstLastButtons
