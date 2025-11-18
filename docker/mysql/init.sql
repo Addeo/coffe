@@ -13,9 +13,13 @@ CREATE TABLE IF NOT EXISTS users (
   first_name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   last_name VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   role ENUM('admin', 'manager', 'user') DEFAULT 'user',
+  primary_role VARCHAR(20) DEFAULT 'user',
+  active_role VARCHAR(20) NULL,
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_users_primary_role (primary_role),
+  INDEX idx_users_active_role (active_role)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Organizations table structure (matching Organization entity)
@@ -145,6 +149,21 @@ CREATE TABLE IF NOT EXISTS orders (
   profit DECIMAL(10,2) NULL,
   work_notes TEXT NULL,
   work_photo_url VARCHAR(255) NULL,
+  -- Work execution fields
+  work_act_number VARCHAR(100) NULL,
+  work_start_time DATETIME NULL,
+  work_end_time DATETIME NULL,
+  total_work_hours DECIMAL(5,2) NULL,
+  is_overtime_rate BOOLEAN DEFAULT 0,
+  is_repair_complete BOOLEAN NULL,
+  equipment_info TEXT NULL,
+  comments TEXT NULL,
+  is_incomplete BOOLEAN DEFAULT 0,
+  completion_locked_at DATETIME NULL,
+  -- Payment tracking fields
+  received_from_organization BOOLEAN DEFAULT FALSE,
+  received_from_organization_date DATETIME NULL,
+  received_from_organization_notes TEXT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE RESTRICT,
@@ -154,7 +173,11 @@ CREATE TABLE IF NOT EXISTS orders (
   INDEX idx_assigned_engineer_status (assigned_engineer_id, status),
   INDEX idx_created_by_status (created_by, status),
   INDEX idx_status_created (status, created_at),
-  INDEX idx_organization (organization_id)
+  INDEX idx_organization (organization_id),
+  INDEX idx_orders_is_incomplete (is_incomplete),
+  INDEX idx_orders_completion_locked (completion_locked_at),
+  INDEX idx_orders_received_from_org (received_from_organization),
+  INDEX idx_orders_received_from_org_date (received_from_organization_date)
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- =====================================================

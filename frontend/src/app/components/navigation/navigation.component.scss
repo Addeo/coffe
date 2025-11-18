@@ -4,8 +4,8 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background-color: var(--bg-secondary);
-  color: var(--text-on-secondary);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
   box-shadow: var(--shadow-md);
 }
 
@@ -38,6 +38,7 @@
     height: 28px;
     width: 28px;
     flex-shrink: 0;
+    color: #ffffff;
   }
 
   .brand-text {
@@ -45,7 +46,7 @@
     font-weight: 600;
     letter-spacing: 0.5px;
     white-space: nowrap;
-    color: var(--text-primary);
+    color: #ffffff;
 
     @media (max-width: 960px) {
       display: none;
@@ -79,7 +80,7 @@
     justify-content: center;
     height: 64px;
     min-width: 0;
-    color: var(--text-on-secondary);
+    color: #ffffff;
     position: relative;
     border-radius: 0;
     transition: all 0.3s ease;
@@ -89,6 +90,7 @@
       height: 32px;
       width: 32px;
       transition: all 0.3s ease;
+      color: #ffffff;
     }
 
     &:hover {
@@ -102,7 +104,7 @@
         font-size: 32px;
         height: 32px;
         width: 32px;
-        color: var(--text-on-secondary);
+        color: #ffffff;
         background-color: rgba(255, 255, 255, 0.35);
         border-radius: 50%;
         padding: 12px;
@@ -158,7 +160,7 @@
     transition: all 0.2s ease;
     white-space: nowrap;
     flex-shrink: 0;
-    color: var(--text-on-secondary);
+    color: #ffffff;
 
     .nav-icon {
       font-size: 16px;
@@ -166,6 +168,7 @@
       width: 16px;
       flex-shrink: 0;
       flex-grow: 0;
+      color: #ffffff;
     }
 
     span {
@@ -177,23 +180,23 @@
     }
 
     &.active {
-      background-color: var(--bg-selected);
+      background-color: rgba(255, 255, 255, 0.2);
       font-weight: 500;
     }
 
     &.role-switch-button {
       background-color: transparent;
       border: none;
-      color: var(--text-on-secondary);
+      color: #ffffff;
       font-weight: normal;
       position: relative;
 
       .nav-icon {
-        color: var(--text-on-secondary);
+        color: #ffffff;
       }
 
       &:hover {
-        background-color: var(--bg-hover);
+        background-color: rgba(255, 255, 255, 0.1);
         border: none;
       }
 
@@ -375,12 +378,14 @@
     padding: var(--spacing-sm) var(--spacing-md);
     border-radius: 8px;
     transition: all 0.2s ease;
+    color: #ffffff;
 
     .user-icon {
       font-size: 24px;
       height: 24px;
       width: 24px;
       flex-shrink: 0;
+      color: #ffffff;
     }
 
     .user-name {
@@ -389,6 +394,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      color: #ffffff;
       color: var(--text-on-secondary);
     }
 
@@ -683,7 +689,7 @@
       font-size: 24px;
       height: 24px;
       width: 24px;
-      color: var(--text-on-secondary);
+      color: #ffffff;
     }
 
     .notifications-badge {
@@ -804,8 +810,8 @@
     width: 300px;
     max-width: 80vw;
     height: 100vh;
-    background-color: var(--bg-secondary);
-    color: var(--text-on-secondary);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #ffffff;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
@@ -816,8 +822,8 @@
       align-items: center;
       justify-content: space-between;
       padding: 16px 24px;
-      border-bottom: 1px solid var(--border-color);
-      background-color: var(--bg-secondary);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      background: transparent;
 
       .brand {
         display: flex;
