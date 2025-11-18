@@ -627,6 +627,8 @@ export class StatisticsService {
       .addSelect('user.firstName', 'firstName')
       .addSelect('user.lastName', 'lastName')
       .addSelect('SUM(order.calculatedAmount + order.carUsageAmount)', 'totalEarnings')
+      .addSelect('SUM(order.calculatedAmount)', 'earnedAmount')
+      .addSelect('SUM(order.carUsageAmount)', 'carPayments')
       .addSelect('COUNT(order.id)', 'completedOrders')
       .addSelect('AVG(order.calculatedAmount + order.carUsageAmount)', 'averageOrderValue')
       .innerJoin('order.assignedEngineer', 'engineer')
@@ -645,6 +647,8 @@ export class StatisticsService {
       agentId: data.userId,
       agentName: `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'Unknown',
       totalEarnings: Number(data.totalEarnings) || 0,
+      earnedAmount: Number(data.earnedAmount) || 0, // Оплата за часы
+      carPayments: Number(data.carPayments) || 0, // Оплата за авто
       completedOrders: Number(data.completedOrders) || 0,
       averageOrderValue: Number(data.averageOrderValue) || 0,
     }));

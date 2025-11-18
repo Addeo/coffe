@@ -763,8 +763,166 @@
     display: block !important;
   }
 
-  .mobile-summary-card {
-    display: block !important;
+.mobile-summary-card {
+  display: block !important;
+}
+
+// Orders Overview Card (for Managers/Admins)
+.orders-overview-card {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+
+  mat-card-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+      
+      mat-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
+        color: #667eea;
+      }
+    }
+    
+    .header-actions-right {
+      margin-left: auto;
+      
+      .collapse-toggle-btn {
+        color: rgba(0, 0, 0, 0.54);
+        
+        &:hover {
+          background: rgba(0, 0, 0, 0.04);
+        }
+      }
+    }
+  }
+
+  mat-card-content {
+    padding: 24px;
+    transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+    
+    &.collapsed {
+      max-height: 0;
+      opacity: 0;
+      padding: 0 24px;
+      overflow: hidden;
+    }
+  }
+
+  .orders-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+
+    .summary-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      &.active {
+        border-color: #667eea;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+
+        .summary-icon mat-icon,
+        .summary-content .summary-value,
+        .summary-content .summary-label {
+          color: white;
+        }
+      }
+
+      &.primary {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      }
+
+      &.warning {
+        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+      }
+
+      &.info {
+        background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+      }
+
+      &.accent {
+        background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+      }
+
+      &.review {
+        background: linear-gradient(135deg, #ede7f6 0%, #d1c4e9 100%);
+      }
+
+      &.success {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      }
+
+      .summary-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 12px;
+        flex-shrink: 0;
+
+        mat-icon {
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+          color: #667eea;
+        }
+      }
+
+      .summary-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .summary-value {
+          font-size: 24px;
+          font-weight: 700;
+          color: #1a237e;
+          line-height: 1.2;
+        }
+
+        .summary-label {
+          font-size: 12px;
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.6);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+      }
+
+      &.active .summary-content {
+        .summary-value,
+        .summary-label {
+          color: white;
+        }
+      }
+    }
   }
 }
 
@@ -1936,24 +2094,158 @@
         }
       }
 
+      // Engineers menu button
+      .engineers-menu-button {
+        margin-top: 24px;
+
+        .engineers-toggle-btn {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 12px 20px;
+          font-size: 15px;
+          font-weight: 500;
+          text-transform: none;
+
+          mat-icon:first-child {
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+          }
+
+          mat-icon:last-child {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+          }
+
+          span {
+            flex: 1;
+            text-align: left;
+          }
+        }
+      }
+
       .engineers-list {
-        h3 {
-          font-size: 16px;
-          font-weight: 600;
-          margin: 0 0 16px 0;
-          color: rgba(0, 0, 0, 0.87);
+        margin-top: 16px;
+        padding: 16px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        animation: slideDown 0.3s ease;
+
+        @keyframes slideDown {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
 
         .engineers-progress-list {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 16px;
 
-          app-hours-progress-item {
-            display: block;
-            width: 100%;
+          .engineer-item {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+
+            &:hover {
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+              transform: translateY(-2px);
+            }
+
+            &.staff-engineer {
+              border-left: 4px solid #667eea;
+            }
+
+            &.contract-engineer {
+              border-left: 4px solid #ff9800;
+            }
+
+            .engineer-staff-display,
+            .engineer-contract-display {
+              .engineer-header {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 12px;
+
+                mat-icon {
+                  font-size: 28px;
+                  width: 28px;
+                  height: 28px;
+                }
+
+                .engineer-info {
+                  flex: 1;
+
+                  .engineer-name {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: rgba(0, 0, 0, 0.87);
+                    margin-bottom: 6px;
+                  }
+
+                  .engineer-hours,
+                  .engineer-hours-only {
+                    display: flex;
+                    align-items: baseline;
+                    gap: 4px;
+                    font-size: 14px;
+                    color: rgba(0, 0, 0, 0.6);
+
+                    .hours-value {
+                      font-size: 18px;
+                      font-weight: 700;
+                      color: #1a237e;
+                    }
+
+                    .hours-separator {
+                      color: rgba(0, 0, 0, 0.4);
+                      font-weight: 400;
+                    }
+
+                    .hours-plan {
+                      color: rgba(0, 0, 0, 0.6);
+                      font-weight: 500;
+                    }
+
+                    .hours-label {
+                      color: rgba(0, 0, 0, 0.54);
+                      font-size: 13px;
+                    }
+                  }
+                }
+
+                .engineer-percentage {
+                  font-size: 18px;
+                  font-weight: 700;
+                  color: #667eea;
+                  padding: 4px 12px;
+                  background: rgba(102, 126, 234, 0.1);
+                  border-radius: 8px;
+                }
+              }
+
+              mat-progress-bar {
+                height: 8px;
+                border-radius: 4px;
+              }
+            }
           }
         }
+      }
 
         .engineers-table {
           display: flex;

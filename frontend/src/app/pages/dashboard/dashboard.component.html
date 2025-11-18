@@ -9,7 +9,7 @@
       <div class="header-actions">
         <button mat-raised-button color="primary" routerLink="/orders" class="quick-action-btn">
           <mat-icon>add</mat-icon>
-          Новый заказ
+          Новая заявка
         </button>
         <button mat-icon-button [matMenuTriggerFor]="refreshMenu" class="refresh-btn">
           <mat-icon>refresh</mat-icon>
@@ -43,7 +43,7 @@
       <div class="section-header">
         <h2>
           <mat-icon>dashboard</mat-icon>
-          Обзор заказов
+          Обзор заявок
         </h2>
         <div class="section-actions">
           <button mat-icon-button (click)="toggleStatsView()" matTooltip="Переключить вид">
@@ -60,7 +60,7 @@
               </div>
               <div class="stat-info">
                 <h3>{{ orderStats().total }}</h3>
-                <p>Всего заказов</p>
+                <p>Всего заявок</p>
                 <div class="stat-trend" *ngIf="showDetailedStats()">
                   <mat-icon class="trend-icon">trending_up</mat-icon>
                   <span class="trend-text">+12% за месяц</span>
@@ -288,7 +288,7 @@
                 <div *ngIf="earningsStats().currentMonth" class="earnings-details">
                   <p class="earnings-amount">${{ earningsStats().currentMonth!.totalEarnings }}</p>
                   <p class="earnings-orders">
-                    {{ earningsStats().currentMonth!.completedOrders }} заказов
+                    {{ earningsStats().currentMonth!.completedOrders }} заявок
                   </p>
                 </div>
                 <div *ngIf="!earningsStats().currentMonth" class="no-data">
@@ -383,19 +383,19 @@
           </mat-card-content>
         </mat-card>
 
-        <!-- Карточка с заказами -->
+        <!-- Карточка с заявками -->
         <mat-card class="stat-card">
           <mat-card-content>
             <div class="stat-content">
               <mat-icon class="stat-icon">assignment_turned_in</mat-icon>
               <div class="stat-info">
                 <h3>{{ engineerStats()?.completedOrders || 0 }}</h3>
-                <p>Выполнено заказов</p>
+                <p>Выполнено заявок</p>
               </div>
             </div>
             <div class="stat-details">
               <div class="detail-item">
-                <span class="detail-label">Среднее время на заказ:</span>
+                <span class="detail-label">Среднее время на заявку:</span>
                 <span class="detail-value">{{
                   formatHours(engineerStats()?.averageHoursPerOrder || 0)
                 }}</span>
@@ -500,7 +500,7 @@
               <mat-icon class="stat-icon">assignment_turned_in</mat-icon>
               <div class="stat-info">
                 <h3>{{ adminEngineerStats()?.totals?.completedOrders || 0 }}</h3>
-                <p>Завершено заказов</p>
+                <p>Завершено заявок</p>
               </div>
             </div>
           </mat-card-content>
@@ -671,8 +671,8 @@
             <div class="action-content">
               <mat-icon>shopping_cart</mat-icon>
               <div>
-                <h4>Просмотр заказов</h4>
-                <p>Управление и отслеживание всех заказов</p>
+                <h4>Просмотр заявок</h4>
+                <p>Управление и отслеживание всех заявок</p>
               </div>
             </div>
           </mat-card-content>
@@ -696,7 +696,7 @@
               <mat-icon>inventory</mat-icon>
               <div>
                 <h4 i18n="@@dashboard.inventory">Инвентарь</h4>
-                <p i18n="@@dashboard.manageInventory">Управление инвентарем и заказами</p>
+                <p i18n="@@dashboard.manageInventory">Управление инвентарем и заявками</p>
               </div>
             </div>
           </mat-card-content>

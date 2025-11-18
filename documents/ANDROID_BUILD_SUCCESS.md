@@ -174,3 +174,4 @@ adb logcat | grep "Capacitor"
 
 
 
+

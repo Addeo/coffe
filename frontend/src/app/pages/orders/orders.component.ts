@@ -130,7 +130,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   readonly canViewAllOrders = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
   readonly canEditOrders = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
   readonly canDeleteOrders = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
-  readonly canExportOrders = computed(() => this.authService.hasRole(UserRole.ADMIN));
+  readonly canExportOrders = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
   readonly isEngineerView = computed(() => this.authService.hasRole(UserRole.USER));
   readonly isManager = computed(() => this.authService.hasRole(UserRole.MANAGER));
   readonly engineerSummary = computed<EngineerOrderSummaryDto | null>(() => {
@@ -253,10 +253,16 @@ export class OrdersComponent implements OnInit, OnDestroy {
       planHours: number;
       completedOrders: number;
       averageHoursPerOrder?: number;
+      earnedAmount?: number; // Оплата за часы
+      carPayments?: number; // Оплата за авто
+      engineerType?: string; // STAFF или CONTRACT
     }>;
     totalHours: number;
     totalOrders: number;
   } | null>(null);
+  
+  // Engineers list collapse state
+  engineersListCollapsed = signal(true);
   isLoadingManagerStats = signal(false);
   managerStatsMonth = signal(new Date().getMonth() + 1);
   managerStatsYear = signal(new Date().getFullYear());
@@ -510,11 +516,17 @@ export class OrdersComponent implements OnInit, OnDestroy {
       engineers: this.usersService.getUsers({ role: UserRole.USER }), // Get all engineers
     }).subscribe({
       next: ({ statistics: data, engineers: usersResponse }) => {
-        // Create a map of engineerId -> planHours from user profiles
+        // Create a map of engineerId -> planHours and engineerType from user profiles
         const engineerPlanHoursMap = new Map<number, number>();
+        const engineerTypeMap = new Map<number, string>();
         usersResponse.data.forEach(user => {
-          if (user.engineer && user.engineer.planHoursMonth) {
-            engineerPlanHoursMap.set(user.id, user.engineer.planHoursMonth);
+          if (user.engineer) {
+            if (user.engineer.planHoursMonth) {
+              engineerPlanHoursMap.set(user.id, user.engineer.planHoursMonth);
+            }
+            if (user.engineer.type) {
+              engineerTypeMap.set(user.id, user.engineer.type);
+            }
           }
         });
 
@@ -529,11 +541,13 @@ export class OrdersComponent implements OnInit, OnDestroy {
           planHours: number;
           completedOrders: number;
           averageHoursPerOrder?: number;
+          engineerType?: string; // STAFF или CONTRACT
         }>();
         
         // First, add hours from overtimeStatistics
         data.overtimeStatistics.forEach(stat => {
           const planHours = engineerPlanHoursMap.get(stat.agentId) || 160; // Default 160 if not found
+          const engineerType = engineerTypeMap.get(stat.agentId);
           engineerMap.set(stat.agentId, {
             engineerId: stat.agentId,
             engineerName: stat.agentName,
@@ -542,6 +556,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
             overtimeHours: stat.overtimeHours || 0,
             planHours,
             completedOrders: 0,
+            engineerType,
           });
         });
         
@@ -553,8 +568,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
             existing.averageHoursPerOrder = existing.completedOrders > 0
               ? existing.totalHours / existing.completedOrders
               : 0;
+            existing.earnedAmount = agent.earnedAmount || 0; // Оплата за часы
+            existing.carPayments = agent.carPayments || 0; // Оплата за авто
           } else {
             const planHours = engineerPlanHoursMap.get(agent.agentId) || 160; // Default 160 if not found
+            const engineerType = engineerTypeMap.get(agent.agentId);
             engineerMap.set(agent.agentId, {
               engineerId: agent.agentId,
               engineerName: agent.agentName,
@@ -564,6 +582,9 @@ export class OrdersComponent implements OnInit, OnDestroy {
               planHours,
               completedOrders: agent.completedOrders || 0,
               averageHoursPerOrder: 0,
+              earnedAmount: agent.earnedAmount || 0, // Оплата за часы
+              carPayments: agent.carPayments || 0, // Оплата за авто
+              engineerType,
             });
           }
         });
@@ -717,10 +738,15 @@ export class OrdersComponent implements OnInit, OnDestroy {
       | 'review'
       | 'completed'
       | 'paid_to_engineer'
+      | 'create'
   ): void {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      this.onSummaryStatusClick(key);
+      if (key === 'create') {
+        this.scrollToMainContent();
+      } else {
+        this.onSummaryStatusClick(key);
+      }
     }
   }
 
@@ -1156,6 +1182,25 @@ export class OrdersComponent implements OnInit, OnDestroy {
   // Toggle mobile statistics block
   toggleMobileStatistics() {
     this.mobileStatisticsCollapsed.set(!this.mobileStatisticsCollapsed());
+  }
+
+  // Toggle engineers list
+  toggleEngineersList() {
+    this.engineersListCollapsed.set(!this.engineersListCollapsed());
+  }
+
+  // Scroll to main content (lower functional field)
+  scrollToMainContent() {
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+      mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Then open create order dialog
+      setTimeout(() => {
+        this.onCreateOrder();
+      }, 300);
+    } else {
+      this.onCreateOrder();
+    }
   }
 
   // Get unaccepted orders count

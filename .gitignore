@@ -71,3 +71,23 @@ YOUR_GITHUB_SECRETS.txt
 # Backend build outputs
 backend/public/
 ssh-key*.pem
+
+# Build artifacts - НЕ ЗАГРУЖАТЬ В GIT!
+*.apk
+*.tar.gz
+*.zip
+apk-builds/
+deploy-*.tar.gz
+*-deploy.tar.gz
+backend-deploy.tar.gz
+backend-fix.tar.gz
+deploy-latest.tar.gz
+sbercloud-deploy.tar.gz
+
+# Android build artifacts
+android/app/build/
+android/.gradle/
+android/local.properties
+frontend/android/app/build/
+frontend/android/.gradle/
+frontend/android/local.properties

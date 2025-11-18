@@ -1,5 +1,5 @@
 import { Component, Input, computed, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +11,8 @@ export interface HoursStatistics {
   completedOrders?: number;
   averageHoursPerOrder?: number;
   efficiency?: number;
+  earnedAmount?: number; // Оплата за часы
+  carPayments?: number; // Оплата за авто
   [key: string]: any; // Для дополнительных полей
 }
 
@@ -38,6 +40,10 @@ export class HoursProgressItemComponent {
 
   // Collapsed state
   isCollapsed = signal(true);
+  
+  // Payment buttons collapsed state
+  showHoursPayments = signal(false);
+  showCarPayments = signal(false);
 
   // Computed signal for progress percentage
   progressPercentage = computed(() => {
@@ -78,6 +84,14 @@ export class HoursProgressItemComponent {
 
   toggleCollapse() {
     this.isCollapsed.update(value => !value);
+  }
+  
+  toggleHoursPayments() {
+    this.showHoursPayments.update(value => !value);
+  }
+  
+  toggleCarPayments() {
+    this.showCarPayments.update(value => !value);
   }
 }
 
