@@ -1,8 +1,8 @@
 export const environment = {
-  production: false,
-  authUrl: '/api/auth/login',
-  apiUrl: '/api',
+  production: true,
+  apiUrl: 'https://coffe-ug.ru/api',
+  authUrl: 'https://coffe-ug.ru/api/auth/login',
   appName: 'Coffee Admin Mobile',
-  appVersion: '1.0.11', // Текущая версия приложения (зашита в код)
+  appVersion: '1.1.1', // Текущая версия приложения (зашита в код)
   demo: false,
 };
