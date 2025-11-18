@@ -216,8 +216,10 @@ jobs:
                    -o ServerAliveCountMax=3 \
                    -o TCPKeepAlive=yes \
                    -o Compression=yes \
-                   deploy-package.tar.gz ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/; then
+                   deploy-package.tar.gz ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/deploy-package.tar.gz; then
               echo "✅ Files uploaded to VPS"
+              # Verify file was uploaded correctly
+              ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "test -f /tmp/deploy-package.tar.gz && ls -lh /tmp/deploy-package.tar.gz || echo 'File not found on server'"
               exit 0
             else
               echo "❌ Upload failed (attempt $i)"
@@ -249,6 +251,18 @@ jobs:
           
           for i in $(seq 1 $MAX_RETRIES); do
             echo "Deployment attempt $i of $MAX_RETRIES..."
+            
+            # Re-upload package file if it doesn't exist (for retries)
+            if [ $i -gt 1 ]; then
+              echo "Re-uploading package file for retry..."
+              if ! ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "test -f /tmp/deploy-package.tar.gz"; then
+                echo "Package file missing, re-uploading..."
+                scp -o StrictHostKeyChecking=no deploy-package.tar.gz ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/deploy-package.tar.gz || {
+                  echo "❌ Failed to re-upload package file"
+                  exit 1
+                }
+              fi
+            fi
             
             if ssh -o StrictHostKeyChecking=no \
                    -o ServerAliveInterval=30 \
@@ -299,7 +313,10 @@ jobs:
             if [ -d ~/coffe ]; then
               mkdir -p ~/coffe_backups_temp
               [ -d ~/coffe/backups ] && mv ~/coffe/backups ~/coffe_backups_temp/ || true
-              rm -rf ~/coffe || true
+              # Fix permissions before removing
+              find ~/coffe -type f -exec chmod 644 {} \; 2>/dev/null || true
+              find ~/coffe -type d -exec chmod 755 {} \; 2>/dev/null || true
+              rm -rf ~/coffe || sudo rm -rf ~/coffe || true
               mkdir -p ~/coffe
               [ -d ~/coffe_backups_temp/backups ] && mv ~/coffe_backups_temp/backups ~/coffe/backups || true
               rmdir ~/coffe_backups_temp 2>/dev/null || true
@@ -309,10 +326,30 @@ jobs:
             
             # Extract new deployment
             echo "📦 Extracting new deployment (staged)..."
+            
+            # Check if package file exists, if not on retry, re-upload might be needed
+            if [ ! -f /tmp/deploy-package.tar.gz ]; then
+              echo "⚠️ Package file not found at /tmp/deploy-package.tar.gz"
+              echo "This might be a retry - checking for alternative locations..."
+              find /tmp -name "deploy-package.tar.gz" 2>/dev/null | head -1 | while read f; do
+                echo "Found package at: $f"
+                cp "$f" /tmp/deploy-package.tar.gz
+              done
+              if [ ! -f /tmp/deploy-package.tar.gz ]; then
+                echo "❌ ERROR: Cannot find deployment package file!"
+                exit 1
+              fi
+            fi
+            
             STAGE_DIR=/tmp/deploy-stage-$(date +%s)
             mkdir -p "$STAGE_DIR"
-            tar -xzf /tmp/deploy-package.tar.gz -C "$STAGE_DIR" --no-same-owner --no-same-permissions
-            rm -f /tmp/deploy-package.tar.gz
+            tar -xzf /tmp/deploy-package.tar.gz -C "$STAGE_DIR" --no-same-owner --no-same-permissions || {
+              echo "❌ Failed to extract package"
+              echo "Package file info:"
+              ls -lh /tmp/deploy-package.tar.gz 2>&1 || echo "File not found"
+              exit 1
+            }
+            # Keep package file until after successful sync
 
             # Ensure we're in home directory and target directory exists
             cd ~ || exit 1
@@ -332,6 +369,8 @@ jobs:
               cp -r "$STAGE_DIR"/* "$TARGET_DIR/" 2>/dev/null || cp -r "$STAGE_DIR"/. "$TARGET_DIR/" 2>/dev/null || true
             }
             rm -rf "$STAGE_DIR"
+            # Remove package file only after successful sync
+            rm -f /tmp/deploy-package.tar.gz || true
 
             # Debug: List extracted files
             echo "📋 Extracted files:"
