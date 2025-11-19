@@ -1,0 +1,364 @@
+
+> coffee-admin-backend@1.0.0 test:api
+> node scripts/test-api.js
+
+[1m
+🚀 НАЧАЛО АВТОМАТИЧЕСКОГО ТЕСТИРОВАНИЯ API[0m
+[36m📍 Base URL: http://localhost:3001/api
+[0m
+[36m
+============================================================[0m
+[1mТест: Инициализация админа[0m
+[36m============================================================[0m
+[34m   Админ создан/получен: undefined[0m
+[32m✅ Инициализация админа - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Логин админа[0m
+[36m============================================================[0m
+[34m   Токен получен: eyJhbGciOiJIUzI1NiIs...[0m
+[34m   Пользователь: admin@coffee.com[0m
+[34m   Роль: admin[0m
+[32m✅ Логин админа - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Создание организации[0m
+[36m============================================================[0m
+[31m❌ Создание организации - ОШИБКА[0m
+[31m   HTTP 500: SQLITE_CONSTRAINT: UNIQUE constraint failed: organizations.name
+{
+  "statusCode": 500,
+  "timestamp": "2025-11-19T15:37:17.659Z",
+  "path": "/api/organizations",
+  "method": "POST",
+  "message": "SQLITE_CONSTRAINT: UNIQUE constraint failed: organizations.name",
+  "error": {
+    "name": "QueryFailedError",
+    "message": "SQLITE_CONSTRAINT: UNIQUE constraint failed: organizations.name",
+    "details": {
+      "name": "QueryFailedError",
+      "message": "SQLITE_CONSTRAINT: UNIQUE constraint failed: organizations.name"
+    },
+    "stack": "QueryFailedError: SQLITE_CONSTRAINT: UNIQUE constraint failed: organizations.name\n    at Statement.handler (/Users/sergejkosilov/WebstormProjects/new goal/coffe/node_modules/typeorm/driver/src/driver/sqlite/SqliteQueryRunner.ts:133:29)"
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Создание инженера[0m
+[36m============================================================[0m
+[31m❌ Создание инженера - ОШИБКА[0m
+[31m   HTTP 400: Validation failed
+{
+  "statusCode": 400,
+  "timestamp": "2025-11-19T15:37:18.167Z",
+  "path": "/api/users",
+  "method": "POST",
+  "message": "Validation failed",
+  "error": {
+    "name": "HttpException",
+    "message": "Validation failed",
+    "details": {
+      "statusCode": 400,
+      "message": "Validation failed",
+      "errors": [
+        {
+          "property": "engineerType",
+          "value": "FULL_TIME",
+          "constraints": [
+            "engineerType must be one of the following values: staff, contract"
+          ]
+        }
+      ]
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Создание менеджера[0m
+[36m============================================================[0m
+[34m   Менеджер создан: User ID 17[0m
+[34m   Email: manager-1763566638670@test.com[0m
+[32m✅ Создание менеджера - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Логин менеджера[0m
+[36m============================================================[0m
+[34m   Менеджер авторизован: manager-1763566638670@test.com[0m
+[34m   Токен получен: eyJhbGciOiJIUzI1NiIs...[0m
+[32m✅ Логин менеджера - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Логин инженера[0m
+[36m============================================================[0m
+[31m❌ Логин инженера - ОШИБКА[0m
+[31m   HTTP 500: SQLITE_ERROR: no such column: NaN
+{
+  "statusCode": 500,
+  "timestamp": "2025-11-19T15:37:19.831Z",
+  "path": "/api/users/null",
+  "method": "GET",
+  "message": "SQLITE_ERROR: no such column: NaN",
+  "error": {
+    "name": "QueryFailedError",
+    "message": "SQLITE_ERROR: no such column: NaN",
+    "details": {
+      "name": "QueryFailedError",
+      "message": "SQLITE_ERROR: no such column: NaN"
+    },
+    "stack": "QueryFailedError: SQLITE_ERROR: no such column: NaN\n    at handler (/Users/sergejkosilov/WebstormProjects/new goal/coffe/node_modules/typeorm/driver/src/driver/sqlite/SqliteQueryRunner.ts:133:29)\n    at replacement (/Users/sergejkosilov/WebstormProjects/new goal/coffe/node_modules/sqlite3/lib/trace.js:25:27)\n    at Statement.errBack (/Users/sergejkosilov/WebstormProjects/new goal/coffe/node_modules/sqlite3/lib/sqlite3.js:15:21)"
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Получение соглашений[0m
+[36m============================================================[0m
+[33m   Пропущено: соглашения не требуются[0m
+[32m✅ Получение соглашений - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Принятие соглашений[0m
+[36m============================================================[0m
+[33m   Пропущено: соглашения не требуются[0m
+[32m✅ Принятие соглашений - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Создание заявки[0m
+[36m============================================================[0m
+[31m❌ Создание заявки - ОШИБКА[0m
+[31m   Organization ID не установлен[0m
+[33m       at test10_CreateOrder (/Users/sergejkosilov/WebstormProjects/new goal/coffe/backend/scripts/test-api.js:295:11)[0m
+[36m
+============================================================[0m
+[1mТест: Получение заявки[0m
+[36m============================================================[0m
+[31m❌ Получение заявки - ОШИБКА[0m
+[31m   HTTP 400: Validation failed (numeric string is expected)
+{
+  "statusCode": 400,
+  "timestamp": "2025-11-19T15:37:21.849Z",
+  "path": "/api/orders/null",
+  "method": "GET",
+  "message": "Validation failed (numeric string is expected)",
+  "error": {
+    "name": "BadRequestException",
+    "message": "Validation failed (numeric string is expected)",
+    "details": {
+      "message": "Validation failed (numeric string is expected)",
+      "error": "Bad Request",
+      "statusCode": 400
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Назначение инженера[0m
+[36m============================================================[0m
+[31m❌ Назначение инженера - ОШИБКА[0m
+[31m   HTTP 403: Forbidden resource
+{
+  "statusCode": 403,
+  "timestamp": "2025-11-19T15:37:22.356Z",
+  "path": "/api/orders/null/assign-engineer",
+  "method": "POST",
+  "message": "Forbidden resource",
+  "error": {
+    "name": "ForbiddenException",
+    "message": "Forbidden resource",
+    "details": {
+      "message": "Forbidden resource",
+      "error": "Forbidden",
+      "statusCode": 403
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Получение назначений[0m
+[36m============================================================[0m
+[31m❌ Получение назначений - ОШИБКА[0m
+[31m   HTTP 401: Unauthorized
+{
+  "statusCode": 401,
+  "timestamp": "2025-11-19T15:37:22.860Z",
+  "path": "/api/orders/null/assignments",
+  "method": "GET",
+  "message": "Unauthorized",
+  "error": {
+    "name": "UnauthorizedException",
+    "message": "Unauthorized",
+    "details": {
+      "message": "Unauthorized",
+      "statusCode": 401
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Получение моих заявок[0m
+[36m============================================================[0m
+[31m❌ Получение моих заявок - ОШИБКА[0m
+[31m   HTTP 401: Unauthorized
+{
+  "statusCode": 401,
+  "timestamp": "2025-11-19T15:37:23.363Z",
+  "path": "/api/orders",
+  "method": "GET",
+  "message": "Unauthorized",
+  "error": {
+    "name": "UnauthorizedException",
+    "message": "Unauthorized",
+    "details": {
+      "message": "Unauthorized",
+      "statusCode": 401
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Принятие заявки инженером[0m
+[36m============================================================[0m
+[31m❌ Принятие заявки инженером - ОШИБКА[0m
+[31m   HTTP 401: Unauthorized
+{
+  "statusCode": 401,
+  "timestamp": "2025-11-19T15:37:23.869Z",
+  "path": "/api/orders/null/accept",
+  "method": "POST",
+  "message": "Unauthorized",
+  "error": {
+    "name": "UnauthorizedException",
+    "message": "Unauthorized",
+    "details": {
+      "message": "Unauthorized",
+      "statusCode": 401
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Создание рабочей сессии[0m
+[36m============================================================[0m
+[31m❌ Создание рабочей сессии - ОШИБКА[0m
+[31m   HTTP 401: Unauthorized
+{
+  "statusCode": 401,
+  "timestamp": "2025-11-19T15:37:24.379Z",
+  "path": "/api/orders/null/work-sessions",
+  "method": "POST",
+  "message": "Unauthorized",
+  "error": {
+    "name": "UnauthorizedException",
+    "message": "Unauthorized",
+    "details": {
+      "message": "Unauthorized",
+      "statusCode": 401
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Получение рабочих сессий[0m
+[36m============================================================[0m
+[31m❌ Получение рабочих сессий - ОШИБКА[0m
+[31m   HTTP 401: Unauthorized
+{
+  "statusCode": 401,
+  "timestamp": "2025-11-19T15:37:24.886Z",
+  "path": "/api/orders/null/work-sessions",
+  "method": "GET",
+  "message": "Unauthorized",
+  "error": {
+    "name": "UnauthorizedException",
+    "message": "Unauthorized",
+    "details": {
+      "message": "Unauthorized",
+      "statusCode": 401
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Завершение работы[0m
+[36m============================================================[0m
+[31m❌ Завершение работы - ОШИБКА[0m
+[31m   HTTP 401: Unauthorized
+{
+  "statusCode": 401,
+  "timestamp": "2025-11-19T15:37:25.394Z",
+  "path": "/api/orders/null/complete-work",
+  "method": "POST",
+  "message": "Unauthorized",
+  "error": {
+    "name": "UnauthorizedException",
+    "message": "Unauthorized",
+    "details": {
+      "message": "Unauthorized",
+      "statusCode": 401
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Завершение заявки[0m
+[36m============================================================[0m
+[31m❌ Завершение заявки - ОШИБКА[0m
+[31m   HTTP 403: Forbidden resource
+{
+  "statusCode": 403,
+  "timestamp": "2025-11-19T15:37:25.898Z",
+  "path": "/api/orders/null/complete",
+  "method": "POST",
+  "message": "Forbidden resource",
+  "error": {
+    "name": "ForbiddenException",
+    "message": "Forbidden resource",
+    "details": {
+      "message": "Forbidden resource",
+      "error": "Forbidden",
+      "statusCode": 403
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Проверка статистики[0m
+[36m============================================================[0m
+[33m   ⚠️  Статистика недоступна: HTTP 404: Cannot GET /api/statistics/engineer/null?year=2025&month=11
+{
+  "statusCode": 404,
+  "timestamp": "2025-11-19T15:37:26.404Z",
+  "path": "/api/statistics/engineer/null?year=2025&month=11",
+  "method": "GET",
+  "message": "Cannot GET /api/statistics/engineer/null?year=2025&month=11",
+  "error": {
+    "name": "NotFoundException",
+    "message": "Cannot GET /api/statistics/engineer/null?year=2025&month=11",
+    "details": {
+      "message": "Cannot GET /api/statistics/engineer/null?year=2025&month=11",
+      "error": "Not Found",
+      "statusCode": 404
+    }
+  }
+}[0m
+[32m✅ Проверка статистики - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mИТОГИ ТЕСТИРОВАНИЯ[0m
+[36m============================================================[0m
+[32m✅ Успешно: 7[0m
+[31m❌ Ошибок: 13[0m
+[34m📊 Всего тестов: 20[0m
+[33m
+⚠️  ЕСТЬ ОШИБКИ В ТЕСТАХ[0m

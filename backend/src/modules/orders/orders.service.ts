@@ -5,7 +5,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Order } from '../../entities/order.entity';
 import { User, UserRole } from '../../entities/user.entity';
 import { Engineer } from '../../entities/engineer.entity';
@@ -27,6 +27,7 @@ import {
   EngineerOrderSummaryDto,
 } from '../../shared/dtos/order.dto';
 import { NotificationsService } from '../notifications/notifications.service';
+import { OrderEngineerAssignment, AssignmentStatus } from '../../entities/order-engineer-assignment.entity';
 
 // Extended OrdersQueryDto with additional filters
 interface ExtendedOrdersQueryDto extends OrdersQueryDto {
@@ -70,6 +71,8 @@ export class OrdersService {
     private readonly settingsRepository: Repository<Setting>,
     @InjectRepository(UserActivityLog)
     private readonly activityLogRepository: Repository<UserActivityLog>,
+    @InjectRepository(OrderEngineerAssignment)
+    private readonly assignmentRepository: Repository<OrderEngineerAssignment>,
     private readonly notificationsService: NotificationsService,
     private readonly statisticsService: StatisticsService,
     private readonly calculationService: CalculationService
@@ -204,6 +207,24 @@ export class OrdersService {
   }
 
   async findAll(query: ExtendedOrdersQueryDto = {}, user: User): Promise<OrdersResponse> {
+    // ИЗМЕНЕНИЕ: Инженер видит только свои заявки
+    if (user.role === UserRole.USER) {
+      const engineer = await this.engineersRepository.findOne({
+        where: { userId: user.id },
+      });
+      if (engineer) {
+        query.engineerId = engineer.id;
+      } else {
+        // Если у пользователя нет профиля инженера, возвращаем пустой список
+        return {
+          data: [],
+          total: 0,
+          page: query.page || 1,
+          limit: query.limit || 10,
+          totalPages: 0,
+        };
+      }
+    }
     const {
       page = 1,
       limit = 10,
@@ -263,9 +284,16 @@ export class OrdersService {
       });
 
       if (engineer) {
-        queryBuilder.andWhere('order.assignedEngineerId = :engineerId', {
-          engineerId: engineer.id,
-        });
+        // ИСПРАВЛЕНИЕ: Инженер видит заявки, на которые он назначен через assignments или assignedEngineerId
+        queryBuilder.leftJoin('order.engineerAssignments', 'assignment')
+          .andWhere(
+            '(order.assignedEngineerId = :engineerId OR assignment.engineerId = :engineerId)',
+            { engineerId: engineer.id }
+          )
+          .andWhere(
+            '(assignment.status IS NULL OR assignment.status IN (:...assignmentStatuses))',
+            { assignmentStatuses: [AssignmentStatus.PENDING, AssignmentStatus.ACCEPTED, AssignmentStatus.COMPLETED] }
+          );
       } else {
         // If no engineer profile found, return no orders
         queryBuilder.andWhere('1 = 0'); // Always false condition
@@ -404,7 +432,16 @@ export class OrdersService {
         where: { userId: user.id, isActive: true },
       });
 
-      if (!engineerProfile || order.assignedEngineerId !== engineerProfile.id) {
+      // Проверяем через assignments или assignedEngineerId для обратной совместимости
+      const assignment = await this.assignmentRepository.findOne({
+        where: {
+          orderId: id,
+          engineerId: engineerProfile.id,
+          status: In([AssignmentStatus.PENDING, AssignmentStatus.ACCEPTED, AssignmentStatus.COMPLETED]),
+        },
+      });
+
+      if (!assignment && order.assignedEngineerId !== engineerProfile.id) {
         throw new NotFoundException('Order not found');
       }
     }
@@ -743,8 +780,17 @@ export class OrdersService {
       throw new NotFoundException(`Order with id ${orderId} not found`);
     }
 
-    // Verify this order is assigned to this engineer
-    if (order.assignedEngineerId !== engineer.id) {
+    // Проверяем назначение через assignments
+    let assignment = await this.assignmentRepository.findOne({
+      where: {
+        orderId: orderId,
+        engineerId: engineer.id,
+        status: AssignmentStatus.PENDING,
+      },
+    });
+
+    // Для обратной совместимости проверяем также assignedEngineerId
+    if (!assignment && order.assignedEngineerId !== engineer.id) {
       throw new ForbiddenException('This order is not assigned to you');
     }
 
@@ -753,6 +799,18 @@ export class OrdersService {
       throw new BadRequestException(
         `Order cannot be accepted in current status: ${order.status}. Expected: ${OrderStatus.ASSIGNED}`
       );
+    }
+
+    // Обновляем статус назначения
+    if (assignment) {
+      assignment.status = AssignmentStatus.ACCEPTED;
+      assignment.acceptedAt = new Date();
+      await this.assignmentRepository.save(assignment);
+    }
+
+    // Обновляем assignedEngineerId для обратной совместимости (если это первое принятие)
+    if (!order.assignedEngineerId) {
+      order.assignedEngineerId = engineer.id;
     }
 
     // Update order status to WORKING
@@ -798,6 +856,141 @@ export class OrdersService {
     });
 
     return this.findOne(orderId, user);
+  }
+
+  /**
+   * Назначить нескольких инженеров на заявку
+   */
+  async assignMultipleEngineers(
+    orderId: number,
+    engineerIds: number[],
+    primaryEngineerId?: number,
+    user?: User,
+  ): Promise<Order> {
+    const order = await this.findOne(orderId, user || ({} as User));
+
+    const assignments: OrderEngineerAssignment[] = [];
+
+    for (const engineerId of engineerIds) {
+      const engineer = await this.engineersRepository.findOne({
+        where: { id: engineerId, isActive: true },
+        relations: ['user'],
+      });
+
+      if (!engineer) {
+        throw new NotFoundException(`Engineer with id ${engineerId} not found or inactive`);
+      }
+
+      // Проверяем существующее назначение
+      let assignment = await this.assignmentRepository.findOne({
+        where: { orderId, engineerId },
+      });
+
+      if (assignment) {
+        // Если назначение существует и отклонено/отменено, обновляем
+        if (assignment.status === AssignmentStatus.REJECTED || 
+            assignment.status === AssignmentStatus.CANCELLED) {
+          assignment.status = AssignmentStatus.PENDING;
+          assignment.acceptedAt = null;
+          assignment.rejectedAt = null;
+          assignment.rejectionReason = null;
+          assignment.assignedById = user?.id || null;
+          await this.assignmentRepository.save(assignment);
+        }
+      } else {
+        // Создаем новое назначение
+        assignment = this.assignmentRepository.create({
+          orderId,
+          engineerId,
+          status: AssignmentStatus.PENDING,
+          assignedById: user?.id || null,
+          isPrimary: engineerId === primaryEngineerId || (!order.assignedEngineerId && engineerIds.indexOf(engineerId) === 0),
+        });
+        assignment = await this.assignmentRepository.save(assignment);
+      }
+
+      assignments.push(assignment);
+
+      // Отправляем уведомление инженеру
+      if (engineer.user) {
+        await this.notificationsService.createOrderAssignedNotification(
+          orderId,
+          order.title,
+          engineer.id,
+          user?.id || null,
+        );
+      }
+    }
+
+    // Обновляем основной assignedEngineerId для обратной совместимости
+    if (primaryEngineerId) {
+      order.assignedEngineerId = primaryEngineerId;
+    } else if (engineerIds.length > 0 && !order.assignedEngineerId) {
+      order.assignedEngineerId = engineerIds[0];
+    }
+    
+    order.assignedById = user?.id || null;
+    if (order.status === OrderStatus.WAITING) {
+      order.status = OrderStatus.ASSIGNED;
+    }
+
+    await this.ordersRepository.save(order);
+
+    return this.findOne(orderId, user || ({} as User));
+  }
+
+  /**
+   * Получить все назначения инженеров на заявку
+   */
+  async getOrderAssignments(orderId: number, user: User): Promise<OrderEngineerAssignment[]> {
+    // Проверяем доступ к заявке
+    await this.findOne(orderId, user);
+
+    return this.assignmentRepository.find({
+      where: { orderId },
+      relations: ['engineer', 'engineer.user', 'assignedBy'],
+      order: { createdAt: 'ASC' },
+    });
+  }
+
+  /**
+   * Удалить назначение инженера
+   */
+  async removeEngineerAssignment(
+    orderId: number,
+    assignmentId: number,
+    user: User,
+  ): Promise<void> {
+    const assignment = await this.assignmentRepository.findOne({
+      where: { id: assignmentId, orderId },
+      relations: ['order', 'engineer'],
+    });
+
+    if (!assignment) {
+      throw new NotFoundException('Assignment not found');
+    }
+
+    // Проверяем доступ к заявке
+    await this.findOne(orderId, user);
+
+    // Если это основное назначение, обновляем assignedEngineerId
+    if (assignment.isPrimary && assignment.order.assignedEngineerId === assignment.engineerId) {
+      // Находим следующее основное назначение или обнуляем
+      const nextPrimary = await this.assignmentRepository.findOne({
+        where: {
+          orderId,
+          isPrimary: true,
+          status: In([AssignmentStatus.PENDING, AssignmentStatus.ACCEPTED]),
+        },
+        order: { createdAt: 'ASC' },
+      });
+
+      assignment.order.assignedEngineerId = nextPrimary?.engineerId || null;
+      await this.ordersRepository.save(assignment.order);
+    }
+
+    // Удаляем назначение
+    await this.assignmentRepository.remove(assignment);
   }
 
   async remove(id: number, user: User): Promise<void> {

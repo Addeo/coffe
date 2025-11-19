@@ -17,6 +17,7 @@ import {
 } from '@shared/interfaces/user.interface';
 import { environment } from '../../environments/environment';
 import { ErrorHandlerUtil } from '../utils/error-handler.util';
+import { AgreementsService, AgreementsStatus } from './agreements.service';
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +25,11 @@ import { ErrorHandlerUtil } from '../utils/error-handler.util';
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private agreementsService = inject(AgreementsService);
+
+  // Статус принятия соглашений
+  private agreementsStatusSignal = signal<AgreementsStatus | null>(null);
+  readonly agreementsStatus = this.agreementsStatusSignal.asReadonly();
 
   // Reactive state using Angular signals
   private currentUserSignal = signal<AuthUserDto | null>(null);
@@ -95,13 +101,18 @@ export class AuthService {
       production: environment.production,
     });
 
-    return this.http.post<AuthLoginResponse>(authUrl, credentials).pipe(
+    return this.http.post<AuthLoginResponse & { agreements?: any }>(authUrl, credentials).pipe(
       tap(response => {
         console.log('✅ Login successful:', {
           user: response.user,
           tokenLength: response.access_token.length,
+          agreements: response.agreements,
         });
         this.setSession(response);
+        // Сохраняем статус соглашений
+        if (response.agreements) {
+          this.agreementsStatusSignal.set(response.agreements);
+        }
         this.isLoadingSignal.set(false);
       }),
       catchError((error: HttpErrorResponse) => {
@@ -125,7 +136,26 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
-  private setSession(authResult: AuthLoginResponse): void {
+  /**
+   * Проверить статус принятия соглашений
+   */
+  checkAgreementsStatus(): Observable<AgreementsStatus> {
+    return this.agreementsService.checkUserAgreements().pipe(
+      tap(status => {
+        this.agreementsStatusSignal.set(status);
+      })
+    );
+  }
+
+  /**
+   * Проверить, нужно ли показать диалог принятия соглашений
+   */
+  needsAgreementAcceptance(): boolean {
+    const status = this.agreementsStatusSignal();
+    return status ? !status.hasAcceptedAll : false;
+  }
+
+  private setSession(authResult: AuthLoginResponse & { agreements?: any }): void {
     console.log('🔐 Setting session:', authResult);
     console.log('🔐 User role data:', {
       role: authResult.user?.role,

@@ -14,6 +14,7 @@ import { Engineer } from './engineer.entity';
 import { User } from './user.entity';
 import { File } from './file.entity';
 import { WorkSession } from './work-session.entity';
+import { OrderEngineerAssignment } from './order-engineer-assignment.entity';
 // Temporarily define OrderSource locally until shared package is fixed
 export enum OrderSource {
   MANUAL = 'manual', // создан вручную
@@ -233,6 +234,10 @@ export class Order {
   // ⭐ Связь с рабочими сессиями (новая архитектура)
   @OneToMany(() => WorkSession, session => session.order)
   workSessions: WorkSession[];
+
+  // Множественное назначение инженеров
+  @OneToMany(() => OrderEngineerAssignment, assignment => assignment.order)
+  engineerAssignments: OrderEngineerAssignment[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

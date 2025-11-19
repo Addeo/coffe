@@ -52,7 +52,7 @@ export class OrdersController {
   ) {}
 
   @Post()
-  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  @Roles(UserRole.MANAGER) // ИЗМЕНЕНИЕ: Админ не может создавать заявки, только Менеджер
   create(@Body() createOrderDto: CreateOrderDto, @Request() req) {
     console.log('📝 [OrdersController] Creating order:', {
       userId: req.user?.id,
@@ -78,7 +78,7 @@ export class OrdersController {
   }
 
   @Post('automatic')
-  @Roles(UserRole.ADMIN) // Только администраторы могут создавать автоматические заказы
+  @Roles(UserRole.MANAGER) // ИЗМЕНЕНИЕ: Менеджер может создавать автоматические заявки
   createAutomatic(@Body() body: CreateOrderDto & { source?: OrderSource }, @Request() req) {
     const { source = OrderSource.AUTOMATIC, ...createOrderDto } = body;
     return this.ordersService.createAutomaticOrder(createOrderDto, source, req.user.id);
@@ -135,9 +135,70 @@ export class OrdersController {
     console.log('🎯 Controller: assignEngineer called', {
       id,
       engineerId: assignEngineerDto.engineerId,
+      engineerIds: assignEngineerDto.engineerIds,
       userRole: req.user?.role,
     });
+    
+    // Если передан массив engineerIds, используем множественное назначение
+    if (assignEngineerDto.engineerIds && assignEngineerDto.engineerIds.length > 0) {
+      return this.ordersService.assignMultipleEngineers(
+        id,
+        assignEngineerDto.engineerIds,
+        assignEngineerDto.engineerId || assignEngineerDto.engineerIds[0], // primaryEngineerId
+        req.user
+      );
+    }
+    
     return this.ordersService.assignEngineer(id, assignEngineerDto, req.user);
+  }
+
+  /**
+   * Назначить нескольких инженеров на заявку
+   * POST /orders/:id/assign-multiple
+   */
+  @Post(':id/assign-multiple')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  assignMultipleEngineers(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: { engineerIds: number[]; primaryEngineerId?: number },
+    @Request() req
+  ) {
+    console.log('🎯 Controller: assignMultipleEngineers called', {
+      id,
+      engineerIds: body.engineerIds,
+      primaryEngineerId: body.primaryEngineerId,
+      userRole: req.user?.role,
+    });
+    return this.ordersService.assignMultipleEngineers(
+      id,
+      body.engineerIds,
+      body.primaryEngineerId,
+      req.user
+    );
+  }
+
+  /**
+   * Получить все назначения инженеров на заявку
+   * GET /orders/:id/assignments
+   */
+  @Get(':id/assignments')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER, UserRole.USER)
+  getOrderAssignments(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    return this.ordersService.getOrderAssignments(id, req.user);
+  }
+
+  /**
+   * Удалить назначение инженера
+   * DELETE /orders/:id/assignments/:assignmentId
+   */
+  @Delete(':id/assignments/:assignmentId')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  removeEngineerAssignment(
+    @Param('id', ParseIntPipe) orderId: number,
+    @Param('assignmentId', ParseIntPipe) assignmentId: number,
+    @Request() req
+  ) {
+    return this.ordersService.removeEngineerAssignment(orderId, assignmentId, req.user);
   }
 
   @Post(':id/accept')

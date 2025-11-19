@@ -62,8 +62,12 @@ export class WorkSession {
   @Column('decimal', { name: 'engineer_base_rate', precision: 10, scale: 2 })
   engineerBaseRate: number;
 
+  @Column('decimal', { name: 'engineer_overtime_coefficient', precision: 5, scale: 2, nullable: true, default: 1.6 })
+  engineerOvertimeCoefficient: number; // коэффициент для сверхурочных (например, 1.6 = 1.6x от базовой ставки)
+
+  // Legacy field - удалить после миграции данных
   @Column('decimal', { name: 'engineer_overtime_rate', precision: 10, scale: 2, nullable: true })
-  engineerOvertimeRate: number;
+  engineerOvertimeRate?: number;
 
   // Оплата от организации
   @Column('decimal', { name: 'organization_payment', precision: 10, scale: 2, default: 0 })
@@ -73,12 +77,22 @@ export class WorkSession {
   organizationBaseRate: number;
 
   @Column('decimal', {
+    name: 'organization_overtime_coefficient',
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    default: 1.5,
+  })
+  organizationOvertimeCoefficient: number; // коэффициент для сверхурочных от организации
+
+  // Legacy field - удалить после миграции данных
+  @Column('decimal', {
     name: 'organization_overtime_multiplier',
     precision: 5,
     scale: 2,
     nullable: true,
   })
-  organizationOvertimeMultiplier: number;
+  organizationOvertimeMultiplier?: number;
 
   // Разбивка оплат (для отчётности)
   @Column('decimal', { name: 'regular_payment', precision: 10, scale: 2, default: 0 })

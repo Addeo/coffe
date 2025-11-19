@@ -48,12 +48,16 @@ export interface WorkSessionDto {
 
   // Ставки (для аудита)
   engineerBaseRate: number;
-  engineerOvertimeRate: number;
+  engineerOvertimeCoefficient: number; // коэффициент для сверхурочных (например, 1.6)
 
   // Оплата от организации
   organizationPayment: number;
   organizationBaseRate: number;
-  organizationOvertimeMultiplier: number;
+  organizationOvertimeCoefficient: number; // коэффициент для сверхурочных от организации
+
+  // Legacy fields - удалить после миграции
+  engineerOvertimeRate?: number;
+  organizationOvertimeMultiplier?: number;
 
   // Разбивка оплат
   regularPayment: number;
@@ -77,9 +81,10 @@ export interface WorkSessionDto {
 
 export interface WorkSessionSummaryDto {
   totalSessions: number;
-  totalHours: number;
+  totalHours: number; // ВАЖНО: regularHours + (overtimeHours * coefficient)
   totalRegularHours: number;
   totalOvertimeHours: number;
+  totalOvertimeCoefficient: number; // средний коэффициент сверхурочных
   totalPayment: number;
   totalCarUsage: number;
 }

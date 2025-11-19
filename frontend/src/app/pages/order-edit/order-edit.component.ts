@@ -929,6 +929,20 @@ export class OrderEditComponent implements OnInit {
   // Work Report Methods
   // onCompleteWork removed - work data is now sent via updateOrder()
 
+  /**
+   * Рассчитать общее количество отработанных часов с учетом коэффициента сверхурочных
+   * ВАЖНО: Формула regularHours + (overtimeHours * overtimeCoefficient)
+   */
+  calculateTotalHours(order: any): number {
+    if (!order) return 0;
+    const regularHours = order.regularHours ?? 0;
+    const overtimeHours = order.overtimeHours ?? 0;
+    // Временная заглушка: используем дефолтный коэффициент 1.6
+    // TODO: Получить реальный коэффициент из WorkSession для этого заказа
+    const overtimeCoefficient = 1.6;
+    return regularHours + (overtimeHours * overtimeCoefficient);
+  }
+
   getTotalHours(): number {
     const regular = this.workReportForm.get('regularHours')?.value || 0;
     const overtime = this.workReportForm.get('overtimeHours')?.value || 0;

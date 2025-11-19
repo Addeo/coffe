@@ -1,0 +1,321 @@
+
+> coffee-admin-backend@1.0.0 test:api
+> node scripts/test-api.js
+
+[1m
+🚀 НАЧАЛО АВТОМАТИЧЕСКОГО ТЕСТИРОВАНИЯ API[0m
+[36m📍 Base URL: http://localhost:3001/api
+[0m
+[36m
+============================================================[0m
+[1mТест: Инициализация админа[0m
+[36m============================================================[0m
+[34m   Админ создан/получен: undefined[0m
+[32m✅ Инициализация админа - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Логин админа[0m
+[36m============================================================[0m
+[34m   Токен получен: eyJhbGciOiJIUzI1NiIs...[0m
+[34m   Пользователь: admin@coffee.com[0m
+[34m   Роль: admin[0m
+[32m✅ Логин админа - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Создание организации[0m
+[36m============================================================[0m
+[34m   Организация создана: ID 11[0m
+[34m   Название: Тестовая Организация API 1763566728531[0m
+[32m✅ Создание организации - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Создание инженера[0m
+[36m============================================================[0m
+[34m   Инженер создан: User ID 18, Engineer ID 7[0m
+[34m   Email: engineer-1763566729106@test.com[0m
+[32m✅ Создание инженера - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Создание менеджера[0m
+[36m============================================================[0m
+[34m   Менеджер создан: User ID 19[0m
+[34m   Email: manager-1763566729670@test.com[0m
+[32m✅ Создание менеджера - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Логин менеджера[0m
+[36m============================================================[0m
+[34m   Менеджер авторизован: manager-1763566729670@test.com[0m
+[34m   Токен получен: eyJhbGciOiJIUzI1NiIs...[0m
+[32m✅ Логин менеджера - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Логин инженера[0m
+[36m============================================================[0m
+[34m   Инженер авторизован: engineer-1763566729106@test.com[0m
+[34m   Токен получен: eyJhbGciOiJIUzI1NiIs...[0m
+[32m   ✅ Соглашения уже приняты[0m
+[32m✅ Логин инженера - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Получение соглашений[0m
+[36m============================================================[0m
+[33m   Пропущено: соглашения не требуются[0m
+[32m✅ Получение соглашений - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Принятие соглашений[0m
+[36m============================================================[0m
+[33m   Пропущено: соглашения не требуются[0m
+[32m✅ Принятие соглашений - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Создание заявки[0m
+[36m============================================================[0m
+[31m❌ Создание заявки - ОШИБКА[0m
+[31m   HTTP 403: Forbidden resource
+{
+  "statusCode": 403,
+  "timestamp": "2025-11-19T15:38:52.427Z",
+  "path": "/api/orders",
+  "method": "POST",
+  "message": "Forbidden resource",
+  "error": {
+    "name": "ForbiddenException",
+    "message": "Forbidden resource",
+    "details": {
+      "message": "Forbidden resource",
+      "error": "Forbidden",
+      "statusCode": 403
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Получение заявки[0m
+[36m============================================================[0m
+[31m❌ Получение заявки - ОШИБКА[0m
+[31m   HTTP 400: Validation failed (numeric string is expected)
+{
+  "statusCode": 400,
+  "timestamp": "2025-11-19T15:38:52.935Z",
+  "path": "/api/orders/null",
+  "method": "GET",
+  "message": "Validation failed (numeric string is expected)",
+  "error": {
+    "name": "BadRequestException",
+    "message": "Validation failed (numeric string is expected)",
+    "details": {
+      "message": "Validation failed (numeric string is expected)",
+      "error": "Bad Request",
+      "statusCode": 400
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Назначение инженера[0m
+[36m============================================================[0m
+[31m❌ Назначение инженера - ОШИБКА[0m
+[31m   HTTP 403: Forbidden resource
+{
+  "statusCode": 403,
+  "timestamp": "2025-11-19T15:38:53.440Z",
+  "path": "/api/orders/null/assign-engineer",
+  "method": "POST",
+  "message": "Forbidden resource",
+  "error": {
+    "name": "ForbiddenException",
+    "message": "Forbidden resource",
+    "details": {
+      "message": "Forbidden resource",
+      "error": "Forbidden",
+      "statusCode": 403
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Получение назначений[0m
+[36m============================================================[0m
+[31m❌ Получение назначений - ОШИБКА[0m
+[31m   HTTP 400: Validation failed (numeric string is expected)
+{
+  "statusCode": 400,
+  "timestamp": "2025-11-19T15:38:53.946Z",
+  "path": "/api/orders/null/assignments",
+  "method": "GET",
+  "message": "Validation failed (numeric string is expected)",
+  "error": {
+    "name": "BadRequestException",
+    "message": "Validation failed (numeric string is expected)",
+    "details": {
+      "message": "Validation failed (numeric string is expected)",
+      "error": "Bad Request",
+      "statusCode": 400
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Получение моих заявок[0m
+[36m============================================================[0m
+[34m   Заявок для инженера: 0[0m
+[32m✅ Получение моих заявок - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mТест: Принятие заявки инженером[0m
+[36m============================================================[0m
+[31m❌ Принятие заявки инженером - ОШИБКА[0m
+[31m   HTTP 400: Validation failed (numeric string is expected)
+{
+  "statusCode": 400,
+  "timestamp": "2025-11-19T15:38:54.968Z",
+  "path": "/api/orders/null/accept",
+  "method": "POST",
+  "message": "Validation failed (numeric string is expected)",
+  "error": {
+    "name": "BadRequestException",
+    "message": "Validation failed (numeric string is expected)",
+    "details": {
+      "message": "Validation failed (numeric string is expected)",
+      "error": "Bad Request",
+      "statusCode": 400
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Создание рабочей сессии[0m
+[36m============================================================[0m
+[31m❌ Создание рабочей сессии - ОШИБКА[0m
+[31m   HTTP 400: Validation failed (numeric string is expected)
+{
+  "statusCode": 400,
+  "timestamp": "2025-11-19T15:38:55.479Z",
+  "path": "/api/orders/null/work-sessions",
+  "method": "POST",
+  "message": "Validation failed (numeric string is expected)",
+  "error": {
+    "name": "BadRequestException",
+    "message": "Validation failed (numeric string is expected)",
+    "details": {
+      "message": "Validation failed (numeric string is expected)",
+      "error": "Bad Request",
+      "statusCode": 400
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Получение рабочих сессий[0m
+[36m============================================================[0m
+[31m❌ Получение рабочих сессий - ОШИБКА[0m
+[31m   HTTP 400: Validation failed (numeric string is expected)
+{
+  "statusCode": 400,
+  "timestamp": "2025-11-19T15:38:55.983Z",
+  "path": "/api/orders/null/work-sessions",
+  "method": "GET",
+  "message": "Validation failed (numeric string is expected)",
+  "error": {
+    "name": "BadRequestException",
+    "message": "Validation failed (numeric string is expected)",
+    "details": {
+      "message": "Validation failed (numeric string is expected)",
+      "error": "Bad Request",
+      "statusCode": 400
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Завершение работы[0m
+[36m============================================================[0m
+[31m❌ Завершение работы - ОШИБКА[0m
+[31m   HTTP 400: Validation failed (numeric string is expected)
+{
+  "statusCode": 400,
+  "timestamp": "2025-11-19T15:38:56.493Z",
+  "path": "/api/orders/null/complete-work",
+  "method": "POST",
+  "message": "Validation failed (numeric string is expected)",
+  "error": {
+    "name": "BadRequestException",
+    "message": "Validation failed (numeric string is expected)",
+    "details": {
+      "message": "Validation failed (numeric string is expected)",
+      "error": "Bad Request",
+      "statusCode": 400
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Завершение заявки[0m
+[36m============================================================[0m
+[31m❌ Завершение заявки - ОШИБКА[0m
+[31m   HTTP 403: Forbidden resource
+{
+  "statusCode": 403,
+  "timestamp": "2025-11-19T15:38:56.999Z",
+  "path": "/api/orders/null/complete",
+  "method": "POST",
+  "message": "Forbidden resource",
+  "error": {
+    "name": "ForbiddenException",
+    "message": "Forbidden resource",
+    "details": {
+      "message": "Forbidden resource",
+      "error": "Forbidden",
+      "statusCode": 403
+    }
+  }
+}[0m
+[33m   {[0m
+[36m
+============================================================[0m
+[1mТест: Проверка статистики[0m
+[36m============================================================[0m
+[33m   ⚠️  Статистика недоступна: HTTP 404: Cannot GET /api/statistics/engineer/7?year=2025&month=11
+{
+  "statusCode": 404,
+  "timestamp": "2025-11-19T15:38:57.505Z",
+  "path": "/api/statistics/engineer/7?year=2025&month=11",
+  "method": "GET",
+  "message": "Cannot GET /api/statistics/engineer/7?year=2025&month=11",
+  "error": {
+    "name": "NotFoundException",
+    "message": "Cannot GET /api/statistics/engineer/7?year=2025&month=11",
+    "details": {
+      "message": "Cannot GET /api/statistics/engineer/7?year=2025&month=11",
+      "error": "Not Found",
+      "statusCode": 404
+    }
+  }
+}[0m
+[32m✅ Проверка статистики - УСПЕШНО[0m
+[36m
+============================================================[0m
+[1mИТОГИ ТЕСТИРОВАНИЯ[0m
+[36m============================================================[0m
+[32m✅ Успешно: 11[0m
+[31m❌ Ошибок: 9[0m
+[34m📊 Всего тестов: 20[0m
+[33m
+⚠️  ЕСТЬ ОШИБКИ В ТЕСТАХ[0m
+npm error Lifecycle script `test:api` failed with error:
+npm error code 1
+npm error path /Users/sergejkosilov/WebstormProjects/new goal/coffe/backend
+npm error workspace coffee-admin-backend@1.0.0
+npm error location /Users/sergejkosilov/WebstormProjects/new goal/coffe/backend
+npm error command failed
+npm error command sh -c node scripts/test-api.js

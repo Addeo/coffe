@@ -74,6 +74,8 @@ export interface UpdateOrderDto {
 
 export interface AssignEngineerDto {
   engineerId: number;
+  engineerIds?: number[]; // Для множественного назначения
+  isPrimary?: boolean; // Является ли основным инженером
 }
 
 export interface OrderDto {

@@ -18,6 +18,9 @@ import { WorkSession } from './entities/work-session.entity';
 import { SalaryPayment } from './entities/salary-payment.entity';
 import { EngineerBalance } from './entities/engineer-balance.entity';
 import { Document } from './entities/document.entity';
+import { Agreement } from './entities/agreement.entity';
+import { UserAgreement } from './entities/user-agreement.entity';
+import { OrderEngineerAssignment } from './entities/order-engineer-assignment.entity';
 import { AuthModule } from './modules/аутентификация/auth.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -38,6 +41,7 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { LogsModule } from './modules/logs/logs.module';
 import { AppUpdateModule } from './modules/app/app.module';
 import { DocumentsModule } from './modules/documents/documents.module';
+import { AgreementsModule } from './modules/agreements/agreements.module';
 import { TestController } from './test.controller';
 
 @Module({
@@ -75,6 +79,9 @@ import { TestController } from './test.controller';
               SalaryPayment,
               EngineerBalance,
               Document,
+              Agreement,
+              UserAgreement,
+              OrderEngineerAssignment,
             ],
             synchronize: false, // NEVER use in production!
             ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
@@ -106,6 +113,9 @@ import { TestController } from './test.controller';
               SalaryPayment,
               EngineerBalance,
               Document,
+              Agreement,
+              UserAgreement,
+              OrderEngineerAssignment,
             ],
             synchronize: true,
             logging: false,
@@ -134,6 +144,7 @@ import { TestController } from './test.controller';
     LogsModule,
     AppUpdateModule,
     DocumentsModule,
+    AgreementsModule,
   ],
   controllers: [TestController],
   providers: [],

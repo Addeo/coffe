@@ -71,8 +71,13 @@
         </mat-form-field>
 
         <div class="total-hours">
-          <span class="label">Всего:</span>
+          <span class="label">Всего (с учетом коэффициента):</span>
           <span class="value">{{ totalHours.toFixed(2) }} ч</span>
+          <mat-icon 
+            matTooltip="Формула: {{ regularHours.toFixed(1) }} + ({{ overtimeHours.toFixed(1) }} × {{ overtimeCoefficient }}) = {{ totalHours.toFixed(2) }} ч"
+            class="info-icon">
+            info
+          </mat-icon>
         </div>
       </div>
 

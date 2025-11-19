@@ -1,0 +1,146 @@
+.agreement-dialog-content {
+  min-width: 600px;
+  max-width: 900px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.info-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: #fff3cd;
+  border-radius: 4px;
+  margin-bottom: 16px;
+
+  mat-icon {
+    flex-shrink: 0;
+  }
+
+  p {
+    margin: 0;
+    color: #856404;
+  }
+}
+
+.agreements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.agreement-card {
+  margin-bottom: 16px;
+
+  mat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+  }
+
+  .version-badge {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .mandatory-badge {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .agreement-content {
+    padding: 16px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    margin-top: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+    line-height: 1.6;
+
+    h1, h2, h3 {
+      margin-top: 16px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      margin-bottom: 12px;
+    }
+
+    strong {
+      font-weight: 600;
+    }
+
+    em {
+      font-style: italic;
+    }
+  }
+
+  mat-card-actions {
+    padding: 16px;
+    border-top: 1px solid #e0e0e0;
+    margin-top: 16px;
+
+    mat-checkbox {
+      width: 100%;
+    }
+
+    .required-mark {
+      color: #f44336;
+      font-weight: bold;
+    }
+  }
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: #ffebee;
+  border-radius: 4px;
+  margin-top: 16px;
+  color: #c62828;
+}
+
+mat-dialog-actions {
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+
+  button {
+    min-width: 120px;
+  }
+
+  .spinner-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+::ng-deep {
+  .mat-mdc-dialog-container {
+    .mdc-dialog__title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+}
+

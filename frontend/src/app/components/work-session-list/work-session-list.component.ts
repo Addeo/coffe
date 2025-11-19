@@ -86,6 +86,19 @@ export class WorkSessionListComponent implements OnInit {
     }).format(amount);
   }
 
+  /**
+   * Рассчитать общее количество отработанных часов с учетом коэффициента сверхурочных
+   * ВАЖНО: Формула regularHours + (overtimeHours * overtimeCoefficient)
+   */
+  calculateTotalHours(session: WorkSessionDto): number {
+    const regularHours = session.regularHours || 0;
+    const overtimeHours = session.overtimeHours || 0;
+    const overtimeCoefficient = (session as any).engineerOvertimeCoefficient ?? 1.6; // дефолтный коэффициент
+    
+    // ВАЖНО: Часы рассчитываются с учетом коэффициента
+    return regularHours + (overtimeHours * overtimeCoefficient);
+  }
+
   onEditSession(session: WorkSessionDto): void {
     // Будет реализовано позже через диалог
     console.log('Edit session:', session);

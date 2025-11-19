@@ -350,7 +350,7 @@
                     <span class="label">Всего часов:</span>
                     <span class="value"
                       ><strong
-                        >{{ (order?.regularHours || 0) + (order?.overtimeHours || 0) }} ч</strong
+                        >{{ calculateTotalHours(order) }} ч</strong
                       ></span
                     >
                   </div>

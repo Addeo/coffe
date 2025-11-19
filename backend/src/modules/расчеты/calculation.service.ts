@@ -9,14 +9,16 @@ import { EngineerType, TerritoryType } from '../../shared/interfaces/order.inter
 
 export interface EngineerRates {
   baseRate: number;
-  overtimeRate?: number;
-  overtimeMultiplier?: number;
+  overtimeCoefficient?: number; // коэффициент для сверхурочных (например, 1.6)
   fixedSalary: number;
   fixedCarAmount: number;
   carKmRate?: number;
   zone1Extra?: number;
   zone2Extra?: number;
   zone3Extra?: number;
+  // Legacy fields - удалить после миграции
+  overtimeRate?: number;
+  overtimeMultiplier?: number;
 }
 
 @Injectable()
@@ -43,27 +45,17 @@ export class CalculationService {
       },
     });
 
-    // Если индивидуальные ставки не установлены - используем дефолтные ставки инженера
-    // Логируем предупреждение для администратора
+    // Если индивидуальные ставки не установлены - коэффициент = 0 (работу нельзя рассчитать)
     if (!customRate) {
       console.warn(
         `⚠️ Individual rates not set for engineer ${engineer.user?.firstName} ${engineer.user?.lastName} ` +
-          `and organization ${organization.name}. Using default engineer rates.`
+          `and organization ${organization.name}. Coefficient will be 0.`
       );
       
-      // Проверяем, что у инженера есть базовые ставки
-      if (!engineer.baseRate || engineer.baseRate === 0) {
-        throw new Error(
-          `Engineer ${engineer.user?.firstName} ${engineer.user?.lastName} does not have base rate set. ` +
-          `Please set engineer base rate or individual rates for organization ${organization.name}.`
-        );
-      }
-      
-      // Возвращаем дефолтные ставки инженера
+      // Согласно требованиям: если ставки не установлены, коэффициент = 0
       return {
-        baseRate: engineer.baseRate,
-        overtimeRate: engineer.overtimeRate || engineer.baseRate,
-        overtimeMultiplier: undefined,
+        baseRate: engineer.baseRate || 0,
+        overtimeCoefficient: 0, // КРИТИЧНО: при отсутствии ставок коэффициент = 0
         fixedSalary: engineer.fixedSalary,
         fixedCarAmount: engineer.fixedCarAmount,
         carKmRate: engineer.type === EngineerType.CONTRACT ? 14 : undefined,
@@ -74,11 +66,10 @@ export class CalculationService {
     }
 
     // Формируем итоговые ставки на основе индивидуальных настроек
-    // Некоторые поля могут быть не заполнены (null), что нормально
+    // Используем коэффициент вместо ставки для сверхурочных
     const rates: EngineerRates = {
       baseRate: customRate.customBaseRate ?? engineer.baseRate ?? 0,
-      overtimeRate: customRate.customOvertimeRate ?? engineer.overtimeRate ?? engineer.baseRate ?? 0,
-      overtimeMultiplier: undefined, // Берется из настроек инженера
+      overtimeCoefficient: customRate.customOvertimeCoefficient ?? engineer.overtimeCoefficient ?? 1.6,
       fixedSalary: engineer.fixedSalary,
       fixedCarAmount: engineer.fixedCarAmount,
       carKmRate: engineer.type === EngineerType.CONTRACT ? 14 : undefined,
@@ -101,6 +92,7 @@ export class CalculationService {
 
   /**
    * Расчет оплаты инженера за работу с учетом индивидуальных ставок
+   * ВАЖНО: Сверхурочные рассчитываются через коэффициент, а не ставку
    */
   async calculateEngineerPayment(
     engineer: Engineer,
@@ -109,58 +101,43 @@ export class CalculationService {
     isOvertime: boolean
   ): Promise<number> {
     const rates = await this.getEngineerRatesForOrganization(engineer, organization);
+    
+    // Проверка: если коэффициент = 0, работа не может быть рассчитана
+    if (isOvertime && (!rates.overtimeCoefficient || rates.overtimeCoefficient === 0)) {
+      throw new Error(
+        `Overtime coefficient is not set for engineer ${engineer.user?.firstName} ${engineer.user?.lastName} ` +
+        `and organization ${organization.name}. Please set individual rates.`
+      );
+    }
+
     let rate = rates.baseRate;
 
     if (isOvertime) {
-      if (rates.overtimeRate) {
-        // Используем индивидуальную ставку переработки
-        rate = rates.overtimeRate;
-      } else if (rates.overtimeMultiplier) {
-        // Используем коэффициент переработки
-        rate = rates.baseRate * rates.overtimeMultiplier;
-      } else {
-        // Используем стандартные коэффициенты по типу инженера
-        switch (engineer.type) {
-          case EngineerType.STAFF:
-            rate = this.applyStaffOvertimeMultiplier(rate, organization);
-            break;
-          case EngineerType.CONTRACT:
-            rate = this.getContractOvertimeRate(organization);
-            break;
-        }
-      }
+      // ИСПОЛЬЗУЕМ КОЭФФИЦИЕНТ: overtimeCoefficient * baseRate
+      const overtimeCoefficient = rates.overtimeCoefficient ?? 1.6; // дефолтный коэффициент
+      rate = rates.baseRate * overtimeCoefficient;
     }
 
     return hours * rate;
   }
 
   /**
-   * Коэффициенты внеурочного времени для штатного инженера
+   * Получить общее количество отработанных часов с учетом коэффициента сверхурочных
+   * ВАЖНО: Для отображения используется формула regularHours + (overtimeHours * coefficient)
+   * 
+   * @param regularHours - обычные часы
+   * @param overtimeHours - сверхурочные часы
+   * @param overtimeCoefficient - коэффициент сверхурочных
+   * @returns Общее количество часов для отображения в статистике
+   * 
+   * Пример: 100 обычных + 50 сверхурочных * 1.6 = 180 часов
    */
-  private applyStaffOvertimeMultiplier(rate: number, organization: Organization): number {
-    const multipliers: { [key: string]: number } = {
-      Вистекс: 1.6,
-      'Холод Вистекс': 1.8,
-      Франко: 1.8,
-      'Локальный Сервис': 1.8,
-    };
-
-    const multiplier = multipliers[organization.name] || 1;
-    return rate * multiplier;
-  }
-
-  /**
-   * Фиксированные ставки внеурочного времени для наемного инженера
-   */
-  private getContractOvertimeRate(organization: Organization): number {
-    const rates: { [key: string]: number } = {
-      Вистекс: 1200,
-      'Холод Вистекс': 1400,
-      Франко: 1200,
-      'Локальный Сервис': 1200,
-    };
-
-    return rates[organization.name] || 700; // fallback to base rate
+  calculateTotalWorkedHours(
+    regularHours: number,
+    overtimeHours: number,
+    overtimeCoefficient: number = 1.6
+  ): number {
+    return regularHours + (overtimeHours * overtimeCoefficient);
   }
 
   /**
@@ -367,25 +344,46 @@ export class CalculationService {
 
   /**
    * Определение сверхурочного времени
+   * ВАЖНО: Сверхурочные = выходные, праздники, будни 22:00-06:00
    */
   isOvertimeWork(startTime: Date, endTime: Date, engineerType: EngineerType): boolean {
-    const hours = this.calculateWorkHours(startTime, endTime);
     const dayOfWeek = startTime.getDay(); // 0 = Sunday, 6 = Saturday
 
-    // Работа в выходные всегда считается сверхурочной
+    // 1. Выходные дни (суббота и воскресенье) - всегда сверхурочные
     if (dayOfWeek === 0 || dayOfWeek === 6) {
       return true;
     }
 
-    // Для наемных инженеров - любая работа считается по фиксированной ставке
-    if (engineerType === EngineerType.CONTRACT) {
-      return false; // Наемные всегда работают по фиксированной ставке
+    // 2. Праздничные дни - TODO: добавить таблицу holidays или API
+    // if (this.isHoliday(startTime)) {
+    //   return true;
+    // }
+
+    // 3. Будние дни: работа в период 22:00-06:00 считается сверхурочной
+    const startHour = startTime.getHours();
+    if (startHour >= 22 || startHour < 6) {
+      return true;
     }
 
-    // Сверхурочное время после 8 часов в день
-    const dailyHours = this.getDailyHoursWorked(startTime, hours);
-    return dailyHours > 8;
+    // Также проверяем, если работа начинается до 06:00 или заканчивается после 22:00
+    const endHour = endTime.getHours();
+    if (endHour >= 22 || endHour < 6) {
+      return true;
+    }
+
+    // Для наемных инженеров работа может быть сверхурочной по времени, но оплачиваться по-другому
+    // Но само определение сверхурочных применяется одинаково
+    return false;
   }
+
+  /**
+   * Проверка является ли дата праздничным днем
+   * TODO: Реализовать через таблицу holidays или внешний API
+   */
+  // private isHoliday(date: Date): boolean {
+  //   // Реализация проверки праздников
+  //   return false;
+  // }
 
   /**
    * Получение часов работы за день (упрощенная версия)

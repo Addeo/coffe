@@ -77,22 +77,45 @@ export class WorkSessionsService {
 
   /**
    * Рассчитать сводку по сессиям заказа
+   * ВАЖНО: Часы рассчитываются с учетом коэффициента сверхурочных
+   * Формула: regularHours + (overtimeHours * overtimeCoefficient)
    */
   calculateSessionsSummary(sessions: WorkSessionDto[]): WorkSessionSummaryDto {
+    let totalCoefficientSum = 0;
+    let coefficientCount = 0;
+
     return sessions.reduce(
-      (summary, session) => ({
-        totalSessions: summary.totalSessions + 1,
-        totalHours: summary.totalHours + session.regularHours + session.overtimeHours,
-        totalRegularHours: summary.totalRegularHours + session.regularHours,
-        totalOvertimeHours: summary.totalOvertimeHours + session.overtimeHours,
-        totalPayment: summary.totalPayment + session.calculatedAmount,
-        totalCarUsage: summary.totalCarUsage + session.carUsageAmount,
-      }),
+      (summary, session) => {
+        // ВАЖНО: Часы рассчитываются с учетом коэффициента
+        const overtimeCoefficient = (session as any).engineerOvertimeCoefficient ?? 1.6; // дефолтный коэффициент
+        const regularHours = session.regularHours || 0;
+        const overtimeHours = session.overtimeHours || 0;
+        const totalWorkedHours = regularHours + (overtimeHours * overtimeCoefficient);
+
+        // Для расчета среднего коэффициента
+        if (overtimeHours > 0) {
+          totalCoefficientSum += overtimeCoefficient;
+          coefficientCount++;
+        }
+
+        return {
+          totalSessions: summary.totalSessions + 1,
+          totalHours: summary.totalHours + totalWorkedHours, // Используем расчет с коэффициентом
+          totalRegularHours: summary.totalRegularHours + regularHours,
+          totalOvertimeHours: summary.totalOvertimeHours + overtimeHours,
+          totalOvertimeCoefficient: coefficientCount > 0 
+            ? totalCoefficientSum / coefficientCount 
+            : 1.6, // средний коэффициент
+          totalPayment: summary.totalPayment + session.calculatedAmount,
+          totalCarUsage: summary.totalCarUsage + session.carUsageAmount,
+        };
+      },
       {
         totalSessions: 0,
         totalHours: 0,
         totalRegularHours: 0,
         totalOvertimeHours: 0,
+        totalOvertimeCoefficient: 1.6,
         totalPayment: 0,
         totalCarUsage: 0,
       } as WorkSessionSummaryDto

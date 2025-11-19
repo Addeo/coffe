@@ -1,0 +1,79 @@
+<h2 mat-dialog-title>
+  <mat-icon>gavel</mat-icon>
+  Принятие пользовательских соглашений
+</h2>
+
+<mat-dialog-content class="agreement-dialog-content">
+  <div class="info-message" *ngIf="data.missingAgreements.length > 0">
+    <mat-icon color="warn">info</mat-icon>
+    <p>
+      Для продолжения работы в системе необходимо принять следующие соглашения:
+    </p>
+  </div>
+
+  <!-- Tabs для разных типов соглашений -->
+  <mat-tab-group [selectedIndex]="selectedTab()" (selectedIndexChange)="selectedTab.set($event)">
+    <mat-tab *ngFor="let typeAgreement of agreementsByTypeArray; let i = index" [label]="getAgreementTypeLabel(typeAgreement[0])">
+      <ng-container *ngTemplateOutlet="agreementTemplate; context: { agreements: typeAgreement[1] }"></ng-container>
+    </mat-tab>
+  </mat-tab-group>
+
+  <!-- Template для списка соглашений -->
+  <ng-template #agreementTemplate let-agreements="agreements">
+    <div class="agreements-list">
+      <mat-card *ngFor="let agreement of agreements" class="agreement-card">
+          <mat-card-header>
+            <mat-card-title>
+              {{ agreement.title }}
+              <span class="version-badge">v{{ agreement.version }}</span>
+              <span *ngIf="agreement.isMandatory" class="mandatory-badge">Обязательно</span>
+            </mat-card-title>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div 
+              class="agreement-content" 
+              [innerHTML]="renderContent(agreement.content)">
+            </div>
+          </mat-card-content>
+          
+          <mat-card-actions>
+            <mat-checkbox
+              [checked]="isAgreementAccepted(agreement.id)"
+              (change)="toggleAgreement(agreement.id, $event)"
+              [disabled]="loading()"
+              [required]="agreement.isMandatory">
+              Я ознакомлен(а) и принимаю условия соглашения
+              <span *ngIf="agreement.isMandatory" class="required-mark">*</span>
+            </mat-checkbox>
+          </mat-card-actions>
+      </mat-card>
+    </div>
+  </ng-template>
+
+  <!-- Сообщение об ошибке -->
+  <div *ngIf="error()" class="error-message">
+    <mat-icon color="warn">error</mat-icon>
+    <span>{{ error() }}</span>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button 
+    mat-button 
+    (click)="close()" 
+    [disabled]="loading() || !data.canClose"
+    *ngIf="data.canClose">
+    Отмена
+  </button>
+  <button 
+    mat-raised-button 
+    color="primary" 
+    (click)="accept()"
+    [disabled]="loading() || !canAccept()">
+    <mat-progress-spinner *ngIf="loading()" diameter="20" mode="indeterminate" class="spinner-icon"></mat-progress-spinner>
+    <mat-icon *ngIf="!loading()">check</mat-icon>
+    {{ loading() ? 'Сохранение...' : 'Принять и продолжить' }}
+  </button>
+</mat-dialog-actions>
+

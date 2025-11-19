@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { User, UserRole } from '../../entities/user.entity';
 import { Engineer } from '../../entities/engineer.entity';
 import { EngineerType } from '../../shared/interfaces/order.interface';
+import { AgreementsService } from '../agreements/agreements.service';
 
 // Role hierarchy levels (higher number = higher privilege)
 const ROLE_HIERARCHY: Record<UserRole, number> = {
@@ -32,7 +33,8 @@ export class AuthService {
     private userRepository: Repository<User>,
     @InjectRepository(Engineer)
     private engineerRepository: Repository<Engineer>,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private agreementsService: AgreementsService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -119,9 +121,21 @@ export class AuthService {
 
     delete userResponse.password;
 
+    // Проверяем статус принятия соглашений
+    const agreementsStatus = await this.agreementsService.checkUserAgreements(user.id);
+
     return {
       access_token: this.jwtService.sign(payload),
       user: userResponse,
+      agreements: {
+        hasAcceptedAll: agreementsStatus.hasAcceptedAll,
+        missingAgreements: agreementsStatus.missingAgreements.map(a => ({
+          id: a.id,
+          type: a.type,
+          version: a.version,
+          title: a.title,
+        })),
+      },
     };
   }
 

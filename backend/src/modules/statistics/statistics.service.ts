@@ -91,7 +91,15 @@ export class StatisticsService {
       for (const session of sessions) {
         totalEarnings +=
           (Number(session.calculatedAmount) || 0) + (Number(session.carUsageAmount) || 0);
-        totalHours += (Number(session.regularHours) || 0) + (Number(session.overtimeHours) || 0);
+        
+        // ВАЖНО: Часы рассчитываются с учетом коэффициента
+        // Формула: regularHours + (overtimeHours * overtimeCoefficient)
+        const overtimeCoefficient = Number(session.engineerOvertimeCoefficient) || 1.6;
+        const regularHours = Number(session.regularHours) || 0;
+        const overtimeHours = Number(session.overtimeHours) || 0;
+        const totalWorkedHours = regularHours + (overtimeHours * overtimeCoefficient);
+        
+        totalHours += totalWorkedHours;
         if (session.orderId) {
           uniqueOrders.add(session.orderId);
         }
@@ -123,19 +131,20 @@ export class StatisticsService {
       return -1; // Пользователь не имеет профиля инженера
     }
 
-    // Рассчитываем заработок текущего пользователя из orders
-    const userOrders = await this.orderRepository
-      .createQueryBuilder('order')
-      .where('order.assignedEngineerId = :engineerId', { engineerId: engineer.id })
-      .andWhere('order.status = :status', { status: 'completed' })
-      .andWhere('order.completionDate >= :startDate', { startDate })
-      .andWhere('order.completionDate < :endDate', { endDate })
+    // ВАЖНО: Статистика теперь считается ТОЛЬКО из WorkSession (по workDate!)
+    // Рассчитываем заработок текущего пользователя из WorkSession
+    const userSessions = await this.workSessionRepository
+      .createQueryBuilder('session')
+      .where('session.engineerId = :engineerId', { engineerId: engineer.id })
+      .andWhere('session.status = :status', { status: 'completed' })
+      .andWhere('session.workDate >= :startDate', { startDate })
+      .andWhere('session.workDate < :endDate', { endDate })
       .getMany();
 
     let userTotalEarnings = 0;
-    for (const order of userOrders) {
+    for (const session of userSessions) {
       userTotalEarnings +=
-        (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
+        (Number(session.calculatedAmount) || 0) + (Number(session.carUsageAmount) || 0);
     }
 
     if (userTotalEarnings === 0) {
@@ -151,18 +160,18 @@ export class StatisticsService {
     for (const otherEngineer of allEngineers) {
       if (otherEngineer.id === engineer.id) continue;
 
-      const otherOrders = await this.orderRepository
-        .createQueryBuilder('order')
-        .where('order.assignedEngineerId = :engineerId', { engineerId: otherEngineer.id })
-        .andWhere('order.status = :status', { status: 'completed' })
-        .andWhere('order.completionDate >= :startDate', { startDate })
-        .andWhere('order.completionDate < :endDate', { endDate })
+      const otherSessions = await this.workSessionRepository
+        .createQueryBuilder('session')
+        .where('session.engineerId = :engineerId', { engineerId: otherEngineer.id })
+        .andWhere('session.status = :status', { status: 'completed' })
+        .andWhere('session.workDate >= :startDate', { startDate })
+        .andWhere('session.workDate < :endDate', { endDate })
         .getMany();
 
       let otherTotalEarnings = 0;
-      for (const order of otherOrders) {
+      for (const session of otherSessions) {
         otherTotalEarnings +=
-          (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
+          (Number(session.calculatedAmount) || 0) + (Number(session.carUsageAmount) || 0);
       }
 
       if (otherTotalEarnings > userTotalEarnings) {
@@ -210,46 +219,67 @@ export class StatisticsService {
       };
     }
 
-    // Рассчитываем статистику за текущий месяц из orders
+    // ВАЖНО: Статистика теперь считается ТОЛЬКО из WorkSession (по workDate!)
+    // Рассчитываем статистику за текущий месяц из WorkSession
     const currentStartDate = new Date(currentYear, currentMonth - 1, 1);
     const currentEndDate = new Date(currentYear, currentMonth, 1);
 
-    const currentOrders = await this.orderRepository
-      .createQueryBuilder('order')
-      .where('order.assignedEngineerId = :engineerId', { engineerId: engineer.id })
-      .andWhere('order.status = :status', { status: 'completed' })
-      .andWhere('order.completionDate >= :startDate', { startDate: currentStartDate })
-      .andWhere('order.completionDate < :endDate', { endDate: currentEndDate })
+    const currentSessions = await this.workSessionRepository
+      .createQueryBuilder('session')
+      .where('session.engineerId = :engineerId', { engineerId: engineer.id })
+      .andWhere('session.status = :status', { status: 'completed' })
+      .andWhere('session.workDate >= :startDate', { startDate: currentStartDate })
+      .andWhere('session.workDate < :endDate', { endDate: currentEndDate })
       .getMany();
 
     let currentTotalEarnings = 0;
     let currentTotalHours = 0;
+    const currentUniqueOrders = new Set<number>();
 
-    for (const order of currentOrders) {
+    for (const session of currentSessions) {
       currentTotalEarnings +=
-        (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
-      currentTotalHours += (Number(order.regularHours) || 0) + (Number(order.overtimeHours) || 0);
+        (Number(session.calculatedAmount) || 0) + (Number(session.carUsageAmount) || 0);
+      
+      // ВАЖНО: Часы рассчитываются с учетом коэффициента
+      const overtimeCoefficient = Number(session.engineerOvertimeCoefficient) || 1.6;
+      const regularHours = Number(session.regularHours) || 0;
+      const overtimeHours = Number(session.overtimeHours) || 0;
+      currentTotalHours += regularHours + (overtimeHours * overtimeCoefficient);
+      
+      if (session.orderId) {
+        currentUniqueOrders.add(session.orderId);
+      }
     }
 
-    // Рассчитываем статистику за предыдущий месяц из orders
+    // Рассчитываем статистику за предыдущий месяц из WorkSession
     const prevStartDate = new Date(previousYear, previousMonth - 1, 1);
     const prevEndDate = new Date(previousYear, previousMonth, 1);
 
-    const prevOrders = await this.orderRepository
-      .createQueryBuilder('order')
-      .where('order.assignedEngineerId = :engineerId', { engineerId: engineer.id })
-      .andWhere('order.status = :status', { status: 'completed' })
-      .andWhere('order.completionDate >= :startDate', { startDate: prevStartDate })
-      .andWhere('order.completionDate < :endDate', { endDate: prevEndDate })
+    const prevSessions = await this.workSessionRepository
+      .createQueryBuilder('session')
+      .where('session.engineerId = :engineerId', { engineerId: engineer.id })
+      .andWhere('session.status = :status', { status: 'completed' })
+      .andWhere('session.workDate >= :startDate', { startDate: prevStartDate })
+      .andWhere('session.workDate < :endDate', { endDate: prevEndDate })
       .getMany();
 
     let prevTotalEarnings = 0;
     let prevTotalHours = 0;
+    const prevUniqueOrders = new Set<number>();
 
-    for (const order of prevOrders) {
+    for (const session of prevSessions) {
       prevTotalEarnings +=
-        (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
-      prevTotalHours += (Number(order.regularHours) || 0) + (Number(order.overtimeHours) || 0);
+        (Number(session.calculatedAmount) || 0) + (Number(session.carUsageAmount) || 0);
+      
+      // ВАЖНО: Часы рассчитываются с учетом коэффициента
+      const overtimeCoefficient = Number(session.engineerOvertimeCoefficient) || 1.6;
+      const regularHours = Number(session.regularHours) || 0;
+      const overtimeHours = Number(session.overtimeHours) || 0;
+      prevTotalHours += regularHours + (overtimeHours * overtimeCoefficient);
+      
+      if (session.orderId) {
+        prevUniqueOrders.add(session.orderId);
+      }
     }
 
     let growth = 0;
@@ -260,16 +290,16 @@ export class StatisticsService {
     return {
       currentMonth: {
         totalEarnings: currentTotalEarnings,
-        completedOrders: currentOrders.length,
+        completedOrders: currentUniqueOrders.size,
         totalHours: currentTotalHours,
         month: currentMonth,
         year: currentYear,
       },
       previousMonth:
-        prevOrders.length > 0
+        prevSessions.length > 0
           ? {
               totalEarnings: prevTotalEarnings,
-              completedOrders: prevOrders.length,
+              completedOrders: prevUniqueOrders.size,
               totalHours: prevTotalHours,
               month: previousMonth,
               year: previousYear,
@@ -317,54 +347,60 @@ export class StatisticsService {
 
     const engineerId = engineer.id;
 
-    // Получаем orders за текущий месяц (включая новый статус)
-    const orders = await this.orderRepository
-      .createQueryBuilder('order')
-      .where('order.assignedEngineerId = :engineerId', { engineerId })
-      .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
-      .andWhere('order.completionDate >= :startDate', { startDate })
-      .andWhere('order.completionDate < :endDate', { endDate })
+    // ВАЖНО: Статистика теперь считается ТОЛЬКО из WorkSession
+    // Получаем WorkSession за текущий месяц (по workDate!)
+    const workSessions = await this.workSessionRepository
+      .createQueryBuilder('session')
+      .where('session.engineerId = :engineerId', { engineerId })
+      .andWhere('session.status = :status', { status: 'completed' })
+      .andWhere('session.workDate >= :startDate', { startDate })
+      .andWhere('session.workDate < :endDate', { endDate })
       .getMany();
 
-    // Получаем orders за предыдущий месяц для сравнения
+    // Получаем WorkSession за предыдущий месяц для сравнения
     const prevMonth = month === 1 ? 12 : month - 1;
     const prevYear = month === 1 ? year - 1 : year;
     const prevStartDate = new Date(prevYear, prevMonth - 1, 1);
     const prevEndDate = new Date(prevYear, prevMonth, 1);
 
-    const prevOrders = await this.orderRepository
-      .createQueryBuilder('order')
-      .where('order.assignedEngineerId = :engineerId', { engineerId })
-      .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
-      .andWhere('order.completionDate >= :startDate', { startDate: prevStartDate })
-      .andWhere('order.completionDate < :endDate', { endDate: prevEndDate })
+    const prevWorkSessions = await this.workSessionRepository
+      .createQueryBuilder('session')
+      .where('session.engineerId = :engineerId', { engineerId })
+      .andWhere('session.status = :status', { status: 'completed' })
+      .andWhere('session.workDate >= :startDate', { startDate: prevStartDate })
+      .andWhere('session.workDate < :endDate', { endDate: prevEndDate })
       .getMany();
 
-    // Рассчитываем текущую статистику из Order fields
+    // Рассчитываем текущую статистику из WorkSession
     let totalHours = 0;
     let regularHours = 0;
     let overtimeHours = 0;
     let totalEarnings = 0;
     let baseEarnings = 0;
     let overtimeEarnings = 0;
+    const uniqueOrders = new Set<number>();
 
-    for (const order of orders) {
-      const orderRegularHours = Number(order.regularHours) || 0;
-      const orderOvertimeHours = Number(order.overtimeHours) || 0;
-      regularHours += orderRegularHours;
-      overtimeHours += orderOvertimeHours;
-      totalHours += orderRegularHours + orderOvertimeHours;
+    for (const session of workSessions) {
+      const sessionRegularHours = Number(session.regularHours) || 0;
+      const sessionOvertimeHours = Number(session.overtimeHours) || 0;
+      regularHours += sessionRegularHours;
+      overtimeHours += sessionOvertimeHours;
 
-      const orderEarnings =
-        (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
-      totalEarnings += orderEarnings;
+      // ВАЖНО: Часы рассчитываются с учетом коэффициента
+      const overtimeCoefficient = Number(session.engineerOvertimeCoefficient) || 1.6;
+      const sessionTotalHours = sessionRegularHours + (sessionOvertimeHours * overtimeCoefficient);
+      totalHours += sessionTotalHours;
 
-      // Примерное разделение на base/overtime (пропорционально часам)
-      if (totalHours > 0) {
-        baseEarnings +=
-          (orderEarnings * orderRegularHours) / (orderRegularHours + orderOvertimeHours || 1);
-        overtimeEarnings +=
-          (orderEarnings * orderOvertimeHours) / (orderRegularHours + orderOvertimeHours || 1);
+      const sessionEarnings =
+        (Number(session.calculatedAmount) || 0) + (Number(session.carUsageAmount) || 0);
+      totalEarnings += sessionEarnings;
+
+      // Разделение на base/overtime
+      baseEarnings += Number(session.regularPayment) || 0;
+      overtimeEarnings += Number(session.overtimePayment) || 0;
+
+      if (session.orderId) {
+        uniqueOrders.add(session.orderId);
       }
     }
 
@@ -372,20 +408,28 @@ export class StatisticsService {
     let prevTotalHours = 0;
     let prevTotalEarnings = 0;
 
-    for (const order of prevOrders) {
-      prevTotalHours += (Number(order.regularHours) || 0) + (Number(order.overtimeHours) || 0);
+    for (const session of prevWorkSessions) {
+      const sessionRegularHours = Number(session.regularHours) || 0;
+      const sessionOvertimeHours = Number(session.overtimeHours) || 0;
+      const overtimeCoefficient = Number(session.engineerOvertimeCoefficient) || 1.6;
+      prevTotalHours += sessionRegularHours + (sessionOvertimeHours * overtimeCoefficient);
       prevTotalEarnings +=
-        (Number(order.calculatedAmount) || 0) + (Number(order.carUsageAmount) || 0);
+        (Number(session.calculatedAmount) || 0) + (Number(session.carUsageAmount) || 0);
     }
 
-    const completedOrders = orders.length;
+    const completedOrders = uniqueOrders.size;
     const averageHoursPerOrder = completedOrders > 0 ? totalHours / completedOrders : 0;
     const earningsGrowth =
       prevTotalEarnings > 0 ? ((totalEarnings - prevTotalEarnings) / prevTotalEarnings) * 100 : 0;
     const hoursGrowth =
       prevTotalHours > 0 ? ((totalHours - prevTotalHours) / prevTotalHours) * 100 : 0;
 
-    // Статистика по платежам
+    // Статистика по платежам (из заказов, связанных с сессиями)
+    const orderIds = Array.from(uniqueOrders);
+    const orders = orderIds.length > 0
+      ? await this.orderRepository.find({ where: { id: orderIds as any } })
+      : [];
+
     const paidOrders = orders.filter(order => order.status === 'paid_to_engineer').length;
     const pendingPaymentOrders = orders.filter(order => order.status === 'completed').length;
     const receivedFromOrgOrders = orders.filter(order => order.receivedFromOrganization).length;
@@ -524,23 +568,25 @@ export class StatisticsService {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
-    // Get all orders for the period with engineer data (from aggregated Order fields)
-    const engineerStats = await this.orderRepository
-      .createQueryBuilder('order')
+    // ВАЖНО: Статистика теперь считается ТОЛЬКО из WorkSession (по workDate!)
+    const engineerStats = await this.workSessionRepository
+      .createQueryBuilder('session')
       .select('engineer.userId', 'engineerId')
       .addSelect('user.firstName', 'firstName')
       .addSelect('user.lastName', 'lastName')
       .addSelect('user.email', 'email')
-      .addSelect('COUNT(order.id)', 'completedOrders')
-      .addSelect('SUM(order.regularHours + order.overtimeHours)', 'totalHours')
-      .addSelect('SUM(order.calculatedAmount)', 'engineerEarnings')
-      .addSelect('SUM(order.organizationPayment)', 'organizationPayments')
-      .addSelect('SUM(order.carUsageAmount)', 'carUsageAmount')
-      .leftJoin('order.assignedEngineer', 'engineer')
+      .addSelect('COUNT(DISTINCT session.orderId)', 'completedOrders')
+      .addSelect('SUM(session.regularHours)', 'regularHours')
+      .addSelect('SUM(session.overtimeHours)', 'overtimeHours')
+      .addSelect('SUM(session.calculatedAmount)', 'engineerEarnings')
+      .addSelect('SUM(session.organizationPayment)', 'organizationPayments')
+      .addSelect('SUM(session.carUsageAmount)', 'carUsageAmount')
+      .addSelect('AVG(session.engineerOvertimeCoefficient)', 'avgOvertimeCoefficient')
+      .leftJoin('session.engineer', 'engineer')
       .leftJoin('engineer.user', 'user')
-      .where('order.completionDate >= :startDate', { startDate })
-      .andWhere('order.completionDate < :endDate', { endDate })
-      .andWhere('order.status = :status', { status: 'completed' })
+      .where('session.workDate >= :startDate', { startDate })
+      .andWhere('session.workDate < :endDate', { endDate })
+      .andWhere('session.status = :status', { status: 'completed' })
       .andWhere('user.role = :role', { role: UserRole.USER })
       .groupBy('engineer.userId')
       .addGroupBy('user.firstName')
@@ -548,8 +594,13 @@ export class StatisticsService {
       .addGroupBy('user.email')
       .orderBy('engineerEarnings', 'DESC')
       .getRawMany();
-
+    
     const engineerStatsWithProfit = engineerStats.map(stat => {
+      // ВАЖНО: Часы рассчитываются с учетом коэффициента
+      const avgOvertimeCoefficient = Number(stat.avgOvertimeCoefficient) || 1.6;
+      const regularHours = Number(stat.regularHours) || 0;
+      const overtimeHours = Number(stat.overtimeHours) || 0;
+      const totalHours = regularHours + (overtimeHours * avgOvertimeCoefficient);
       const engineerEarnings = Number(stat.engineerEarnings) || 0;
       const organizationPayments = Number(stat.organizationPayments) || 0;
       const carUsageAmount = Number(stat.carUsageAmount) || 0;
@@ -570,7 +621,7 @@ export class StatisticsService {
         engineerName: `${stat.firstName || ''} ${stat.lastName || ''}`.trim() || 'Unknown',
         email: stat.email,
         completedOrders: Number(stat.completedOrders) || 0,
-        totalHours: Number(stat.totalHours) || 0,
+        totalHours: totalHours, // Используем расчет с коэффициентом
         engineerEarnings: engineerEarnings, // Оплата за работу (без машины)
         carUsageAmount: carUsageAmount, // Доплата за машину отдельно
         totalEarnings: totalEngineerPayment, // Общая сумма (работа + машина)
@@ -617,25 +668,25 @@ export class StatisticsService {
   }
 
   private async getAgentEarningsData(year: number, month: number): Promise<AgentEarningsData[]> {
-    // Calculate directly from Order fields (aggregated data from work_reports)
+    // ВАЖНО: Статистика теперь считается ТОЛЬКО из WorkSession (по workDate!)
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
-    const agentData = await this.orderRepository
-      .createQueryBuilder('order')
+    const agentData = await this.workSessionRepository
+      .createQueryBuilder('session')
       .select('engineer.userId', 'userId')
       .addSelect('user.firstName', 'firstName')
       .addSelect('user.lastName', 'lastName')
-      .addSelect('SUM(order.calculatedAmount + order.carUsageAmount)', 'totalEarnings')
-      .addSelect('SUM(order.calculatedAmount)', 'earnedAmount')
-      .addSelect('SUM(order.carUsageAmount)', 'carPayments')
-      .addSelect('COUNT(order.id)', 'completedOrders')
-      .addSelect('AVG(order.calculatedAmount + order.carUsageAmount)', 'averageOrderValue')
-      .innerJoin('order.assignedEngineer', 'engineer')
+      .addSelect('SUM(session.calculatedAmount + session.carUsageAmount)', 'totalEarnings')
+      .addSelect('SUM(session.calculatedAmount)', 'earnedAmount')
+      .addSelect('SUM(session.carUsageAmount)', 'carPayments')
+      .addSelect('COUNT(DISTINCT session.orderId)', 'completedOrders')
+      .addSelect('AVG(session.calculatedAmount + session.carUsageAmount)', 'averageOrderValue')
+      .innerJoin('session.engineer', 'engineer')
       .innerJoin('engineer.user', 'user')
-      .where('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
-      .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
-      .andWhere('order.assignedEngineerId IS NOT NULL')
+      .where('session.workDate >= :startDate', { startDate })
+      .andWhere('session.workDate < :endDate', { endDate })
+      .andWhere('session.status = :status', { status: 'completed' })
       .andWhere('user.role = :role', { role: UserRole.USER })
       .groupBy('engineer.userId')
       .addGroupBy('user.firstName')
@@ -644,7 +695,7 @@ export class StatisticsService {
       .getRawMany();
 
     return agentData.map(data => ({
-      agentId: data.userId,
+      agentId: Number(data.userId),
       agentName: `${data.firstName || ''} ${data.lastName || ''}`.trim() || 'Unknown',
       totalEarnings: Number(data.totalEarnings) || 0,
       earnedAmount: Number(data.earnedAmount) || 0, // Оплата за часы
@@ -658,22 +709,24 @@ export class StatisticsService {
     startDate: Date,
     endDate: Date
   ): Promise<OrganizationEarningsData[]> {
-    // Calculate from Order aggregated fields:
+    // ВАЖНО: Статистика теперь считается ТОЛЬКО из WorkSession (по workDate!)
     // 1. Revenue: organizationPayment (what organizations pay us)
     // 2. Costs: calculatedAmount + carUsageAmount (what we pay engineers)
     // 3. Profit: Revenue - Costs
-    const organizationStats = await this.orderRepository
-      .createQueryBuilder('order')
+    const organizationStats = await this.workSessionRepository
+      .createQueryBuilder('session')
       .select('order.organizationId', 'organizationId')
       .addSelect('organization.name', 'organizationName')
-      .addSelect('COUNT(order.id)', 'totalOrders')
-      .addSelect('SUM(order.regularHours + order.overtimeHours)', 'totalHours')
-      .addSelect('SUM(order.organizationPayment)', 'totalRevenue')
-      .addSelect('SUM(order.calculatedAmount)', 'totalCosts')
-      .addSelect('AVG(order.organizationPayment)', 'averageOrderValue')
+      .addSelect('COUNT(DISTINCT session.orderId)', 'totalOrders')
+      .addSelect('SUM(session.regularHours + session.overtimeHours * COALESCE(session.engineerOvertimeCoefficient, 1.6))', 'totalHours')
+      .addSelect('SUM(session.organizationPayment)', 'totalRevenue')
+      .addSelect('SUM(session.calculatedAmount + session.carUsageAmount)', 'totalCosts')
+      .addSelect('AVG(session.organizationPayment)', 'averageOrderValue')
+      .innerJoin('session.order', 'order')
       .leftJoin('order.organization', 'organization')
-      .where('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
-      .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
+      .where('session.workDate >= :startDate', { startDate })
+      .andWhere('session.workDate < :endDate', { endDate })
+      .andWhere('session.status = :status', { status: 'completed' })
       .andWhere('order.organizationId IS NOT NULL')
       .groupBy('order.organizationId')
       .addGroupBy('organization.name')
@@ -704,20 +757,20 @@ export class StatisticsService {
     startDate: Date,
     endDate: Date
   ): Promise<OvertimeStatisticsData[]> {
-    // Calculate from Order aggregated fields
-    const engineerStats = await this.orderRepository
-      .createQueryBuilder('order')
+    // ВАЖНО: Статистика теперь считается ТОЛЬКО из WorkSession (по workDate!)
+    const engineerStats = await this.workSessionRepository
+      .createQueryBuilder('session')
       .select('engineer.userId', 'engineerId')
       .addSelect('user.firstName', 'firstName')
       .addSelect('user.lastName', 'lastName')
-      .addSelect('SUM(order.overtimeHours)', 'overtimeHours')
-      .addSelect('SUM(order.regularHours)', 'regularHours')
-      .addSelect('SUM(order.regularHours + order.overtimeHours)', 'totalHours')
-      .innerJoin('order.assignedEngineer', 'engineer')
+      .addSelect('SUM(session.overtimeHours)', 'overtimeHours')
+      .addSelect('SUM(session.regularHours)', 'regularHours')
+      .addSelect('SUM(session.regularHours + session.overtimeHours * COALESCE(session.engineerOvertimeCoefficient, 1.6))', 'totalHours')
+      .innerJoin('session.engineer', 'engineer')
       .innerJoin('engineer.user', 'user')
-      .where('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
-      .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
-      .andWhere('order.assignedEngineerId IS NOT NULL')
+      .where('session.workDate >= :startDate', { startDate })
+      .andWhere('session.workDate < :endDate', { endDate })
+      .andWhere('session.status = :status', { status: 'completed' })
       .groupBy('engineer.userId')
       .addGroupBy('user.firstName')
       .addGroupBy('user.lastName')
@@ -883,15 +936,16 @@ export class StatisticsService {
 
   /**
    * Получает общую сумму выплат инженерам за период
+   * ВАЖНО: Статистика теперь считается ТОЛЬКО из WorkSession (по workDate!)
    */
   private async getTotalAgentPayments(startDate: Date, endDate: Date): Promise<number> {
     try {
-      const result = await this.orderRepository
-        .createQueryBuilder('order')
-        .select('SUM(order.regularPayment + order.overtimePayment)', 'totalPayments')
-        .where('order.completionDate >= :startDate', { startDate })
-        .andWhere('order.completionDate < :endDate', { endDate })
-        .andWhere('order.status = :status', { status: 'completed' })
+      const result = await this.workSessionRepository
+        .createQueryBuilder('session')
+        .select('SUM(session.regularPayment + session.overtimePayment + session.carUsageAmount)', 'totalPayments')
+        .where('session.workDate >= :startDate', { startDate })
+        .andWhere('session.workDate < :endDate', { endDate })
+        .andWhere('session.status = :status', { status: 'completed' })
         .getRawOne();
 
       return Number(result?.totalPayments) || 0;
@@ -903,18 +957,19 @@ export class StatisticsService {
 
   /**
    * Получает общую сумму платежей от организаций за период
+   * ВАЖНО: Статистика теперь считается ТОЛЬКО из WorkSession (по workDate!)
    */
   private async getTotalOrganizationPayments(startDate: Date, endDate: Date): Promise<number> {
     try {
-      const result = await this.orderRepository
-        .createQueryBuilder('order')
+      const result = await this.workSessionRepository
+        .createQueryBuilder('session')
         .select(
-          'SUM(order.organizationRegularPayment + order.organizationOvertimePayment)',
+          'SUM(session.organizationRegularPayment + session.organizationOvertimePayment)',
           'totalPayments'
         )
-        .where('order.completionDate >= :startDate', { startDate })
-        .andWhere('order.completionDate < :endDate', { endDate })
-        .andWhere('order.status = :status', { status: 'completed' })
+        .where('session.workDate >= :startDate', { startDate })
+        .andWhere('session.workDate < :endDate', { endDate })
+        .andWhere('session.status = :status', { status: 'completed' })
         .getRawOne();
 
       return Number(result?.totalPayments) || 0;
@@ -951,55 +1006,70 @@ export class StatisticsService {
       netDebt: number; // organizationDebt - engineerDebt
     };
   }> {
+    // ВАЖНО: Статистика теперь считается ТОЛЬКО из WorkSession (по workDate!)
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
-    // Статистика по долгам инженерам
-    const engineerDebts = await this.orderRepository
-      .createQueryBuilder('order')
+    // Статистика по долгам инженерам (из WorkSession)
+    const engineerDebts = await this.workSessionRepository
+      .createQueryBuilder('session')
       .select('engineer.userId', 'engineerId')
       .addSelect('user.firstName', 'firstName')
       .addSelect('user.lastName', 'lastName')
       .addSelect(
-        'SUM(CASE WHEN order.status = "completed" THEN order.calculatedAmount + order.carUsageAmount ELSE 0 END)',
+        'SUM(CASE WHEN order.status = "completed" THEN session.calculatedAmount + session.carUsageAmount ELSE 0 END)',
         'totalDebt'
       )
       .addSelect(
-        'COUNT(CASE WHEN order.status IN ("completed", "paid_to_engineer") THEN 1 END)',
+        'COUNT(DISTINCT CASE WHEN order.status IN ("completed", "paid_to_engineer") THEN session.orderId END)',
         'completedOrders'
       )
-      .addSelect('COUNT(CASE WHEN order.status = "paid_to_engineer" THEN 1 END)', 'paidOrders')
-      .addSelect('COUNT(CASE WHEN order.status = "completed" THEN 1 END)', 'pendingOrders')
-      .innerJoin('order.assignedEngineer', 'engineer')
+      .addSelect(
+        'COUNT(DISTINCT CASE WHEN order.status = "paid_to_engineer" THEN session.orderId END)',
+        'paidOrders'
+      )
+      .addSelect(
+        'COUNT(DISTINCT CASE WHEN order.status = "completed" THEN session.orderId END)',
+        'pendingOrders'
+      )
+      .innerJoin('session.engineer', 'engineer')
       .innerJoin('engineer.user', 'user')
-      .where('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .innerJoin('session.order', 'order')
+      .where('session.workDate >= :startDate', { startDate })
+      .andWhere('session.workDate < :endDate', { endDate })
+      .andWhere('session.status = :status', { status: 'completed' })
       .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
-      .andWhere('order.assignedEngineerId IS NOT NULL')
       .groupBy('engineer.userId')
       .addGroupBy('user.firstName')
       .addGroupBy('user.lastName')
       .getRawMany();
 
-    // Статистика по долгам организаций
-    const organizationDebts = await this.orderRepository
-      .createQueryBuilder('order')
+    // Статистика по долгам организаций (из WorkSession)
+    const organizationDebts = await this.workSessionRepository
+      .createQueryBuilder('session')
       .select('order.organizationId', 'organizationId')
       .addSelect('organization.name', 'organizationName')
       .addSelect(
-        'SUM(CASE WHEN order.status IN ("completed", "paid_to_engineer") AND NOT order.receivedFromOrganization THEN order.organizationPayment ELSE 0 END)',
+        'SUM(CASE WHEN order.status IN ("completed", "paid_to_engineer") AND NOT order.receivedFromOrganization THEN session.organizationPayment ELSE 0 END)',
         'totalDebt'
       )
       .addSelect(
-        'COUNT(CASE WHEN order.status IN ("completed", "paid_to_engineer") THEN 1 END)',
+        'COUNT(DISTINCT CASE WHEN order.status IN ("completed", "paid_to_engineer") THEN session.orderId END)',
         'completedOrders'
       )
-      .addSelect('COUNT(CASE WHEN order.receivedFromOrganization THEN 1 END)', 'receivedOrders')
       .addSelect(
-        'COUNT(CASE WHEN order.status IN ("completed", "paid_to_engineer") AND NOT order.receivedFromOrganization THEN 1 END)',
+        'COUNT(DISTINCT CASE WHEN order.receivedFromOrganization THEN session.orderId END)',
+        'receivedOrders'
+      )
+      .addSelect(
+        'COUNT(DISTINCT CASE WHEN order.status IN ("completed", "paid_to_engineer") AND NOT order.receivedFromOrganization THEN session.orderId END)',
         'pendingOrders'
       )
+      .innerJoin('session.order', 'order')
       .leftJoin('order.organization', 'organization')
-      .where('order.completionDate BETWEEN :startDate AND :endDate', { startDate, endDate })
+      .where('session.workDate >= :startDate', { startDate })
+      .andWhere('session.workDate < :endDate', { endDate })
+      .andWhere('session.status = :status', { status: 'completed' })
       .andWhere('order.status IN (:...statuses)', { statuses: ['completed', 'paid_to_engineer'] })
       .andWhere('order.organizationId IS NOT NULL')
       .groupBy('order.organizationId')
@@ -1018,7 +1088,7 @@ export class StatisticsService {
 
     return {
       engineerDebts: engineerDebts.map(debt => ({
-        engineerId: debt.engineerId,
+        engineerId: Number(debt.engineerId),
         engineerName: `${debt.firstName || ''} ${debt.lastName || ''}`.trim() || 'Unknown',
         totalDebt: Number(debt.totalDebt) || 0,
         completedOrders: Number(debt.completedOrders) || 0,
@@ -1026,7 +1096,7 @@ export class StatisticsService {
         pendingOrders: Number(debt.pendingOrders) || 0,
       })),
       organizationDebts: organizationDebts.map(debt => ({
-        organizationId: debt.organizationId,
+        organizationId: Number(debt.organizationId),
         organizationName: debt.organizationName || 'Unknown',
         totalDebt: Number(debt.totalDebt) || 0,
         completedOrders: Number(debt.completedOrders) || 0,

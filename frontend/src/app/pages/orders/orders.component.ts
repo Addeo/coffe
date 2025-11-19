@@ -478,7 +478,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
             userOrders.forEach(order => {
               const regularHours = Number(order.regularHours ?? 0);
               const overtime = Number(order.overtimeHours ?? 0);
-              workedHours += regularHours + overtime;
+              // ВАЖНО: Часы рассчитываются с учетом коэффициента
+              // Используем дефолтный коэффициент 1.6 (для Orders мы не имеем доступа к WorkSession напрямую)
+              const overtimeCoefficient = 1.6;
+              const totalWorkedHours = regularHours + (overtime * overtimeCoefficient);
+              workedHours += totalWorkedHours;
               overtimeHours += overtime;
               earnedAmount += Number(order.calculatedAmount ?? 0);
               carPayments += Number(order.carUsageAmount ?? 0);
@@ -1465,7 +1469,13 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
     // Prepare data for export
     const exportData = this.dataSource.data.map(order => {
-      const totalHours = (order.regularHours ?? 0) + (order.overtimeHours ?? 0);
+      // ВАЖНО: Часы рассчитываются с учетом коэффициента
+      // Временная заглушка: используем дефолтный коэффициент 1.6
+      // TODO: Получить реальный коэффициент из WorkSession для этого заказа
+      const overtimeCoefficient = 1.6;
+      const regularHours = order.regularHours ?? 0;
+      const overtimeHours = order.overtimeHours ?? 0;
+      const totalHours = regularHours + (overtimeHours * overtimeCoefficient);
       const engineerPayment = (order.calculatedAmount ?? 0) + (order.carUsageAmount ?? 0);
 
       return {

@@ -9,11 +9,13 @@ import { User } from '../../entities/user.entity';
 import { Engineer } from '../../entities/engineer.entity';
 import { JwtStrategy } from './jwt.strategy';
 import { LocalStrategy } from './local.strategy';
+import { AgreementsModule } from '../agreements/agreements.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Engineer]),
     PassportModule,
+    AgreementsModule, // Для проверки принятия соглашений
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {

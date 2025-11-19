@@ -9,6 +9,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { CreateWorkSessionDto } from '../../../../shared/dtos/work-session.dto';
 import { WorkSessionsService } from '../../services/work-sessions.service';
 
@@ -26,6 +27,7 @@ import { WorkSessionsService } from '../../services/work-sessions.service';
     MatCheckboxModule,
     MatCardModule,
     MatIconModule,
+    MatTooltipModule,
   ],
   templateUrl: './work-session-form.component.html',
   styleUrls: ['./work-session-form.component.scss'],
@@ -116,9 +118,39 @@ export class WorkSessionFormComponent implements OnInit {
     this.cancelled.emit();
   }
 
+  /**
+   * Получить общее количество отработанных часов с учетом коэффициента сверхурочных
+   * ВАЖНО: Формула regularHours + (overtimeHours * coefficient)
+   * Примечание: В форме используется дефолтный коэффициент 1.6,
+   * реальный коэффициент будет установлен на бэкенде при сохранении
+   */
   get totalHours(): number {
-    const regular = this.sessionForm.get('regularHours')?.value || 0;
-    const overtime = this.sessionForm.get('overtimeHours')?.value || 0;
-    return Number(regular) + Number(overtime);
+    const regular = Number(this.sessionForm.get('regularHours')?.value) || 0;
+    const overtime = Number(this.sessionForm.get('overtimeHours')?.value) || 0;
+    const defaultCoefficient = 1.6; // Дефолтный коэффициент (реальный придет с бэкенда)
+    
+    // ВАЖНО: Часы с учетом коэффициента
+    return regular + (overtime * defaultCoefficient);
+  }
+
+  /**
+   * Получить обычные часы для отображения
+   */
+  get regularHours(): number {
+    return Number(this.sessionForm.get('regularHours')?.value) || 0;
+  }
+
+  /**
+   * Получить сверхурочные часы для отображения
+   */
+  get overtimeHours(): number {
+    return Number(this.sessionForm.get('overtimeHours')?.value) || 0;
+  }
+
+  /**
+   * Получить коэффициент сверхурочных (дефолтный в форме)
+   */
+  get overtimeCoefficient(): number {
+    return 1.6; // Дефолтный, реальный будет на бэкенде
   }
 }

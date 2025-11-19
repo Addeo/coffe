@@ -58,6 +58,12 @@ export class User {
   @Column({ name: 'is_active', default: true })
   isActive: boolean;
 
+  @Column({ name: 'has_accepted_agreements', type: 'boolean', default: false })
+  hasAcceptedAgreements: boolean; // Принял ли пользователь все обязательные соглашения
+
+  @Column({ name: 'agreements_accepted_at', type: 'datetime', nullable: true })
+  agreementsAcceptedAt: Date | null; // Когда были приняты последние обязательные соглашения
+
   @OneToMany(() => Order, order => order.assignedEngineer)
   assignedOrders: Order[];
 

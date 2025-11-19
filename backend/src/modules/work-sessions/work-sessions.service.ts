@@ -86,16 +86,18 @@ export class WorkSessionsService {
       order.organization
     );
 
-    // Рассчитываем оплату инженеру
+    // Рассчитываем оплату инженеру с использованием КОЭФФИЦИЕНТА
     const regularPayment = workData.regularHours * rates.baseRate;
-    const overtimePayment = workData.overtimeHours * (rates.overtimeRate || rates.baseRate);
+    const overtimeCoefficient = rates.overtimeCoefficient ?? 1.6; // дефолтный коэффициент
+    const overtimePayment = workData.overtimeHours * rates.baseRate * overtimeCoefficient;
     const totalPayment = regularPayment + overtimePayment;
 
-    // Рассчитываем оплату от организации
+    // Рассчитываем оплату от организации с использованием КОЭФФИЦИЕНТА
     const organizationRegularPayment = workData.regularHours * order.organization.baseRate;
-    const organizationOvertimePayment = order.organization.hasOvertime
-      ? workData.overtimeHours * order.organization.baseRate * order.organization.overtimeMultiplier
-      : workData.overtimeHours * order.organization.baseRate;
+    const organizationOvertimeCoefficient = order.organization.hasOvertime 
+      ? (order.organization.overtimeMultiplier ?? 1.5) 
+      : 1.0;
+    const organizationOvertimePayment = workData.overtimeHours * order.organization.baseRate * organizationOvertimeCoefficient;
     const organizationPayment = organizationRegularPayment + organizationOvertimePayment;
 
     // Создаём рабочую сессию
@@ -108,10 +110,10 @@ export class WorkSessionsService {
       calculatedAmount: totalPayment,
       carUsageAmount: workData.carPayment,
       engineerBaseRate: rates.baseRate,
-      engineerOvertimeRate: rates.overtimeRate || rates.baseRate,
+      engineerOvertimeCoefficient: overtimeCoefficient,
       organizationPayment,
       organizationBaseRate: order.organization.baseRate,
-      organizationOvertimeMultiplier: order.organization.overtimeMultiplier,
+      organizationOvertimeCoefficient: organizationOvertimeCoefficient,
       regularPayment,
       overtimePayment,
       organizationRegularPayment,

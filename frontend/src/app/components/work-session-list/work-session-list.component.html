@@ -79,7 +79,7 @@
                 + {{ formatHours(session.overtimeHours) }} ч (переработка)
               </span>
               <span class="total">
-                = {{ formatHours(session.regularHours + session.overtimeHours) }} ч
+                = {{ formatHours(calculateTotalHours(session)) }} ч
               </span>
             </div>
           </div>
