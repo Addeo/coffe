@@ -38,23 +38,8 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
-    // Try to load user with primaryRole and activeRole if columns exist
-    // Fallback to simple query if columns don't exist yet
-    let user;
-    
-    try {
-      // Try with explicit select for role hierarchy fields
-      user = await this.userRepository
-        .createQueryBuilder('user')
-        .where('user.email = :email', { email })
-        .addSelect('user.primaryRole')
-        .addSelect('user.activeRole')
-        .getOne();
-    } catch (error) {
-      // If columns don't exist, fallback to simple query
-      console.warn('⚠️ Role hierarchy columns may not exist, using fallback query:', error.message);
-      user = await this.userRepository.findOne({ where: { email } });
-    }
+    // Load user from database
+    const user = await this.userRepository.findOne({ where: { email } });
 
     if (user && (await bcrypt.compare(password, user.password))) {
       // Remove password from result for security
@@ -63,11 +48,9 @@ export class AuthService {
 
       // Ensure role hierarchy is set properly
       // primaryRole falls back to role, activeRole falls back to primaryRole
-      if (!result.role) {
-        result.role = UserRole.USER; // Default fallback
-      }
+      // ВАЖНО: Используем роль из базы данных, а не дефолтную USER
       if (!result.primaryRole) {
-        result.primaryRole = result.role;
+        result.primaryRole = result.role || UserRole.USER;
       }
       if (!result.activeRole && result.primaryRole) {
         result.activeRole = result.primaryRole;

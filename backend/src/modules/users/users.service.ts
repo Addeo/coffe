@@ -45,10 +45,14 @@ export class UsersService {
   async create(createUserDto: CreateUserDto, createdById: number): Promise<User> {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-    const user = this.userRepository.create({
+    // ВАЖНО: Убеждаемся, что роль правильно установлена и primaryRole тоже
+    const userData = {
       ...createUserDto,
       password: hashedPassword,
-    });
+      primaryRole: createUserDto.role, // Устанавливаем primaryRole = role при создании
+    };
+
+    const user = this.userRepository.create(userData);
 
     const savedUser = await this.userRepository.save(user);
 

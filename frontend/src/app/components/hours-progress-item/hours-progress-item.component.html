@@ -29,6 +29,29 @@
     [class]="progressColorClass()"
   ></mat-progress-bar>
 
+  <!-- Slider for displaying worked hours (read-only) -->
+  <div class="slider-container" *ngIf="showSlider">
+    <div class="slider-label">
+      <mat-icon>show_chart</mat-icon>
+      <span>Визуализация отработанных часов</span>
+    </div>
+    <mat-slider
+      [min]="sliderMin"
+      [max]="sliderMaxValue()"
+      [step]="sliderStep"
+      [disabled]="true"
+      [displayWith]="formatLabel"
+      class="hours-slider"
+    >
+      <input matSliderThumb [value]="sliderPosition()">
+    </mat-slider>
+    <div class="slider-value">
+      <span class="current-value">{{ workedHours | number: '1.1-1' }}</span>
+      <span class="value-separator">/</span>
+      <span class="max-value">{{ planHours | number: '1.1-1' }}</span>
+    </div>
+  </div>
+
   <!-- Expanded Statistics -->
   <div class="statistics-content" *ngIf="statistics && !isCollapsed()" [class.expanded]="!isCollapsed()">
     <div class="statistics-grid">

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AgreementsController } from './agreements.controller';
+import { AgreementsController, PublicJwtAuthGuard } from './agreements.controller';
 import { AgreementsService } from './agreements.service';
 import { Agreement } from '../../entities/agreement.entity';
 import { UserAgreement } from '../../entities/user-agreement.entity';
@@ -9,7 +9,7 @@ import { User } from '../../entities/user.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Agreement, UserAgreement, User])],
   controllers: [AgreementsController],
-  providers: [AgreementsService],
+  providers: [AgreementsService, PublicJwtAuthGuard],
   exports: [AgreementsService],
 })
 export class AgreementsModule {}

@@ -12,6 +12,18 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent),
   },
   {
+    path: 'privacy-policy',
+    loadComponent: () =>
+      import('./pages/agreement-view/agreement-view.component').then(m => m.AgreementViewComponent),
+    data: { type: 'privacy_policy', title: 'Политика конфиденциальности' },
+  },
+  {
+    path: 'terms-of-service',
+    loadComponent: () =>
+      import('./pages/agreement-view/agreement-view.component').then(m => m.AgreementViewComponent),
+    data: { type: 'terms_of_service', title: 'Пользовательское соглашение' },
+  },
+  {
     path: 'company',
     loadComponent: () =>
       import('./layouts/public-layout/public-layout.component').then(m => m.PublicLayoutComponent),

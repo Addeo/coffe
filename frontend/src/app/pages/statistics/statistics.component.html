@@ -45,9 +45,8 @@
       </app-earnings-summary>
     </mat-card-content>
 
-    <div class="header-actions-right" (click)="toggleEarningsSummary()" style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+    <div class="header-actions-right" (click)="toggleEarningsSummary()">
       <button
-        style="display: flex; align-items: center; gap: 10px;"
         class="collapse-toggle-btn-bottom"
         matTooltip="{{ earningsSummaryCollapsed() ? 'Развернуть' : 'Свернуть' }}"
       >

@@ -8,6 +8,9 @@ import {
   Request,
   ParseIntPipe,
   ParseEnumPipe,
+  SetMetadata,
+  ExecutionContext,
+  Injectable,
 } from '@nestjs/common';
 import { AgreementsService } from './agreements.service';
 import { JwtAuthGuard } from '../аутентификация/jwt-auth.guard';
@@ -15,7 +18,12 @@ import { RolesGuard } from '../аутентификация/roles.guard';
 import { Roles } from '../аутентификация/roles.decorator';
 import { UserRole } from '../../entities/user.entity';
 import { AgreementType } from '../../entities/agreement.entity';
+import { Reflector } from '@nestjs/core';
 export { AgreementType } from '../../entities/agreement.entity';
+
+// Декоратор для публичных эндпоинтов
+const IS_PUBLIC_KEY = 'isPublic';
+export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
 interface AcceptAgreementsDto {
   agreementIds: number[];
@@ -23,39 +31,62 @@ interface AcceptAgreementsDto {
   userAgent?: string;
 }
 
+// Публичный guard, который пропускает запросы с метаданными IS_PUBLIC_KEY
+@Injectable()
+export class PublicJwtAuthGuard extends JwtAuthGuard {
+  constructor(private reflector: Reflector) {
+    super();
+  }
+
+  canActivate(context: ExecutionContext) {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) {
+      return true;
+    }
+    return super.canActivate(context);
+  }
+}
+
 @Controller('agreements')
-@UseGuards(JwtAuthGuard)
+@UseGuards(PublicJwtAuthGuard)
 export class AgreementsController {
   constructor(private readonly agreementsService: AgreementsService) {}
 
   /**
-   * Получить все активные соглашения
+   * Публичный эндпоинт: Получить все активные соглашения
    */
   @Get()
+  @Public()
   async getActiveAgreements() {
     return this.agreementsService.getActiveAgreements();
   }
 
   /**
-   * Получить соглашения определенного типа
+   * Публичный эндпоинт: Получить соглашения определенного типа
    */
   @Get('type/:type')
+  @Public()
   async getAgreementsByType(@Param('type', new ParseEnumPipe(AgreementType)) type: AgreementType) {
     return this.agreementsService.getAgreementsByType(type);
   }
 
   /**
-   * Получить последнюю версию соглашения определенного типа
+   * Публичный эндпоинт: Получить последнюю версию соглашения определенного типа
    */
   @Get('latest/:type')
+  @Public()
   async getLatestAgreement(@Param('type', new ParseEnumPipe(AgreementType)) type: AgreementType) {
     return this.agreementsService.getLatestAgreement(type);
   }
 
   /**
-   * Получить соглашение по ID
+   * Публичный эндпоинт: Получить соглашение по ID
    */
   @Get(':id')
+  @Public()
   async getAgreementById(@Param('id', ParseIntPipe) id: number) {
     return this.agreementsService.getAgreementById(id);
   }
