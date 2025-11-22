@@ -90,6 +90,9 @@ export class NavigationComponent implements OnInit, OnDestroy {
   availableRoles = this.authService.availableRoles;
   canSwitchRoles = this.authService.canSwitchRoles;
   isLoadingRoleSwitch = signal(false);
+  
+  // Role indicator visibility
+  isRoleIndicatorHidden = signal(false);
 
   // Theme icon based on current theme
   themeIcon = computed(() => {
@@ -141,6 +144,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    // Проверяем состояние индикатора при инициализации
+    if (this.isRoleIndicatorHidden()) {
+      document.body.classList.add('role-indicator-hidden');
+    }
+    
     // Subscribe to breakpoint changes
     this.subscriptions.push(
       this.breakpointObserver
@@ -278,6 +286,12 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   getRoleIcon(role: UserRole): string {
     return this.authService.getRoleIcon(role);
+  }
+
+  hideRoleIndicator(): void {
+    this.isRoleIndicatorHidden.set(true);
+    // Добавляем класс к body для изменения margin-top у main-content
+    document.body.classList.add('role-indicator-hidden');
   }
 
   switchRole(newRole: UserRole): void {

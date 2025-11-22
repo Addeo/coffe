@@ -21,20 +21,9 @@
       <mat-icon>{{ isCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
     </button>
   </div>
-  <mat-progress-bar
-    *ngIf="showProgressBar"
-    mode="determinate"
-    [value]="progressPercentage()"
-    [color]="progressColor()"
-    [class]="progressColorClass()"
-  ></mat-progress-bar>
-
-  <!-- Slider for displaying worked hours (read-only) -->
-  <div class="slider-container" *ngIf="showSlider">
-    <div class="slider-label">
-      <mat-icon>show_chart</mat-icon>
-      <span>Визуализация отработанных часов</span>
-    </div>
+  
+  <!-- Slider for displaying worked hours (read-only) - replaces progress bar when showSlider is true -->
+  <div class="slider-container" *ngIf="showSlider; else progressBarTemplate">
     <mat-slider
       [min]="sliderMin"
       [max]="sliderMaxValue()"
@@ -42,15 +31,22 @@
       [disabled]="true"
       [displayWith]="formatLabel"
       class="hours-slider"
+      [ngClass]="progressColorClass()"
     >
-      <input matSliderThumb [value]="sliderPosition()">
+      <input matSliderThumb [ngModel]="sliderPosition()" [value]="sliderPosition()">
     </mat-slider>
-    <div class="slider-value">
-      <span class="current-value">{{ workedHours | number: '1.1-1' }}</span>
-      <span class="value-separator">/</span>
-      <span class="max-value">{{ planHours | number: '1.1-1' }}</span>
-    </div>
   </div>
+
+  <!-- Progress bar fallback when slider is not shown -->
+  <ng-template #progressBarTemplate>
+    <mat-progress-bar
+      *ngIf="showProgressBar"
+      mode="determinate"
+      [value]="progressPercentage()"
+      [color]="progressColor()"
+      [class]="progressColorClass()"
+    ></mat-progress-bar>
+  </ng-template>
 
   <!-- Expanded Statistics -->
   <div class="statistics-content" *ngIf="statistics && !isCollapsed()" [class.expanded]="!isCollapsed()">

@@ -132,6 +132,33 @@ export class AuthService {
   }
 
   logout(): void {
+    // Сбросить роль на primaryRole перед выходом
+    // Это гарантирует, что при следующем входе пользователь будет с основной ролью
+    if (this.isAuthenticated() && this.currentUser()) {
+      const primaryRole = this.primaryRole();
+      const activeRole = this.activeRole();
+      
+      // Если активная роль отличается от основной, сбросить её на бэкенде
+      if (activeRole !== primaryRole) {
+        console.log('🔄 Resetting role to primary before logout:', {
+          currentActive: activeRole,
+          primary: primaryRole,
+        });
+        
+        // Вызываем API для сброса роли на бэкенде (не блокируем выход)
+        this.resetRole().subscribe({
+          next: () => {
+            console.log('✅ Role reset successfully on backend before logout');
+          },
+          error: (error) => {
+            // Логируем ошибку, но не блокируем выход
+            console.warn('⚠️ Failed to reset role on backend before logout (non-blocking):', error);
+          },
+        });
+      }
+    }
+    
+    // Очищаем сессию и перенаправляем на логин (не ждем завершения resetRole)
     this.clearSession();
     this.router.navigate(['/login']);
   }

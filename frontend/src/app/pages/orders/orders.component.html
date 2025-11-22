@@ -1,4 +1,62 @@
 <div class="orders-container">
+  <!-- Test examples for hours-progress-item component -->
+  <!-- <div class="test-examples-container" style="margin-bottom: 24px; padding: 16px; background: #f5f5f5; border-radius: 8px;">
+    <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: rgba(0, 0, 0, 0.87);">
+      Тестовые примеры компонента hours-progress-item
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px;">
+      <app-hours-progress-item
+        [workedHours]="20"
+        [planHours]="100"
+        label="Тест 1:"
+        icon="schedule"
+        iconColor="warn"
+        [showSlider]="true"
+        [showProgressBar]="true"
+      ></app-hours-progress-item>
+      
+      <app-hours-progress-item
+        [workedHours]="50"
+        [planHours]="100"
+        label="Тест 2:"
+        icon="schedule"
+        iconColor="accent"
+        [showSlider]="true"
+        [showProgressBar]="true"
+      ></app-hours-progress-item>
+      
+      <app-hours-progress-item
+        [workedHours]="70"
+        [planHours]="100"
+        label="Тест 3:"
+        icon="schedule"
+        iconColor="accent"
+        [showSlider]="true"
+        [showProgressBar]="true"
+      ></app-hours-progress-item>
+      
+      <app-hours-progress-item
+        [workedHours]="100"
+        [planHours]="100"
+        label="Тест 4:"
+        icon="schedule"
+        iconColor="primary"
+        [showSlider]="true"
+        [showProgressBar]="true"
+      ></app-hours-progress-item>
+      
+      <app-hours-progress-item
+        [workedHours]="140"
+        [planHours]="100"
+        label="Тест 5:"
+        icon="schedule"
+        iconColor="primary"
+        [showSlider]="true"
+        [showProgressBar]="true"
+      ></app-hours-progress-item>
+    </div>
+  </div> -->
+
   <div class="stats-switcher">
     <mat-button-toggle-group
       [(ngModel)]="statsView"
@@ -728,7 +786,7 @@
             </div>
           </div>
         </span>
-        <!-- <button
+        <button
           mat-icon-button
           (click)="nextManagerMonth(); $event.stopPropagation()"
           matTooltip="Следующий месяц"
@@ -736,7 +794,7 @@
           aria-label="Следующий месяц"
         >
           <mat-icon>chevron_right</mat-icon>
-        </button> -->
+        </button>
         <!-- <button
           mat-icon-button
           (click)="toggleManagerStats(); $event.stopPropagation()"
@@ -798,6 +856,7 @@
             [planHours]="engineer.planHours"
             [label]="engineer.engineerName + ':'"
             icon="person"
+            [showSlider]="true"
             iconColor="primary"
             [statistics]="{
               regularHours: engineer.regularHours,
@@ -875,6 +934,7 @@
           label="Итого часов:"
           icon="schedule"
           iconColor="accent"
+          [showSlider]="true"
           [statistics]="{
             regularHours: (summary.workedHours ?? 0) - (summary.overtimeHours ?? 0),
             overtimeHours: summary.overtimeHours

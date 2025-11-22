@@ -3,7 +3,7 @@ export const environment = {
   apiUrl: '/api',
   authUrl: '/api/auth/login',
   appName: 'Coffee Admin Panel',
-  appVersion: '1.1.3',
+  appVersion: '1.1.4',
   demo: false,
 };
 

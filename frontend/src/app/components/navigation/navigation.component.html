@@ -185,9 +185,29 @@
       >
         <mat-icon>account_circle</mat-icon>
       </button>
+    </div>
 
-      <!-- Mobile User Menu -->
-      <mat-menu #mobileUserMenu="matMenu" class="mobile-user-menu">
+    <!-- Role Indicator for Admin (shown below navigation buttons in header) -->
+    @if (primaryRole() === UserRole.ADMIN && canSwitchRoles() && !isRoleIndicatorHidden()) {
+      <div class="mobile-role-indicator">
+        <div class="role-indicator-content">
+          <mat-icon class="role-indicator-icon">{{ getRoleIcon(activeRole()!) }}</mat-icon>
+          <span class="role-indicator-text">{{ getRoleDisplayName(activeRole()!) }}</span>
+        </div>
+        <button
+          mat-icon-button
+          class="role-indicator-close"
+          (click)="hideRoleIndicator()"
+          aria-label="Скрыть индикатор роли"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    }
+  </mat-toolbar>
+
+  <!-- Mobile User Menu -->
+  <mat-menu #mobileUserMenu="matMenu" class="mobile-user-menu">
         <!-- User Info -->
         <div class="mobile-user-info">
           <div class="user-full-name">{{ userName() }}</div>
@@ -240,6 +260,4 @@
           <span>Выход</span>
         </button>
       </mat-menu>
-    </div>
-  </mat-toolbar>
 </ng-template>

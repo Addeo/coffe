@@ -64,7 +64,7 @@
 
       // Color classes for worked hours
       .progress-low {
-        color: #f44336; // красный
+        color: #e53935; // более яркий красный
         font-weight: 700;
       }
 
@@ -74,7 +74,7 @@
       }
 
       .progress-high {
-        color: #4caf50; // зеленый
+        color: #43a047; // более яркий зеленый
         font-weight: 700;
       }
     }
@@ -103,8 +103,8 @@
 
     // Color classes based on progress
     &.progress-low {
-      --mdc-linear-progress-active-indicator-color: #f44336; // красный
-      --mdc-linear-progress-track-color: rgba(244, 67, 54, 0.15);
+      --mdc-linear-progress-active-indicator-color: #e53935; // более яркий красный
+      --mdc-linear-progress-track-color: rgba(229, 57, 53, 0.15);
     }
 
     &.progress-medium {
@@ -113,61 +113,188 @@
     }
 
     &.progress-high {
-      --mdc-linear-progress-active-indicator-color: #4caf50; // зеленый
-      --mdc-linear-progress-track-color: rgba(76, 175, 80, 0.15);
+      --mdc-linear-progress-active-indicator-color: #43a047; // более яркий зеленый
+      --mdc-linear-progress-track-color: rgba(67, 160, 71, 0.15);
     }
   }
 
-  // Slider container
+  // Slider container (replaces progress bar)
   .slider-container {
-    margin-top: 16px;
-    padding: 16px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    margin-top: 4px;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    border: none;
+    position: relative;
+    height: 8px; // Высота как у прогресс-бара
 
     .slider-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-      font-size: 13px;
-      font-weight: 500;
-      color: rgba(0, 0, 0, 0.87);
-
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-        color: #667eea;
-      }
+      display: none; // Скрываем заголовок, так как слайдер заменяет прогресс-бар
     }
 
     .hours-slider {
       width: 100%;
-      margin: 8px 0;
+      margin: 0;
+      padding: 0;
+      overflow: visible;
+      position: relative;
+      height: 8px;
 
+      // Глобально скрываем серую полосу
       ::ng-deep {
-        .mdc-slider__track {
-          height: 4px;
-          border-radius: 2px;
+        .mdc-slider {
+          padding: 0;
+          height: 8px;
+          min-height: 8px;
+          width: 100%;
+          margin: 0;
+          position: relative;
+        }
+
+        // Неактивная часть трека - скрыта по умолчанию
+        .mdc-slider__track--inactive,
+        .mdc-slider__track--inactive_fill {
+          display: none !important;
+          background: transparent !important;
+          background-color: transparent !important;
+          opacity: 0 !important;
+        }
+
+        // Активная часть трека - должна быть того же цвета что и линия
+        .mdc-slider__track--active_fill {
+          height: 8px;
+          border-radius: 4px;
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+
+        .mdc-slider__track--active {
+          height: 8px;
+          border-radius: 4px;
+          position: absolute;
+          top: 0;
+          left: 0;
+          border: none !important;
+          border-color: transparent !important;
+        }
+
+        // Правильное позиционирование thumb
+        .mdc-slider__thumb-container {
+          position: absolute;
+          top: 0;
+          // Angular Material использует transform: translateX() для горизонтального позиционирования
         }
 
         .mdc-slider__thumb {
-          width: 20px;
-          height: 20px;
-          border: 2px solid #667eea;
+          width: 24px;
+          height: 24px;
+          border: 3px solid;
+          box-sizing: border-box;
+          border-radius: 50% !important; // Делаем круглым
+          top: -8px !important; // Центрируем 24px круг на 8px линии: (24-8)/2 = 8px
+          margin-top: 0 !important;
+          position: relative;
+        }
+
+        // mat-slider-visual-thumb должен быть на линии (центрирован по вертикали)
+        .mat-slider-visual-thumb {
+          width: 24px !important;
+          height: 24px !important;
+          border-radius: 50% !important; // Делаем круглым
+          top: -8px !important; // Центрируем 24px круг на 8px линии
+          margin-top: 0 !important;
+          position: absolute !important;
         }
 
         .mdc-slider__thumb-knob {
-          background-color: #667eea;
+          width: 24px;
+          height: 24px;
+          border-width: 3px;
+          border-radius: 50% !important; // Делаем круглым
         }
 
         .mdc-slider__value-indicator {
-          background-color: #667eea;
-          color: white;
-          font-size: 12px;
-          font-weight: 500;
+          display: none !important;
+        }
+      }
+
+      // Цвета в зависимости от прогресса
+      &.progress-low {
+        ::ng-deep {
+          .mdc-slider__track--active {
+            background-color: #c8cfc8 !important; // Слегка серый фон
+            border: none !important;
+            border-color: transparent !important;
+          }
+          .mdc-slider__track--active_fill {
+            background-color: #e53935 !important; // Красный фон #e53935
+            border: 1px solid #e53935 !important; // Красный бордер #e53935
+          }
+          // Очень яркий и насыщенный цвет для thumb
+          .mdc-slider__thumb,
+          .mat-slider-visual-thumb {
+            border-color: #b71c1c !important; // Очень темный и насыщенный красный
+          }
+          .mdc-slider__thumb-knob {
+            background-color: #b71c1c !important; // Очень темный и насыщенный красный
+            border-color: #b71c1c !important;
+          }
+        }
+      }
+
+      &.progress-medium {
+        ::ng-deep {
+          .mdc-slider__track--active {
+            background-color: #c8cfc8 !important; // Слегка серый фон
+            border: none !important;
+            border-color: transparent !important;
+          }
+          .mdc-slider__track--active_fill {
+            background-color: #ff9800 !important; // Фон цвета линии прогресса
+            border: 1px solid #ff9800 !important; // Бордер цвета линии прогресса
+          }
+          // Очень яркий и насыщенный цвет для thumb
+          .mdc-slider__thumb,
+          .mat-slider-visual-thumb {
+            border-color: #e65100 !important; // Очень темный и насыщенный оранжевый
+          }
+          .mdc-slider__thumb-knob {
+            background-color: #e65100 !important; // Очень темный и насыщенный оранжевый
+            border-color: #e65100 !important;
+          }
+        }
+      }
+
+      &.progress-high {
+        ::ng-deep {
+          .mdc-slider__track--active {
+            background-color: #c8cfc8 !important; // Слегка серый фон
+            border: none !important;
+            border-color: transparent !important;
+          }
+          .mdc-slider__track--active_fill {
+            background-color: #43a047 !important; // Зеленый фон #43a047
+            border: 1px solid #43a047 !important; // Зеленый бордер #43a047
+          }
+          // Когда линия идет обратно (workedHours > planHours), вся линия зеленая
+          .mdc-slider__track--inactive,
+          .mdc-slider__track--inactive_fill {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            background-color: #43a047 !important; // Зеленый цвет #43a047 для всей линии
+            border: 1px solid #43a047 !important;
+          }
+          // Очень яркий и насыщенный цвет для thumb
+          .mdc-slider__thumb,
+          .mat-slider-visual-thumb {
+            border-color: #1b5e20 !important; // Очень темный и насыщенный зеленый
+          }
+          .mdc-slider__thumb-knob {
+            background-color: #1b5e20 !important; // Очень темный и насыщенный зеленый
+            border-color: #1b5e20 !important;
+          }
         }
       }
     }

@@ -430,6 +430,17 @@ a:hover {
   }
 }
 
+// Main content margin adjustment based on role indicator visibility
+body:not(.role-indicator-hidden) #main-content.main-content.with-nav {
+  margin-top: 100px !important; // 64px (header) + 36px (role indicator)
+  min-height: calc(100vh - 100px) !important;
+}
+
+body.role-indicator-hidden #main-content.main-content.with-nav {
+  margin-top: 64px !important;
+  min-height: calc(100vh - 64px) !important;
+}
+
 // Additional mobile fixes for tablets
 @media (max-width: 768px) {
   .mat-mdc-button,

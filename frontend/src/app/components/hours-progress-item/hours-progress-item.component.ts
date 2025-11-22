@@ -1,5 +1,6 @@
 import { Component, Input, computed, signal, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
@@ -22,6 +23,7 @@ export interface HoursStatistics {
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatIconModule,
     MatProgressBarModule,
     MatButtonModule,
@@ -64,6 +66,11 @@ export class HoursProgressItemComponent implements OnInit, OnChanges {
 
   // Computed signal for progress color
   progressColor = computed(() => {
+    // Если workedHours превышает planHours, всегда зеленый
+    if (this.workedHours > this.planHours && this.planHours > 0) {
+      return 'primary'; // зеленый
+    }
+    
     const percentage = this.progressPercentage();
     if (percentage < 50) {
       return 'warn'; // красный
@@ -76,6 +83,11 @@ export class HoursProgressItemComponent implements OnInit, OnChanges {
 
   // Computed signal for progress color class
   progressColorClass = computed(() => {
+    // Если workedHours превышает planHours, всегда зеленый
+    if (this.workedHours > this.planHours && this.planHours > 0) {
+      return 'progress-high';
+    }
+    
     const percentage = this.progressPercentage();
     if (percentage < 50) {
       return 'progress-low';
@@ -93,6 +105,13 @@ export class HoursProgressItemComponent implements OnInit, OnChanges {
 
   // Computed signal for slider position with cyclic logic
   // When workedHours > planHours, slider goes backwards
+  // Examples:
+  // 20/100 -> 20 (normal, 20% of plan)
+  // 50/100 -> 50 (normal, 50% of plan, middle)
+  // 70/100 -> 70 (normal, 70% of plan)
+  // 100/100 -> 100 (normal, 100% of plan, end)
+  // 140/100 -> 60 (going back: 100 - (140-100) = 60, which is 60% from end)
+  // 200/100 -> 50 (going back: 100 - ((200-100) % 100) = 100 - 50 = 50, middle)
   sliderPosition = computed(() => {
     if (!this.planHours || this.planHours <= 0) {
       return 0;
@@ -106,8 +125,9 @@ export class HoursProgressItemComponent implements OnInit, OnChanges {
     }
 
     // If workedHours > planHours, calculate cyclic position
-    // Example: 200/100 -> position should be at 50 (middle)
+    // The slider goes from 0 to planHours, then back from planHours to 0
     // Formula: position = planHours - ((workedHours - planHours) % planHours)
+    // This creates a sawtooth pattern: 100->0->100->0...
     const excess = worked - this.planHours;
     const cyclePosition = excess % this.planHours;
     return this.planHours - cyclePosition;

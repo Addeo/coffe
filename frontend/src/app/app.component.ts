@@ -65,8 +65,8 @@ import { effect } from '@angular/core';
         position: relative;
 
         &.with-nav {
-          margin-top: 64px;
-          min-height: calc(100vh - 64px);
+          margin-top: 100px; // По умолчанию 64px (header) + 36px (role indicator)
+          min-height: calc(100vh - 100px);
         }
 
         /* Ensure smooth transitions for content */

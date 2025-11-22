@@ -21,6 +21,7 @@ import { ToastService } from '../../services/toast.service';
 import { environment } from '../../../environments/environment';
 import { ErrorHandlerUtil } from '../../utils/error-handler.util';
 import { HttpErrorResponse } from '@angular/common/http';
+import { UserRole } from '@shared/interfaces/user.interface';
 
 interface AuthLoginDto {
   email: string;
@@ -70,7 +71,13 @@ export class LoginComponent implements OnInit {
   constructor() {
     // Redirect if already authenticated
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/orders']);
+      // Администратор всегда попадает на страницу статистики
+      const activeRole = this.authService.activeRole();
+      if (activeRole === UserRole.ADMIN) {
+        this.router.navigate(['/statistics']);
+      } else {
+        this.router.navigate(['/orders']);
+      }
     }
   }
 
@@ -114,14 +121,25 @@ export class LoginComponent implements OnInit {
           console.log('🎉 Login component received success response:', response);
           this.isLoading.set(false);
 
-          const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/orders';
-          console.log('🧭 Navigating to:', returnUrl);
+          // Определяем куда перенаправить после логина
+          let redirectPath: string;
+          const activeRole = this.authService.activeRole();
+          
+          // Администратор всегда попадает на страницу статистики
+          if (activeRole === UserRole.ADMIN) {
+            redirectPath = '/statistics';
+          } else {
+            // Для остальных ролей используем returnUrl или по умолчанию /orders
+            redirectPath = this.route.snapshot.queryParams['returnUrl'] || '/orders';
+          }
+          
+          console.log('🧭 Navigating to:', redirectPath, 'for role:', activeRole);
 
           // Force change detection before navigation
           this.cdr.detectChanges();
 
           // Navigate immediately - auth state is already set in AuthService
-          this.router.navigate([returnUrl]).then(() => {
+          this.router.navigate([redirectPath]).then(() => {
             // Final change detection after navigation
             this.cdr.markForCheck();
             console.log('🏠 Navigation completed with change detection');

@@ -64,6 +64,9 @@
     display: none;
   }
 
+  display: flex;
+  flex-direction: column;
+
   .mobile-navbar-content {
     display: flex;
     align-items: center;
@@ -71,6 +74,66 @@
     width: 100%;
     padding: 0;
     gap: 0;
+  }
+
+  // Role indicator for admin (shown below navigation buttons in header)
+  .mobile-role-indicator {
+    width: 100%;
+    padding: 6px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); // Такой же как у header
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 36px;
+    flex-shrink: 0;
+
+    .role-indicator-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 500;
+      flex: 1;
+      justify-content: center;
+
+      .role-indicator-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: #ffffff;
+      }
+
+      .role-indicator-text {
+        color: #ffffff;
+        text-transform: capitalize;
+        letter-spacing: 0.3px;
+      }
+    }
+
+    .role-indicator-close {
+      color: #ffffff;
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
+      min-height: 24px;
+      padding: 0;
+      flex-shrink: 0;
+      opacity: 0.7;
+      transition: opacity 0.2s ease;
+
+      &:hover {
+        opacity: 1;
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
   }
 
   .mobile-nav-button {
