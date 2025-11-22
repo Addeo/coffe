@@ -84,8 +84,8 @@
     (monthChanged)="onEngineerMonthChanged($event)"
   ></app-engineer-summary-card>
 
-  <!-- Orders Overview Card (for Managers/Admins) -->
-  <mat-card class="orders-overview-card" *ngIf="(isManager() || canEditOrders()) && !isMobileView()">
+  <!-- Orders Overview Card (for Admins only, Managers see it after engineer stats) -->
+  <mat-card class="orders-overview-card" *ngIf="canEditOrders() && !isManager() && !isMobileView()">
     <mat-card-header>
       <mat-card-title>
         <mat-icon>dashboard</mat-icon>
@@ -106,23 +106,6 @@
 
     <mat-card-content [class.collapsed]="ordersOverviewCollapsed()">
       <div class="orders-overview-grid">
-        <div
-          class="summary-item accent"
-          role="button"
-          tabindex="0"
-          aria-label="Создать новую заявку"
-          (click)="scrollToMainContent()"
-          (keydown)="onSummaryStatusKeydown($event, 'create')"
-        >
-          <div class="summary-icon">
-            <mat-icon>add_circle</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">+</div>
-            <div class="summary-label">Создать новую заявку</div>
-          </div>
-        </div>
-
         <div
           class="summary-item warning"
           role="button"
@@ -156,6 +139,23 @@
           <div class="summary-content">
             <div class="summary-value">{{ orderStats().processing }}</div>
             <div class="summary-label">В обработке</div>
+          </div>
+        </div>
+
+        <div
+          class="summary-item accent"
+          role="button"
+          tabindex="0"
+          aria-label="Создать новую заявку"
+          (click)="scrollToMainContent()"
+          (keydown)="onSummaryStatusKeydown($event, 'create')"
+        >
+          <div class="summary-icon">
+            <mat-icon>add_circle</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">+</div>
+            <div class="summary-label">Создать новую заявку</div>
           </div>
         </div>
 
@@ -260,44 +260,24 @@
       ></mat-progress-bar>
 
       <div class="manager-stats-content" *ngIf="!isLoadingManagerStats() && managerEngineerHoursStats() as stats">
-        <!-- Summary -->
-        <div class="manager-stats-summary">
-          <div class="summary-item">
-            <mat-icon color="primary">schedule</mat-icon>
-            <div>
-              <div class="item-label">Всего часов</div>
-              <div class="item-value">{{ stats.totalHours | number:'1.0-1' }}</div>
-            </div>
-          </div>
-          <div class="summary-item">
-            <mat-icon color="warn">people</mat-icon>
-            <div>
-              <div class="item-label">Инженеров</div>
-              <div class="item-value">{{ stats.engineers.length }}</div>
-            </div>
-          </div>
-        </div>
-
         <!-- Engineers Button with Menu -->
         <div class="engineers-menu-button" *ngIf="stats.engineers.length > 0">
           <button
             mat-stroked-button
             color="primary"
             class="engineers-toggle-btn"
-            (click)="toggleEngineersList()"
-            [attr.aria-expanded]="!engineersListCollapsed()"
+            [matMenuTriggerFor]="engineersMenu"
           >
             <mat-icon>people</mat-icon>
             <span>Инженеры ({{ stats.engineers.length }})</span>
-            <mat-icon>{{ engineersListCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+            <mat-icon>expand_more</mat-icon>
           </button>
 
-          <!-- Engineers List (collapsible) -->
-          <div class="engineers-list" *ngIf="!engineersListCollapsed() && stats.engineers.length > 0">
-            <div class="engineers-progress-list">
+          <mat-menu #engineersMenu="matMenu" class="engineers-menu">
+            <div class="engineers-menu-content">
               <div
                 *ngFor="let engineer of stats.engineers"
-                class="engineer-item"
+                class="engineer-menu-item"
                 [class.staff-engineer]="engineer.engineerType === 'staff'"
                 [class.contract-engineer]="engineer.engineerType === 'contract'"
               >
@@ -340,12 +320,144 @@
                 </div>
               </div>
             </div>
-          </div>
+          </mat-menu>
         </div>
 
         <div class="no-data" *ngIf="stats.engineers.length === 0">
           <mat-icon>info</mat-icon>
           <p>Нет данных за выбранный период</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Orders Overview Card (for Managers - intermediate field) -->
+  <mat-card class="orders-overview-card" *ngIf="isManager() && !isMobileView()">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>dashboard</mat-icon>
+        Обзор заявок
+      </mat-card-title>
+      <div class="header-actions-right">
+        <button
+          mat-icon-button
+          (click)="toggleOrdersOverview()"
+          matTooltip="{{ ordersOverviewCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+          class="collapse-toggle-btn"
+          [attr.aria-label]="ordersOverviewCollapsed() ? 'Развернуть' : 'Свернуть'"
+        >
+          <mat-icon>{{ ordersOverviewCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content [class.collapsed]="ordersOverviewCollapsed()">
+      <div class="orders-overview-grid">
+        <div
+          class="summary-item warning"
+          role="button"
+          tabindex="0"
+          aria-label="Показать ожидающие заявки"
+          [class.active]="selectedStatus() === OrderStatus.WAITING"
+          (click)="onSummaryStatusClick('waiting')"
+          (keydown)="onSummaryStatusKeydown($event, 'waiting')"
+        >
+          <div class="summary-icon">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats().waiting }}</div>
+            <div class="summary-label">Ожидают</div>
+          </div>
+        </div>
+
+        <div
+          class="summary-item info"
+          role="button"
+          tabindex="0"
+          aria-label="Показать заявки в обработке"
+          [class.active]="selectedStatus() === OrderStatus.PROCESSING"
+          (click)="onSummaryStatusClick('processing')"
+          (keydown)="onSummaryStatusKeydown($event, 'processing')"
+        >
+          <div class="summary-icon">
+            <mat-icon>person_add</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats().processing }}</div>
+            <div class="summary-label">В обработке</div>
+          </div>
+        </div>
+
+        <div
+          class="summary-item accent"
+          role="button"
+          tabindex="0"
+          aria-label="Создать новую заявку"
+          (click)="scrollToMainContent()"
+          (keydown)="onSummaryStatusKeydown($event, 'create')"
+        >
+          <div class="summary-icon">
+            <mat-icon>add_circle</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">+</div>
+            <div class="summary-label">Создать новую заявку</div>
+          </div>
+        </div>
+
+        <div
+          class="summary-item accent"
+          role="button"
+          tabindex="0"
+          aria-label="Показать заявки в работе"
+          [class.active]="selectedStatus() === OrderStatus.WORKING"
+          (click)="onSummaryStatusClick('working')"
+          (keydown)="onSummaryStatusKeydown($event, 'working')"
+        >
+          <div class="summary-icon">
+            <mat-icon>build</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats().working }}</div>
+            <div class="summary-label">В работе</div>
+          </div>
+        </div>
+
+        <div
+          class="summary-item review"
+          role="button"
+          tabindex="0"
+          aria-label="Показать заявки на проверке"
+          [class.active]="selectedStatus() === OrderStatus.REVIEW"
+          (click)="onSummaryStatusClick('review')"
+          (keydown)="onSummaryStatusKeydown($event, 'review')"
+        >
+          <div class="summary-icon">
+            <mat-icon>visibility</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats().review }}</div>
+            <div class="summary-label">На проверке</div>
+          </div>
+        </div>
+
+        <div
+          class="summary-item success"
+          role="button"
+          tabindex="0"
+          aria-label="Показать завершённые заявки"
+          [class.active]="selectedStatus() === OrderStatus.COMPLETED"
+          (click)="onSummaryStatusClick('completed')"
+          (keydown)="onSummaryStatusKeydown($event, 'completed')"
+        >
+          <div class="summary-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats().completed }}</div>
+            <div class="summary-label">Завершено</div>
+          </div>
         </div>
       </div>
     </mat-card-content>
@@ -826,16 +938,6 @@
         
         <div class="summary-item">
           <div class="item-header">
-            <mat-icon color="accent">assignment</mat-icon>
-            <div>
-              <div class="item-label">Всего заявок</div>
-              <div class="item-value">{{ stats.totalOrders }}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="summary-item">
-          <div class="item-header">
             <mat-icon color="warn">people</mat-icon>
             <div>
               <div class="item-label">Инженеров</div>
@@ -862,7 +964,9 @@
               regularHours: engineer.regularHours,
               overtimeHours: engineer.overtimeHours,
               completedOrders: engineer.completedOrders,
-              averageHoursPerOrder: engineer.averageHoursPerOrder
+              averageHoursPerOrder: engineer.averageHoursPerOrder,
+              earnedAmount: engineer.earnedAmount,
+              carPayments: engineer.carPayments
             }"
           ></app-hours-progress-item>
         </div>

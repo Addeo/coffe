@@ -2129,6 +2129,127 @@
         }
       }
 
+      // Engineers menu styles
+      ::ng-deep .engineers-menu {
+        .mat-mdc-menu-content {
+          padding: 0;
+          max-width: 500px;
+          max-height: 600px;
+          overflow-y: auto;
+        }
+
+        .engineers-menu-content {
+          padding: 8px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .engineer-menu-item {
+          background: white;
+          border-radius: 8px;
+          padding: 12px;
+          border: 1px solid rgba(0, 0, 0, 0.06);
+          transition: all 0.3s ease;
+          min-width: 400px;
+
+          &:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+          }
+
+          &.staff-engineer {
+            border-left: 4px solid #667eea;
+          }
+
+          &.contract-engineer {
+            border-left: 4px solid #ff9800;
+          }
+
+          .engineer-staff-display,
+          .engineer-contract-display {
+            .engineer-header {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin-bottom: 8px;
+
+              mat-icon {
+                font-size: 24px;
+                width: 24px;
+                height: 24px;
+              }
+
+              .engineer-info {
+                flex: 1;
+
+                .engineer-name {
+                  font-size: 15px;
+                  font-weight: 600;
+                  color: #333;
+                  margin-bottom: 4px;
+                }
+
+                .engineer-hours {
+                  display: flex;
+                  align-items: baseline;
+                  gap: 4px;
+                  font-size: 14px;
+                  color: #666;
+
+                  .hours-value {
+                    font-weight: 600;
+                    color: #667eea;
+                  }
+
+                  .hours-separator {
+                    color: #999;
+                  }
+
+                  .hours-plan {
+                    color: #999;
+                  }
+
+                  .hours-label {
+                    color: #999;
+                  }
+                }
+
+                .engineer-hours-only {
+                  display: flex;
+                  align-items: baseline;
+                  gap: 4px;
+                  font-size: 14px;
+                  color: #666;
+
+                  .hours-value {
+                    font-weight: 600;
+                    color: #ff9800;
+                  }
+
+                  .hours-label {
+                    color: #999;
+                  }
+                }
+              }
+
+              .engineer-percentage {
+                font-size: 16px;
+                font-weight: 600;
+                color: #667eea;
+                min-width: 50px;
+                text-align: right;
+              }
+            }
+
+            mat-progress-bar {
+              height: 8px;
+              border-radius: 4px;
+            }
+          }
+        }
+      }
+
       .engineers-list {
         margin-top: 16px;
         padding: 16px;

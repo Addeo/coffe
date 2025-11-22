@@ -19,8 +19,9 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
-import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { Router, NavigationEnd } from '@angular/router';
+import { forkJoin, Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import * as XLSX from 'xlsx';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
@@ -270,6 +271,9 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
   // Track previous role to detect role changes
   private previousRole: UserRole | null = null;
+  
+  // Router subscription for navigation events
+  private routerSubscription?: Subscription;
 
   constructor() {
     // Track role changes and reload data when role changes
@@ -308,6 +312,22 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
     // Set initial role
     this.previousRole = this.authService.activeRole() ?? null;
+
+    // Подписка на события роутера для автоматической перезагрузки при переходе на страницу для диспетчера
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        // Если диспетчер (MANAGER) и перешли на страницу orders, перезагружаем страницу
+        if (this.isManager() && event.url === '/orders' && !sessionStorage.getItem('orders-page-reloaded')) {
+          sessionStorage.setItem('orders-page-reloaded', 'true');
+          setTimeout(() => {
+            window.location.reload();
+          }, 100);
+        } else if (event.url !== '/orders') {
+          // Сбрасываем флаг при переходе на другую страницу
+          sessionStorage.removeItem('orders-page-reloaded');
+        }
+      });
 
     this.loadOrders();
     this.loadOrderStats();
@@ -1228,7 +1248,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
   // Scroll to main content (lower functional field)
   scrollToMainContent() {
-    const mainContent = document.querySelector('.main-content');
+    const mainContent = document.querySelector('mat-card.main-content');
     if (mainContent) {
       mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
       // Then open create order dialog
@@ -1653,6 +1673,9 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Cleanup if needed
+    // Отписка от событий роутера
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 }
