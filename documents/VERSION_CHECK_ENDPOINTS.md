@@ -13,6 +13,7 @@
 **Заголовки:** Не требуются (публичный эндпоинт)
 
 **Ответ:**
+
 ```json
 {
   "version": "1.0.2",
@@ -23,6 +24,7 @@
 ```
 
 **Поля ответа:**
+
 - `version` (string) - Версия приложения на сервере
 - `downloadUrl` (string) - URL для скачивания APK
 - `required` (boolean) - Обязательное ли обновление (true = нельзя отменить)
@@ -50,6 +52,7 @@ const response = await http.get('http://192.144.12.102:3001/api/app/version');
 ```
 
 **Что отправляется:**
+
 ```
 GET http://192.144.12.102:3001/api/app/version
 Headers:
@@ -71,7 +74,7 @@ Headers:
 
 ```typescript
 // Текущая версия в приложении: 1.0.1 (из build.gradle)
-const currentVersion = "1.0.1"; // Из App.getInfo()
+const currentVersion = '1.0.1'; // Из App.getInfo()
 const serverVersion = response.version; // "1.0.2"
 
 if (serverVersion !== currentVersion) {
@@ -82,6 +85,7 @@ if (serverVersion !== currentVersion) {
 ### Шаг 5: Показ диалога (если версии не совпадают)
 
 Пользователю показывается диалог:
+
 - Заголовок: "Доступна новая версия"
 - Версия: "1.0.2"
 - Кнопки: "Обновить" / "Отмена"
@@ -127,6 +131,7 @@ curl -s http://192.144.12.102:3001/api/app/version | jq '.version'
 ### При запуске приложения:
 
 1. **Проверка платформы:**
+
    ```typescript
    if (!Capacitor.isNativePlatform()) {
      // Веб-версия - проверка отключена
@@ -135,6 +140,7 @@ curl -s http://192.144.12.102:3001/api/app/version | jq '.version'
    ```
 
 2. **Проверка интервала (24 часа):**
+
    ```typescript
    const lastCheck = localStorage.getItem('app_update_last_check');
    if (lastCheck && now - lastCheck < 24h) {
@@ -144,15 +150,17 @@ curl -s http://192.144.12.102:3001/api/app/version | jq '.version'
    ```
 
 3. **HTTP запрос:**
+
    ```typescript
    GET http://192.144.12.102:3001/api/app/version
    ```
 
 4. **Сравнение версий:**
+
    ```typescript
-   currentVersion = "1.0.1"  // Из AndroidManifest.xml
-   serverVersion = "1.0.2"   // Из ответа API
-   
+   currentVersion = '1.0.1'; // Из AndroidManifest.xml
+   serverVersion = '1.0.2'; // Из ответа API
+
    if (serverVersion !== currentVersion) {
      // Показать диалог
    }
@@ -241,6 +249,7 @@ curl -I http://192.144.12.102:3001/app-debug.apk
 ## 📝 Полный пример запроса/ответа
 
 ### Запрос:
+
 ```http
 GET /api/app/version HTTP/1.1
 Host: 192.144.12.102:3001
@@ -249,6 +258,7 @@ User-Agent: Coffee-Admin/1.0.1 (Android)
 ```
 
 ### Ответ:
+
 ```http
 HTTP/1.1 200 OK
 Content-Type: application/json
@@ -288,4 +298,3 @@ Content-Length: 145
 # 3. Запустить приложение и проверить логи
 ./test-update.sh
 ```
-

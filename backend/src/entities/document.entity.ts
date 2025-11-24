@@ -55,4 +55,3 @@ export class Document {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
-

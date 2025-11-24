@@ -48,4 +48,3 @@ export interface DocumentQueryDto {
   limit?: number;
   search?: string;
 }
-

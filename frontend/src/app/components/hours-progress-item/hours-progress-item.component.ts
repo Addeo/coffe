@@ -1,4 +1,12 @@
-import { Component, Input, computed, signal, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  computed,
+  signal,
+  OnInit,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -51,7 +59,7 @@ export class HoursProgressItemComponent implements OnInit, OnChanges {
 
   // Collapsed state
   isCollapsed = signal(true);
-  
+
   // Payment buttons collapsed state
   showHoursPayments = signal(false);
   showCarPayments = signal(false);
@@ -70,7 +78,7 @@ export class HoursProgressItemComponent implements OnInit, OnChanges {
     if (this.workedHours > this.planHours && this.planHours > 0) {
       return 'primary'; // зеленый
     }
-    
+
     const percentage = this.progressPercentage();
     if (percentage < 50) {
       return 'warn'; // красный
@@ -87,7 +95,7 @@ export class HoursProgressItemComponent implements OnInit, OnChanges {
     if (this.workedHours > this.planHours && this.planHours > 0) {
       return 'progress-high';
     }
-    
+
     const percentage = this.progressPercentage();
     if (percentage < 50) {
       return 'progress-low';
@@ -118,7 +126,7 @@ export class HoursProgressItemComponent implements OnInit, OnChanges {
     }
 
     const worked = this.workedHours ?? 0;
-    
+
     // If workedHours <= planHours, normal position
     if (worked <= this.planHours) {
       return worked;
@@ -141,11 +149,11 @@ export class HoursProgressItemComponent implements OnInit, OnChanges {
   toggleCollapse() {
     this.isCollapsed.update(value => !value);
   }
-  
+
   toggleHoursPayments() {
     this.showHoursPayments.update(value => !value);
   }
-  
+
   toggleCarPayments() {
     this.showCarPayments.update(value => !value);
   }

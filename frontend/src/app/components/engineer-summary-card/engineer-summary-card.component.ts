@@ -76,21 +76,13 @@ export class EngineerSummaryCardComponent {
     if (!this.summary.planEarnings || this.summary.planEarnings <= 0) {
       return 0;
     }
-    return Math.min(
-      100,
-      ((this.summary.earnedAmount ?? 0) / this.summary.planEarnings) * 100
-    );
+    return Math.min(100, ((this.summary.earnedAmount ?? 0) / this.summary.planEarnings) * 100);
   }
 
   get hoursProgress(): number {
     if (!this.summary.planHours || this.summary.planHours <= 0) {
       return 0;
     }
-    return Math.min(
-      100,
-      ((this.summary.workedHours ?? 0) / this.summary.planHours) * 100
-    );
+    return Math.min(100, ((this.summary.workedHours ?? 0) / this.summary.planHours) * 100);
   }
 }
-
-

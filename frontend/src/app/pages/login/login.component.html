@@ -93,19 +93,13 @@
       <div class="version-info">
         <span class="version-text">Версия: {{ appVersion() }}</span>
       </div>
-      
+
       <!-- Policy Links -->
       <div class="policy-links">
-        <a 
-          routerLink="/privacy-policy" 
-          class="policy-link"
-          (click)="$event.stopPropagation()">
+        <a routerLink="/privacy-policy" class="policy-link" (click)="$event.stopPropagation()">
           Политика конфиденциальности
         </a>
-        <a 
-          routerLink="/terms-of-service" 
-          class="policy-link"
-          (click)="$event.stopPropagation()">
+        <a routerLink="/terms-of-service" class="policy-link" (click)="$event.stopPropagation()">
           Пользовательское соглашение
         </a>
       </div>

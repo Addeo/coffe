@@ -35,7 +35,7 @@ import { UserRole } from '../../entities/user.entity';
 export class DocumentsController {
   constructor(
     private readonly documentsService: DocumentsService,
-    private readonly filesService: FilesService,
+    private readonly filesService: FilesService
   ) {}
 
   @Post()
@@ -45,7 +45,7 @@ export class DocumentsController {
   async create(
     @UploadedFile() file: Express.Multer.File,
     @Body() createDto: CreateDocumentDto,
-    @Request() req,
+    @Request() req
   ) {
     if (!file) {
       throw new BadRequestException('File is required');
@@ -74,7 +74,7 @@ export class DocumentsController {
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateDto: UpdateDocumentDto,
-    @Request() req,
+    @Request() req
   ) {
     return this.documentsService.update(id, updateDto, req.user.id);
   }
@@ -99,4 +99,3 @@ export class DocumentsController {
     return this.filesService.downloadFile(document.fileId, res);
   }
 }
-

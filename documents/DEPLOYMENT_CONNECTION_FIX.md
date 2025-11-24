@@ -3,6 +3,7 @@
 ## Проблема
 
 GitHub Actions не может подключиться к серверу из-за:
+
 - `kex_exchange_identification: read: Connection reset by peer`
 - `Connection reset by port 22`
 - Таймауты при SCP/SSH
@@ -31,7 +32,7 @@ GitHub Actions не может подключиться к серверу из-�
       Compression yes
       StrictHostKeyChecking no
     SSH_CONFIG
-    
+
     # Тест подключения
     ssh -o ConnectTimeout=10 user@host "echo 'Connection OK'"
 ```
@@ -43,7 +44,7 @@ GitHub Actions не может подключиться к серверу из-�
   run: |
     MAX_RETRIES=3
     RETRY_DELAY=10
-    
+
     for i in $(seq 1 $MAX_RETRIES); do
       if scp -o ConnectTimeout=30 \
              -o ServerAliveInterval=15 \
@@ -67,7 +68,7 @@ GitHub Actions не может подключиться к серверу из-�
   run: |
     MAX_RETRIES=2
     RETRY_DELAY=15
-    
+
     for i in $(seq 1 $MAX_RETRIES); do
       if ssh [options] user@host bash -s << 'EOF'
         # deployment commands
@@ -86,6 +87,7 @@ GitHub Actions не может подключиться к серверу из-�
 ### На стороне сервера
 
 1. **Увеличить лимиты SSH в `/etc/ssh/sshd_config`:**
+
    ```bash
    MaxSessions 20
    MaxStartups 10:30:20
@@ -95,10 +97,11 @@ GitHub Actions не может подключиться к серверу из-�
    ```
 
 2. **Разрешить IP GitHub Actions в файрволе:**
+
    ```bash
    # Получить список IP GitHub Actions
    curl https://api.github.com/meta | jq -r '.actions[]'
-   
+
    # Добавить в UFW (пример)
    sudo ufw allow from <github-ip-range> to any port 22
    ```
@@ -127,6 +130,7 @@ GitHub Actions не может подключиться к серверу из-�
 ## Мониторинг
 
 Проверить статус SSH-соединений на сервере:
+
 ```bash
 # Активные SSH соединения
 ss -t state established '( dport = :22 or sport = :22 )'
@@ -141,6 +145,7 @@ sudo fail2ban-client status sshd
 ## Проверка исправлений
 
 После внесения изменений:
+
 1. Закоммитить и запушить изменения
 2. Запустить workflow вручную через GitHub Actions
 3. Проверить логи на наличие успешных retry-попыток
@@ -152,4 +157,3 @@ sudo fail2ban-client status sshd
 ✅ SCP-загрузки работают с retry  
 ✅ Deployment продолжается даже при временных сбоях  
 ✅ Автоматическое восстановление при ошибках
-

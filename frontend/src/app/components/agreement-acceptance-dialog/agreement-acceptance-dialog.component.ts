@@ -41,7 +41,7 @@ export class AgreementAcceptanceDialogComponent implements OnInit {
   acceptedAgreements = signal<Set<number>>(new Set());
   loading = signal(false);
   error = signal<string | null>(null);
-  
+
   // Для отображения соглашений по типам
   agreementsByType: Map<string, Agreement[]> = new Map();
   agreementsByTypeArray: Array<[string, Agreement[]]> = []; // Для итерации в шаблоне
@@ -49,9 +49,8 @@ export class AgreementAcceptanceDialogComponent implements OnInit {
 
   ngOnInit(): void {
     // Группируем соглашения по типам
-    const allAgreements = this.data.missingAgreements.length > 0 
-      ? this.data.missingAgreements 
-      : this.data.agreements;
+    const allAgreements =
+      this.data.missingAgreements.length > 0 ? this.data.missingAgreements : this.data.agreements;
 
     allAgreements.forEach(agreement => {
       if (!this.agreementsByType.has(agreement.type)) {
@@ -107,13 +106,12 @@ export class AgreementAcceptanceDialogComponent implements OnInit {
    * Проверить, все ли обязательные соглашения приняты
    */
   canAccept(): boolean {
-    const allAgreements = this.data.missingAgreements.length > 0 
-      ? this.data.missingAgreements 
-      : this.data.agreements;
-    
+    const allAgreements =
+      this.data.missingAgreements.length > 0 ? this.data.missingAgreements : this.data.agreements;
+
     const mandatoryAgreements = allAgreements.filter(a => a.isMandatory);
     const accepted = this.acceptedAgreements();
-    
+
     // Все обязательные соглашения должны быть приняты
     return mandatoryAgreements.every(a => accepted.has(a.id));
   }
@@ -123,7 +121,7 @@ export class AgreementAcceptanceDialogComponent implements OnInit {
    */
   async accept(): Promise<void> {
     const accepted = Array.from(this.acceptedAgreements());
-    
+
     if (accepted.length === 0) {
       this.error.set('Пожалуйста, примите хотя бы одно соглашение');
       return;
@@ -171,4 +169,3 @@ export class AgreementAcceptanceDialogComponent implements OnInit {
     return html;
   }
 }
-

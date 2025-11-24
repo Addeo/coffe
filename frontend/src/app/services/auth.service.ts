@@ -77,7 +77,7 @@ export class AuthService {
 
     let authUrl = environment.authUrl;
     const apiUrl = environment.apiUrl;
-    
+
     // Проверяем, что authUrl абсолютный, а не относительный
     if (authUrl.startsWith('/')) {
       console.warn('⚠️ WARNING: authUrl is relative! Converting to absolute URL.');
@@ -92,7 +92,7 @@ export class AuthService {
       }
       console.log('🔧 Converted authUrl to:', authUrl);
     }
-    
+
     console.log('🔐 Login attempt:', {
       email: credentials.email,
       password: credentials.password ? '[HIDDEN]' : '',
@@ -137,27 +137,27 @@ export class AuthService {
     if (this.isAuthenticated() && this.currentUser()) {
       const primaryRole = this.primaryRole();
       const activeRole = this.activeRole();
-      
+
       // Если активная роль отличается от основной, сбросить её на бэкенде
       if (activeRole !== primaryRole) {
         console.log('🔄 Resetting role to primary before logout:', {
           currentActive: activeRole,
           primary: primaryRole,
         });
-        
+
         // Вызываем API для сброса роли на бэкенде (не блокируем выход)
         this.resetRole().subscribe({
           next: () => {
             console.log('✅ Role reset successfully on backend before logout');
           },
-          error: (error) => {
+          error: error => {
             // Логируем ошибку, но не блокируем выход
             console.warn('⚠️ Failed to reset role on backend before logout (non-blocking):', error);
           },
         });
       }
     }
-    
+
     // Очищаем сессию и перенаправляем на логин (не ждем завершения resetRole)
     this.clearSession();
     this.router.navigate(['/login']);
@@ -205,7 +205,7 @@ export class AuthService {
       availableRoles: this.availableRoles(),
       canSwitchRoles: this.canSwitchRoles(),
     });
-    
+
     console.log('🔐 Session set, auth state:', {
       isAuthenticated: this.isAuthenticatedSignal(),
       currentUser: this.currentUserSignal(),

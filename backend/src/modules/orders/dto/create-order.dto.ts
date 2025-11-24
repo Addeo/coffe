@@ -52,4 +52,3 @@ export class CreateOrderDto {
   @IsUUID('4', { each: true })
   files?: string[];
 }
-

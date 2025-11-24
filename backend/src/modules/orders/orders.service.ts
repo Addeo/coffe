@@ -27,7 +27,10 @@ import {
 } from '../../shared/dtos/order.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { NotificationsService } from '../notifications/notifications.service';
-import { OrderEngineerAssignment, AssignmentStatus } from '../../entities/order-engineer-assignment.entity';
+import {
+  OrderEngineerAssignment,
+  AssignmentStatus,
+} from '../../entities/order-engineer-assignment.entity';
 
 // Extended OrdersQueryDto with additional filters
 interface ExtendedOrdersQueryDto extends OrdersQueryDto {
@@ -285,14 +288,21 @@ export class OrdersService {
 
       if (engineer) {
         // ИСПРАВЛЕНИЕ: Инженер видит заявки, на которые он назначен через assignments или assignedEngineerId
-        queryBuilder.leftJoin('order.engineerAssignments', 'assignment')
+        queryBuilder
+          .leftJoin('order.engineerAssignments', 'assignment')
           .andWhere(
             '(order.assignedEngineerId = :engineerId OR assignment.engineerId = :engineerId)',
             { engineerId: engineer.id }
           )
           .andWhere(
             '(assignment.status IS NULL OR assignment.status IN (:...assignmentStatuses))',
-            { assignmentStatuses: [AssignmentStatus.PENDING, AssignmentStatus.ACCEPTED, AssignmentStatus.COMPLETED] }
+            {
+              assignmentStatuses: [
+                AssignmentStatus.PENDING,
+                AssignmentStatus.ACCEPTED,
+                AssignmentStatus.COMPLETED,
+              ],
+            }
           );
       } else {
         // If no engineer profile found, return no orders
@@ -437,7 +447,11 @@ export class OrdersService {
         where: {
           orderId: id,
           engineerId: engineerProfile.id,
-          status: In([AssignmentStatus.PENDING, AssignmentStatus.ACCEPTED, AssignmentStatus.COMPLETED]),
+          status: In([
+            AssignmentStatus.PENDING,
+            AssignmentStatus.ACCEPTED,
+            AssignmentStatus.COMPLETED,
+          ]),
         },
       });
 
@@ -865,7 +879,7 @@ export class OrdersService {
     orderId: number,
     engineerIds: number[],
     primaryEngineerId?: number,
-    user?: User,
+    user?: User
   ): Promise<Order> {
     const order = await this.findOne(orderId, user || ({} as User));
 
@@ -888,8 +902,10 @@ export class OrdersService {
 
       if (assignment) {
         // Если назначение существует и отклонено/отменено, обновляем
-        if (assignment.status === AssignmentStatus.REJECTED || 
-            assignment.status === AssignmentStatus.CANCELLED) {
+        if (
+          assignment.status === AssignmentStatus.REJECTED ||
+          assignment.status === AssignmentStatus.CANCELLED
+        ) {
           assignment.status = AssignmentStatus.PENDING;
           assignment.acceptedAt = null;
           assignment.rejectedAt = null;
@@ -904,7 +920,9 @@ export class OrdersService {
           engineerId,
           status: AssignmentStatus.PENDING,
           assignedById: user?.id || null,
-          isPrimary: engineerId === primaryEngineerId || (!order.assignedEngineerId && engineerIds.indexOf(engineerId) === 0),
+          isPrimary:
+            engineerId === primaryEngineerId ||
+            (!order.assignedEngineerId && engineerIds.indexOf(engineerId) === 0),
         });
         assignment = await this.assignmentRepository.save(assignment);
       }
@@ -917,7 +935,7 @@ export class OrdersService {
           orderId,
           order.title,
           engineer.id,
-          user?.id || null,
+          user?.id || null
         );
       }
     }
@@ -928,7 +946,7 @@ export class OrdersService {
     } else if (engineerIds.length > 0 && !order.assignedEngineerId) {
       order.assignedEngineerId = engineerIds[0];
     }
-    
+
     order.assignedById = user?.id || null;
     if (order.status === OrderStatus.WAITING) {
       order.status = OrderStatus.ASSIGNED;
@@ -956,11 +974,7 @@ export class OrdersService {
   /**
    * Удалить назначение инженера
    */
-  async removeEngineerAssignment(
-    orderId: number,
-    assignmentId: number,
-    user: User,
-  ): Promise<void> {
+  async removeEngineerAssignment(orderId: number, assignmentId: number, user: User): Promise<void> {
     const assignment = await this.assignmentRepository.findOne({
       where: { id: assignmentId, orderId },
       relations: ['order', 'engineer'],

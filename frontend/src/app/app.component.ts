@@ -114,9 +114,10 @@ export class AppComponent implements OnInit, OnDestroy {
   isPublicRoute = computed(() => {
     const currentUrl = this.routerUrl();
     const sanitizedUrl = currentUrl.split('?')[0]?.split('#')[0]?.split(';')[0] ?? currentUrl;
-    const normalizedUrl = sanitizedUrl !== '/' && sanitizedUrl.endsWith('/')
-      ? sanitizedUrl.replace(/\/+$/, '')
-      : sanitizedUrl;
+    const normalizedUrl =
+      sanitizedUrl !== '/' && sanitizedUrl.endsWith('/')
+        ? sanitizedUrl.replace(/\/+$/, '')
+        : sanitizedUrl;
     const urlToCheck = normalizedUrl.toLowerCase();
 
     return this.publicRoutes.some(route => {
@@ -145,7 +146,7 @@ export class AppComponent implements OnInit, OnDestroy {
     effect(() => {
       const isAuth = this.isAuthenticated();
       const status = this.authService.agreementsStatus();
-      
+
       // Если пользователь авторизован и диалог еще не был показан
       if (isAuth && !this.agreementDialogShown) {
         // Проверяем статус соглашений
@@ -184,7 +185,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private async showAgreementDialog(missingAgreements: any[]): Promise<void> {
     // Загружаем полные данные соглашений
     const agreements: Agreement[] = [];
-    
+
     try {
       for (const missing of missingAgreements) {
         const agreement = await this.agreementsService.getAgreementById(missing.id).toPromise();

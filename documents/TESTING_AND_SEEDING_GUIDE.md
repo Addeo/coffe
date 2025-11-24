@@ -76,6 +76,7 @@ npm run seed:comprehensive
 ### Что тестируется:
 
 #### Публичные эндпоинты:
+
 - `GET /api/auth/init-admin` - Инициализация админа
 - `GET /api/organizations/test` - Тестовый эндпоинт
 - `GET /api/organizations/public` - Публичный список организаций
@@ -84,6 +85,7 @@ npm run seed:comprehensive
 #### Эндпоинты с аутентификацией:
 
 **Пользователи (ADMIN):**
+
 - `GET /api/users` - Список пользователей
 - `POST /api/users` - Создать пользователя
 - `GET /api/users/:id` - Получить пользователя
@@ -92,6 +94,7 @@ npm run seed:comprehensive
 - `PATCH /api/users/profile` - Обновить профиль
 
 **Организации (ADMIN):**
+
 - `GET /api/organizations` - Список организаций
 - `POST /api/organizations` - Создать организацию
 - `GET /api/organizations/:id` - Получить организацию
@@ -99,6 +102,7 @@ npm run seed:comprehensive
 - `PATCH /api/organizations/:id/toggle-status` - Переключить статус
 
 **Заказы:**
+
 - `GET /api/orders` - Список заказов
 - `POST /api/orders` - Создать заказ
 - `GET /api/orders/stats` - Статистика заказов
@@ -109,41 +113,52 @@ npm run seed:comprehensive
 - `GET /api/orders/:id/work-sessions` - Рабочие сессии заказа
 
 **Статистика (ADMIN, MANAGER):**
+
 - `GET /api/statistics` - Общая статистика
 - `GET /api/statistics/organizations` - Статистика по организациям
 - `GET /api/statistics/engineers` - Статистика по инженерам
 - `GET /api/statistics/engineer/detailed` - Детальная статистика
 
 **Выплаты (ADMIN, MANAGER):**
+
 - `GET /api/salary-payments` - Список выплат
 
 **Тарифы (ADMIN, MANAGER):**
+
 - `GET /api/engineer-organization-rates` - Список тарифов
 
 **Уведомления:**
+
 - `GET /api/notifications` - Список уведомлений
 - `GET /api/notifications/unread-count` - Количество непрочитанных
 
 **Настройки (ADMIN, MANAGER):**
+
 - `GET /api/settings` - Получить настройки
 
 **Файлы:**
+
 - `GET /api/files` - Список файлов
 
 **Отчеты (ADMIN, MANAGER):**
+
 - `GET /api/reports/orders` - Отчет по заказам
 - `GET /api/reports/salary` - Отчет по зарплатам
 
 **Экспорт:**
+
 - `GET /api/export/orders` - Экспорт заказов
 
 **Резервное копирование (ADMIN):**
+
 - `GET /api/backup` - Список бэкапов
 
 **Логи (ADMIN):**
+
 - `GET /api/logs` - Список логов
 
 **Продукты (ADMIN):**
+
 - `GET /api/products` - Список продуктов
 - `GET /api/products/stats` - Статистика продуктов
 - `GET /api/products/categories` - Категории продуктов
@@ -157,6 +172,7 @@ test-results-YYYYMMDD-HHMMSS.json
 ```
 
 Отчет содержит:
+
 - Общую статистику (всего, пройдено, провалено, пропущено)
 - Детальную информацию по каждому тесту
 - Время выполнения каждого запроса
@@ -174,23 +190,27 @@ test-results-YYYYMMDD-HHMMSS.json
 После выполнения `seed:comprehensive` доступны следующие учетные записи:
 
 ### Администратор
+
 - **Email:** `admin@coffee.com`
 - **Password:** `admin123`
 - **Роль:** ADMIN
 - **Доступ:** Полный доступ ко всем функциям
 
 ### Менеджер
+
 - **Email:** `manager@coffee.com`
 - **Password:** `manager123`
 - **Роль:** MANAGER
 - **Доступ:** Управление заказами, организациями, статистика
 
 ### Менеджер 2
+
 - **Email:** `manager2@coffee.com`
 - **Password:** `manager123`
 - **Роль:** MANAGER
 
 ### Инженер 1 (Иван Петров)
+
 - **Email:** `engineer1@coffee.com`
 - **Password:** `engineer123`
 - **Роль:** USER
@@ -198,6 +218,7 @@ test-results-YYYYMMDD-HHMMSS.json
 - **Доступ:** Просмотр назначенных заказов, выполнение работ
 
 ### Инженер 2 (Сергей Сидоров)
+
 - **Email:** `engineer2@coffee.com`
 - **Password:** `engineer123`
 - **Роль:** USER
@@ -205,6 +226,7 @@ test-results-YYYYMMDD-HHMMSS.json
 - **Доступ:** Просмотр назначенных заказов, выполнение работ
 
 ### Инженер 3 (Алексей Иванов)
+
 - **Email:** `engineer3@coffee.com`
 - **Password:** `engineer123`
 - **Роль:** USER
@@ -250,6 +272,7 @@ npm run seed:comprehensive
 ### Ошибка аутентификации
 
 Если тесты не проходят из-за аутентификации:
+
 1. Убедитесь, что пользователи созданы: `npm run seed:comprehensive`
 2. Проверьте, что сервер запущен
 3. Проверьте правильность URL в скрипте
@@ -257,6 +280,7 @@ npm run seed:comprehensive
 ### Ошибки при создании данных
 
 Если seed падает с ошибками:
+
 1. Проверьте, что база данных доступна
 2. Убедитесь, что все миграции применены
 3. Проверьте логи на наличие конфликтов (дубликаты email и т.д.)
@@ -264,10 +288,7 @@ npm run seed:comprehensive
 ### Проблемы с правами доступа
 
 Если скрипт не запускается:
+
 ```bash
 chmod +x test-all-endpoints-comprehensive.sh
 ```
-
-
-
-

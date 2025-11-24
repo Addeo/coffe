@@ -130,7 +130,7 @@ chmod 600 ~/.ssh/coffe_key
 # macOS
 open -a Docker
 
-# Linux  
+# Linux
 sudo systemctl start docker
 
 # Проверить
@@ -181,4 +181,3 @@ git push origin main
 - Полная документация: `LOCAL_COMMANDS_README.md`
 - Исправление деплоя: `DEPLOYMENT_CONNECTION_FIX.md`
 - Старт проекта: `START_HERE.md`
-

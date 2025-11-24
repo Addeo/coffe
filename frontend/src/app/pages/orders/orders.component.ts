@@ -1,4 +1,14 @@
-import { Component, inject, signal, computed, effect, OnInit, OnDestroy, ViewChild, HostListener } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  effect,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -31,7 +41,12 @@ import { ModalService } from '../../services/modal.service';
 import { ToastService } from '../../services/toast.service';
 import { StatisticsService } from '../../services/statistics.service';
 import { UsersService } from '../../services/users.service';
-import { OrderDto, OrdersQueryDto, OrderStatsDto, EngineerOrderSummaryDto } from '../../../../shared/dtos/order.dto';
+import {
+  OrderDto,
+  OrdersQueryDto,
+  OrderStatsDto,
+  EngineerOrderSummaryDto,
+} from '../../../../shared/dtos/order.dto';
 import { OrderStatus, OrderStatusLabel } from '../../../../shared/interfaces/order.interface';
 import { UserRole } from '../../../../shared/interfaces/user.interface';
 import { OrderDialogComponent } from '../../components/modals/order-dialog.component';
@@ -126,12 +141,24 @@ export class OrdersComponent implements OnInit, OnDestroy {
   });
 
   // Role-based permissions - using computed signals for reactivity
-  readonly canCreateOrders = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
-  readonly canAssignEngineers = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
-  readonly canViewAllOrders = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
-  readonly canEditOrders = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
-  readonly canDeleteOrders = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
-  readonly canExportOrders = computed(() => this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER]));
+  readonly canCreateOrders = computed(() =>
+    this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER])
+  );
+  readonly canAssignEngineers = computed(() =>
+    this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER])
+  );
+  readonly canViewAllOrders = computed(() =>
+    this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER])
+  );
+  readonly canEditOrders = computed(() =>
+    this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER])
+  );
+  readonly canDeleteOrders = computed(() =>
+    this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER])
+  );
+  readonly canExportOrders = computed(() =>
+    this.authService.hasAnyRole([UserRole.ADMIN, UserRole.MANAGER])
+  );
   readonly isEngineerView = computed(() => this.authService.hasRole(UserRole.USER));
   readonly isManager = computed(() => this.authService.hasRole(UserRole.MANAGER));
   readonly engineerSummary = computed<EngineerOrderSummaryDto | null>(() => {
@@ -262,7 +289,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
     totalHours: number;
     totalOrders: number;
   } | null>(null);
-  
+
   // Engineers list collapse state
   engineersListCollapsed = signal(true);
   isLoadingManagerStats = signal(false);
@@ -271,7 +298,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
   // Track previous role to detect role changes
   private previousRole: UserRole | null = null;
-  
+
   // Router subscription for navigation events
   private routerSubscription?: Subscription;
 
@@ -279,18 +306,18 @@ export class OrdersComponent implements OnInit, OnDestroy {
     // Track role changes and reload data when role changes
     effect(() => {
       const currentRole = this.authService.activeRole();
-      
+
       // Skip on initial load (when previousRole is null)
       if (this.previousRole !== null && this.previousRole !== currentRole) {
         console.log('🔄 Role changed detected:', {
           previous: this.previousRole,
           current: currentRole,
         });
-        
+
         // Reload all data when role changes
         this.loadOrders();
         this.loadOrderStats();
-        
+
         // Load manager statistics if user switched to manager role
         if (this.isManager()) {
           this.loadManagerEngineerHoursStats();
@@ -299,7 +326,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
           this.managerEngineerHoursStats.set(null);
         }
       }
-      
+
       // Update previous role
       this.previousRole = currentRole ?? null;
     });
@@ -318,7 +345,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         // Если диспетчер (MANAGER) и перешли на страницу orders, перезагружаем страницу
-        if (this.isManager() && event.url === '/orders' && !sessionStorage.getItem('orders-page-reloaded')) {
+        if (
+          this.isManager() &&
+          event.url === '/orders' &&
+          !sessionStorage.getItem('orders-page-reloaded')
+        ) {
           sessionStorage.setItem('orders-page-reloaded', 'true');
           setTimeout(() => {
             window.location.reload();
@@ -331,7 +362,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
     this.loadOrders();
     this.loadOrderStats();
-    
+
     // Load manager statistics if user is manager
     if (this.isManager()) {
       this.loadManagerEngineerHoursStats();
@@ -349,7 +380,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
         this.dataSource.paginator = this.paginator;
         console.log('📄 Desktop paginator initialized:', this.paginator);
       }
-      
+
       this.dataSource.sort = this.sort;
       console.log('📄 DataSource length:', this.dataSource.data.length);
     });
@@ -501,7 +532,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
               // ВАЖНО: Часы рассчитываются с учетом коэффициента
               // Используем дефолтный коэффициент 1.6 (для Orders мы не имеем доступа к WorkSession напрямую)
               const overtimeCoefficient = 1.6;
-              const totalWorkedHours = regularHours + (overtime * overtimeCoefficient);
+              const totalWorkedHours = regularHours + overtime * overtimeCoefficient;
               workedHours += totalWorkedHours;
               overtimeHours += overtime;
               earnedAmount += Number(order.calculatedAmount ?? 0);
@@ -573,20 +604,23 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
         // Use overtimeStatistics which has totalHours, regularHours, overtimeHours
         // and merge with agentEarnings for completedOrders
-        const engineerMap = new Map<number, {
-          engineerId: number;
-          engineerName: string;
-          totalHours: number;
-          regularHours: number;
-          overtimeHours: number;
-          planHours: number;
-          completedOrders: number;
-          averageHoursPerOrder?: number;
-          engineerType?: string; // STAFF или CONTRACT
-          earnedAmount?: number; // Оплата за часы
-          carPayments?: number; // Оплата за авто
-        }>();
-        
+        const engineerMap = new Map<
+          number,
+          {
+            engineerId: number;
+            engineerName: string;
+            totalHours: number;
+            regularHours: number;
+            overtimeHours: number;
+            planHours: number;
+            completedOrders: number;
+            averageHoursPerOrder?: number;
+            engineerType?: string; // STAFF или CONTRACT
+            earnedAmount?: number; // Оплата за часы
+            carPayments?: number; // Оплата за авто
+          }
+        >();
+
         // First, add hours from overtimeStatistics
         data.overtimeStatistics.forEach(stat => {
           const planHours = engineerPlanHoursMap.get(stat.agentId) || 160; // Default 160 if not found
@@ -602,15 +636,14 @@ export class OrdersComponent implements OnInit, OnDestroy {
             engineerType,
           });
         });
-        
+
         // Then, add completedOrders from agentEarnings and calculate averageHoursPerOrder
         data.agentEarnings.forEach(agent => {
           const existing = engineerMap.get(agent.agentId);
           if (existing) {
             existing.completedOrders = agent.completedOrders || 0;
-            existing.averageHoursPerOrder = existing.completedOrders > 0
-              ? existing.totalHours / existing.completedOrders
-              : 0;
+            existing.averageHoursPerOrder =
+              existing.completedOrders > 0 ? existing.totalHours / existing.completedOrders : 0;
             existing.earnedAmount = agent.earnedAmount || 0; // Оплата за часы
             existing.carPayments = agent.carPayments || 0; // Оплата за авто
           } else {
@@ -643,7 +676,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
         });
         this.isLoadingManagerStats.set(false);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error loading manager engineer hours stats:', error);
         this.toastService.error('Ошибка загрузки статистики по часам инженеров');
         this.isLoadingManagerStats.set(false);
@@ -1186,7 +1219,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
   // Order statistics collapse state
   orderStatsCollapsed = signal(false);
-  
+
   // Collapse states for blocks
   ordersOverviewCollapsed = signal(false);
   ordersHeaderCollapsed = signal(false);
@@ -1495,7 +1528,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
       const overtimeCoefficient = 1.6;
       const regularHours = order.regularHours ?? 0;
       const overtimeHours = order.overtimeHours ?? 0;
-      const totalHours = regularHours + (overtimeHours * overtimeCoefficient);
+      const totalHours = regularHours + overtimeHours * overtimeCoefficient;
       const engineerPayment = (order.calculatedAmount ?? 0) + (order.carUsageAmount ?? 0);
 
       return {
@@ -1658,10 +1691,9 @@ export class OrdersComponent implements OnInit, OnDestroy {
    */
   getRowIndex(index: number): number {
     // Use appropriate paginator based on view
-    const activePaginator = this.isMobileView() && this.mobilePaginator 
-      ? this.mobilePaginator 
-      : this.paginator;
-    
+    const activePaginator =
+      this.isMobileView() && this.mobilePaginator ? this.mobilePaginator : this.paginator;
+
     if (!activePaginator) {
       return index + 1;
     }

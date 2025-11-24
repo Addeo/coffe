@@ -14,7 +14,7 @@ export class AgreementsService {
     @InjectRepository(UserAgreement)
     private userAgreementsRepository: Repository<UserAgreement>,
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private usersRepository: Repository<User>
   ) {}
 
   /**
@@ -90,9 +90,10 @@ export class AgreementsService {
     const missingAgreements: Agreement[] = [];
     for (const agreement of latestAgreements.values()) {
       const userAcceptance = userAgreements.find(
-        ua => ua.agreementType === agreement.type && 
-              ua.version === agreement.version && 
-              ua.isAccepted === true
+        ua =>
+          ua.agreementType === agreement.type &&
+          ua.version === agreement.version &&
+          ua.isAccepted === true
       );
 
       if (!userAcceptance) {
@@ -114,7 +115,7 @@ export class AgreementsService {
     userId: number,
     agreementIds: number[],
     ipAddress?: string,
-    userAgent?: string,
+    userAgent?: string
   ): Promise<UserAgreement[]> {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) {
@@ -149,11 +150,13 @@ export class AgreementsService {
       }
 
       // Создаем или обновляем запись
-      const userAgreement = existing || this.userAgreementsRepository.create({
-        userId,
-        agreementType: agreement.type,
-        version: agreement.version,
-      });
+      const userAgreement =
+        existing ||
+        this.userAgreementsRepository.create({
+          userId,
+          agreementType: agreement.type,
+          version: agreement.version,
+        });
 
       userAgreement.isAccepted = true;
       userAgreement.acceptedAt = now;
@@ -193,13 +196,10 @@ export class AgreementsService {
     title: string,
     content: string,
     isMandatory: boolean,
-    createdById: number,
+    createdById: number
   ): Promise<Agreement> {
     // Деактивируем предыдущие версии того же типа
-    await this.agreementsRepository.update(
-      { type, isActive: true },
-      { isActive: false },
-    );
+    await this.agreementsRepository.update({ type, isActive: true }, { isActive: false });
 
     const agreement = this.agreementsRepository.create({
       type,
@@ -215,4 +215,3 @@ export class AgreementsService {
     return this.agreementsRepository.save(agreement);
   }
 }
-

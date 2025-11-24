@@ -3,10 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../shared/material/material.module';
 import { DocumentsService, DocumentCategory } from '../../services/documents.service';
 import { ToastService } from '../../services/toast.service';
-import {
-  DocumentResponseDto,
-  CreateDocumentDto,
-} from '@shared/dtos/document.dto';
+import { DocumentResponseDto, CreateDocumentDto } from '@shared/dtos/document.dto';
 import {
   ImageViewerDialogComponent,
   ImageViewerData,
@@ -164,9 +161,7 @@ export class DocumentsComponent implements OnInit {
 
         // Remove from progress after delay
         setTimeout(() => {
-          this.uploadProgress.update(progresses =>
-            progresses.filter(p => p !== progress)
-          );
+          this.uploadProgress.update(progresses => progresses.filter(p => p !== progress));
         }, 2000);
 
         this.toastService.showSuccess(`Документ "${file.name}" успешно загружен`);
@@ -247,4 +242,3 @@ export class DocumentsComponent implements OnInit {
     this.selectedCategory.set(categoryId);
   }
 }
-

@@ -1,5 +1,10 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { ClassSerializerInterceptor, ValidationPipe, HttpStatus, HttpException } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  ValidationPipe,
+  HttpStatus,
+  HttpException,
+} from '@nestjs/common';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './filters/http-exception.filter';
 import * as express from 'express';
@@ -36,7 +41,7 @@ async function bootstrap() {
     const apkPath = process.env.APK_PATH || join(__dirname, '../../app-debug.apk');
     console.log('APK file path:', apkPath);
     console.log('Checking if APK exists at:', apkPath);
-    
+
     // Check if file exists and log
     try {
       if (fs.existsSync(apkPath)) {
@@ -48,15 +53,15 @@ async function bootstrap() {
     } catch (error) {
       console.warn('⚠️ Error checking APK file:', error.message);
     }
-    
+
     // Serve APK file directly - handle exact match and trailing slash
     // Get Express instance from NestJS app
     const expressApp = app.getHttpAdapter().getInstance();
-    
+
     const serveApkFile = (req: express.Request, res: express.Response) => {
       console.log('📥 APK download request:', req.path);
       console.log('📁 Looking for APK at:', apkPath);
-      
+
       if (!fs.existsSync(apkPath)) {
         console.error('❌ APK file not found at:', apkPath);
         return res.status(404).json({
@@ -66,18 +71,18 @@ async function bootstrap() {
           hint: 'Run: cp ./apk-builds/app-debug-1.0.2.apk backend/app-debug.apk',
         });
       }
-      
+
       const stats = fs.statSync(apkPath);
       console.log('✅ Serving APK file, size:', stats.size, 'bytes');
-      
+
       res.setHeader('Content-Type', 'application/vnd.android.package-archive');
       res.setHeader('Content-Disposition', 'attachment; filename="app-debug.apk"');
       res.setHeader('Cache-Control', 'public, max-age=3600');
       res.setHeader('Content-Length', stats.size.toString());
-      
+
       const fileStream = fs.createReadStream(apkPath);
       fileStream.pipe(res);
-      fileStream.on('error', (error) => {
+      fileStream.on('error', error => {
         console.error('❌ Error reading APK file:', error);
         if (!res.headersSent) {
           res.status(500).json({
@@ -87,26 +92,29 @@ async function bootstrap() {
           });
         }
       });
-      
+
       fileStream.on('end', () => {
         console.log('✅ APK file sent successfully');
       });
     };
-    
+
     // Register GET route for /app-debug.apk (exact match)
     expressApp.get('/app-debug.apk', serveApkFile);
-    
+
     // Redirect trailing slash to exact path
     expressApp.get('/app-debug.apk/', (req, res) => {
       res.redirect(301, '/app-debug.apk');
     });
-    
+
     // Alternative APK name
-    expressApp.use('/CoffeeAdmin-v2.apk', express.static(join(__dirname, '../../CoffeeAdmin-v2.apk'), {
-      setHeaders: (res) => {
-        res.setHeader('Content-Type', 'application/vnd.android.package-archive');
-      },
-    }));
+    expressApp.use(
+      '/CoffeeAdmin-v2.apk',
+      express.static(join(__dirname, '../../CoffeeAdmin-v2.apk'), {
+        setHeaders: res => {
+          res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+        },
+      })
+    );
 
     // Enable global validation pipe with detailed error messages
     app.useGlobalPipes(
@@ -117,7 +125,7 @@ async function bootstrap() {
         transformOptions: {
           enableImplicitConversion: true,
         },
-        exceptionFactory: (errors) => {
+        exceptionFactory: errors => {
           const messages = errors.map(error => {
             const constraints = error.constraints || {};
             return {
@@ -126,14 +134,14 @@ async function bootstrap() {
               constraints: Object.values(constraints),
             };
           });
-          
+
           return new HttpException(
             {
               statusCode: HttpStatus.BAD_REQUEST,
               message: 'Validation failed',
               errors: messages,
             },
-            HttpStatus.BAD_REQUEST,
+            HttpStatus.BAD_REQUEST
           );
         },
       })

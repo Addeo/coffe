@@ -91,14 +91,14 @@ export class StatisticsService {
       for (const session of sessions) {
         totalEarnings +=
           (Number(session.calculatedAmount) || 0) + (Number(session.carUsageAmount) || 0);
-        
+
         // ВАЖНО: Часы рассчитываются с учетом коэффициента
         // Формула: regularHours + (overtimeHours * overtimeCoefficient)
         const overtimeCoefficient = Number(session.engineerOvertimeCoefficient) || 1.6;
         const regularHours = Number(session.regularHours) || 0;
         const overtimeHours = Number(session.overtimeHours) || 0;
-        const totalWorkedHours = regularHours + (overtimeHours * overtimeCoefficient);
-        
+        const totalWorkedHours = regularHours + overtimeHours * overtimeCoefficient;
+
         totalHours += totalWorkedHours;
         if (session.orderId) {
           uniqueOrders.add(session.orderId);
@@ -239,13 +239,13 @@ export class StatisticsService {
     for (const session of currentSessions) {
       currentTotalEarnings +=
         (Number(session.calculatedAmount) || 0) + (Number(session.carUsageAmount) || 0);
-      
+
       // ВАЖНО: Часы рассчитываются с учетом коэффициента
       const overtimeCoefficient = Number(session.engineerOvertimeCoefficient) || 1.6;
       const regularHours = Number(session.regularHours) || 0;
       const overtimeHours = Number(session.overtimeHours) || 0;
-      currentTotalHours += regularHours + (overtimeHours * overtimeCoefficient);
-      
+      currentTotalHours += regularHours + overtimeHours * overtimeCoefficient;
+
       if (session.orderId) {
         currentUniqueOrders.add(session.orderId);
       }
@@ -270,13 +270,13 @@ export class StatisticsService {
     for (const session of prevSessions) {
       prevTotalEarnings +=
         (Number(session.calculatedAmount) || 0) + (Number(session.carUsageAmount) || 0);
-      
+
       // ВАЖНО: Часы рассчитываются с учетом коэффициента
       const overtimeCoefficient = Number(session.engineerOvertimeCoefficient) || 1.6;
       const regularHours = Number(session.regularHours) || 0;
       const overtimeHours = Number(session.overtimeHours) || 0;
-      prevTotalHours += regularHours + (overtimeHours * overtimeCoefficient);
-      
+      prevTotalHours += regularHours + overtimeHours * overtimeCoefficient;
+
       if (session.orderId) {
         prevUniqueOrders.add(session.orderId);
       }
@@ -388,7 +388,7 @@ export class StatisticsService {
 
       // ВАЖНО: Часы рассчитываются с учетом коэффициента
       const overtimeCoefficient = Number(session.engineerOvertimeCoefficient) || 1.6;
-      const sessionTotalHours = sessionRegularHours + (sessionOvertimeHours * overtimeCoefficient);
+      const sessionTotalHours = sessionRegularHours + sessionOvertimeHours * overtimeCoefficient;
       totalHours += sessionTotalHours;
 
       const sessionEarnings =
@@ -412,7 +412,7 @@ export class StatisticsService {
       const sessionRegularHours = Number(session.regularHours) || 0;
       const sessionOvertimeHours = Number(session.overtimeHours) || 0;
       const overtimeCoefficient = Number(session.engineerOvertimeCoefficient) || 1.6;
-      prevTotalHours += sessionRegularHours + (sessionOvertimeHours * overtimeCoefficient);
+      prevTotalHours += sessionRegularHours + sessionOvertimeHours * overtimeCoefficient;
       prevTotalEarnings +=
         (Number(session.calculatedAmount) || 0) + (Number(session.carUsageAmount) || 0);
     }
@@ -426,9 +426,10 @@ export class StatisticsService {
 
     // Статистика по платежам (из заказов, связанных с сессиями)
     const orderIds = Array.from(uniqueOrders);
-    const orders = orderIds.length > 0
-      ? await this.orderRepository.find({ where: { id: orderIds as any } })
-      : [];
+    const orders =
+      orderIds.length > 0
+        ? await this.orderRepository.find({ where: { id: orderIds as any } })
+        : [];
 
     const paidOrders = orders.filter(order => order.status === 'paid_to_engineer').length;
     const pendingPaymentOrders = orders.filter(order => order.status === 'completed').length;
@@ -594,13 +595,13 @@ export class StatisticsService {
       .addGroupBy('user.email')
       .orderBy('engineerEarnings', 'DESC')
       .getRawMany();
-    
+
     const engineerStatsWithProfit = engineerStats.map(stat => {
       // ВАЖНО: Часы рассчитываются с учетом коэффициента
       const avgOvertimeCoefficient = Number(stat.avgOvertimeCoefficient) || 1.6;
       const regularHours = Number(stat.regularHours) || 0;
       const overtimeHours = Number(stat.overtimeHours) || 0;
-      const totalHours = regularHours + (overtimeHours * avgOvertimeCoefficient);
+      const totalHours = regularHours + overtimeHours * avgOvertimeCoefficient;
       const engineerEarnings = Number(stat.engineerEarnings) || 0;
       const organizationPayments = Number(stat.organizationPayments) || 0;
       const carUsageAmount = Number(stat.carUsageAmount) || 0;
@@ -718,7 +719,10 @@ export class StatisticsService {
       .select('order.organizationId', 'organizationId')
       .addSelect('organization.name', 'organizationName')
       .addSelect('COUNT(DISTINCT session.orderId)', 'totalOrders')
-      .addSelect('SUM(session.regularHours + session.overtimeHours * COALESCE(session.engineerOvertimeCoefficient, 1.6))', 'totalHours')
+      .addSelect(
+        'SUM(session.regularHours + session.overtimeHours * COALESCE(session.engineerOvertimeCoefficient, 1.6))',
+        'totalHours'
+      )
       .addSelect('SUM(session.organizationPayment)', 'totalRevenue')
       .addSelect('SUM(session.calculatedAmount + session.carUsageAmount)', 'totalCosts')
       .addSelect('AVG(session.organizationPayment)', 'averageOrderValue')
@@ -765,7 +769,10 @@ export class StatisticsService {
       .addSelect('user.lastName', 'lastName')
       .addSelect('SUM(session.overtimeHours)', 'overtimeHours')
       .addSelect('SUM(session.regularHours)', 'regularHours')
-      .addSelect('SUM(session.regularHours + session.overtimeHours * COALESCE(session.engineerOvertimeCoefficient, 1.6))', 'totalHours')
+      .addSelect(
+        'SUM(session.regularHours + session.overtimeHours * COALESCE(session.engineerOvertimeCoefficient, 1.6))',
+        'totalHours'
+      )
       .innerJoin('session.engineer', 'engineer')
       .innerJoin('engineer.user', 'user')
       .where('session.workDate >= :startDate', { startDate })
@@ -942,7 +949,10 @@ export class StatisticsService {
     try {
       const result = await this.workSessionRepository
         .createQueryBuilder('session')
-        .select('SUM(session.regularPayment + session.overtimePayment + session.carUsageAmount)', 'totalPayments')
+        .select(
+          'SUM(session.regularPayment + session.overtimePayment + session.carUsageAmount)',
+          'totalPayments'
+        )
         .where('session.workDate >= :startDate', { startDate })
         .andWhere('session.workDate < :endDate', { endDate })
         .andWhere('session.status = :status', { status: 'completed' })

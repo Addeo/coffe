@@ -64,4 +64,3 @@ export class Agreement {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
-

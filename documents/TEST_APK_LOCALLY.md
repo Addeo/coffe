@@ -14,6 +14,7 @@
 ```
 
 **Что делает:**
+
 - Проверяет, что backend запущен локально
 - Копирует APK в `backend/app-debug.apk`
 - Тестирует эндпоинт `/api/app/version`
@@ -46,6 +47,7 @@ curl http://localhost:3001/api/app/version
 ```
 
 **Ожидаемый ответ:**
+
 ```json
 {
   "version": "1.0.2",
@@ -58,6 +60,7 @@ curl http://localhost:3001/api/app/version
 #### Шаг 4: Скачать APK
 
 **Через curl:**
+
 ```bash
 curl -O http://localhost:3001/app-debug.apk
 ```
@@ -66,6 +69,7 @@ curl -O http://localhost:3001/app-debug.apk
 Откройте: http://localhost:3001/app-debug.apk
 
 **Проверить размер:**
+
 ```bash
 # Оригинал
 ls -lh ./apk-builds/app-debug-1.0.2.apk
@@ -106,6 +110,7 @@ npm run start:dev
 **Причина:** Файл не скопирован в правильное место
 
 **Решение:**
+
 ```bash
 cp ./apk-builds/app-debug-1.0.2.apk backend/app-debug.apk
 ```
@@ -115,6 +120,7 @@ cp ./apk-builds/app-debug-1.0.2.apk backend/app-debug.apk
 ### Проблема: "APK file not found at: ..."
 
 **Проверить путь в логах backend:**
+
 ```bash
 # В логах backend должно быть:
 # APK file path: /path/to/backend/app-debug.apk
@@ -143,6 +149,7 @@ kill $BACKEND_PID
 ## 📝 Логи backend
 
 При запуске backend локально вы увидите:
+
 ```
 APK file path: /path/to/backend/app-debug.apk
 Checking if APK exists at: /path/to/backend/app-debug.apk
@@ -150,6 +157,7 @@ Checking if APK exists at: /path/to/backend/app-debug.apk
 ```
 
 При запросе APK:
+
 ```
 📥 APK download request: /app-debug.apk → /app-debug.apk
 📁 Looking for APK at: /path/to/backend/app-debug.apk
@@ -160,4 +168,3 @@ Checking if APK exists at: /path/to/backend/app-debug.apk
 ---
 
 Готово к локальному тестированию! 🚀
-

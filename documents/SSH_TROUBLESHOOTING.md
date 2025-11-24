@@ -16,18 +16,22 @@ Connection to 192.144.12.102 port 22 timed out
 ## Возможные причины
 
 ### 1. SSH-сервер перегружен
+
 - Слишком много активных подключений
 - Достигнут лимит `MaxStartups` или `MaxSessions`
 
 ### 2. Fail2ban заблокировал IP
+
 - После нескольких неудачных попыток
 - Временная блокировка (обычно 10-30 минут)
 
 ### 3. Файрвол/Rate limiting
+
 - UFW или iptables ограничивает скорость подключений
 - CloudFlare или другой прокси блокирует
 
 ### 4. Сетевые проблемы
+
 - Проблемы у провайдера
 - Высокая нагрузка на сеть
 
@@ -42,6 +46,7 @@ Connection to 192.144.12.102 port 22 timed out
 ### Решение 1: Проверить fail2ban
 
 Через веб-консоль:
+
 ```bash
 # Проверить статус
 sudo fail2ban-client status sshd
@@ -85,6 +90,7 @@ sudo systemctl restart sshd
 ### Решение 4: Использовать локальные команды
 
 Вместо SSH:
+
 ```bash
 # Справка по доступным командам
 npm run local:help
@@ -101,6 +107,7 @@ npm run local:generate
 ### Решение 5: Подождать
 
 Если это fail2ban, блокировка автоматически снимется через:
+
 - 10 минут (по умолчанию)
 - 30 минут (частая настройка)
 - 1 час (строгая настройка)
@@ -113,16 +120,19 @@ sleep 900 && ssh -i ~/.ssh/coffe_key user1@192.144.12.102
 ## Проверка с локальной машины
 
 ### Узнать свой IP
+
 ```bash
 curl ifconfig.me
 ```
 
 ### Проверить доступность порта
+
 ```bash
 nc -zv 192.144.12.102 22
 ```
 
 ### Попробовать с другими параметрами
+
 ```bash
 # С увеличенными таймаутами
 ssh -i ~/.ssh/coffe_key \
@@ -157,6 +167,7 @@ htop
 ## Альтернативные методы работы
 
 ### 1. GitHub Actions (рекомендуется)
+
 ```bash
 # Все изменения деплоятся автоматически
 git add .
@@ -167,13 +178,16 @@ git push origin main
 ```
 
 ### 2. Docker API (если настроен)
+
 ```bash
 # Подключение к Docker на сервере
 docker -H tcp://192.144.12.102:2376 ps
 ```
 
 ### 3. REST API для управления
+
 Создать эндпоинт в NestJS для мониторинга:
+
 ```typescript
 @Get('system/status')
 async getSystemStatus() {
@@ -190,6 +204,7 @@ async getSystemStatus() {
 Когда получите доступ через веб-консоль:
 
 ### Проверка диска
+
 ```bash
 df -h /
 du -sh ~/coffe
@@ -197,6 +212,7 @@ docker system df
 ```
 
 ### Очистка
+
 ```bash
 # Бэкапы
 rm -rf ~/coffe/backups/*
@@ -209,6 +225,7 @@ truncate -s 0 ~/coffe/backend/server.log
 ```
 
 ### Перезапуск сервисов
+
 ```bash
 cd ~/coffe
 docker compose -f docker-compose.fallback.yml restart
@@ -219,6 +236,7 @@ docker compose -f docker-compose.fallback.yml restart
 ### На сервере (через веб-консоль)
 
 1. **Настроить fail2ban whitelist**
+
 ```bash
 sudo nano /etc/fail2ban/jail.local
 
@@ -227,12 +245,14 @@ ignoreip = 127.0.0.1/8 YOUR_IP_HERE
 ```
 
 2. **Увеличить SSH лимиты**
+
 ```bash
 sudo nano /etc/ssh/sshd_config
 # MaxStartups 20:30:40
 ```
 
 3. **Мониторинг**
+
 ```bash
 # Добавить в crontab
 */5 * * * * ss -tn '( dport = :22 )' | wc -l >> /tmp/ssh-connections.log
@@ -247,6 +267,7 @@ sudo nano /etc/ssh/sshd_config
 ## Контакты поддержки
 
 Если проблема не решается:
+
 1. Обратиться в поддержку VPS провайдера
 2. Попросить проверить SSH логи
 3. Попросить временно отключить fail2ban
@@ -257,4 +278,3 @@ sudo nano /etc/ssh/sshd_config
 - `LOCAL_COMMANDS_README.md` - Команды без SSH
 - `DEPLOYMENT_CONNECTION_FIX.md` - Исправление деплоя
 - `COMMANDS_QUICK_REFERENCE.md` - Быстрая справка
-

@@ -51,7 +51,7 @@ export class CalculationService {
         `⚠️ Individual rates not set for engineer ${engineer.user?.firstName} ${engineer.user?.lastName} ` +
           `and organization ${organization.name}. Coefficient will be 0.`
       );
-      
+
       // Согласно требованиям: если ставки не установлены, коэффициент = 0
       return {
         baseRate: engineer.baseRate || 0,
@@ -69,7 +69,8 @@ export class CalculationService {
     // Используем коэффициент вместо ставки для сверхурочных
     const rates: EngineerRates = {
       baseRate: customRate.customBaseRate ?? engineer.baseRate ?? 0,
-      overtimeCoefficient: customRate.customOvertimeCoefficient ?? engineer.overtimeCoefficient ?? 1.6,
+      overtimeCoefficient:
+        customRate.customOvertimeCoefficient ?? engineer.overtimeCoefficient ?? 1.6,
       fixedSalary: engineer.fixedSalary,
       fixedCarAmount: engineer.fixedCarAmount,
       carKmRate: engineer.type === EngineerType.CONTRACT ? 14 : undefined,
@@ -101,12 +102,12 @@ export class CalculationService {
     isOvertime: boolean
   ): Promise<number> {
     const rates = await this.getEngineerRatesForOrganization(engineer, organization);
-    
+
     // Проверка: если коэффициент = 0, работа не может быть рассчитана
     if (isOvertime && (!rates.overtimeCoefficient || rates.overtimeCoefficient === 0)) {
       throw new Error(
         `Overtime coefficient is not set for engineer ${engineer.user?.firstName} ${engineer.user?.lastName} ` +
-        `and organization ${organization.name}. Please set individual rates.`
+          `and organization ${organization.name}. Please set individual rates.`
       );
     }
 
@@ -124,12 +125,12 @@ export class CalculationService {
   /**
    * Получить общее количество отработанных часов с учетом коэффициента сверхурочных
    * ВАЖНО: Для отображения используется формула regularHours + (overtimeHours * coefficient)
-   * 
+   *
    * @param regularHours - обычные часы
    * @param overtimeHours - сверхурочные часы
    * @param overtimeCoefficient - коэффициент сверхурочных
    * @returns Общее количество часов для отображения в статистике
-   * 
+   *
    * Пример: 100 обычных + 50 сверхурочных * 1.6 = 180 часов
    */
   calculateTotalWorkedHours(
@@ -137,7 +138,7 @@ export class CalculationService {
     overtimeHours: number,
     overtimeCoefficient: number = 1.6
   ): number {
-    return regularHours + (overtimeHours * overtimeCoefficient);
+    return regularHours + overtimeHours * overtimeCoefficient;
   }
 
   /**

@@ -60,4 +60,3 @@ export class UserAgreement {
   @Column({ name: 'updated_at', type: 'datetime', nullable: true })
   updatedAt: Date | null;
 }
-

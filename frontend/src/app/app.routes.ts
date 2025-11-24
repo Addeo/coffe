@@ -199,7 +199,9 @@ export const routes: Routes = [
   {
     path: 'documents/regulations',
     loadComponent: () =>
-      import('./pages/documents/regulations/regulations.component').then(m => m.RegulationsComponent),
+      import('./pages/documents/regulations/regulations.component').then(
+        m => m.RegulationsComponent
+      ),
     canActivate: [AuthGuard],
     data: { title: 'Регламент' },
   },

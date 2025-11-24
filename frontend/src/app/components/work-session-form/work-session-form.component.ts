@@ -128,9 +128,9 @@ export class WorkSessionFormComponent implements OnInit {
     const regular = Number(this.sessionForm.get('regularHours')?.value) || 0;
     const overtime = Number(this.sessionForm.get('overtimeHours')?.value) || 0;
     const defaultCoefficient = 1.6; // Дефолтный коэффициент (реальный придет с бэкенда)
-    
+
     // ВАЖНО: Часы с учетом коэффициента
-    return regular + (overtime * defaultCoefficient);
+    return regular + overtime * defaultCoefficient;
   }
 
   /**

@@ -5,7 +5,12 @@ import { Document } from '../../entities/document.entity';
 import { File } from '../../entities/file.entity';
 import { User } from '../../entities/user.entity';
 import { FilesService } from '../files/files.service';
-import { CreateDocumentDto, UpdateDocumentDto, DocumentQueryDto, DocumentCategory } from '../../shared/dtos/document.dto';
+import {
+  CreateDocumentDto,
+  UpdateDocumentDto,
+  DocumentQueryDto,
+  DocumentCategory,
+} from '../../shared/dtos/document.dto';
 import { FileType } from '../../shared/dtos/file.dto';
 
 export interface PaginatedResponse<T> {
@@ -25,13 +30,13 @@ export class DocumentsService {
     private filesRepository: Repository<File>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-    private filesService: FilesService,
+    private filesService: FilesService
   ) {}
 
   async create(
     file: Express.Multer.File,
     userId: number,
-    createDto: CreateDocumentDto,
+    createDto: CreateDocumentDto
   ): Promise<Document> {
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) {
@@ -43,7 +48,7 @@ export class DocumentsService {
       file,
       userId,
       FileType.DOCUMENT,
-      createDto.description || `Document: ${createDto.title}`,
+      createDto.description || `Document: ${createDto.title}`
     );
 
     // Create document entity
@@ -76,10 +81,9 @@ export class DocumentsService {
     }
 
     if (query.search) {
-      queryBuilder.andWhere(
-        '(document.title LIKE :search OR document.description LIKE :search)',
-        { search: `%${query.search}%` },
-      );
+      queryBuilder.andWhere('(document.title LIKE :search OR document.description LIKE :search)', {
+        search: `%${query.search}%`,
+      });
     }
 
     const [data, total] = await queryBuilder.skip(skip).take(limit).getManyAndCount();
@@ -145,4 +149,3 @@ export class DocumentsService {
     await this.documentsRepository.remove(document);
   }
 }
-

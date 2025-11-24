@@ -5,12 +5,14 @@
 ### 1. Через API эндпоинт (рекомендуемый способ)
 
 #### Проверка статуса принятия соглашений
+
 ```bash
 GET /api/agreements/user/check
 Authorization: Bearer {user_token}
 ```
 
 **Ответ:**
+
 ```json
 {
   "hasAcceptedAll": true,
@@ -31,11 +33,13 @@ Authorization: Bearer {user_token}
 ```
 
 **Поля ответа:**
+
 - `hasAcceptedAll` - `true` если все обязательные соглашения приняты
 - `missingAgreements` - массив непринятых обязательных соглашений
 - `userAgreements` - история всех принятий соглашений пользователем
 
 #### Проверка конкретно политики конфиденциальности
+
 ```bash
 # 1. Получить последнюю версию политики конфиденциальности
 GET /api/agreements/latest/privacy_policy
@@ -52,6 +56,7 @@ Authorization: Bearer {user_token}
 ```
 
 #### Получение истории принятия соглашений
+
 ```bash
 GET /api/agreements/user/history
 Authorization: Bearer {user_token}
@@ -71,6 +76,7 @@ Authorization: Bearer {user_token}
 ```
 
 **Поля:**
+
 - `hasAcceptedAgreements` - `true` если все обязательные соглашения приняты
 - `agreementsAcceptedAt` - дата последнего принятия всех обязательных соглашений (или `null`)
 
@@ -87,6 +93,7 @@ POST /api/auth/login
 ```
 
 **Ответ:**
+
 ```json
 {
   "access_token": "...",
@@ -143,11 +150,11 @@ ngOnInit() {
 @Get('protected-route')
 async getProtectedData(@Request() req) {
   const agreementsStatus = await this.agreementsService.checkUserAgreements(req.user.id);
-  
+
   if (!agreementsStatus.hasAcceptedAll) {
     throw new ForbiddenException('Вы должны принять все обязательные соглашения');
   }
-  
+
   // Продолжаем выполнение...
   return { data: 'protected data' };
 }
@@ -166,6 +173,7 @@ async checkUserAgreementsFromUser(userId: number): Promise<boolean> {
 ## Типы соглашений
 
 Доступные типы соглашений (`AgreementType`):
+
 - `terms_of_service` - Пользовательское соглашение
 - `privacy_policy` - Политика конфиденциальности
 - `data_processing` - Согласие на обработку данных
@@ -173,12 +181,14 @@ async checkUserAgreementsFromUser(userId: number): Promise<boolean> {
 ## Проверка в тестах
 
 Добавлены тесты в `backend/scripts/test-api.js`:
+
 - `test25_CheckUserAgreementsStatus` - проверка статуса соглашений
 - `test25b_CheckUserAgreementsHistory` - получение истории
 - `test25c_CheckPrivacyPolicyAccepted` - проверка политики конфиденциальности
 - `test25d_CheckUserFieldInDatabase` - проверка поля в User
 
 Запуск тестов:
+
 ```bash
 npm run test:api
 ```
@@ -189,4 +199,3 @@ npm run test:api
 2. **Обязательные соглашения**: Проверяются только соглашения с `isMandatory: true` и `isActive: true`
 3. **История**: Все принятия сохраняются в таблице `user_agreements` для аудита
 4. **IP и User-Agent**: При принятии соглашений автоматически сохраняются IP адрес и User-Agent браузера
-

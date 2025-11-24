@@ -5,10 +5,12 @@
 ### 1. Изменение логики сверхурочных часов ⚠️ ВАЖНОЕ ИЗМЕНЕНИЕ
 
 **Текущая проблема:**
+
 - Сверхурочные часы рассчитываются по ставке (overtimeRate)
 - Отработанные часы показываются как `regularHours + overtimeHours`
 
 **Новая логика:**
+
 - Сверхурочные часы должны использовать **коэффициент** вместо ставки
 - Коэффициент умножается на базовую ставку для расчета оплаты
 - **Для отображения отработанных часов:** `regularHours + (overtimeHours * overtimeCoefficient)`
@@ -17,6 +19,7 @@
 **Что нужно изменить:**
 
 #### Backend:
+
 1. **WorkSession Entity** (`backend/src/entities/work-session.entity.ts`):
    - Заменить `engineerOvertimeRate: number` на `engineerOvertimeCoefficient: number`
    - Добавить поле `overtimeCoefficient` в схему
@@ -26,16 +29,17 @@
    - Обновить поля, связанные со сверхурочными
 
 3. **CalculationService** (`backend/src/modules/расчеты/calculation.service.ts`):
+
    ```typescript
    // Было:
    const overtimePayment = overtimeHours * rates.overtimeRate;
-   
+
    // Станет:
    const overtimeCoefficient = rates.overtimeCoefficient || 1.6; // дефолтный коэф.
    const overtimePayment = overtimeHours * rates.baseRate * overtimeCoefficient;
-   
+
    // Для отображения часов:
-   const totalWorkedHours = regularHours + (overtimeHours * overtimeCoefficient);
+   const totalWorkedHours = regularHours + overtimeHours * overtimeCoefficient;
    ```
 
 4. **EngineerOrganizationRate Entity** (`backend/src/entities/engineer-organization-rate.entity.ts`):
@@ -49,10 +53,11 @@
 6. **StatisticsService** (`backend/src/modules/statistics/statistics.service.ts`):
    - Обновить расчет статистики для учета коэффициента в часах:
    ```typescript
-   const totalHours = regularHours + (overtimeHours * overtimeCoefficient);
+   const totalHours = regularHours + overtimeHours * overtimeCoefficient;
    ```
 
 #### Frontend:
+
 1. **DTOs** (`shared/dtos/order.dto.ts`, `shared/dtos/work-session.dto.ts`):
    - Заменить `overtimeRate` на `overtimeCoefficient`
    - Обновить интерфейсы
@@ -66,18 +71,19 @@
    - Подсказка: "Например, 1.6 означает оплату в 1.6 раза больше базовой ставки"
 
 **Миграция БД:**
+
 ```sql
 -- Миграция для WorkSession
-ALTER TABLE work_sessions 
+ALTER TABLE work_sessions
   ADD COLUMN engineer_overtime_coefficient DECIMAL(5,2) DEFAULT 1.6,
   ADD COLUMN organization_overtime_coefficient DECIMAL(5,2) DEFAULT 1.5;
 
 -- Конвертация старых данных (если overtimeRate был 1050, а baseRate 700, то коэффициент = 1050/700 = 1.5)
-UPDATE work_sessions 
-SET engineer_overtime_coefficient = CASE 
-  WHEN engineer_base_rate > 0 
-  THEN engineer_overtime_rate / engineer_base_rate 
-  ELSE 1.6 
+UPDATE work_sessions
+SET engineer_overtime_coefficient = CASE
+  WHEN engineer_base_rate > 0
+  THEN engineer_overtime_rate / engineer_base_rate
+  ELSE 1.6
 END;
 
 -- Аналогично для EngineerOrganizationRate
@@ -97,11 +103,13 @@ ALTER TABLE engineer_organization_rates
 ### 2. WorkSession как основной источник данных
 
 **Изменения:**
+
 - Удалить использование `Order` полей для статистики (regularHours, overtimeHours, calculatedAmount)
 - Все расчеты должны идти из `WorkSession`
 - Статистика считается по `workDate` из WorkSession
 
 **Что нужно сделать:**
+
 1. **StatisticsService** - переписать все методы для работы только с WorkSession
 2. Убрать агрегацию из Order
 3. Обновить API endpoints для статистики
@@ -113,22 +121,24 @@ ALTER TABLE engineer_organization_rates
 **Новое правило:** Сверхурочные = работа в выходные, праздники, будни 22:00-06:00
 
 **Изменения:**
+
 1. **CalculationService.isOvertimeWork()** - обновить логику:
+
    ```typescript
    isOvertimeWork(startTime: Date, endTime: Date): boolean {
      const hours = this.calculateWorkHours(startTime, endTime);
      const dayOfWeek = startTime.getDay();
-     
+
      // Выходные (0=Sunday, 6=Saturday)
      if (dayOfWeek === 0 || dayOfWeek === 6) return true;
-     
+
      // Праздники (нужно добавить таблицу holidays или API)
      if (this.isHoliday(startTime)) return true;
-     
+
      // Будние дни: 22:00-06:00
      const hour = startTime.getHours();
      if (hour >= 22 || hour < 6) return true;
-     
+
      return false;
    }
    ```
@@ -167,7 +177,9 @@ ALTER TABLE engineer_organization_rates
 **Требование:** Сохранять историю изменений ставок
 
 **Реализация:**
+
 1. Создать таблицу `engineer_organization_rate_history`:
+
    ```sql
    CREATE TABLE engineer_organization_rate_history (
      id INT PRIMARY KEY AUTO_INCREMENT,
@@ -192,7 +204,9 @@ ALTER TABLE engineer_organization_rates
 **Текущая проблема:** `assignedEngineerId` - одно поле, один инженер
 
 **Решение:**
+
 1. Создать таблицу связи many-to-many:
+
    ```sql
    CREATE TABLE order_engineers (
      id INT PRIMARY KEY AUTO_INCREMENT,
@@ -218,12 +232,15 @@ ALTER TABLE engineer_organization_rates
 ### 7. Переключение ролей
 
 **Логика:**
+
 - При логине - всегда `primaryRole`
 - Переключение только на роли **ниже** текущей
 - Не сохранять между сессиями
 
 **Изменения:**
+
 1. **AuthService.switchRole()** - добавить проверку:
+
    ```typescript
    const canSwitchTo = getAvailableRoles(primaryRole);
    if (!canSwitchTo.includes(newRole)) {
@@ -239,6 +256,7 @@ ALTER TABLE engineer_organization_rates
 ### 8. Инженер не может отказаться от заявки
 
 **Изменения:**
+
 - Убрать кнопку "Отклонить" в UI для инженеров
 - Убрать endpoint `/orders/:id/reject` если есть
 
@@ -249,12 +267,14 @@ ALTER TABLE engineer_organization_rates
 **Требование:** Если инженер не принял заявку за 1 час до срока → уведомление менеджеру и админу
 
 **Реализация:**
+
 1. Создать scheduled task (cron job):
+
    ```typescript
    @Cron('0 * * * *') // Каждый час
    async checkPendingAssignments() {
      const oneHourFromNow = new Date(Date.now() + 60 * 60 * 1000);
-     
+
      const pendingOrders = await this.ordersRepository.find({
        where: {
          status: OrderStatus.ASSIGNED,
@@ -262,7 +282,7 @@ ALTER TABLE engineer_organization_rates
        },
        relations: ['assignedEngineer', 'createdBy']
      });
-     
+
      for (const order of pendingOrders) {
        // Уведомление менеджеру и админу
        // Push уведомление инженеру
@@ -277,15 +297,17 @@ ALTER TABLE engineer_organization_rates
 ### 10. Рабочие сессии - ограничения
 
 **Изменения:**
+
 1. Создание сессии только инженером
 2. Редактирование возможно
 3. Задним числом - не более 24 часов
 4. Валидация `workDate`:
+
    ```typescript
    const now = new Date();
    const maxPastDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
    const maxFutureDate = new Date(now.getTime() + 1 * 60 * 60 * 1000); // +1 час
-   
+
    if (workDate < maxPastDate || workDate > maxFutureDate) {
      throw new BadRequestException('Work date must be within last 24 hours');
    }
@@ -296,6 +318,7 @@ ALTER TABLE engineer_organization_rates
 ### 11. Частичное завершение работы
 
 **Изменения:**
+
 1. Только менеджер может отметить как частично завершенную
 2. Добавить поле `completionComment` в Order
 3. При частичном завершении - расчет пропорционально
@@ -306,6 +329,7 @@ ALTER TABLE engineer_organization_rates
 ### 12. Отсутствие индивидуальных ставок = коэффициент 0
 
 **Критическое изменение:**
+
 ```typescript
 // Было: использовался engineer.baseRate
 // Станет: коэффициент = 0, оплата = 0
@@ -322,11 +346,14 @@ if (!customRate) {
 ### 13. Фиксированная оплата за машину (fixedCarAmount)
 
 **Логика:**
+
 - Один раз в месяц (максимальная из ставок за месяц)
 - Доплаты за зоны - за каждый выезд отдельно
 
 **Изменения:**
+
 1. **CalculationService.calculateMonthlySalary()**:
+
    ```typescript
    // Найти максимальный fixedCarAmount из всех организаций за месяц
    let maxFixedCarAmount = 0;
@@ -335,7 +362,7 @@ if (!customRate) {
      const rates = await this.getEngineerRatesForOrganization(engineer, org);
      maxFixedCarAmount = Math.max(maxFixedCarAmount, rates.fixedCarAmount);
    }
-   
+
    // Доплаты за зоны - суммируются за каждый выезд
    let zoneExtraAmount = 0;
    for (const order of orders) {
@@ -344,7 +371,7 @@ if (!customRate) {
        zoneExtraAmount += rates.zone1Extra || rates.zone2Extra || rates.zone3Extra || 0;
      }
    }
-   
+
    const totalCarAmount = maxFixedCarAmount + zoneExtraAmount;
    ```
 
@@ -353,6 +380,7 @@ if (!customRate) {
 ### 14. План часов и фактическая наработка
 
 **Изменения:**
+
 1. Показывать `planHoursMonth` и `actualHours` в статистике
 2. Если отработано больше плана:
    - К фиксированной зарплате добавляется стоимость переработанных часов
@@ -360,11 +388,11 @@ if (!customRate) {
 3. Если отработано меньше плана - фиксированная зарплата не изменяется
 
 **Формула зарплаты:**
+
 ```typescript
 const baseSalary = Math.max(fixedSalary, earnedAmount);
-const overtimeBonus = actualHours > planHours 
-  ? (actualHours - planHours) * baseRate * overtimeCoefficient 
-  : 0;
+const overtimeBonus =
+  actualHours > planHours ? (actualHours - planHours) * baseRate * overtimeCoefficient : 0;
 const totalSalary = baseSalary + overtimeBonus + totalCarAmount;
 ```
 
@@ -372,11 +400,13 @@ const totalSalary = baseSalary + overtimeBonus + totalCarAmount;
 
 ### 15. Прибыль компании
 
-**Новое требование:** Прибыль = сумма всех отработанных часов * ставка оплаты от организаций
+**Новое требование:** Прибыль = сумма всех отработанных часов \* ставка оплаты от организаций
 
 **Изменения:**
+
 1. Нужно хранить ставку организации для каждой WorkSession
 2. Расчет:
+
    ```typescript
    const profit = organizationPayment - engineerEarnings - carUsageAmount;
    ```
@@ -388,6 +418,7 @@ const totalSalary = baseSalary + overtimeBonus + totalCarAmount;
 ### 16. Статистика по наработке часов для менеджера
 
 **Разделение endpoints:**
+
 1. `/statistics/hours` - доступен MANAGER и ADMIN
    - Показывает часы всех инженеров
    - Показывает выполнение плана
@@ -406,10 +437,12 @@ const totalSalary = baseSalary + overtimeBonus + totalCarAmount;
 ### 17. Мобильное приложение
 
 **Требования:**
+
 - Все функции доступны в мобильном приложении
 - Офлайн-режим с синхронизацией
 
 **Изменения:**
+
 1. Настроить Service Workers для офлайн-режима
 2. Реализовать очередь запросов для синхронизации
 3. Индикация офлайн/онлайн статуса
@@ -419,6 +452,7 @@ const totalSalary = baseSalary + overtimeBonus + totalCarAmount;
 ### 18. Уведомления
 
 **Изменения:**
+
 1. Push-уведомления для всех событий по заявкам
 2. Настройки уведомлений (руководитель настраивает для каждого пользователя)
 3. Таблица `user_notification_settings`:
@@ -439,6 +473,7 @@ const totalSalary = baseSalary + overtimeBonus + totalCarAmount;
 ### 19. Экспорт данных
 
 **Требуется уточнение:**
+
 - Какие форматы нужны (Excel, PDF, CSV)?
 - Какие данные для каждой роли?
 - Автоматический экспорт нужен?
@@ -460,6 +495,7 @@ const totalSalary = baseSalary + overtimeBonus + totalCarAmount;
 ### 21. Удаление дублирования данных
 
 **План:**
+
 1. Перевести всю статистику на WorkSession
 2. Пометить поля в Order как deprecated (не удалять сразу)
 3. Через 3 месяца удалить неиспользуемые поля
@@ -469,6 +505,7 @@ const totalSalary = baseSalary + overtimeBonus + totalCarAmount;
 ### 22. Обработка ошибок
 
 **Улучшения:**
+
 1. Централизованный exception filter (уже есть `AllExceptionsFilter`)
 2. Структурированные сообщения об ошибках
 3. Логирование критических ошибок
@@ -478,6 +515,7 @@ const totalSalary = baseSalary + overtimeBonus + totalCarAmount;
 ### 23. Логирование
 
 **План (некритично):**
+
 1. Заменить `console.log` на Winston/Pino
 2. Уровни: DEBUG, INFO, WARN, ERROR
 3. Аудит-логи для критических действий
@@ -487,6 +525,7 @@ const totalSalary = baseSalary + overtimeBonus + totalCarAmount;
 ## 📅 ПЛАН ВНЕДРЕНИЯ
 
 ### Фаза 1 (Критично - 2-3 недели):
+
 1. ✅ Изменение логики сверхурочных (коэффициент вместо ставки)
 2. ✅ WorkSession как основной источник
 3. ✅ Определение сверхурочных по времени работы
@@ -494,6 +533,7 @@ const totalSalary = baseSalary + overtimeBonus + totalCarAmount;
 5. ✅ История ставок
 
 ### Фаза 2 (Высокий приоритет - 2 недели):
+
 6. ✅ Множественное назначение инженеров
 7. ✅ Переключение ролей
 8. ✅ Уведомления о неподтвержденных заявках
@@ -501,17 +541,20 @@ const totalSalary = baseSalary + overtimeBonus + totalCarAmount;
 10. ✅ План часов и наработка
 
 ### Фаза 3 (Средний приоритет - 2 недели):
+
 11. ✅ Фиксированная оплата за машину (раз в месяц)
 12. ✅ Доплаты за зоны (за каждый выезд)
 13. ✅ Статистика для менеджера (часы без заработка)
 14. ✅ Прибыль компании
 
 ### Фаза 4 (Технические улучшения - 1 неделя):
+
 15. ✅ Удаление дублирования данных
 16. ✅ Обработка ошибок
 17. ✅ Логирование (опционально)
 
 ### Фаза 5 (Мобильное приложение - 3-4 недели):
+
 18. ✅ Офлайн-режим
 19. ✅ Push-уведомления
 20. ✅ Синхронизация данных
@@ -556,7 +599,8 @@ const totalSalary = baseSalary + overtimeBonus + totalCarAmount;
 ## 🎯 КЛЮЧЕВЫЕ МЕТРИКИ ДЛЯ ПРОВЕРКИ
 
 После внедрения проверить:
-1. ✅ Правильность расчета сверхурочных (коэффициент * базовая ставка)
+
+1. ✅ Правильность расчета сверхурочных (коэффициент \* базовая ставка)
 2. ✅ Отображение часов: `regular + (overtime * coefficient)`
 3. ✅ Статистика считается только из WorkSession
 4. ✅ Админ не может создавать заявки
@@ -570,4 +614,3 @@ const totalSalary = baseSalary + overtimeBonus + totalCarAmount;
 
 **Дата создания плана:** ${new Date().toLocaleString('ru-RU')}
 **Статус:** Готов к реализации
-

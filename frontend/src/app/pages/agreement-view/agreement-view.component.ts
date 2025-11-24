@@ -71,10 +71,7 @@ interface AgreementContent {
         @if (agreement() && !isLoading() && !error()) {
           <mat-card class="agreement-card">
             <mat-card-content>
-              <div 
-                class="agreement-text-content" 
-                [innerHTML]="agreement()!.content">
-              </div>
+              <div class="agreement-text-content" [innerHTML]="agreement()!.content"></div>
             </mat-card-content>
           </mat-card>
         }
@@ -578,4 +575,3 @@ export class AgreementViewComponent implements OnInit {
     }).format(date);
   }
 }
-

@@ -201,22 +201,24 @@
 .policy-link {
   color: #667eea;
   text-decoration: none;
-  transition: color 0.2s ease, text-decoration 0.2s ease;
+  transition:
+    color 0.2s ease,
+    text-decoration 0.2s ease;
   font-weight: 500;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
   min-height: 24px; // Минимальная высота для кликабельности
-  
+
   &:hover {
     color: #764ba2;
     text-decoration: underline;
   }
-  
+
   &:visited {
     color: #667eea;
   }
-  
+
   &:active {
     color: #764ba2;
   }
@@ -244,7 +246,7 @@
   user-select: none;
   flex-shrink: 0;
   margin: 0 4px;
-  
+
   @media (max-width: 480px) {
     display: none; // Скрываем в мобильной версии
   }
@@ -302,7 +304,7 @@
     background: rgba(102, 126, 234, 0.08) !important; // Фон для лучшей видимости
     border-radius: 8px !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
-    
+
     &:hover {
       background: rgba(102, 126, 234, 0.12) !important;
     }

@@ -8,7 +8,12 @@ import { Order } from './entities/order.entity';
 import { OrderStatus, OrderSource, TerritoryType } from './shared/interfaces/order.interface';
 import { WorkSession, WorkSessionStatus } from './entities/work-session.entity';
 import { EngineerOrganizationRate } from './entities/engineer-organization-rate.entity';
-import { SalaryPayment, PaymentType, PaymentMethod, PaymentStatus } from './entities/salary-payment.entity';
+import {
+  SalaryPayment,
+  PaymentType,
+  PaymentMethod,
+  PaymentStatus,
+} from './entities/salary-payment.entity';
 import { Product } from './entities/product.entity';
 import * as bcrypt from 'bcrypt';
 
@@ -216,9 +221,7 @@ async function seedComprehensive() {
           isActive: true,
         });
         rate = await rateRepo.save(rate);
-        console.log(
-          `  ✓ Created rate for engineer ${engineer.id} and org ${org.name}`,
-        );
+        console.log(`  ✓ Created rate for engineer ${engineer.id} and org ${org.name}`);
       }
     }
   }
@@ -338,7 +341,7 @@ async function seedComprehensive() {
   console.log('\n⏱️  Creating work sessions...');
 
   for (const order of createdOrders.filter(
-    o => o.status === OrderStatus.WORKING || o.status === OrderStatus.COMPLETED,
+    o => o.status === OrderStatus.WORKING || o.status === OrderStatus.COMPLETED
   )) {
     if (!order.assignedEngineerId) continue;
 
@@ -362,9 +365,12 @@ async function seedComprehensive() {
       engineerOvertimeRate: engineer.overtimeRate,
       organizationBaseRate: org.baseRate,
       organizationOvertimeMultiplier: org.overtimeMultiplier,
-      calculatedAmount: regularHours * engineer.baseRate + overtimeHours * (engineer.overtimeRate || engineer.baseRate),
+      calculatedAmount:
+        regularHours * engineer.baseRate +
+        overtimeHours * (engineer.overtimeRate || engineer.baseRate),
       carUsageAmount: order.distanceKm ? order.distanceKm * 14 : 0,
-      organizationPayment: regularHours * org.baseRate + (overtimeHours * org.baseRate * (org.overtimeMultiplier || 1)),
+      organizationPayment:
+        regularHours * org.baseRate + overtimeHours * org.baseRate * (org.overtimeMultiplier || 1),
       regularPayment: regularHours * engineer.baseRate,
       overtimePayment: overtimeHours * (engineer.overtimeRate || engineer.baseRate),
       organizationRegularPayment: regularHours * org.baseRate,
@@ -540,4 +546,3 @@ seedComprehensive().catch(error => {
   console.error('❌ Seed failed:', error);
   process.exit(1);
 });
-

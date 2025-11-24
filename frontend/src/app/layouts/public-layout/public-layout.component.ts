@@ -20,7 +20,8 @@ import { RouterOutlet } from '@angular/router';
       display: flex;
       justify-content: center;
       align-items: stretch;
-      background: radial-gradient(circle at top left, rgba(96, 64, 48, 0.18), transparent 55%),
+      background:
+        radial-gradient(circle at top left, rgba(96, 64, 48, 0.18), transparent 55%),
         radial-gradient(circle at bottom right, rgba(205, 170, 125, 0.2), transparent 45%),
         linear-gradient(to bottom, #f3e7dc, #fdf8f3);
       overflow: hidden;
@@ -57,4 +58,3 @@ import { RouterOutlet } from '@angular/router';
   `,
 })
 export class PublicLayoutComponent {}
-

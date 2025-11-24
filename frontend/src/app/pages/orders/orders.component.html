@@ -254,12 +254,12 @@
     </mat-card-header>
 
     <mat-card-content>
-      <mat-progress-bar
-        mode="indeterminate"
-        *ngIf="isLoadingManagerStats()"
-      ></mat-progress-bar>
+      <mat-progress-bar mode="indeterminate" *ngIf="isLoadingManagerStats()"></mat-progress-bar>
 
-      <div class="manager-stats-content" *ngIf="!isLoadingManagerStats() && managerEngineerHoursStats() as stats">
+      <div
+        class="manager-stats-content"
+        *ngIf="!isLoadingManagerStats() && managerEngineerHoursStats() as stats"
+      >
         <!-- Engineers Button with Menu -->
         <div class="engineers-menu-button" *ngIf="stats.engineers.length > 0">
           <button
@@ -288,31 +288,43 @@
                     <div class="engineer-info">
                       <div class="engineer-name">{{ engineer.engineerName }}</div>
                       <div class="engineer-hours">
-                        <span class="hours-value">{{ engineer.totalHours | number:'1.0-1' }}</span>
+                        <span class="hours-value">{{ engineer.totalHours | number: '1.0-1' }}</span>
                         <span class="hours-separator">/</span>
-                        <span class="hours-plan">{{ engineer.planHours | number:'1.0-1' }}</span>
+                        <span class="hours-plan">{{ engineer.planHours | number: '1.0-1' }}</span>
                         <span class="hours-label"> часов</span>
                       </div>
                     </div>
                     <div class="engineer-percentage">
-                      {{ (engineer.planHours > 0 ? (engineer.totalHours / engineer.planHours * 100) : 0) | number:'1.0-0' }}%
+                      {{
+                        (engineer.planHours > 0
+                          ? (engineer.totalHours / engineer.planHours) * 100
+                          : 0
+                        ) | number: '1.0-0'
+                      }}%
                     </div>
                   </div>
                   <mat-progress-bar
                     mode="determinate"
-                    [value]="engineer.planHours > 0 ? (engineer.totalHours / engineer.planHours * 100) : 0"
-                    [color]="(engineer.totalHours / engineer.planHours * 100) >= 100 ? 'primary' : 'accent'"
+                    [value]="
+                      engineer.planHours > 0 ? (engineer.totalHours / engineer.planHours) * 100 : 0
+                    "
+                    [color]="
+                      (engineer.totalHours / engineer.planHours) * 100 >= 100 ? 'primary' : 'accent'
+                    "
                   ></mat-progress-bar>
                 </div>
 
                 <!-- Contract Engineer: Show only hours -->
-                <div *ngIf="engineer.engineerType === 'contract' || !engineer.engineerType" class="engineer-contract-display">
+                <div
+                  *ngIf="engineer.engineerType === 'contract' || !engineer.engineerType"
+                  class="engineer-contract-display"
+                >
                   <div class="engineer-header">
                     <mat-icon color="accent">person_outline</mat-icon>
                     <div class="engineer-info">
                       <div class="engineer-name">{{ engineer.engineerName }}</div>
                       <div class="engineer-hours-only">
-                        <span class="hours-value">{{ engineer.totalHours | number:'1.0-1' }}</span>
+                        <span class="hours-value">{{ engineer.totalHours | number: '1.0-1' }}</span>
                         <span class="hours-label"> часов</span>
                       </div>
                     </div>
@@ -706,7 +718,7 @@
     </mat-card-content>
   </mat-card>
 
-      <!--
+  <!--
   <mat-card class="stats-card-progress" *ngIf="statsView === 'progress'">
     <mat-card-header>
       <mat-card-title>
@@ -876,7 +888,10 @@
 
   <!-- Mobile Manager Engineer Hours Statistics -->
   <mat-card class="mobile-summary-card" *ngIf="isMobileView() && isManager()">
-    <mat-card-header (click)="toggleManagerStats()" style="flex-wrap: wrap !important; justify-content: center !important;">
+    <mat-card-header
+      (click)="toggleManagerStats()"
+      style="flex-wrap: wrap !important; justify-content: center !important"
+    >
       <div class="header-actions-right">
         <button
           mat-icon-button
@@ -920,22 +935,22 @@
     </mat-card-header>
 
     <mat-card-content [class.collapsed]="managerStatsCollapsed()">
-      <mat-progress-bar
-        mode="indeterminate"
-        *ngIf="isLoadingManagerStats()"
-      ></mat-progress-bar>
+      <mat-progress-bar mode="indeterminate" *ngIf="isLoadingManagerStats()"></mat-progress-bar>
 
-      <div class="mobile-summary-grid" *ngIf="!isLoadingManagerStats() && managerEngineerHoursStats() as stats">
+      <div
+        class="mobile-summary-grid"
+        *ngIf="!isLoadingManagerStats() && managerEngineerHoursStats() as stats"
+      >
         <div class="summary-item">
           <div class="item-header">
             <mat-icon color="primary">schedule</mat-icon>
             <div>
               <div class="item-label">Всего часов</div>
-              <div class="item-value">{{ stats.totalHours | number:'1.0-1' }}</div>
+              <div class="item-value">{{ stats.totalHours | number: '1.0-1' }}</div>
             </div>
           </div>
         </div>
-        
+
         <div class="summary-item">
           <div class="item-header">
             <mat-icon color="warn">people</mat-icon>
@@ -949,43 +964,56 @@
 
       <!-- Engineers List for Mobile -->
       <ng-container *ngIf="!isLoadingManagerStats() && managerEngineerHoursStats() as stats">
-      <div class="engineers-list-mobile" *ngIf="stats.engineers.length > 0">
-        <h3 style="margin: 16px 0 12px 0; font-size: 14px; font-weight: 600;">Детализация по инженерам</h3>
-        <div class="engineers-progress-list-mobile">
-          <app-hours-progress-item
-            *ngFor="let engineer of stats.engineers"
-            [workedHours]="engineer.totalHours"
-            [planHours]="engineer.planHours"
-            [label]="engineer.engineerName + ':'"
-            icon="person"
-            [showSlider]="true"
-            iconColor="primary"
-            [statistics]="{
-              regularHours: engineer.regularHours,
-              overtimeHours: engineer.overtimeHours,
-              completedOrders: engineer.completedOrders,
-              averageHoursPerOrder: engineer.averageHoursPerOrder,
-              earnedAmount: engineer.earnedAmount,
-              carPayments: engineer.carPayments
-            }"
-          ></app-hours-progress-item>
+        <div class="engineers-list-mobile" *ngIf="stats.engineers.length > 0">
+          <h3 style="margin: 16px 0 12px 0; font-size: 14px; font-weight: 600">
+            Детализация по инженерам
+          </h3>
+          <div class="engineers-progress-list-mobile">
+            <app-hours-progress-item
+              *ngFor="let engineer of stats.engineers"
+              [workedHours]="engineer.totalHours"
+              [planHours]="engineer.planHours"
+              [label]="engineer.engineerName + ':'"
+              icon="person"
+              [showSlider]="true"
+              iconColor="primary"
+              [statistics]="{
+                regularHours: engineer.regularHours,
+                overtimeHours: engineer.overtimeHours,
+                completedOrders: engineer.completedOrders,
+                averageHoursPerOrder: engineer.averageHoursPerOrder,
+                earnedAmount: engineer.earnedAmount,
+                carPayments: engineer.carPayments,
+              }"
+            ></app-hours-progress-item>
+          </div>
         </div>
-      </div>
       </ng-container>
 
-      <div class="no-data" *ngIf="!isLoadingManagerStats() && managerEngineerHoursStats() && managerEngineerHoursStats()!.engineers.length === 0">
+      <div
+        class="no-data"
+        *ngIf="
+          !isLoadingManagerStats() &&
+          managerEngineerHoursStats() &&
+          managerEngineerHoursStats()!.engineers.length === 0
+        "
+      >
         <mat-icon>info</mat-icon>
         <p>Нет данных за выбранный период</p>
       </div>
     </mat-card-content>
 
-    <div class="header-actions-right" (click)="toggleManagerStats()" style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+    <div
+      class="header-actions-right"
+      (click)="toggleManagerStats()"
+      style="display: flex; align-items: center; gap: 10px; justify-content: center"
+    >
       <button
-        style="display: flex; align-items: center; gap: 10px;"
+        style="display: flex; align-items: center; gap: 10px"
         class="collapse-toggle-btn-bottom"
         matTooltip="{{ managerStatsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
       >
-        {{managerStatsCollapsed() ? 'Развернуть' : 'Свернуть'}} 
+        {{ managerStatsCollapsed() ? 'Развернуть' : 'Свернуть' }}
         <mat-icon>{{ managerStatsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
       </button>
     </div>
@@ -993,42 +1021,37 @@
 
   <!-- Mobile Engineer Summary (replaces desktop engineer-summary-card) -->
   <mat-card class="mobile-summary-card" *ngIf="isMobileView() && isEngineerView()">
-        <mat-card-header style="flex-wrap: wrap !important; justify-content: center !important;">
-          <div class="header-actions-right">
-            <button
-              mat-icon-button
-              (click)="previousMonth()"
-              matTooltip="Предыдущий месяц"
-              class="month-nav-btn"
-              aria-label="Предыдущий месяц"
-            >
-              <mat-icon>chevron_left</mat-icon>
-            </button>
-            <span class="current-month" *ngIf="engineerSummary() as summary">
-              <div class="month-header">
-                <div class="month-label">
-                  <mat-icon>dashboard</mat-icon>
-                  <span>Статистика</span>
-                </div>
-                <div class="month-date">
-                  {{ getMonthName(summary.month) }} {{ summary.year }}
-                </div>
-              </div>
-            </span>
-            <button
-              mat-icon-button
-              (click)="nextMonth()"
-              matTooltip="Следующий месяц"
-              class="month-nav-btn"
-              aria-label="Следующий месяц"
-            >
-              <mat-icon>chevron_right</mat-icon>
-            </button>
+    <mat-card-header style="flex-wrap: wrap !important; justify-content: center !important">
+      <div class="header-actions-right">
+        <button
+          mat-icon-button
+          (click)="previousMonth()"
+          matTooltip="Предыдущий месяц"
+          class="month-nav-btn"
+          aria-label="Предыдущий месяц"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span class="current-month" *ngIf="engineerSummary() as summary">
+          <div class="month-header">
+            <div class="month-label">
+              <mat-icon>dashboard</mat-icon>
+              <span>Статистика</span>
+            </div>
+            <div class="month-date">{{ getMonthName(summary.month) }} {{ summary.year }}</div>
           </div>
- 
-        </mat-card-header>
-
-      
+        </span>
+        <button
+          mat-icon-button
+          (click)="nextMonth()"
+          matTooltip="Следующий месяц"
+          class="month-nav-btn"
+          aria-label="Следующий месяц"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
 
     <mat-card-content [class.collapsed]="engineerSummaryCollapsed()">
       <div class="engineer-summary-grid" *ngIf="engineerSummary() as summary">
@@ -1041,19 +1064,19 @@
           [showSlider]="true"
           [statistics]="{
             regularHours: (summary.workedHours ?? 0) - (summary.overtimeHours ?? 0),
-            overtimeHours: summary.overtimeHours
+            overtimeHours: summary.overtimeHours,
           }"
         ></app-hours-progress-item>
-        
+
         <div class="summary-item">
           <div class="item-header">
             <mat-icon color="primary">payments</mat-icon>
             <div>
               <div class="item-label">Итого к оплате:</div>
               <div class="item-value">
-                {{ summary.earnedAmount | currency:'RUB':'symbol':'1.0-0':'ru-RU' }}
+                {{ summary.earnedAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}
                 <span class="item-plan">
-                  / {{ summary.planEarnings | currency:'RUB':'symbol':'1.0-0':'ru-RU' }}
+                  / {{ summary.planEarnings | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}
                 </span>
               </div>
             </div>
@@ -1067,573 +1090,578 @@
             <div>
               <div class="item-label">Итого авто:</div>
               <div class="item-value">
-                {{ summary.carPayments | currency:'RUB':'symbol':'1.0-0':'ru-RU' }}
+                {{ summary.carPayments | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}
               </div>
             </div>
           </div>
         </div>
       </div>
-       <!-- Mobile Statistics Card (for all roles in mobile view) -->
-  <mat-card class="mobile-summary-card" *ngIf="isMobileView()">
-    <mat-card-header  (click)="toggleMobileStatistics()">
-      <mat-card-title>
-        <mat-icon>dashboard</mat-icon>
-        Обзор заявок
-      </mat-card-title>
-      <div class="header-actions-right">
-        <button
-          mat-icon-button
-          matTooltip="{{ mobileStatisticsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-          class="collapse-toggle-btn"
-        >
-          <mat-icon>{{ mobileStatisticsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-        </button>
-      </div>
-    </mat-card-header>
+      <!-- Mobile Statistics Card (for all roles in mobile view) -->
+      <mat-card class="mobile-summary-card" *ngIf="isMobileView()">
+        <mat-card-header (click)="toggleMobileStatistics()">
+          <mat-card-title>
+            <mat-icon>dashboard</mat-icon>
+            Обзор заявок
+          </mat-card-title>
+          <div class="header-actions-right">
+            <button
+              mat-icon-button
+              matTooltip="{{ mobileStatisticsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+              class="collapse-toggle-btn"
+            >
+              <mat-icon>{{ mobileStatisticsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+            </button>
+          </div>
+        </mat-card-header>
 
-    <mat-card-content [class.collapsed]="mobileStatisticsCollapsed()">
-      <div class="mobile-summary-grid">
-        <div
-          class="summary-item primary"
-          role="button"
-          tabindex="0"
-          aria-label="Показать все заявки"
-          [class.active]="selectedStatus() === ''"
-          (click)="onSummaryStatusClick('total')"
-          (keydown)="onSummaryStatusKeydown($event, 'total')"
-        >
-          <div class="summary-icon">
-            <mat-icon>assignment</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().total }}</div>
-            <div class="summary-label">Всего заявок</div>
-          </div>
-        </div>
+        <mat-card-content [class.collapsed]="mobileStatisticsCollapsed()">
+          <div class="mobile-summary-grid">
+            <div
+              class="summary-item primary"
+              role="button"
+              tabindex="0"
+              aria-label="Показать все заявки"
+              [class.active]="selectedStatus() === ''"
+              (click)="onSummaryStatusClick('total')"
+              (keydown)="onSummaryStatusKeydown($event, 'total')"
+            >
+              <div class="summary-icon">
+                <mat-icon>assignment</mat-icon>
+              </div>
+              <div class="summary-content">
+                <div class="summary-value">{{ orderStats().total }}</div>
+                <div class="summary-label">Всего заявок</div>
+              </div>
+            </div>
 
-        <div
-          class="summary-item success"
-          role="button"
-          tabindex="0"
-          aria-label="Показать завершённые заказы"
-          [class.active]="selectedStatus() === OrderStatus.COMPLETED"
-          (click)="onSummaryStatusClick('completed')"
-          (keydown)="onSummaryStatusKeydown($event, 'completed')"
-        >
-          <div class="summary-icon">
-            <mat-icon>check_circle</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().completed }}</div>
-            <div class="summary-label">Завершено</div>
-          </div>
-        </div>
+            <div
+              class="summary-item success"
+              role="button"
+              tabindex="0"
+              aria-label="Показать завершённые заказы"
+              [class.active]="selectedStatus() === OrderStatus.COMPLETED"
+              (click)="onSummaryStatusClick('completed')"
+              (keydown)="onSummaryStatusKeydown($event, 'completed')"
+            >
+              <div class="summary-icon">
+                <mat-icon>check_circle</mat-icon>
+              </div>
+              <div class="summary-content">
+                <div class="summary-value">{{ orderStats().completed }}</div>
+                <div class="summary-label">Завершено</div>
+              </div>
+            </div>
 
-        <div
-          class="summary-item warning"
-          role="button"
-          tabindex="0"
-          aria-label="Показать заказы в работе"
-          [class.active]="selectedStatus() === OrderStatus.WORKING"
-          (click)="onSummaryStatusClick('working')"
-          (keydown)="onSummaryStatusKeydown($event, 'working')"
-        >
-          <div class="summary-icon">
-            <mat-icon>build</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().working }}</div>
-            <div class="summary-label">В работе</div>
-          </div>
-        </div>
+            <div
+              class="summary-item warning"
+              role="button"
+              tabindex="0"
+              aria-label="Показать заказы в работе"
+              [class.active]="selectedStatus() === OrderStatus.WORKING"
+              (click)="onSummaryStatusClick('working')"
+              (keydown)="onSummaryStatusKeydown($event, 'working')"
+            >
+              <div class="summary-icon">
+                <mat-icon>build</mat-icon>
+              </div>
+              <div class="summary-content">
+                <div class="summary-value">{{ orderStats().working }}</div>
+                <div class="summary-label">В работе</div>
+              </div>
+            </div>
 
-        <div
-          class="summary-item info"
-          role="button"
-          tabindex="0"
-          aria-label="Показать ожидающие заказы"
-          [class.active]="selectedStatus() === OrderStatus.WAITING"
-          (click)="onSummaryStatusClick('waiting')"
-          (keydown)="onSummaryStatusKeydown($event, 'waiting')"
-        >
-          <div class="summary-icon">
-            <mat-icon>schedule</mat-icon>
+            <div
+              class="summary-item info"
+              role="button"
+              tabindex="0"
+              aria-label="Показать ожидающие заказы"
+              [class.active]="selectedStatus() === OrderStatus.WAITING"
+              (click)="onSummaryStatusClick('waiting')"
+              (keydown)="onSummaryStatusKeydown($event, 'waiting')"
+            >
+              <div class="summary-icon">
+                <mat-icon>schedule</mat-icon>
+              </div>
+              <div class="summary-content">
+                <div class="summary-value">{{ orderStats().waiting }}</div>
+                <div class="summary-label">Ожидают</div>
+              </div>
+            </div>
           </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().waiting }}</div>
-            <div class="summary-label">Ожидают</div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Search Field in Mobile -->
-      <div class="mobile-search-field">
-        <mat-form-field class="search-field" appearance="outline">
-          <mat-label>Поиск заказов</mat-label>
-          <input
-            matInput
-            (keyup)="applyFilter($event)"
-            placeholder="Поиск по названию, организации..."
-          />
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-      </div>
+          <!-- Search Field in Mobile -->
+          <div class="mobile-search-field">
+            <mat-form-field class="search-field" appearance="outline">
+              <mat-label>Поиск заказов</mat-label>
+              <input
+                matInput
+                (keyup)="applyFilter($event)"
+                placeholder="Поиск по названию, организации..."
+              />
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </mat-card-content>
-</mat-card>
-    </mat-card-content>
 
-    <div class="header-actions-right" (click)="toggleEngineerSummary()" style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+    <div
+      class="header-actions-right"
+      (click)="toggleEngineerSummary()"
+      style="display: flex; align-items: center; gap: 10px; justify-content: center"
+    >
       <button
-        style="display: flex; align-items: center; gap: 10px;"
+        style="display: flex; align-items: center; gap: 10px"
         class="collapse-toggle-btn-bottom"
         matTooltip="{{ engineerSummaryCollapsed() ? 'Развернуть' : 'Свернуть' }}"
       >
-        {{engineerSummaryCollapsed() ? 'Развернуть' : 'Свернуть'}} 
+        {{ engineerSummaryCollapsed() ? 'Развернуть' : 'Свернуть' }}
         <mat-icon>{{ engineerSummaryCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
       </button>
     </div>
   </mat-card>
 
- 
-
   <!-- Main Content -->
   <mat-card class="main-content">
-        <mat-card-header>
-          <div class="header">
-            <div class="header-title-section">
-              <h1 *ngIf="!isMobileView()" i18n="@@orders.management">Управление заявками</h1>
+    <mat-card-header>
+      <div class="header">
+        <div class="header-title-section">
+          <h1 *ngIf="!isMobileView()" i18n="@@orders.management">Управление заявками</h1>
+          <button
+            *ngIf="!isMobileView()"
+            mat-icon-button
+            (click)="toggleOrdersHeader()"
+            matTooltip="{{ ordersHeaderCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+            class="collapse-toggle-btn"
+          >
+            <mat-icon>{{ ordersHeaderCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+          </button>
+        </div>
+        <div class="header-actions" [class.collapsed]="ordersHeaderCollapsed()">
+          <mat-form-field class="filter-field" *ngIf="!isMobileView()">
+            <mat-label>Фильтр по статусу</mat-label>
+            <mat-select
+              [value]="selectedStatus()"
+              (selectionChange)="onStatusFilterChange($event.value)"
+            >
+              <mat-option value="">Все статусы</mat-option>
+              <mat-option *ngFor="let status of statusOptions" [value]="status">
+                {{ getStatusDisplay(status) }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="search-field" *ngIf="!isMobileView()">
+            <mat-label>Поиск заявок</mat-label>
+            <input
+              matInput
+              (keyup)="applyFilter($event)"
+              placeholder="Поиск по названию, организации и т.д."
+            />
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          <div class="button-group" style="display: flex; gap: 10px" *ngIf="!isMobileView()">
+            <!-- For Manager: Only two buttons -->
+            <ng-container *ngIf="isManager()">
               <button
-                *ngIf="!isMobileView()"
-                mat-icon-button
-                (click)="toggleOrdersHeader()"
-                matTooltip="{{ ordersHeaderCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-                class="collapse-toggle-btn"
+                mat-raised-button
+                color="accent"
+                (click)="exportToExcel()"
+                matTooltip="Экспортировать данные в Excel"
+                aria-label="Экспортировать в Excel"
+                class="header-btn export-btn"
               >
-                <mat-icon>{{ ordersHeaderCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+                <mat-icon>download</mat-icon>
+                <span class="btn-text">Скачать XLS</span>
               </button>
+
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="onCreateOrder()"
+                class="header-btn create-btn"
+              >
+                <mat-icon>add</mat-icon>
+                <span class="btn-text">Создать заявку</span>
+              </button>
+            </ng-container>
+
+            <!-- For Admin: All buttons -->
+            <ng-container *ngIf="!isManager()">
+              <button
+                mat-icon-button
+                (click)="refreshData()"
+                matTooltip="Обновить данные"
+                aria-label="Обновить"
+                class="header-btn refresh-btn"
+              >
+                <mat-icon>refresh</mat-icon>
+              </button>
+
+              <button
+                mat-raised-button
+                color="accent"
+                (click)="exportToExcel()"
+                matTooltip="Экспортировать данные в Excel"
+                aria-label="Экспортировать в Excel"
+                *ngIf="canExportOrders()"
+                class="header-btn export-btn"
+              >
+                <mat-icon>download</mat-icon>
+                <span class="btn-text">Скачать XLS</span>
+              </button>
+
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="onCreateOrder()"
+                *ngIf="canCreateOrders()"
+                class="header-btn create-btn"
+              >
+                <mat-icon>add</mat-icon>
+                <span class="btn-text">Создать заявку</span>
+              </button>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="loading-container" *ngIf="isLoading()">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p i18n="@@orders.loading">Загрузка заявок...</p>
+      </div>
+
+      <!-- Сообщение об отсутствии заявок для мобильной версии -->
+      <div class="no-data" *ngIf="!isLoading() && isMobileView() && dataSource.data.length === 0">
+        <mat-icon>shopping_cart</mat-icon>
+        <h3>Заявки не найдены</h3>
+        <p>На данный момент нет заявок для отображения</p>
+      </div>
+
+      <!-- Mobile Orders List (Cards) -->
+      <div
+        class="mobile-orders-list"
+        *ngIf="!isLoading() && isMobileView() && dataSource.data.length > 0"
+      >
+        <div
+          class="mobile-order-card"
+          *ngFor="let order of dataSource.data; trackBy: trackByOrderId"
+        >
+          <div class="order-card-header">
+            <div class="order-title-section">
+              <h3 class="order-title">{{ order.title }}</h3>
+              <span class="order-id">#{{ order.id }}</span>
             </div>
-            <div class="header-actions" [class.collapsed]="ordersHeaderCollapsed()">
-              <mat-form-field class="filter-field" *ngIf="!isMobileView()">
-                <mat-label>Фильтр по статусу</mat-label>
-                <mat-select
-                  [value]="selectedStatus()"
-                  (selectionChange)="onStatusFilterChange($event.value)"
+            <mat-chip [style.background-color]="getStatusColor(order.status)">
+              {{ getStatusDisplay(order.status) }}
+            </mat-chip>
+          </div>
+
+          <div class="order-card-content">
+            <div class="order-info-row">
+              <mat-icon>business</mat-icon>
+              <span>{{ getOrganizationName(order) }}</span>
+            </div>
+
+            <div class="order-info-row" *ngIf="order.assignedEngineer">
+              <mat-icon>person</mat-icon>
+              <span>{{ getEngineerName(order) }}</span>
+            </div>
+
+            <div class="order-info-row">
+              <mat-icon>location_on</mat-icon>
+              <span>{{ order.location }}</span>
+            </div>
+
+            <div class="order-info-row" *ngIf="order.plannedStartDate">
+              <mat-icon>event</mat-icon>
+              <span>{{ order.plannedStartDate | date: 'dd.MM.yyyy' }}</span>
+            </div>
+          </div>
+
+          <div class="order-card-actions">
+            <button mat-button color="primary" (click)="onEditOrder(order)">
+              <mat-icon>edit</mat-icon>
+              Редактировать
+            </button>
+            <button
+              mat-button
+              *ngIf="canUpdateOrderStatus(order)"
+              (click)="onOpenStatusDialog(order)"
+            >
+              <mat-icon>update</mat-icon>
+              Изменить статус
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Desktop Table -->
+      <div class="table-container" *ngIf="!isLoading() && !isMobileView()">
+        <table mat-table [dataSource]="dataSource" matSort class="orders-table">
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.id">№</th>
+            <td mat-cell *matCellDef="let order; let i = index">{{ getRowIndex(i) }}</td>
+          </ng-container>
+
+          <!-- Title Column -->
+          <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.title">
+              Название
+            </th>
+            <td mat-cell *matCellDef="let order">
+              <strong>{{ order.title }}</strong>
+              <br />
+              <small class="text-muted">{{ order.description }}</small>
+            </td>
+          </ng-container>
+
+          <!-- Organization Column -->
+          <ng-container matColumnDef="organization">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.organization">
+              Организация
+            </th>
+            <td mat-cell *matCellDef="let order">{{ getOrganizationName(order) }}</td>
+          </ng-container>
+
+          <!-- Assigned Engineer Column -->
+          <ng-container matColumnDef="assignedEngineer">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.engineer">
+              Инженер
+            </th>
+            <td mat-cell *matCellDef="let order">
+              <div class="engineer-info">
+                <div class="assigned-engineer" *ngIf="order.assignedEngineer">
+                  <mat-icon class="engineer-icon">engineering</mat-icon>
+                  <span class="engineer-name">{{ getEngineerName(order) }}</span>
+                </div>
+                <div class="no-engineer" *ngIf="!order.assignedEngineer">
+                  <mat-icon class="no-engineer-icon">person_off</mat-icon>
+                  <span class="no-engineer-text">Не назначен</span>
+                </div>
+                <div class="creator-info">
+                  <mat-icon class="creator-icon">person_outline</mat-icon>
+                  <small class="text-muted">{{ getCreatorName(order) }}</small>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Статус</th>
+            <td mat-cell *matCellDef="let order">
+              <mat-chip [color]="getStatusColor(order.status)" selected>
+                {{ getStatusDisplay(order.status) }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Payment Status Column -->
+          <ng-container matColumnDef="paymentStatus">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Оплата от организации</th>
+            <td mat-cell *matCellDef="let order">
+              <div class="payment-status">
+                <mat-chip
+                  [color]="order.receivedFromOrganization ? 'primary' : 'warn'"
+                  selected
+                  *ngIf="order.status === 'completed' || order.status === 'paid_to_engineer'"
                 >
-                  <mat-option value="">Все статусы</mat-option>
-                  <mat-option *ngFor="let status of statusOptions" [value]="status">
-                    {{ getStatusDisplay(status) }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field class="search-field" *ngIf="!isMobileView()">
-                <mat-label>Поиск заявок</mat-label>
-                <input
-                  matInput
-                  (keyup)="applyFilter($event)"
-                  placeholder="Поиск по названию, организации и т.д."
-                />
-                <mat-icon matSuffix>search</mat-icon>
-              </mat-form-field>
-
-              <div class="button-group" style="display: flex; gap: 10px" *ngIf="!isMobileView()">
-                <!-- For Manager: Only two buttons -->
-                <ng-container *ngIf="isManager()">
-                  <button
-                    mat-raised-button
-                    color="accent"
-                    (click)="exportToExcel()"
-                    matTooltip="Экспортировать данные в Excel"
-                    aria-label="Экспортировать в Excel"
-                    class="header-btn export-btn"
-                  >
-                    <mat-icon>download</mat-icon>
-                    <span class="btn-text">Скачать XLS</span>
-                  </button>
-
-                  <button
-                    mat-raised-button
-                    color="primary"
-                    (click)="onCreateOrder()"
-                    class="header-btn create-btn"
-                  >
-                    <mat-icon>add</mat-icon>
-                    <span class="btn-text">Создать заявку</span>
-                  </button>
-                </ng-container>
-
-                <!-- For Admin: All buttons -->
-                <ng-container *ngIf="!isManager()">
-                  <button
-                    mat-icon-button
-                    (click)="refreshData()"
-                    matTooltip="Обновить данные"
-                    aria-label="Обновить"
-                    class="header-btn refresh-btn"
-                  >
-                    <mat-icon>refresh</mat-icon>
-                  </button>
-
-                  <button
-                    mat-raised-button
-                    color="accent"
-                    (click)="exportToExcel()"
-                    matTooltip="Экспортировать данные в Excel"
-                    aria-label="Экспортировать в Excel"
-                    *ngIf="canExportOrders()"
-                    class="header-btn export-btn"
-                  >
-                    <mat-icon>download</mat-icon>
-                    <span class="btn-text">Скачать XLS</span>
-                  </button>
-
-                  <button
-                    mat-raised-button
-                    color="primary"
-                    (click)="onCreateOrder()"
-                    *ngIf="canCreateOrders()"
-                    class="header-btn create-btn"
-                  >
-                    <mat-icon>add</mat-icon>
-                    <span class="btn-text">Создать заявку</span>
-                  </button>
-                </ng-container>
-              </div>
-            </div>
-          </div>
-        </mat-card-header>
-
-        <mat-card-content>
-          <div class="loading-container" *ngIf="isLoading()">
-            <mat-spinner diameter="40"></mat-spinner>
-            <p i18n="@@orders.loading">Загрузка заявок...</p>
-          </div>
-
-          <!-- Сообщение об отсутствии заявок для мобильной версии -->
-          <div class="no-data" *ngIf="!isLoading() && isMobileView() && dataSource.data.length === 0">
-            <mat-icon>shopping_cart</mat-icon>
-            <h3>Заявки не найдены</h3>
-            <p>На данный момент нет заявок для отображения</p>
-          </div>
-
-          <!-- Mobile Orders List (Cards) -->
-          <div class="mobile-orders-list" *ngIf="!isLoading() && isMobileView() && dataSource.data.length > 0">
-            <div class="mobile-order-card" *ngFor="let order of dataSource.data; trackBy: trackByOrderId">
-              <div class="order-card-header">
-                <div class="order-title-section">
-                  <h3 class="order-title">{{ order.title }}</h3>
-                  <span class="order-id">#{{ order.id }}</span>
-                </div>
-                <mat-chip [style.background-color]="getStatusColor(order.status)">
-                  {{ getStatusDisplay(order.status) }}
+                  <mat-icon>{{
+                    order.receivedFromOrganization ? 'check_circle' : 'pending'
+                  }}</mat-icon>
+                  {{ order.receivedFromOrganization ? 'Получена' : 'Ожидает' }}
                 </mat-chip>
-              </div>
-              
-              <div class="order-card-content">
-                <div class="order-info-row">
-                  <mat-icon>business</mat-icon>
-                  <span>{{ getOrganizationName(order) }}</span>
-                </div>
-                
-                <div class="order-info-row" *ngIf="order.assignedEngineer">
-                  <mat-icon>person</mat-icon>
-                  <span>{{ getEngineerName(order) }}</span>
-                </div>
-                
-                <div class="order-info-row">
-                  <mat-icon>location_on</mat-icon>
-                  <span>{{ order.location }}</span>
-                </div>
-                
-                <div class="order-info-row" *ngIf="order.plannedStartDate">
-                  <mat-icon>event</mat-icon>
-                  <span>{{ order.plannedStartDate | date: 'dd.MM.yyyy' }}</span>
+                <span
+                  *ngIf="order.status !== 'completed' && order.status !== 'paid_to_engineer'"
+                  class="text-muted"
+                >
+                  -
+                </span>
+                <div
+                  *ngIf="order.receivedFromOrganization && order.receivedFromOrganizationDate"
+                  class="payment-date"
+                >
+                  <small class="text-muted">{{
+                    order.receivedFromOrganizationDate | date: 'short'
+                  }}</small>
                 </div>
               </div>
-              
-              <div class="order-card-actions">
-                <button mat-button color="primary" (click)="onEditOrder(order)">
-                  <mat-icon>edit</mat-icon>
-                  Редактировать
-                </button>
-                <button mat-button *ngIf="canUpdateOrderStatus(order)" (click)="onOpenStatusDialog(order)">
-                  <mat-icon>update</mat-icon>
-                  Изменить статус
-                </button>
-              </div>
-            </div>
-          </div>
+            </td>
+          </ng-container>
 
-          <!-- Desktop Table -->
-          <div class="table-container" *ngIf="!isLoading() && !isMobileView()">
-            <table mat-table [dataSource]="dataSource" matSort class="orders-table">
-              <!-- ID Column -->
-              <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.id">№</th>
-                <td mat-cell *matCellDef="let order; let i = index">{{ getRowIndex(i) }}</td>
-              </ng-container>
+          <!-- Created Date Column -->
+          <ng-container matColumnDef="createdAt">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Создан</th>
+            <td mat-cell *matCellDef="let order">{{ order.createdAt | date: 'short' }}</td>
+          </ng-container>
 
-              <!-- Title Column -->
-              <ng-container matColumnDef="title">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.title">
-                  Название
-                </th>
-                <td mat-cell *matCellDef="let order">
-                  <strong>{{ order.title }}</strong>
-                  <br />
-                  <small class="text-muted">{{ order.description }}</small>
-                </td>
-              </ng-container>
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Действия</th>
+            <td mat-cell *matCellDef="let order">
+              <div class="actions-container">
+                <!-- Engineer Actions Group -->
+                <div
+                  class="action-group engineer-actions"
+                  *ngIf="canAcceptOrder(order) || canCompleteWork(order)"
+                >
+                  <button
+                    mat-raised-button
+                    color="accent"
+                    (click)="onAcceptOrder(order)"
+                    matTooltip="Подтвердить заявку и начать работу"
+                    *ngIf="canAcceptOrder(order)"
+                    class="action-btn primary-action"
+                  >
+                    <mat-icon>check_circle</mat-icon>
+                    <span class="btn-text">Подтвердить</span>
+                  </button>
 
-              <!-- Organization Column -->
-              <ng-container matColumnDef="organization">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.organization">
-                  Организация
-                </th>
-                <td mat-cell *matCellDef="let order">{{ getOrganizationName(order) }}</td>
-              </ng-container>
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    (click)="onCompleteWork(order)"
+                    matTooltip="Внести данные о выполненной работе"
+                    *ngIf="canCompleteWork(order)"
+                    class="action-btn primary-action"
+                  >
+                    <mat-icon>task_alt</mat-icon>
+                    <span class="btn-text">Выполнить</span>
+                  </button>
+                </div>
 
-              <!-- Assigned Engineer Column -->
-              <ng-container matColumnDef="assignedEngineer">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.engineer">
-                  Инженер
-                </th>
-                <td mat-cell *matCellDef="let order">
-                  <div class="engineer-info">
-                    <div class="assigned-engineer" *ngIf="order.assignedEngineer">
-                      <mat-icon class="engineer-icon">engineering</mat-icon>
-                      <span class="engineer-name">{{ getEngineerName(order) }}</span>
-                    </div>
-                    <div class="no-engineer" *ngIf="!order.assignedEngineer">
-                      <mat-icon class="no-engineer-icon">person_off</mat-icon>
-                      <span class="no-engineer-text">Не назначен</span>
-                    </div>
-                    <div class="creator-info">
-                      <mat-icon class="creator-icon">person_outline</mat-icon>
-                      <small class="text-muted">{{ getCreatorName(order) }}</small>
-                    </div>
+                <!-- Admin/Manager Actions Group -->
+                <div class="action-group admin-actions">
+                  <!-- Edit Actions -->
+                  <div
+                    class="edit-actions"
+                    *ngIf="canEditOrder(order) || canEditCompletedOrder(order)"
+                  >
+                    <button
+                      mat-icon-button
+                      (click)="onEditOrder(order)"
+                      color="primary"
+                      matTooltip="Редактировать заказ"
+                      aria-label="Редактировать"
+                      *ngIf="canEditOrder(order)"
+                      class="action-btn-icon edit-btn"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+
+                    <button
+                      mat-icon-button
+                      (click)="onEditOrder(order)"
+                      color="warn"
+                      matTooltip="Редактировать завершенный заказ (доступно 24 часа)"
+                      aria-label="Редактировать"
+                      *ngIf="canEditCompletedOrder(order)"
+                      class="action-btn-icon edit-completed-btn"
+                    >
+                      <mat-icon>edit_note</mat-icon>
+                    </button>
                   </div>
-                </td>
-              </ng-container>
 
-              <!-- Status Column -->
-              <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Статус</th>
-                <td mat-cell *matCellDef="let order">
-                  <mat-chip [color]="getStatusColor(order.status)" selected>
-                    {{ getStatusDisplay(order.status) }}
-                  </mat-chip>
-                </td>
-              </ng-container>
+                  <!-- Status Management -->
+                  <div class="status-actions" *ngIf="canUpdateOrderStatus(order)">
+                    <button
+                      mat-icon-button
+                      color="accent"
+                      matTooltip="Изменить статус"
+                      aria-label="Изменить статус"
+                      class="action-btn-icon status-btn"
+                      (click)="onOpenStatusDialog(order)"
+                    >
+                      <mat-icon>swap_vert</mat-icon>
+                    </button>
+                  </div>
 
-              <!-- Payment Status Column -->
-              <ng-container matColumnDef="paymentStatus">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Оплата от организации</th>
-                <td mat-cell *matCellDef="let order">
-                  <div class="payment-status">
-                    <mat-chip
-                      [color]="order.receivedFromOrganization ? 'primary' : 'warn'"
-                      selected
-                      *ngIf="order.status === 'completed' || order.status === 'paid_to_engineer'"
+                  <!-- Payment Status Management -->
+                  <div class="payment-actions" *ngIf="canManagePaymentStatus(order)">
+                    <button
+                      mat-icon-button
+                      [color]="order.receivedFromOrganization ? 'warn' : 'primary'"
+                      [matTooltip]="
+                        order.receivedFromOrganization
+                          ? 'Отметить как неоплаченный'
+                          : 'Отметить как оплаченный'
+                      "
+                      [attr.aria-label]="
+                        order.receivedFromOrganization
+                          ? 'Отметить как неоплаченный'
+                          : 'Отметить как оплаченный'
+                      "
+                      class="action-btn-icon payment-btn"
+                      (click)="onTogglePaymentStatus(order)"
                     >
                       <mat-icon>{{
-                        order.receivedFromOrganization ? 'check_circle' : 'pending'
+                        order.receivedFromOrganization ? 'money_off' : 'attach_money'
                       }}</mat-icon>
-                      {{ order.receivedFromOrganization ? 'Получена' : 'Ожидает' }}
-                    </mat-chip>
-                    <span
-                      *ngIf="order.status !== 'completed' && order.status !== 'paid_to_engineer'"
-                      class="text-muted"
-                    >
-                      -
-                    </span>
-                    <div
-                      *ngIf="order.receivedFromOrganization && order.receivedFromOrganizationDate"
-                      class="payment-date"
-                    >
-                      <small class="text-muted">{{
-                        order.receivedFromOrganizationDate | date: 'short'
-                      }}</small>
-                    </div>
+                    </button>
                   </div>
-                </td>
-              </ng-container>
 
-              <!-- Created Date Column -->
-              <ng-container matColumnDef="createdAt">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>Создан</th>
-                <td mat-cell *matCellDef="let order">{{ order.createdAt | date: 'short' }}</td>
-              </ng-container>
-
-              <!-- Actions Column -->
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>Действия</th>
-                <td mat-cell *matCellDef="let order">
-                  <div class="actions-container">
-                    <!-- Engineer Actions Group -->
-                    <div
-                      class="action-group engineer-actions"
-                      *ngIf="canAcceptOrder(order) || canCompleteWork(order)"
+                  <!-- Assignment Actions -->
+                  <div class="assignment-actions" *ngIf="canAssignEngineers()">
+                    <button
+                      mat-icon-button
+                      (click)="onAssignEngineer(order)"
+                      [disabled]="order.status === 'completed'"
+                      color="primary"
+                      [matTooltip]="
+                        order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера'
+                      "
+                      [attr.aria-label]="
+                        order.assignedEngineerId ? 'Переназначить инженера' : 'Назначить инженера'
+                      "
+                      class="action-btn-icon assign-btn"
                     >
-                      <button
-                        mat-raised-button
-
-                        color="accent"
-                        (click)="onAcceptOrder(order)"
-                        matTooltip="Подтвердить заявку и начать работу"
-                        *ngIf="canAcceptOrder(order)"
-                        class="action-btn primary-action"
-                      >
-                        <mat-icon>check_circle</mat-icon>
-                        <span class="btn-text">Подтвердить</span>
-                      </button>
-
-                      <button
-                        mat-raised-button
-                        color="primary"
-                        (click)="onCompleteWork(order)"
-                        matTooltip="Внести данные о выполненной работе"
-                        *ngIf="canCompleteWork(order)"
-                        class="action-btn primary-action"
-                      >
-                        <mat-icon>task_alt</mat-icon>
-                        <span class="btn-text">Выполнить</span>
-                      </button>
-                    </div>
-
-                    <!-- Admin/Manager Actions Group -->
-                    <div class="action-group admin-actions">
-                      <!-- Edit Actions -->
-                      <div
-                        class="edit-actions"
-                        *ngIf="canEditOrder(order) || canEditCompletedOrder(order)"
-                      >
-                        <button
-                          mat-icon-button
-                          (click)="onEditOrder(order)"
-                          color="primary"
-                          matTooltip="Редактировать заказ"
-                          aria-label="Редактировать"
-                          *ngIf="canEditOrder(order)"
-                          class="action-btn-icon edit-btn"
-                        >
-                          <mat-icon>edit</mat-icon>
-                        </button>
-
-                        <button
-                          mat-icon-button
-                          (click)="onEditOrder(order)"
-                          color="warn"
-                          matTooltip="Редактировать завершенный заказ (доступно 24 часа)"
-                          aria-label="Редактировать"
-                          *ngIf="canEditCompletedOrder(order)"
-                          class="action-btn-icon edit-completed-btn"
-                        >
-                          <mat-icon>edit_note</mat-icon>
-                        </button>
-                      </div>
-
-                      <!-- Status Management -->
-                      <div class="status-actions" *ngIf="canUpdateOrderStatus(order)">
-                        <button
-                          mat-icon-button
-                          color="accent"
-                          matTooltip="Изменить статус"
-                          aria-label="Изменить статус"
-                          class="action-btn-icon status-btn"
-                          (click)="onOpenStatusDialog(order)"
-                        >
-                          <mat-icon>swap_vert</mat-icon>
-                        </button>
-                      </div>
-
-                      <!-- Payment Status Management -->
-                      <div class="payment-actions" *ngIf="canManagePaymentStatus(order)">
-                        <button
-                          mat-icon-button
-                          [color]="order.receivedFromOrganization ? 'warn' : 'primary'"
-                          [matTooltip]="
-                            order.receivedFromOrganization
-                              ? 'Отметить как неоплаченный'
-                              : 'Отметить как оплаченный'
-                          "
-                          [attr.aria-label]="
-                            order.receivedFromOrganization
-                              ? 'Отметить как неоплаченный'
-                              : 'Отметить как оплаченный'
-                          "
-                          class="action-btn-icon payment-btn"
-                          (click)="onTogglePaymentStatus(order)"
-                        >
-                          <mat-icon>{{
-                            order.receivedFromOrganization ? 'money_off' : 'attach_money'
-                          }}</mat-icon>
-                        </button>
-                      </div>
-
-                      <!-- Assignment Actions -->
-                      <div class="assignment-actions" *ngIf="canAssignEngineers()">
-                        <button
-                          mat-icon-button
-                          (click)="onAssignEngineer(order)"
-                          [disabled]="order.status === 'completed'"
-                          color="primary"
-                          [matTooltip]="
-                            order.assignedEngineerId
-                              ? 'Переназначить инженера'
-                              : 'Назначить инженера'
-                          "
-                          [attr.aria-label]="
-                            order.assignedEngineerId
-                              ? 'Переназначить инженера'
-                              : 'Назначить инженера'
-                          "
-                          class="action-btn-icon assign-btn"
-                        >
-                          <mat-icon>{{
-                            order.assignedEngineerId ? 'swap_horiz' : 'person_add'
-                          }}</mat-icon>
-                        </button>
-                      </div>
-
-                      <!-- Danger Actions -->
-                      <div class="danger-actions" *ngIf="canDeleteOrders()">
-                        <button
-                          mat-icon-button
-                          (click)="onDeleteOrder(order)"
-                          color="warn"
-                          matTooltip="Удалить заказ"
-                          aria-label="Удалить"
-                          class="action-btn-icon delete-btn"
-                        >
-                          <mat-icon>delete</mat-icon>
-                        </button>
-                      </div>
-                    </div>
+                      <mat-icon>{{
+                        order.assignedEngineerId ? 'swap_horiz' : 'person_add'
+                      }}</mat-icon>
+                    </button>
                   </div>
-                </td>
-              </ng-container>
 
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-            </table>
+                  <!-- Danger Actions -->
+                  <div class="danger-actions" *ngIf="canDeleteOrders()">
+                    <button
+                      mat-icon-button
+                      (click)="onDeleteOrder(order)"
+                      color="warn"
+                      matTooltip="Удалить заказ"
+                      aria-label="Удалить"
+                      class="action-btn-icon delete-btn"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
 
-            <!-- No data message -->
-            <div class="no-data" *ngIf="dataSource.data.length === 0">
-              <mat-icon>assignment</mat-icon>
-              <h3>Заявки не найдены</h3>
-              <p>Нет заявок, соответствующих критериям поиска, или заявки еще не были созданы.</p>
-              <p><strong>Debug info:</strong></p>
-              <p>Selected status: {{ selectedStatus() }}</p>
-              <p>DataSource data length: {{ dataSource.data.length }}</p>
-              <p>Total orders in stats: {{ orderStats().total }}</p>
-            </div>
-          </div>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
 
-        </mat-card-content>
-      </mat-card>
+        <!-- No data message -->
+        <div class="no-data" *ngIf="dataSource.data.length === 0">
+          <mat-icon>assignment</mat-icon>
+          <h3>Заявки не найдены</h3>
+          <p>Нет заявок, соответствующих критериям поиска, или заявки еще не были созданы.</p>
+          <p><strong>Debug info:</strong></p>
+          <p>Selected status: {{ selectedStatus() }}</p>
+          <p>DataSource data length: {{ dataSource.data.length }}</p>
+          <p>Total orders in stats: {{ orderStats().total }}</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>
-
 
 <!-- <mat-paginator
 [pageSizeOptions]="[5, 10, 20, 50]"

@@ -31,7 +31,13 @@ export class Engineer {
   @Column('decimal', { name: 'base_rate', precision: 10, scale: 2 })
   baseRate: number; // базовая ставка руб/час
 
-  @Column('decimal', { name: 'overtime_coefficient', precision: 5, scale: 2, nullable: true, default: 1.6 })
+  @Column('decimal', {
+    name: 'overtime_coefficient',
+    precision: 5,
+    scale: 2,
+    nullable: true,
+    default: 1.6,
+  })
   overtimeCoefficient: number; // коэффициент для сверхурочных (например, 1.6 = 1.6x от базовой ставки)
 
   // Legacy field - удалить после миграции данных

@@ -17,7 +17,16 @@ import { WorkSessionsModule } from '../work-sessions/work-sessions.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Order, User, Engineer, Organization, File, Setting, UserActivityLog, OrderEngineerAssignment]),
+    TypeOrmModule.forFeature([
+      Order,
+      User,
+      Engineer,
+      Organization,
+      File,
+      Setting,
+      UserActivityLog,
+      OrderEngineerAssignment,
+    ]),
     NotificationsModule,
     StatisticsModule,
     CalculationsModule,

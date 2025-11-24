@@ -78,9 +78,7 @@
               <span *ngIf="session.overtimeHours > 0" class="overtime">
                 + {{ formatHours(session.overtimeHours) }} ч (переработка)
               </span>
-              <span class="total">
-                = {{ formatHours(calculateTotalHours(session)) }} ч
-              </span>
+              <span class="total"> = {{ formatHours(calculateTotalHours(session)) }} ч </span>
             </div>
           </div>
         </div>

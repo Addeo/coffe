@@ -75,4 +75,3 @@ export class DocumentsService {
     return `${this.apiUrl}/${id}/download`;
   }
 }
-

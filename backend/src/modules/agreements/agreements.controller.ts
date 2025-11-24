@@ -119,7 +119,7 @@ export class AgreementsController {
       req.user.id,
       dto.agreementIds,
       ipAddress,
-      userAgent,
+      userAgent
     );
   }
 
@@ -138,7 +138,7 @@ export class AgreementsController {
       content: string;
       isMandatory: boolean;
     },
-    @Request() req,
+    @Request() req
   ) {
     return this.agreementsService.createAgreement(
       dto.type,
@@ -146,8 +146,7 @@ export class AgreementsController {
       dto.title,
       dto.content,
       dto.isMandatory,
-      req.user.id,
+      req.user.id
     );
   }
 }
-

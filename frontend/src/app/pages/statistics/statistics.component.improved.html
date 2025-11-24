@@ -5,20 +5,14 @@
   </div>
 
   <!-- Earnings Summary Component (Admin only) -->
-  <app-earnings-summary
-    [collapsible]="true"
-    *ngIf="canViewAllData"
-  >
-  </app-earnings-summary>
+  <app-earnings-summary [collapsible]="true" *ngIf="canViewAllData"> </app-earnings-summary>
 
   <!-- Filters -->
   <div class="filters">
     <mat-form-field appearance="outline">
       <mat-label>Год</mat-label>
       <mat-select [value]="selectedYear()" (selectionChange)="onYearChange($event.value)">
-        <mat-option *ngFor="let year of availableYears" [value]="year">
-          {{ year }}
-        </mat-option>
+        <mat-option *ngFor="let year of availableYears" [value]="year"> {{ year }} </mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -158,9 +152,7 @@
           <div class="no-data-content">
             <mat-icon>info_outline</mat-icon>
             <h3>Нет данных об автомобильных отчислениях</h3>
-            <p>
-              За выбранный период не найдено рабочих сессий с автомобильными отчислениями.
-            </p>
+            <p>За выбранный период не найдено рабочих сессий с автомобильными отчислениями.</p>
           </div>
         </div>
 
@@ -360,8 +352,8 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title
-                >Личная статистика за {{ statistics()?.monthName }}
-                {{ statistics()?.year }}</mat-card-title
+                >Личная статистика за {{ statistics()?.monthName }} {{ statistics()?.year
+                }}</mat-card-title
               >
             </mat-card-header>
             <mat-card-content>
@@ -423,8 +415,8 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title
-                >Доходы инженеров за {{ statistics()?.monthName }}
-                {{ statistics()?.year }}</mat-card-title
+                >Доходы инженеров за {{ statistics()?.monthName }} {{ statistics()?.year
+                }}</mat-card-title
               >
             </mat-card-header>
             <mat-card-content>
@@ -510,8 +502,8 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title
-                >Финансовый анализ по организациям за {{ statistics()?.monthName }}
-                {{ statistics()?.year }}</mat-card-title
+                >Финансовый анализ по организациям за {{ statistics()?.monthName }} {{
+                statistics()?.year }}</mat-card-title
               >
             </mat-card-header>
             <mat-card-content>
@@ -643,8 +635,8 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title
-                >Статистика сверхурочных за {{ statistics()?.monthName }}
-                {{ statistics()?.year }}</mat-card-title
+                >Статистика сверхурочных за {{ statistics()?.monthName }} {{ statistics()?.year
+                }}</mat-card-title
               >
             </mat-card-header>
             <mat-card-content>
@@ -770,12 +762,6 @@
   </div>
 </div>
 
-
-
-
-
-
-
 <div class="statistics-container">
   <div class="header">
     <h1>Месячная статистика</h1>
@@ -783,11 +769,7 @@
   </div>
 
   <!-- Earnings Summary Component (Admin only) -->
-  <app-earnings-summary
-    [collapsible]="true"
-    *ngIf="canViewAllData"
-  >
-  </app-earnings-summary>
+  <app-earnings-summary [collapsible]="true" *ngIf="canViewAllData"> </app-earnings-summary>
 
   <!-- View Mode Toggle -->
   <div class="view-toggle">
@@ -808,9 +790,7 @@
     <mat-form-field appearance="outline">
       <mat-label>Год</mat-label>
       <mat-select [value]="selectedYear()" (selectionChange)="onYearChange($event.value)">
-        <mat-option *ngFor="let year of availableYears" [value]="year">
-          {{ year }}
-        </mat-option>
+        <mat-option *ngFor="let year of availableYears" [value]="year"> {{ year }} </mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -1239,27 +1219,27 @@
             <div class="details-grid">
               <div class="detail-item">
                 <span class="detail-label">Организации должны заплатить:</span>
-                <span class="detail-value">{{
-                  totalOrganizationRevenue | currency: 'RUB' : 'symbol' : '1.0-0'
-                }}</span>
+                <span class="detail-value"
+                  >{{ totalOrganizationRevenue | currency: 'RUB' : 'symbol' : '1.0-0' }}</span
+                >
               </div>
               <div class="detail-item">
                 <span class="detail-label">Организации заплатили:</span>
-                <span class="detail-value">{{
-                  totalOrganizationPaid | currency: 'RUB' : 'symbol' : '1.0-0'
-                }}</span>
+                <span class="detail-value"
+                  >{{ totalOrganizationPaid | currency: 'RUB' : 'symbol' : '1.0-0' }}</span
+                >
               </div>
               <div class="detail-item">
                 <span class="detail-label">Инженеры заработали:</span>
-                <span class="detail-value">{{
-                  totalAgentEarnings | currency: 'RUB' : 'symbol' : '1.0-0'
-                }}</span>
+                <span class="detail-value"
+                  >{{ totalAgentEarnings | currency: 'RUB' : 'symbol' : '1.0-0' }}</span
+                >
               </div>
               <div class="detail-item">
                 <span class="detail-label">Нужно выплатить инженерам:</span>
-                <span class="detail-value">{{
-                  totalAgentEarnings | currency: 'RUB' : 'symbol' : '1.0-0'
-                }}</span>
+                <span class="detail-value"
+                  >{{ totalAgentEarnings | currency: 'RUB' : 'symbol' : '1.0-0' }}</span
+                >
               </div>
               <div class="detail-item">
                 <span class="detail-label">Прибыль компании:</span>
@@ -1345,9 +1325,9 @@
             <div class="details-grid">
               <div class="detail-item">
                 <span class="detail-label">Нужно выплатить инженерам:</span>
-                <span class="detail-value">{{
-                  totalAgentEarnings | currency: 'RUB' : 'symbol' : '1.0-0'
-                }}</span>
+                <span class="detail-value"
+                  >{{ totalAgentEarnings | currency: 'RUB' : 'symbol' : '1.0-0' }}</span
+                >
               </div>
               <div class="detail-item">
                 <span class="detail-label">Прибыль компании:</span>
@@ -1373,8 +1353,8 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title
-                >Личная статистика за {{ statistics()?.monthName }}
-                {{ statistics()?.year }}</mat-card-title
+                >Личная статистика за {{ statistics()?.monthName }} {{ statistics()?.year
+                }}</mat-card-title
               >
               <mat-card-subtitle>Ваши доходы, заказы и эффективность</mat-card-subtitle>
             </mat-card-header>
@@ -1437,8 +1417,8 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title
-                >Доходы агентов за {{ statistics()?.monthName }}
-                {{ statistics()?.year }}</mat-card-title
+                >Доходы агентов за {{ statistics()?.monthName }} {{ statistics()?.year
+                }}</mat-card-title
               >
               <mat-card-subtitle
                 >Показывает начисленные суммы инженерам (затраты на персонал)</mat-card-subtitle
@@ -1532,8 +1512,8 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title
-                >Финансовый анализ по организациям за {{ statistics()?.monthName }}
-                {{ statistics()?.year }}</mat-card-title
+                >Финансовый анализ по организациям за {{ statistics()?.monthName }} {{
+                statistics()?.year }}</mat-card-title
               >
               <mat-card-subtitle
                 >Выручка, затраты и прибыль по организациям-заказчикам</mat-card-subtitle
@@ -1685,8 +1665,8 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title
-                >Статистика сверхурочных за {{ statistics()?.monthName }}
-                {{ statistics()?.year }}</mat-card-title
+                >Статистика сверхурочных за {{ statistics()?.monthName }} {{ statistics()?.year
+                }}</mat-card-title
               >
             </mat-card-header>
             <mat-card-content>
@@ -1833,8 +1813,7 @@
                     <div class="card-content">
                       <h4>Средняя ставка организации</h4>
                       <p class="amount">
-                        {{
-                          getAverageOrganizationRate() | currency: 'RUB' : 'symbol' : '1.0-0'
+                        {{ getAverageOrganizationRate() | currency: 'RUB' : 'symbol' : '1.0-0'
                         }}/час
                       </p>
                     </div>
@@ -2016,8 +1995,7 @@
                         [class.profit-positive]="getAgentCompanyDifference(element) > 0"
                         [class.profit-negative]="getAgentCompanyDifference(element) < 0"
                       >
-                        {{
-                          getAgentCompanyDifference(element) | currency: 'RUB' : 'symbol' : '1.0-0'
+                        {{ getAgentCompanyDifference(element) | currency: 'RUB' : 'symbol' : '1.0-0'
                         }}
                       </td>
                     </ng-container>
@@ -2038,8 +2016,8 @@
           <mat-card>
             <mat-card-header>
               <mat-card-title
-                >Временная аналитика за {{ statistics()?.monthName }}
-                {{ statistics()?.year }}</mat-card-title
+                >Временная аналитика за {{ statistics()?.monthName }} {{ statistics()?.year
+                }}</mat-card-title
               >
               <mat-card-subtitle>Графики зарплат и часов по дням месяца</mat-card-subtitle>
             </mat-card-header>

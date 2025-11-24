@@ -90,7 +90,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
   availableRoles = this.authService.availableRoles;
   canSwitchRoles = this.authService.canSwitchRoles;
   isLoadingRoleSwitch = signal(false);
-  
+
   // Role indicator visibility
   isRoleIndicatorHidden = signal(false);
 
@@ -112,9 +112,24 @@ export class NavigationComponent implements OnInit, OnDestroy {
     if (role === UserRole.ADMIN) {
       items.push(
         { label: 'Пользователи', route: '/users', icon: 'people', i18nKey: '@@navigation.users' },
-        { label: 'Организации', route: '/organizations', icon: 'business', i18nKey: '@@navigation.organizations' },
-        { label: 'Настройки', route: '/settings', icon: 'settings', i18nKey: '@@navigation.settings' },
-        { label: 'Статистика', route: '/statistics', icon: 'analytics', i18nKey: '@@navigation.statistics' }
+        {
+          label: 'Организации',
+          route: '/organizations',
+          icon: 'business',
+          i18nKey: '@@navigation.organizations',
+        },
+        {
+          label: 'Настройки',
+          route: '/settings',
+          icon: 'settings',
+          i18nKey: '@@navigation.settings',
+        },
+        {
+          label: 'Статистика',
+          route: '/statistics',
+          icon: 'analytics',
+          i18nKey: '@@navigation.statistics',
+        }
       );
     }
 
@@ -148,7 +163,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     if (this.isRoleIndicatorHidden()) {
       document.body.classList.add('role-indicator-hidden');
     }
-    
+
     // Subscribe to breakpoint changes
     this.subscriptions.push(
       this.breakpointObserver
@@ -166,15 +181,13 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
     // Subscribe to router events to load order stats when on orders page
     this.subscriptions.push(
-      this.router.events
-        .pipe(filter(event => event instanceof NavigationEnd))
-        .subscribe(() => {
-          if (this.isOrdersPage() && this.isAuthenticated()) {
-            this.loadOrderStats();
-          } else {
-            this.orderStats.set(null);
-          }
-        })
+      this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe(() => {
+        if (this.isOrdersPage() && this.isAuthenticated()) {
+          this.loadOrderStats();
+        } else {
+          this.orderStats.set(null);
+        }
+      })
     );
 
     // Load order stats if already on orders page
@@ -306,7 +319,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
         // Определяем доступную страницу для новой роли
         let redirectPath: string;
-        
+
         switch (newRole) {
           case UserRole.ADMIN:
             redirectPath = '/statistics';
@@ -323,21 +336,30 @@ export class NavigationComponent implements OnInit, OnDestroy {
         // Проверяем текущий URL - если он недоступен для новой роли, перенаправляем
         const currentUrl = this.router.url;
         const currentPath = currentUrl.split('?')[0]; // Убираем query params
-        
+
         // Список страниц, доступных только админу
-        const adminOnlyRoutes = ['/users', '/organizations', '/statistics', '/reports', '/settings', '/dashboard'];
-        
+        const adminOnlyRoutes = [
+          '/users',
+          '/organizations',
+          '/statistics',
+          '/reports',
+          '/settings',
+          '/dashboard',
+        ];
+
         // Список страниц, доступных только менеджеру/админу (не инженеру)
         const managerOnlyRoutes = ['/engineer-rates'];
-        
+
         // Для админа всегда перенаправляем на страницу статистики
         if (newRole === UserRole.ADMIN) {
           console.log(`🔄 Redirecting ${newRole} from ${currentPath} to ${redirectPath}`);
           this.router.navigate([redirectPath]);
         }
         // Если менеджер/инженер пытается попасть на админскую страницу или dashboard - перенаправляем
-        else if ((newRole === UserRole.MANAGER || newRole === UserRole.USER) && 
-            adminOnlyRoutes.includes(currentPath)) {
+        else if (
+          (newRole === UserRole.MANAGER || newRole === UserRole.USER) &&
+          adminOnlyRoutes.includes(currentPath)
+        ) {
           console.log(`🔄 Redirecting ${newRole} from ${currentPath} to ${redirectPath}`);
           this.router.navigate([redirectPath]);
         }
@@ -390,5 +412,4 @@ export class NavigationComponent implements OnInit, OnDestroy {
   navigateToProfile(): void {
     this.router.navigate(['/profile']);
   }
-
 }

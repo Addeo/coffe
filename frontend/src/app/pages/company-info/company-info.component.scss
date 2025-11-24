@@ -61,7 +61,9 @@
 :host > section {
   opacity: 0;
   transform: translateY(50px) scale(0.98);
-  transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1), transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: opacity, transform;
 }
 
@@ -92,7 +94,10 @@
 .statistics__grid .statistics__card {
   opacity: 0;
   transform: translateY(20px) scale(0.95);
-  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+  transition:
+    opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s ease;
   will-change: opacity, transform;
 }
 
@@ -158,13 +163,13 @@
   transition-delay: 0.5s;
 }
 
-:host > section.visible .partners__card:nth-child(n+6),
-:host > section.visible .stability__card:nth-child(n+6),
-:host > section.visible .industries__card:nth-child(n+6),
-:host > section.visible .gallery__item:nth-child(n+6),
-:host > section.visible .work-process__step:nth-child(n+6),
-:host > section.visible .advantages__card:nth-child(n+6),
-:host > section.visible .statistics__card:nth-child(n+6) {
+:host > section.visible .partners__card:nth-child(n + 6),
+:host > section.visible .stability__card:nth-child(n + 6),
+:host > section.visible .industries__card:nth-child(n + 6),
+:host > section.visible .gallery__item:nth-child(n + 6),
+:host > section.visible .work-process__step:nth-child(n + 6),
+:host > section.visible .advantages__card:nth-child(n + 6),
+:host > section.visible .statistics__card:nth-child(n + 6) {
   transition-delay: 0.6s;
 }
 
@@ -253,7 +258,9 @@
   text-align: left;
   position: relative;
   z-index: 1;
-  transition: transform 220ms ease, box-shadow 220ms ease;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
   overflow: hidden;
 }
 
@@ -350,7 +357,9 @@
   box-shadow: 0 16px 40px rgba(96, 64, 48, 0.14);
   position: relative;
   overflow: hidden;
-  transition: transform 220ms ease, box-shadow 220ms ease;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
 }
 
 .partners__card header {
@@ -508,7 +517,9 @@
   box-shadow: 0 16px 40px rgba(96, 64, 48, 0.16);
   position: relative;
   overflow: hidden;
-  transition: transform 220ms ease, box-shadow 220ms ease;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
   background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="%23c8a27a" fill-opacity="0.18" d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.9 2-2V5c0-1.11-.89-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z"/%3E%3C/svg%3E');
   background-repeat: no-repeat;
   background-position: 88% 20%;
@@ -604,7 +615,9 @@
   flex-direction: column;
   opacity: 0;
   transform: scale(0.96);
-  transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
   z-index: 0;
   will-change: opacity, transform;
@@ -757,7 +770,9 @@
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 0 20px 45px rgba(96, 64, 48, 0.15);
   backdrop-filter: blur(6px);
-  transition: transform 220ms ease, box-shadow 220ms ease;
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease;
 }
 
 .gallery__item:hover {
@@ -786,7 +801,8 @@
   gap: 2rem;
   padding: clamp(2rem, 4vw, 3rem);
   border-radius: 1.75rem;
-  background-image: linear-gradient(135deg, rgba(121, 85, 72, 0.92), rgba(93, 64, 55, 0.88)),
+  background-image:
+    linear-gradient(135deg, rgba(121, 85, 72, 0.92), rgba(93, 64, 55, 0.88)),
     url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3E%3Cpath fill="%23ffffff" fill-opacity="0.16" d="M20 3H4v10c0 2.21 1.79 4 4 4h6c2.21 0 4-1.79 4-4v-3h2c1.11 0 2-.9 2-2V5c0-1.11-.89-2-2-2zm0 5h-2V5h2v3zM4 19h16v2H4z"/%3E%3C/svg%3E');
   background-size: cover;
   color: #ffffff;
@@ -865,7 +881,10 @@
   color: #5d4037;
   font-weight: 600;
   text-decoration: none;
-  transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    background 200ms ease;
   box-shadow: 0 18px 36px rgba(15, 23, 42, 0.18);
   white-space: nowrap;
 }
@@ -933,7 +952,9 @@
   background: #ffffff;
   box-shadow: 0 16px 40px rgba(96, 64, 48, 0.12);
   position: relative;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .work-process__step:hover {
@@ -1015,7 +1036,9 @@
   border-radius: 1.25rem;
   background: #ffffff;
   box-shadow: 0 16px 40px rgba(96, 64, 48, 0.14);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   border-top: 4px solid transparent;
 }
 
@@ -1089,7 +1112,9 @@
   border-radius: 1.5rem;
   background: #ffffff;
   box-shadow: 0 20px 50px rgba(96, 64, 48, 0.15);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
 }
@@ -1219,4 +1244,3 @@
     height: 200px;
   }
 }
-

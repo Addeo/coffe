@@ -21,7 +21,7 @@
       <mat-icon>{{ isCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
     </button>
   </div>
-  
+
   <!-- Slider for displaying worked hours (read-only) - replaces progress bar when showSlider is true -->
   <div class="slider-container" *ngIf="showSlider; else progressBarTemplate">
     <mat-slider
@@ -33,7 +33,7 @@
       class="hours-slider"
       [ngClass]="progressColorClass()"
     >
-      <input matSliderThumb [ngModel]="sliderPosition()" [value]="sliderPosition()">
+      <input matSliderThumb [ngModel]="sliderPosition()" [value]="sliderPosition()" />
     </mat-slider>
   </div>
 
@@ -49,7 +49,11 @@
   </ng-template>
 
   <!-- Expanded Statistics -->
-  <div class="statistics-content" *ngIf="statistics && !isCollapsed()" [class.expanded]="!isCollapsed()">
+  <div
+    class="statistics-content"
+    *ngIf="statistics && !isCollapsed()"
+    [class.expanded]="!isCollapsed()"
+  >
     <div class="statistics-grid">
       <div class="stat-item" *ngIf="statistics.regularHours !== undefined">
         <div class="stat-icon">
@@ -101,9 +105,15 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Payment Buttons -->
-    <div class="payment-buttons" *ngIf="statistics && (statistics.earnedAmount !== undefined || statistics.carPayments !== undefined)">
+    <div
+      class="payment-buttons"
+      *ngIf="
+        statistics &&
+        (statistics.earnedAmount !== undefined || statistics.carPayments !== undefined)
+      "
+    >
       <button
         *ngIf="statistics.earnedAmount !== undefined && statistics.earnedAmount > 0"
         mat-stroked-button
@@ -113,10 +123,13 @@
         matTooltip="Показать детали оплаты за часы"
       >
         <mat-icon>payments</mat-icon>
-        <span>К оплате за часы: {{ statistics.earnedAmount | currency:'RUB':'symbol':'1.0-0':'ru-RU' }}</span>
+        <span
+          >К оплате за часы:
+          {{ statistics.earnedAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</span
+        >
         <mat-icon>{{ showHoursPayments() ? 'expand_less' : 'expand_more' }}</mat-icon>
       </button>
-      
+
       <button
         *ngIf="statistics.carPayments !== undefined && statistics.carPayments > 0"
         mat-stroked-button
@@ -126,33 +139,55 @@
         matTooltip="Показать детали оплаты за авто"
       >
         <mat-icon>directions_car</mat-icon>
-        <span>К оплате за авто: {{ statistics.carPayments | currency:'RUB':'symbol':'1.0-0':'ru-RU' }}</span>
+        <span
+          >К оплате за авто:
+          {{ statistics.carPayments | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</span
+        >
         <mat-icon>{{ showCarPayments() ? 'expand_less' : 'expand_more' }}</mat-icon>
       </button>
     </div>
-    
+
     <!-- Payment Details Lists -->
-    <div class="payment-details" *ngIf="showHoursPayments() && statistics.earnedAmount !== undefined && statistics.earnedAmount > 0">
+    <div
+      class="payment-details"
+      *ngIf="
+        showHoursPayments() && statistics.earnedAmount !== undefined && statistics.earnedAmount > 0
+      "
+    >
       <div class="payment-details-header">
         <mat-icon>payments</mat-icon>
         <span>Детали оплаты за часы</span>
       </div>
       <div class="payment-details-content">
-        <p class="payment-info">Общая сумма к оплате за часы: <strong>{{ statistics.earnedAmount | currency:'RUB':'symbol':'1.0-0':'ru-RU' }}</strong></p>
+        <p class="payment-info">
+          Общая сумма к оплате за часы:
+          <strong>{{
+            statistics.earnedAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
+          }}</strong>
+        </p>
         <p class="payment-hint">Детализация по заявкам будет доступна позже</p>
       </div>
     </div>
-    
-    <div class="payment-details" *ngIf="showCarPayments() && statistics.carPayments !== undefined && statistics.carPayments > 0">
+
+    <div
+      class="payment-details"
+      *ngIf="
+        showCarPayments() && statistics.carPayments !== undefined && statistics.carPayments > 0
+      "
+    >
       <div class="payment-details-header">
         <mat-icon>directions_car</mat-icon>
         <span>Детали оплаты за авто</span>
       </div>
       <div class="payment-details-content">
-        <p class="payment-info">Общая сумма к оплате за авто: <strong>{{ statistics.carPayments | currency:'RUB':'symbol':'1.0-0':'ru-RU' }}</strong></p>
+        <p class="payment-info">
+          Общая сумма к оплате за авто:
+          <strong>{{
+            statistics.carPayments | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
+          }}</strong>
+        </p>
         <p class="payment-hint">Детализация по заявкам будет доступна позже</p>
       </div>
     </div>
   </div>
 </div>
-

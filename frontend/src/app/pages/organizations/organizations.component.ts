@@ -220,7 +220,10 @@ export class OrganizationsComponent implements OnInit, AfterViewInit {
       },
       error: (error: HttpErrorResponse | unknown) => {
         const errorMessage = ErrorHandlerUtil.getErrorMessage(error);
-        console.error('Не удалось изменить статус организации:', ErrorHandlerUtil.getErrorDetails(error));
+        console.error(
+          'Не удалось изменить статус организации:',
+          ErrorHandlerUtil.getErrorDetails(error)
+        );
         this.toastService.showError(errorMessage);
       },
     });

@@ -4,7 +4,9 @@
       <mat-icon>description</mat-icon>
       Документы
     </h1>
-    <p class="page-description">Управление документами компании. Загружайте и просматривайте документы по категориям.</p>
+    <p class="page-description">
+      Управление документами компании. Загружайте и просматривайте документы по категориям.
+    </p>
   </div>
 
   <!-- Category Filter -->
@@ -97,11 +99,7 @@
                 accept=".pdf,.doc,.docx,.txt,.xlsx,.xls,image/*"
                 style="display: none"
               />
-              <button
-                mat-raised-button
-                color="primary"
-                (click)="fileInput.click()"
-              >
+              <button mat-raised-button color="primary" (click)="fileInput.click()">
                 <mat-icon>upload</mat-icon>
                 Загрузить документы
               </button>
@@ -113,7 +111,9 @@
               <mat-spinner diameter="40"></mat-spinner>
             </div>
           } @else {
-            @if (documentsByCategory()[category.id] && documentsByCategory()[category.id].length > 0) {
+            @if (
+              documentsByCategory()[category.id] && documentsByCategory()[category.id].length > 0
+            ) {
               <div class="documents-grid">
                 @for (document of documentsByCategory()[category.id]; track document.id) {
                   <div class="document-item">
@@ -252,4 +252,3 @@
     </mat-card>
   }
 </div>
-

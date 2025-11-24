@@ -124,7 +124,7 @@ export class LoginComponent implements OnInit {
           // Определяем куда перенаправить после логина
           let redirectPath: string;
           const activeRole = this.authService.activeRole();
-          
+
           // Администратор всегда попадает на страницу статистики
           if (activeRole === UserRole.ADMIN) {
             redirectPath = '/statistics';
@@ -132,7 +132,7 @@ export class LoginComponent implements OnInit {
             // Для остальных ролей используем returnUrl или по умолчанию /orders
             redirectPath = this.route.snapshot.queryParams['returnUrl'] || '/orders';
           }
-          
+
           console.log('🧭 Navigating to:', redirectPath, 'for role:', activeRole);
 
           // Force change detection before navigation

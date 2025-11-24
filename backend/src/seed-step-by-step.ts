@@ -8,7 +8,12 @@ import { Order } from './entities/order.entity';
 import { OrderStatus, OrderSource, TerritoryType } from './shared/interfaces/order.interface';
 import { WorkSession, WorkSessionStatus } from './entities/work-session.entity';
 import { EngineerOrganizationRate } from './entities/engineer-organization-rate.entity';
-import { SalaryPayment, PaymentType, PaymentMethod, PaymentStatus } from './entities/salary-payment.entity';
+import {
+  SalaryPayment,
+  PaymentType,
+  PaymentMethod,
+  PaymentStatus,
+} from './entities/salary-payment.entity';
 import { Product } from './entities/product.entity';
 import * as bcrypt from 'bcrypt';
 import * as http from 'http';
@@ -18,8 +23,13 @@ import { URL } from 'url';
 const BASE_URL = process.env.API_URL || 'http://localhost:3001/api';
 
 // Helper function to make API calls using Node.js http/https
-async function apiCall(method: string, endpoint: string, token?: string, data?: any): Promise<{ status: number; data: any }> {
-  return new Promise((resolve) => {
+async function apiCall(
+  method: string,
+  endpoint: string,
+  token?: string,
+  data?: any
+): Promise<{ status: number; data: any }> {
+  return new Promise(resolve => {
     const url = new URL(`${BASE_URL}${endpoint}`);
     const options: any = {
       method,
@@ -36,9 +46,9 @@ async function apiCall(method: string, endpoint: string, token?: string, data?: 
     }
 
     const client = url.protocol === 'https:' ? https : http;
-    const req = client.request(options, (res) => {
+    const req = client.request(options, res => {
       let responseData = '';
-      res.on('data', (chunk) => {
+      res.on('data', chunk => {
         responseData += chunk;
       });
       res.on('end', () => {
@@ -46,12 +56,15 @@ async function apiCall(method: string, endpoint: string, token?: string, data?: 
           const parsed = JSON.parse(responseData);
           resolve({ status: res.statusCode || 500, data: parsed });
         } catch (e) {
-          resolve({ status: res.statusCode || 500, data: { error: 'Invalid JSON', raw: responseData } });
+          resolve({
+            status: res.statusCode || 500,
+            data: { error: 'Invalid JSON', raw: responseData },
+          });
         }
       });
     });
 
-    req.on('error', (error) => {
+    req.on('error', error => {
       resolve({ status: 500, data: { error: error.message } });
     });
 
@@ -264,9 +277,13 @@ async function seedStepByStep() {
     if (!engineer) {
       engineer = engineerRepo.create(engData);
       engineer = await engineerRepo.save(engineer);
-      console.log(`  ✓ Created engineer for user ID: ${engData.userId} (Engineer ID: ${engineer.id})`);
+      console.log(
+        `  ✓ Created engineer for user ID: ${engData.userId} (Engineer ID: ${engineer.id})`
+      );
     } else {
-      console.log(`  ⊙ Engineer already exists for user ID: ${engData.userId} (Engineer ID: ${engineer.id})`);
+      console.log(
+        `  ⊙ Engineer already exists for user ID: ${engData.userId} (Engineer ID: ${engineer.id})`
+      );
     }
     createdEngineers.push(engineer);
   }
@@ -386,7 +403,7 @@ async function seedStepByStep() {
     const savedOrder = await orderRepo.save(order);
     createdOrders.push(savedOrder);
     console.log(
-      `  ✓ Created order: ${template.title} (ID: ${savedOrder.id}, Status: ${template.status}, Car: ${template.carUsageAmount}₽)`,
+      `  ✓ Created order: ${template.title} (ID: ${savedOrder.id}, Status: ${template.status}, Car: ${template.carUsageAmount}₽)`
     );
   }
 
@@ -399,7 +416,9 @@ async function seedStepByStep() {
       console.log(`  ✅ API verification: Found ${ordersResult.data.length} orders`);
       console.log(`  ✅ Orders with car usage: ${ordersWithCar.length}`);
       if (ordersWithCar.length > 0) {
-        console.log(`  ✅ Total car usage amount: ${ordersWithCar.reduce((sum: number, o: any) => sum + o.carUsageAmount, 0)}₽`);
+        console.log(
+          `  ✅ Total car usage amount: ${ordersWithCar.reduce((sum: number, o: any) => sum + o.carUsageAmount, 0)}₽`
+        );
       }
     }
   }
@@ -417,7 +436,7 @@ async function seedStepByStep() {
   let totalCarAmount = 0;
 
   for (const order of createdOrders.filter(
-    o => o.status === OrderStatus.WORKING || o.status === OrderStatus.COMPLETED,
+    o => o.status === OrderStatus.WORKING || o.status === OrderStatus.COMPLETED
   )) {
     if (!order.assignedEngineerId) continue;
 
@@ -442,9 +461,12 @@ async function seedStepByStep() {
       engineerOvertimeRate: engineer.overtimeRate,
       organizationBaseRate: org.baseRate,
       organizationOvertimeMultiplier: org.overtimeMultiplier,
-      calculatedAmount: regularHours * engineer.baseRate + overtimeHours * (engineer.overtimeRate || engineer.baseRate),
+      calculatedAmount:
+        regularHours * engineer.baseRate +
+        overtimeHours * (engineer.overtimeRate || engineer.baseRate),
       carUsageAmount: carUsageAmount, // ⭐ Важно: расходы на машину
-      organizationPayment: regularHours * org.baseRate + (overtimeHours * org.baseRate * (org.overtimeMultiplier || 1)),
+      organizationPayment:
+        regularHours * org.baseRate + overtimeHours * org.baseRate * (org.overtimeMultiplier || 1),
       regularPayment: regularHours * engineer.baseRate,
       overtimePayment: overtimeHours * (engineer.overtimeRate || engineer.baseRate),
       organizationRegularPayment: regularHours * org.baseRate,
@@ -456,12 +478,13 @@ async function seedStepByStep() {
       canBeInvoiced: true,
     });
 
-    session.profit = session.organizationPayment - session.calculatedAmount - session.carUsageAmount;
+    session.profit =
+      session.organizationPayment - session.calculatedAmount - session.carUsageAmount;
     totalCarAmount += carUsageAmount;
 
     await workSessionRepo.save(session);
     console.log(
-      `  ✓ Created work session for order ${order.id} (Car: ${carUsageAmount}₽, Distance: ${order.distanceKm}km)`,
+      `  ✓ Created work session for order ${order.id} (Car: ${carUsageAmount}₽, Distance: ${order.distanceKm}km)`
     );
   }
 
@@ -474,8 +497,12 @@ async function seedStepByStep() {
   console.log('─'.repeat(60));
 
   if (adminToken) {
-    const carStatsResult = await apiCall('GET', `/statistics/car-payment-status?year=${currentYear}&month=${currentMonth}`, adminToken);
-    
+    const carStatsResult = await apiCall(
+      'GET',
+      `/statistics/car-payment-status?year=${currentYear}&month=${currentMonth}`,
+      adminToken
+    );
+
     if (carStatsResult.status === 200) {
       const stats = carStatsResult.data;
       console.log('  ✅ Car payment statistics retrieved successfully!');
@@ -483,21 +510,21 @@ async function seedStepByStep() {
       console.log(`  📊 Paid car amount: ${stats.paidCarAmount || 0}₽`);
       console.log(`  📊 Pending car amount: ${stats.pendingCarAmount || 0}₽`);
       console.log(`  📊 Payment status: ${stats.paymentStatus || 0}%`);
-      
+
       if (stats.organizationBreakdown && stats.organizationBreakdown.length > 0) {
         console.log(`  📊 Organizations with car payments: ${stats.organizationBreakdown.length}`);
         stats.organizationBreakdown.forEach((org: any, idx: number) => {
           console.log(`    ${idx + 1}. ${org.organizationName}: ${org.totalCarAmount}₽`);
         });
       }
-      
+
       if (stats.engineerBreakdown && stats.engineerBreakdown.length > 0) {
         console.log(`  📊 Engineers with car payments: ${stats.engineerBreakdown.length}`);
         stats.engineerBreakdown.forEach((eng: any, idx: number) => {
           console.log(`    ${idx + 1}. ${eng.engineerName}: ${eng.totalCarAmount}₽`);
         });
       }
-      
+
       if (stats.totalCarAmount === 0) {
         console.log('  ⚠️  WARNING: No car payment data found! This might indicate a problem.');
       }
@@ -554,4 +581,3 @@ seedStepByStep().catch(error => {
   console.error('❌ Seed failed:', error);
   process.exit(1);
 });
-

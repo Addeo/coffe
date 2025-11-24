@@ -1,8 +1,11 @@
 <section class="company-hero">
   <div class="company-hero__content">
-    <p class="company-hero__tagline">Сервисный центр кофейного оборудования КМВ, Ставропольского края и ближайших республик</p>
+    <p class="company-hero__tagline">
+      Сервисный центр кофейного оборудования КМВ, Ставропольского края и ближайших республик
+    </p>
     <h1 class="company-hero__title">
-      {{ companyName }} поддерживает кофемашины кофеен, офисов и АЗС, чтобы каждая чашка была стабильной
+      {{ companyName }} поддерживает кофемашины кофеен, офисов и АЗС, чтобы каждая чашка была
+      стабильной
     </h1>
     <p class="company-hero__mission">
       {{ mission }}
@@ -25,11 +28,9 @@
       />
     </div>
     <div class="company-hero__card-content">
-    <h2 class="company-hero__card-title">Что получают наши клиенты</h2>
-    <p>Быстрый выезд · Оригинальные запчасти · Отчет и рекомендации после визита</p>
-      <p class="company-hero__location">
-        <strong>Главный офис:</strong> {{ officeLocation }}
-      </p>
+      <h2 class="company-hero__card-title">Что получают наши клиенты</h2>
+      <p>Быстрый выезд · Оригинальные запчасти · Отчет и рекомендации после визита</p>
+      <p class="company-hero__location"><strong>Главный офис:</strong> {{ officeLocation }}</p>
       <p class="company-hero__location">
         <strong>Регион обслуживания:</strong> КМВ, Ставропольский край, ближайшие республики
       </p>
@@ -41,8 +42,8 @@
   <div class="partners__header">
     <h2>Клиенты, которые доверяют свою кофейную технику</h2>
     <p>
-      Работаем напрямую с владельцами и управляющими. Без посредников и кол-центров — только мастера, которые знают, как
-      чувствует себя каждая кофемашина в вашем зале.
+      Работаем напрямую с владельцами и управляющими. Без посредников и кол-центров — только
+      мастера, которые знают, как чувствует себя каждая кофемашина в вашем зале.
     </p>
   </div>
   <div class="partners__grid" *ngIf="!isLoadingPartners()">
@@ -65,12 +66,15 @@
   <div class="stability__header">
     <h2>Небольшая команда, на которую можно положиться</h2>
     <p>
-      {{ companyName }} — это мастера, которые живут в вашем регионе. Приезжаем быстро, бережно относимся к оборудованию и
-      фиксируем каждую заявку в единой истории обслуживания.
+      {{ companyName }} — это мастера, которые живут в вашем регионе. Приезжаем быстро, бережно
+      относимся к оборудованию и фиксируем каждую заявку в единой истории обслуживания.
     </p>
   </div>
   <div class="stability__grid">
-    <article class="stability__card" *ngFor="let highlight of stabilityHighlights; trackBy: trackHighlight">
+    <article
+      class="stability__card"
+      *ngFor="let highlight of stabilityHighlights; trackBy: trackHighlight"
+    >
       <h3>{{ highlight.title }}</h3>
       <p>{{ highlight.detail }}</p>
     </article>
@@ -80,7 +84,10 @@
 <section class="industries" *ngIf="industries.length > 0">
   <div class="industries__header">
     <h2>Где мы работаем</h2>
-    <p>Поддерживаем кофейное оборудование по КМВ, Ставропольскому краю и ближайшим республикам — от камерных кофеен до крупных сетей.</p>
+    <p>
+      Поддерживаем кофейное оборудование по КМВ, Ставропольскому краю и ближайшим республикам — от
+      камерных кофеен до крупных сетей.
+    </p>
   </div>
   <div class="industries__grid">
     <article class="industries__card" *ngFor="let industry of industries; trackBy: trackIndustry">
@@ -94,10 +101,16 @@
 <section class="work-process">
   <div class="work-process__header">
     <h2>Как мы работаем</h2>
-    <p>Простой и понятный процесс от заявки до завершения работ. Всего 5 шагов до восстановления вашей кофемашины.</p>
+    <p>
+      Простой и понятный процесс от заявки до завершения работ. Всего 5 шагов до восстановления
+      вашей кофемашины.
+    </p>
   </div>
   <div class="work-process__steps">
-    <article class="work-process__step" *ngFor="let step of workProcessSteps; trackBy: trackWorkProcess">
+    <article
+      class="work-process__step"
+      *ngFor="let step of workProcessSteps; trackBy: trackWorkProcess"
+    >
       <div class="work-process__step-number">{{ step.step }}</div>
       <div class="work-process__step-icon">{{ step.icon }}</div>
       <h3 class="work-process__step-title">{{ step.title }}</h3>
@@ -137,16 +150,28 @@
 <section class="gallery" *ngIf="gallery.length > 0">
   <div class="gallery__header">
     <h2>Как мы заботимся о кофемашинах</h2>
-    <p>Выездной ремонт, профилактика и обучение персонала — наша техника и внимание помогают клиентам работать без простоев.</p>
+    <p>
+      Выездной ремонт, профилактика и обучение персонала — наша техника и внимание помогают клиентам
+      работать без простоев.
+    </p>
   </div>
-  <div class="gallery__carousel" (mouseenter)="onCarouselMouseEnter()" (mouseleave)="onCarouselMouseLeave()">
+  <div
+    class="gallery__carousel"
+    (mouseenter)="onCarouselMouseEnter()"
+    (mouseleave)="onCarouselMouseLeave()"
+  >
     <div class="gallery__carousel-container">
-      <button class="gallery__carousel-button gallery__carousel-button--prev" (click)="prevSlide()" aria-label="Предыдущее фото" type="button">
+      <button
+        class="gallery__carousel-button gallery__carousel-button--prev"
+        (click)="prevSlide()"
+        aria-label="Предыдущее фото"
+        type="button"
+      >
         <span>&#8249;</span>
       </button>
       <div class="gallery__carousel-slides">
-        <figure 
-          class="gallery__carousel-slide" 
+        <figure
+          class="gallery__carousel-slide"
           *ngFor="let item of gallery; let i = index; trackBy: trackGallery"
           [class.gallery__carousel-slide--active]="currentSlideIndex() === i"
         >
@@ -162,7 +187,12 @@
           <figcaption class="gallery__carousel-caption">{{ item.caption }}</figcaption>
         </figure>
       </div>
-      <button class="gallery__carousel-button gallery__carousel-button--next" (click)="nextSlide()" aria-label="Следующее фото" type="button">
+      <button
+        class="gallery__carousel-button gallery__carousel-button--next"
+        (click)="nextSlide()"
+        aria-label="Следующее фото"
+        type="button"
+      >
         <span>&#8250;</span>
       </button>
     </div>
@@ -178,7 +208,10 @@
     </div>
   </div>
   <div class="gallery__grid">
-    <figure class="gallery__item" *ngFor="let item of gallery; let i = index; trackBy: trackGallery">
+    <figure
+      class="gallery__item"
+      *ngFor="let item of gallery; let i = index; trackBy: trackGallery"
+    >
       <img
         [ngSrc]="item.src"
         [alt]="item.alt"
@@ -196,8 +229,8 @@
   <div class="cta__content">
     <h2>Нужен ремонт или обслуживание кофемашины?</h2>
     <p>
-      Оставьте заявку — договоримся о времени выезда, подготовим запчасти и вернем вашу кофемашину в строй без лишних
-      вопросов и скрытых оплат.
+      Оставьте заявку — договоримся о времени выезда, подготовим запчасти и вернем вашу кофемашину в
+      строй без лишних вопросов и скрытых оплат.
     </p>
     <div class="cta__contacts">
       <p class="cta__contact-item">
@@ -211,9 +244,10 @@
     </div>
   </div>
   <div class="cta__actions">
-  <a class="cta__link" routerLink="/login">Оставить заявку на выезд мастера</a>
-    <a [href]="'mailto:' + contactEmail" class="cta__link cta__link--secondary">Написать на почту</a>
+    <a class="cta__link" routerLink="/login">Оставить заявку на выезд мастера</a>
+    <a [href]="'mailto:' + contactEmail" class="cta__link cta__link--secondary"
+      >Написать на почту</a
+    >
     <a [href]="getPhoneHref(contactPhone)" class="cta__link cta__link--secondary">Позвонить</a>
   </div>
 </section>
-

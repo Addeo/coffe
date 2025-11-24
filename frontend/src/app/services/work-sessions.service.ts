@@ -90,7 +90,7 @@ export class WorkSessionsService {
         const overtimeCoefficient = (session as any).engineerOvertimeCoefficient ?? 1.6; // дефолтный коэффициент
         const regularHours = session.regularHours || 0;
         const overtimeHours = session.overtimeHours || 0;
-        const totalWorkedHours = regularHours + (overtimeHours * overtimeCoefficient);
+        const totalWorkedHours = regularHours + overtimeHours * overtimeCoefficient;
 
         // Для расчета среднего коэффициента
         if (overtimeHours > 0) {
@@ -103,9 +103,8 @@ export class WorkSessionsService {
           totalHours: summary.totalHours + totalWorkedHours, // Используем расчет с коэффициентом
           totalRegularHours: summary.totalRegularHours + regularHours,
           totalOvertimeHours: summary.totalOvertimeHours + overtimeHours,
-          totalOvertimeCoefficient: coefficientCount > 0 
-            ? totalCoefficientSum / coefficientCount 
-            : 1.6, // средний коэффициент
+          totalOvertimeCoefficient:
+            coefficientCount > 0 ? totalCoefficientSum / coefficientCount : 1.6, // средний коэффициент
           totalPayment: summary.totalPayment + session.calculatedAmount,
           totalCarUsage: summary.totalCarUsage + session.carUsageAmount,
         };

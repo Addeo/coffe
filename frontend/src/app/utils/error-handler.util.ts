@@ -29,7 +29,7 @@ export class ErrorHandlerUtil {
     // Handle error objects with status property
     if (typeof error === 'object' && error !== null) {
       const errorObj = error as { status?: number; message?: string; error?: { message?: string } };
-      
+
       if (errorObj.status) {
         return this.getErrorMessageByStatus(errorObj.status, errorObj.error?.message);
       }
@@ -72,7 +72,10 @@ export class ErrorHandlerUtil {
    * @param serverMessage - Optional server error message
    * @returns User-friendly error message in Russian
    */
-  private static getErrorMessageByStatus(status: number | undefined, serverMessage?: string): string {
+  private static getErrorMessageByStatus(
+    status: number | undefined,
+    serverMessage?: string
+  ): string {
     if (!status) {
       return serverMessage || 'Произошла неизвестная ошибка. Попробуйте еще раз.';
     }
@@ -80,37 +83,37 @@ export class ErrorHandlerUtil {
     switch (status) {
       case 400:
         return serverMessage || 'Неверный запрос. Проверьте введенные данные.';
-      
+
       case 401:
         return 'Не авторизован. Пожалуйста, войдите в систему снова.';
-      
+
       case 403:
         return serverMessage || 'Доступ запрещен. У вас нет прав для выполнения этого действия.';
-      
+
       case 404:
         return serverMessage || 'Ресурс не найден.';
-      
+
       case 409:
         return serverMessage || 'Конфликт данных. Возможно, запись уже существует.';
-      
+
       case 422:
         return serverMessage || 'Ошибка валидации данных. Проверьте введенные данные.';
-      
+
       case 429:
         return 'Слишком много запросов. Пожалуйста, подождите немного и попробуйте снова.';
-      
+
       case 500:
         return 'Ошибка на сервере. Пожалуйста, попробуйте позже или обратитесь к администратору.';
-      
+
       case 502:
         return 'Сервер временно недоступен. Пожалуйста, попробуйте позже.';
-      
+
       case 503:
         return 'Сервис временно недоступен. Пожалуйста, попробуйте позже.';
-      
+
       case 504:
         return 'Превышено время ожидания ответа от сервера. Пожалуйста, попробуйте позже.';
-      
+
       default:
         if (status >= 500) {
           return 'Ошибка на сервере. Пожалуйста, попробуйте позже или обратитесь к администратору.';
@@ -177,4 +180,3 @@ export class ErrorHandlerUtil {
     };
   }
 }
-

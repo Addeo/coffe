@@ -350,10 +350,8 @@ ssh user1@192.144.12.102
 bash check-deployment.sh
 https://github.com/Addeo/coffe-deploy/actions
 
-
-
 http://192.144.12.102:3001/api/auth/init-admin
 
 {"success":true,"message":"Users initialized successfully","users":{"admin":{"id":1,"email":"admin@coffee.com","firstName":"Admin","lastName":"User","role":"admin","primaryRole":"admin"},"manager":{"id":2,"email":"manager@coffee.com","firstName":"Manager","lastName":"User","role":"manager","primaryRole":"manager"},"engineer":{"id":3,"email":"engineer@coffee.com","firstName":"Engineer","lastName":"User","role":"user"}}}
 
-  "note": "Пароли для входа: admin123, manager123, engineer123..."
+"note": "Пароли для входа: admin123, manager123, engineer123..."

@@ -1,4 +1,13 @@
-import { Component, inject, signal, computed, effect, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  effect,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -145,8 +154,20 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   });
   // Car payment status
   carPaymentStatus = signal<any>(null);
-  carPaymentOrgColumns = ['organizationName', 'totalCarAmount', 'paidCarAmount', 'pendingCarAmount', 'paymentStatus'];
-  carPaymentEngineerColumns = ['engineerName', 'totalCarAmount', 'paidCarAmount', 'pendingCarAmount', 'paymentStatus'];
+  carPaymentOrgColumns = [
+    'organizationName',
+    'totalCarAmount',
+    'paidCarAmount',
+    'pendingCarAmount',
+    'paymentStatus',
+  ];
+  carPaymentEngineerColumns = [
+    'engineerName',
+    'totalCarAmount',
+    'paidCarAmount',
+    'pendingCarAmount',
+    'paymentStatus',
+  ];
 
   // Engineer hours statistics (similar to orders component)
   engineerHoursStats = signal<{
@@ -557,7 +578,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     try {
       const year = this.selectedYear();
       const month = this.selectedMonth();
-      
+
       const response = await this.statisticsService.getCarPaymentStatus(year, month).toPromise();
       this.carPaymentStatus.set(response);
     } catch (error) {
@@ -611,20 +632,23 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
 
         // Use overtimeStatistics which has totalHours, regularHours, overtimeHours
         // and merge with agentEarnings for completedOrders
-        const engineerMap = new Map<number, {
-          engineerId: number;
-          engineerName: string;
-          totalHours: number;
-          regularHours: number;
-          overtimeHours: number;
-          planHours: number;
-          completedOrders: number;
-          averageHoursPerOrder?: number;
-          engineerType?: string;
-          earnedAmount?: number;
-          carPayments?: number;
-        }>();
-        
+        const engineerMap = new Map<
+          number,
+          {
+            engineerId: number;
+            engineerName: string;
+            totalHours: number;
+            regularHours: number;
+            overtimeHours: number;
+            planHours: number;
+            completedOrders: number;
+            averageHoursPerOrder?: number;
+            engineerType?: string;
+            earnedAmount?: number;
+            carPayments?: number;
+          }
+        >();
+
         // First, add hours from overtimeStatistics
         data.overtimeStatistics.forEach(stat => {
           const planHours = engineerPlanHoursMap.get(stat.agentId) || 160; // Default 160 if not found
@@ -641,15 +665,14 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
             carPayments: carPaymentsMap.get(stat.agentId) || 0,
           });
         });
-        
+
         // Then, add completedOrders from agentEarnings and calculate averageHoursPerOrder
         data.agentEarnings.forEach(agent => {
           const existing = engineerMap.get(agent.agentId);
           if (existing) {
             existing.completedOrders = agent.completedOrders || 0;
-            existing.averageHoursPerOrder = existing.completedOrders > 0
-              ? existing.totalHours / existing.completedOrders
-              : 0;
+            existing.averageHoursPerOrder =
+              existing.completedOrders > 0 ? existing.totalHours / existing.completedOrders : 0;
             existing.earnedAmount = agent.totalEarnings || 0; // Оплата за часы
             if (!existing.carPayments) {
               existing.carPayments = carPaymentsMap.get(agent.agentId) || 0;
@@ -684,7 +707,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         });
         this.isLoadingEngineerStats.set(false);
       },
-      error: (error) => {
+      error: error => {
         console.error('Error loading engineer hours stats:', error);
         this.toastService.showError('Ошибка загрузки статистики по часам инженеров');
         this.isLoadingEngineerStats.set(false);
@@ -1641,7 +1664,10 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
       },
       error: (error: HttpErrorResponse | unknown) => {
         const errorMessage = ErrorHandlerUtil.getErrorMessage(error);
-        console.error('Не удалось изменить статус организации:', ErrorHandlerUtil.getErrorDetails(error));
+        console.error(
+          'Не удалось изменить статус организации:',
+          ErrorHandlerUtil.getErrorDetails(error)
+        );
         this.toastService.showError(errorMessage);
       },
     });
@@ -1681,7 +1707,10 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
           },
           error: (error: HttpErrorResponse | unknown) => {
             const errorMessage = ErrorHandlerUtil.getErrorMessage(error);
-            console.error('Не удалось удалить организацию:', ErrorHandlerUtil.getErrorDetails(error));
+            console.error(
+              'Не удалось удалить организацию:',
+              ErrorHandlerUtil.getErrorDetails(error)
+            );
             this.toastService.showError(errorMessage);
           },
         });

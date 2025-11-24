@@ -73,7 +73,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     // Get stack trace safely
     const finalStack = stack || (exception instanceof Error ? exception.stack : undefined);
-    
+
     this.logger.error(
       `${request.method} ${request.url} - ${status} - ${message}`,
       finalStack,
@@ -82,7 +82,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     // Prepare response
     const isDevelopment = process.env.NODE_ENV !== 'production';
-    
+
     const errorResponse: any = {
       statusCode: status,
       timestamp: new Date().toISOString(),
@@ -132,4 +132,3 @@ export class AllExceptionsFilter implements ExceptionFilter {
     response.status(status).json(errorResponse);
   }
 }
-

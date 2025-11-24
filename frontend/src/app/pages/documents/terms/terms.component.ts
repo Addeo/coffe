@@ -12,4 +12,3 @@ import { MaterialModule } from '../../../shared/material/material.module';
 export class TermsComponent {
   title = 'Условия';
 }
-

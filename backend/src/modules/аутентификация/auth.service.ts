@@ -34,7 +34,7 @@ export class AuthService {
     @InjectRepository(Engineer)
     private engineerRepository: Repository<Engineer>,
     private jwtService: JwtService,
-    private agreementsService: AgreementsService,
+    private agreementsService: AgreementsService
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {

@@ -94,9 +94,9 @@ export class WorkSessionListComponent implements OnInit {
     const regularHours = session.regularHours || 0;
     const overtimeHours = session.overtimeHours || 0;
     const overtimeCoefficient = (session as any).engineerOvertimeCoefficient ?? 1.6; // дефолтный коэффициент
-    
+
     // ВАЖНО: Часы рассчитываются с учетом коэффициента
-    return regularHours + (overtimeHours * overtimeCoefficient);
+    return regularHours + overtimeHours * overtimeCoefficient;
   }
 
   onEditSession(session: WorkSessionDto): void {

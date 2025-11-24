@@ -9,6 +9,7 @@
 **Файл:** `backend/src/modules/organizations/organizations.controller.ts`
 
 **Текущее состояние:**
+
 ```typescript
 @Controller('organizations')
 export class OrganizationsController {
@@ -17,6 +18,7 @@ export class OrganizationsController {
 ```
 
 **Исправление:**
+
 ```typescript
 @Controller('organizations')
 @UseGuards(JwtAuthGuard, RolesGuard) // ✅ Добавить
@@ -30,6 +32,7 @@ export class OrganizationsController {
 **Файл:** `backend/src/modules/products/products.controller.ts`
 
 **Рекомендации:**
+
 - `POST /products` - должен быть ADMIN, MANAGER
 - `PATCH /products/:id` - должен быть ADMIN, MANAGER
 - `DELETE /products/:id` - должен быть ADMIN
@@ -44,6 +47,7 @@ export class OrganizationsController {
 **Файл:** `backend/src/modules/files/files.controller.ts`
 
 **Проблемные эндпоинты:**
+
 - `GET /files` - без проверки
 - `GET /files/stats` - без проверки
 - `GET /files/my-files` - без JwtAuthGuard (но использует req.user)
@@ -53,6 +57,7 @@ export class OrganizationsController {
 - `GET /files/metadata/:id` - дублируется (два метода с одинаковым путем)
 
 **Рекомендации:**
+
 - Публичные файлы (view) могут быть доступны без авторизации
 - Личные файлы должны требовать авторизации
 - Удаление/обновление должно требовать ADMIN или владельца
@@ -64,6 +69,7 @@ export class OrganizationsController {
 **Файл:** `backend/src/modules/statistics/statistics.controller.ts`
 
 **Эндпоинты без @Roles (доступны всем авторизованным):**
+
 - `GET /statistics/earnings` - получение собственной статистики (ОК)
 - `GET /statistics/earnings/comparison` - сравнение (ОК)
 - `GET /statistics/earnings/rank` - рейтинг (ОК)
@@ -90,14 +96,17 @@ export class OrganizationsController {
 ## 📋 План исправлений
 
 ### Приоритет 1 (Критично):
+
 1. ✅ Добавить `@UseGuards(JwtAuthGuard, RolesGuard)` в `OrganizationsController`
 
 ### Приоритет 2 (Важно):
+
 2. ✅ Добавить проверку ролей в `ProductsController`
 3. ✅ Исправить проверки в `FilesController`
 4. ✅ Исправить дублирование `GET /files/metadata/:id`
 
 ### Приоритет 3 (Средне):
+
 5. ✅ Добавить проверку владельца в `WorkSessionsController.getWorkSession`
 
 ## 🔐 Общие рекомендации по безопасности:
@@ -111,21 +120,20 @@ export class OrganizationsController {
 
 ## 📊 Матрица доступа по ролям
 
-| Модуль | USER | MANAGER | ADMIN |
-|--------|------|---------|-------|
-| Orders - создать | ❌ | ✅ | ✅ |
-| Orders - принять | ✅ | ❌ | ❌ |
-| Orders - завершить работу | ✅ | ❌ | ❌ |
-| Orders - назначить инженера | ❌ | ✅ | ✅ |
-| Users - список | ❌ | ✅ | ✅ |
-| Users - создать | ❌ | ❌ | ✅ |
-| Organizations - список | ❌ | ✅ | ✅ |
-| Organizations - создать | ❌ | ❌ | ✅ |
-| Statistics - общая | ❌ | ✅ | ✅ |
-| Statistics - своя | ✅ | ✅ | ✅ |
-| Payments - все операции | ❌ | ✅ | ✅ |
-| Calculations - запуск | ❌ | ✅ | ✅ |
-| Calculations - просмотр | ✅ | ✅ | ✅ |
-| Files - свои | ✅ | ✅ | ✅ |
-| Files - все | ❌ | ❌ | ✅ |
-
+| Модуль                      | USER | MANAGER | ADMIN |
+| --------------------------- | ---- | ------- | ----- |
+| Orders - создать            | ❌   | ✅      | ✅    |
+| Orders - принять            | ✅   | ❌      | ❌    |
+| Orders - завершить работу   | ✅   | ❌      | ❌    |
+| Orders - назначить инженера | ❌   | ✅      | ✅    |
+| Users - список              | ❌   | ✅      | ✅    |
+| Users - создать             | ❌   | ❌      | ✅    |
+| Organizations - список      | ❌   | ✅      | ✅    |
+| Organizations - создать     | ❌   | ❌      | ✅    |
+| Statistics - общая          | ❌   | ✅      | ✅    |
+| Statistics - своя           | ✅   | ✅      | ✅    |
+| Payments - все операции     | ❌   | ✅      | ✅    |
+| Calculations - запуск       | ❌   | ✅      | ✅    |
+| Calculations - просмотр     | ✅   | ✅      | ✅    |
+| Files - свои                | ✅   | ✅      | ✅    |
+| Files - все                 | ❌   | ❌      | ✅    |

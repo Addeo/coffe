@@ -114,7 +114,7 @@ async function test2_LoginAdmin() {
   const initResult = await request('GET', '/auth/init-admin');
   const adminEmail = initResult.data?.users?.admin?.email || 'admin@coffee.com';
   const adminPassword = initResult.data?.passwords?.admin || 'admin123';
-  
+
   const result = await request('POST', '/auth/login', {
     body: {
       email: adminEmail,
@@ -171,7 +171,7 @@ async function test4_CreateEngineer() {
   });
 
   testData.engineerUserId = result.data.id;
-  
+
   // Получаем engineerId из связанного engineer профиля
   // Если engineer не вернулся в ответе, получаем пользователя с relations
   if (!result.data.engineer) {
@@ -182,10 +182,13 @@ async function test4_CreateEngineer() {
   } else {
     testData.engineerId = result.data.engineer.id;
   }
-  
-  log(`   Инженер создан: User ID ${testData.engineerUserId}, Engineer ID ${testData.engineerId}`, 'blue');
+
+  log(
+    `   Инженер создан: User ID ${testData.engineerUserId}, Engineer ID ${testData.engineerId}`,
+    'blue'
+  );
   log(`   Email: ${result.data.email}`, 'blue');
-  
+
   if (!testData.engineerId) {
     throw new Error('Engineer ID не получен после создания пользователя');
   }
@@ -212,7 +215,7 @@ async function test6_LoginManager() {
   if (!testData.managerUserId) {
     throw new Error('Manager User ID не установлен');
   }
-  
+
   // Получаем email из данных пользователя
   const userResult = await request('GET', `/users/${testData.managerUserId}`, {
     token: testData.adminToken,
@@ -235,7 +238,7 @@ async function test6_LoginManager() {
   log(`   Менеджер авторизован: ${email}`, 'blue');
   log(`   Роль: ${result.data.user?.role}`, 'blue');
   log(`   Токен получен: ${testData.managerToken.substring(0, 20)}...`, 'blue');
-  
+
   if (!testData.managerToken) {
     throw new Error('Токен менеджера не сохранен');
   }
@@ -245,7 +248,7 @@ async function test7_LoginEngineer() {
   if (!testData.engineerUserId) {
     throw new Error('Engineer User ID не установлен');
   }
-  
+
   // Получаем email из данных пользователя
   const userResult = await request('GET', `/users/${testData.engineerUserId}`, {
     token: testData.adminToken,
@@ -271,12 +274,15 @@ async function test7_LoginEngineer() {
 
   // Проверяем соглашения
   if (result.data.agreements?.missingAgreements?.length > 0) {
-    log(`   ⚠️  Требуется принять соглашения: ${result.data.agreements.missingAgreements.length}`, 'yellow');
-    testData.agreementIds = result.data.agreements.missingAgreements.map((a) => a.id);
+    log(
+      `   ⚠️  Требуется принять соглашения: ${result.data.agreements.missingAgreements.length}`,
+      'yellow'
+    );
+    testData.agreementIds = result.data.agreements.missingAgreements.map(a => a.id);
   } else {
     log(`   ✅ Соглашения уже приняты`, 'green');
   }
-  
+
   if (!testData.engineerToken) {
     throw new Error('Токен инженера не сохранен');
   }
@@ -326,7 +332,7 @@ async function test10_CreateOrder() {
   if (!testData.managerToken) {
     throw new Error('Manager token не установлен');
   }
-  
+
   const result = await request('POST', '/orders', {
     token: testData.managerToken,
     body: {
@@ -344,7 +350,7 @@ async function test10_CreateOrder() {
   log(`   Заявка создана: ID ${testData.orderId}`, 'blue');
   log(`   Статус: ${result.data.status}`, 'blue');
   log(`   Название: ${result.data.title}`, 'blue');
-  
+
   if (!testData.orderId) {
     log(`   ⚠️  Ответ сервера: ${JSON.stringify(result.data, null, 2)}`, 'yellow');
     throw new Error('Order ID не получен после создания заявки');
@@ -358,7 +364,7 @@ async function test11_GetOrder() {
   if (!testData.managerToken) {
     throw new Error('Manager token не установлен');
   }
-  
+
   const result = await request('GET', `/orders/${testData.orderId}`, {
     token: testData.managerToken,
   });
@@ -381,7 +387,7 @@ async function test12_AssignEngineer() {
   if (!testData.managerToken) {
     throw new Error('Manager token не установлен');
   }
-  
+
   const result = await request('POST', `/orders/${testData.orderId}/assign-engineer`, {
     token: testData.managerToken,
     body: {
@@ -401,7 +407,7 @@ async function test13_GetAssignments() {
   if (!testData.engineerToken) {
     throw new Error('Engineer token не установлен');
   }
-  
+
   const result = await request('GET', `/orders/${testData.orderId}/assignments`, {
     token: testData.engineerToken,
   });
@@ -420,7 +426,7 @@ async function test14_GetMyOrders() {
   if (!testData.engineerToken) {
     throw new Error('Engineer token не установлен');
   }
-  
+
   const result = await request('GET', '/orders', {
     token: testData.engineerToken,
   });
@@ -435,7 +441,7 @@ async function test15_AcceptOrder() {
   if (!testData.engineerToken) {
     throw new Error('Engineer token не установлен');
   }
-  
+
   const result = await request('POST', `/orders/${testData.orderId}/accept`, {
     token: testData.engineerToken,
   });
@@ -455,7 +461,7 @@ async function test16_CreateWorkSession() {
   if (!testData.engineerToken) {
     throw new Error('Engineer token не установлен');
   }
-  
+
   const today = new Date().toISOString().split('T')[0];
 
   const result = await request('POST', `/orders/${testData.orderId}/work-sessions`, {
@@ -486,7 +492,7 @@ async function test17_GetWorkSessions() {
   if (!testData.engineerToken) {
     throw new Error('Engineer token не установлен');
   }
-  
+
   const result = await request('GET', `/orders/${testData.orderId}/work-sessions`, {
     token: testData.engineerToken,
   });
@@ -505,7 +511,7 @@ async function test18_CompleteWork() {
   if (!testData.engineerToken) {
     throw new Error('Engineer token не установлен');
   }
-  
+
   const result = await request('POST', `/orders/${testData.orderId}/complete-work`, {
     token: testData.engineerToken,
     body: {
@@ -530,7 +536,7 @@ async function test19_CompleteOrder() {
   if (!testData.managerToken) {
     throw new Error('Manager token не установлен');
   }
-  
+
   const result = await request('POST', `/orders/${testData.orderId}/complete`, {
     token: testData.managerToken,
   });
@@ -550,7 +556,7 @@ async function test20_UpdateOrder() {
   if (!testData.managerToken) {
     throw new Error('Manager token не установлен');
   }
-  
+
   const result = await request('PATCH', `/orders/${testData.orderId}`, {
     token: testData.managerToken,
     body: {
@@ -575,7 +581,7 @@ async function test21_AssignMultipleEngineers() {
   if (!testData.managerToken) {
     throw new Error('Manager token не установлен');
   }
-  
+
   // Создаем второго инженера для теста
   const engineer2Result = await request('POST', '/users', {
     token: testData.adminToken,
@@ -611,7 +617,7 @@ async function test22_GetEngineerStatistics() {
   if (!testData.engineerToken) {
     throw new Error('Engineer token не установлен');
   }
-  
+
   const year = new Date().getFullYear();
   const month = new Date().getMonth() + 1;
 
@@ -626,9 +632,13 @@ async function test22_GetEngineerStatistics() {
     log(`   Записей: ${earningsResult.data.earnings?.length || 0}`, 'blue');
 
     // Детальная статистика инженера
-    const detailedResult = await request('GET', `/statistics/engineer/detailed?year=${year}&month=${month}`, {
-      token: testData.engineerToken,
-    });
+    const detailedResult = await request(
+      'GET',
+      `/statistics/engineer/detailed?year=${year}&month=${month}`,
+      {
+        token: testData.engineerToken,
+      }
+    );
 
     log(`   Детальная статистика получена`, 'blue');
     log(`   Обычные часы: ${detailedResult.data.regularHours || 0}`, 'blue');
@@ -643,7 +653,7 @@ async function test23_GetManagerStatistics() {
   if (!testData.managerToken) {
     throw new Error('Manager token не установлен');
   }
-  
+
   const year = new Date().getFullYear();
   const month = new Date().getMonth() + 1;
 
@@ -655,37 +665,53 @@ async function test23_GetManagerStatistics() {
 
     log(`   Месячная статистика получена`, 'blue');
     log(`   Всего заявок: ${monthlyResult.data.totalOrders || 0}`, 'blue');
-    
+
     // Правильный вывод заработка инженеров
     const agentEarnings = monthlyResult.data.agentEarnings;
     if (typeof agentEarnings === 'number') {
       log(`   Заработок инженеров: ${agentEarnings} руб.`, 'blue');
     } else if (Array.isArray(agentEarnings)) {
-      const total = agentEarnings.reduce((sum, item) => sum + (item.amount || item.totalEarnings || 0), 0);
+      const total = agentEarnings.reduce(
+        (sum, item) => sum + (item.amount || item.totalEarnings || 0),
+        0
+      );
       log(`   Заработок инженеров: ${total} руб. (${agentEarnings.length} записей)`, 'blue');
     } else {
       log(`   Заработок инженеров: получен (тип: ${typeof agentEarnings})`, 'blue');
     }
-    
+
     // Правильный вывод выручки организаций
     const orgEarnings = monthlyResult.data.organizationEarnings;
     if (typeof orgEarnings === 'number') {
       log(`   Выручка организаций: ${orgEarnings} руб.`, 'blue');
     } else if (Array.isArray(orgEarnings)) {
-      const total = orgEarnings.reduce((sum, item) => sum + (item.amount || item.totalEarnings || 0), 0);
+      const total = orgEarnings.reduce(
+        (sum, item) => sum + (item.amount || item.totalEarnings || 0),
+        0
+      );
       log(`   Выручка организаций: ${total} руб. (${orgEarnings.length} записей)`, 'blue');
     } else {
       log(`   Выручка организаций: получена (тип: ${typeof orgEarnings})`, 'blue');
     }
 
     // Комплексная статистика
-    const comprehensiveResult = await request('GET', `/statistics/comprehensive?year=${year}&month=${month}`, {
-      token: testData.managerToken,
-    });
+    const comprehensiveResult = await request(
+      'GET',
+      `/statistics/comprehensive?year=${year}&month=${month}`,
+      {
+        token: testData.managerToken,
+      }
+    );
 
     log(`   Комплексная статистика получена`, 'blue');
-    log(`   Включает временную аналитику: ${!!comprehensiveResult.data.timeBasedAnalytics}`, 'blue');
-    log(`   Включает финансовую аналитику: ${!!comprehensiveResult.data.financialAnalytics}`, 'blue');
+    log(
+      `   Включает временную аналитику: ${!!comprehensiveResult.data.timeBasedAnalytics}`,
+      'blue'
+    );
+    log(
+      `   Включает финансовую аналитику: ${!!comprehensiveResult.data.financialAnalytics}`,
+      'blue'
+    );
   } catch (error) {
     log(`   ⚠️  Статистика недоступна: ${error.message}`, 'yellow');
   }
@@ -695,23 +721,31 @@ async function test24_GetAdminStatistics() {
   if (!testData.adminToken) {
     throw new Error('Admin token не установлен');
   }
-  
+
   const year = new Date().getFullYear();
   const month = new Date().getMonth() + 1;
 
   try {
     // Статистика инженеров для админа
-    const engineersResult = await request('GET', `/statistics/admin/engineers?year=${year}&month=${month}`, {
-      token: testData.adminToken,
-    });
+    const engineersResult = await request(
+      'GET',
+      `/statistics/admin/engineers?year=${year}&month=${month}`,
+      {
+        token: testData.adminToken,
+      }
+    );
 
     log(`   Статистика инженеров для админа получена`, 'blue');
     log(`   Инженеров: ${engineersResult.data.engineers?.length || 0}`, 'blue');
 
     // Статистика долгов по оплате
-    const debtsResult = await request('GET', `/statistics/payment-debts?year=${year}&month=${month}`, {
-      token: testData.adminToken,
-    });
+    const debtsResult = await request(
+      'GET',
+      `/statistics/payment-debts?year=${year}&month=${month}`,
+      {
+        token: testData.adminToken,
+      }
+    );
 
     log(`   Статистика долгов по оплате получена`, 'blue');
     log(`   Записей: ${debtsResult.data.debts?.length || 0}`, 'blue');
@@ -728,25 +762,27 @@ async function test25_CheckUserAgreementsStatus() {
   if (!testData.engineerToken) {
     throw new Error('Engineer token не установлен');
   }
-  
+
   // Проверяем статус принятия соглашений для текущего пользователя
   const result = await request('GET', '/agreements/user/check', {
     token: testData.engineerToken,
   });
 
   log(`   Статус принятия соглашений проверен`, 'blue');
-  log(`   Приняты все соглашения: ${result.data.hasAcceptedAll ? '✅ Да' : '❌ Нет'}`, 
-      result.data.hasAcceptedAll ? 'green' : 'yellow');
-  
+  log(
+    `   Приняты все соглашения: ${result.data.hasAcceptedAll ? '✅ Да' : '❌ Нет'}`,
+    result.data.hasAcceptedAll ? 'green' : 'yellow'
+  );
+
   if (result.data.missingAgreements && result.data.missingAgreements.length > 0) {
     log(`   Непринятых соглашений: ${result.data.missingAgreements.length}`, 'yellow');
-    result.data.missingAgreements.forEach((agreement) => {
+    result.data.missingAgreements.forEach(agreement => {
       log(`     - ${agreement.title} (${agreement.type}, версия ${agreement.version})`, 'yellow');
     });
   } else {
     log(`   Все обязательные соглашения приняты`, 'green');
   }
-  
+
   // Проверяем, какие соглашения приняты
   if (result.data.userAgreements && result.data.userAgreements.length > 0) {
     log(`   Принятых соглашений в истории: ${result.data.userAgreements.length}`, 'blue');
@@ -766,7 +802,7 @@ async function test25b_CheckUserAgreementsHistory() {
   if (!testData.engineerToken) {
     throw new Error('Engineer token не установлен');
   }
-  
+
   // Получаем историю принятия соглашений
   const result = await request('GET', '/agreements/user/history', {
     token: testData.engineerToken,
@@ -774,12 +810,14 @@ async function test25b_CheckUserAgreementsHistory() {
 
   log(`   История принятия соглашений получена`, 'blue');
   log(`   Всего записей в истории: ${result.data.length || 0}`, 'blue');
-  
+
   if (result.data && result.data.length > 0) {
-    result.data.forEach((ua) => {
+    result.data.forEach(ua => {
       const status = ua.isAccepted ? '✅ Принято' : '❌ Отклонено';
-      log(`   ${status}: ${ua.agreementType} (версия ${ua.version}) - ${new Date(ua.acceptedAt).toLocaleString()}`, 
-          ua.isAccepted ? 'green' : 'red');
+      log(
+        `   ${status}: ${ua.agreementType} (версия ${ua.version}) - ${new Date(ua.acceptedAt).toLocaleString()}`,
+        ua.isAccepted ? 'green' : 'red'
+      );
     });
   }
 }
@@ -788,14 +826,14 @@ async function test25c_CheckPrivacyPolicyAccepted() {
   if (!testData.engineerToken) {
     throw new Error('Engineer token не установлен');
   }
-  
+
   // Получаем последнюю версию политики конфиденциальности
   const latestPrivacy = await request('GET', '/agreements/latest/privacy_policy', {
     token: testData.engineerToken,
   });
 
   log(`   Последняя версия политики конфиденциальности: ${latestPrivacy.data.version}`, 'blue');
-  
+
   // Проверяем статус пользователя
   const statusResult = await request('GET', '/agreements/user/check', {
     token: testData.engineerToken,
@@ -803,9 +841,10 @@ async function test25c_CheckPrivacyPolicyAccepted() {
 
   // Ищем политику конфиденциальности в принятых соглашениях
   const privacyAccepted = statusResult.data.userAgreements?.find(
-    ua => ua.agreementType === 'privacy_policy' && 
-          ua.version === latestPrivacy.data.version && 
-          ua.isAccepted === true
+    ua =>
+      ua.agreementType === 'privacy_policy' &&
+      ua.version === latestPrivacy.data.version &&
+      ua.isAccepted === true
   );
 
   if (privacyAccepted) {
@@ -826,18 +865,23 @@ async function test25d_CheckUserFieldInDatabase() {
   if (!testData.adminToken) {
     throw new Error('Admin token не установлен');
   }
-  
+
   // Получаем информацию о пользователе напрямую
   const userResult = await request('GET', `/users/${testData.engineerUserId}`, {
     token: testData.adminToken,
   });
 
   log(`   Информация о пользователе получена`, 'blue');
-  log(`   hasAcceptedAgreements: ${userResult.data.hasAcceptedAgreements ? '✅ true' : '❌ false'}`, 
-      userResult.data.hasAcceptedAgreements ? 'green' : 'yellow');
-  
+  log(
+    `   hasAcceptedAgreements: ${userResult.data.hasAcceptedAgreements ? '✅ true' : '❌ false'}`,
+    userResult.data.hasAcceptedAgreements ? 'green' : 'yellow'
+  );
+
   if (userResult.data.agreementsAcceptedAt) {
-    log(`   agreementsAcceptedAt: ${new Date(userResult.data.agreementsAcceptedAt).toLocaleString()}`, 'blue');
+    log(
+      `   agreementsAcceptedAt: ${new Date(userResult.data.agreementsAcceptedAt).toLocaleString()}`,
+      'blue'
+    );
   } else {
     log(`   agreementsAcceptedAt: null (соглашения не приняты)`, 'yellow');
   }
@@ -851,10 +895,10 @@ async function test25_GetOrderStats() {
   if (!testData.adminToken && !testData.managerToken && !testData.engineerToken) {
     throw new Error('Нет токена для получения статистики заявок');
   }
-  
+
   // Тестируем с разными ролями
   const token = testData.adminToken || testData.managerToken || testData.engineerToken;
-  
+
   const result = await request('GET', '/orders/stats', {
     token: token,
   });
@@ -870,7 +914,7 @@ async function test26_FilterOrders() {
   if (!testData.managerToken) {
     throw new Error('Manager token не установлен');
   }
-  
+
   // Тест фильтрации с различными параметрами
   const result = await request('GET', '/orders?page=1&limit=10&status=waiting', {
     token: testData.managerToken,
@@ -881,7 +925,7 @@ async function test26_FilterOrders() {
   log(`   Лимит: ${result.data.limit || 10}`, 'blue');
   log(`   Всего: ${result.data.total || 0}`, 'blue');
   log(`   Записей на странице: ${result.data.data?.length || 0}`, 'blue');
-  
+
   // Тест поиска
   if (testData.orderId) {
     const searchResult = await request('GET', `/orders?search=Тестовая&page=1&limit=5`, {
@@ -895,7 +939,7 @@ async function test27_GetMyCreatedOrders() {
   if (!testData.managerToken) {
     throw new Error('Manager token не установлен');
   }
-  
+
   const result = await request('GET', '/orders/my-orders', {
     token: testData.managerToken,
   });
@@ -909,7 +953,7 @@ async function test28_GetOrdersBySource() {
   if (!testData.managerToken) {
     throw new Error('Manager token не установлен');
   }
-  
+
   // Тест получения заявок по источнику
   const manualResult = await request('GET', '/orders/by-source/manual?page=1&limit=10', {
     token: testData.managerToken,
@@ -917,7 +961,7 @@ async function test28_GetOrdersBySource() {
 
   log(`   Заявки по источнику (manual) получены`, 'blue');
   log(`   Всего: ${manualResult.data.total || 0}`, 'blue');
-  
+
   // Тест автоматических заявок
   try {
     const automaticResult = await request('GET', '/orders/by-source/automatic?page=1&limit=10', {
@@ -936,7 +980,7 @@ async function test29_CreateAutomaticOrder() {
   if (!testData.managerToken) {
     throw new Error('Manager token не установлен');
   }
-  
+
   const result = await request('POST', '/orders/automatic', {
     token: testData.managerToken,
     body: {
@@ -951,7 +995,7 @@ async function test29_CreateAutomaticOrder() {
 
   log(`   Автоматическая заявка создана: ID ${result.data.id}`, 'blue');
   log(`   Источник: ${result.data.source}`, 'blue');
-  
+
   // Сохраняем ID для возможного использования в других тестах
   testData.orderIdForDeletion = result.data.id;
 }
@@ -963,7 +1007,7 @@ async function test30_RemoveEngineerAssignment() {
   if (!testData.managerToken) {
     throw new Error('Manager token не установлен');
   }
-  
+
   // Сначала получаем назначения
   const assignmentsResult = await request('GET', `/orders/${testData.orderId}/assignments`, {
     token: testData.managerToken,
@@ -971,7 +1015,7 @@ async function test30_RemoveEngineerAssignment() {
 
   if (!assignmentsResult.data || assignmentsResult.data.length === 0) {
     log(`   ⚠️  Назначений нет, создаем новое для теста удаления`, 'yellow');
-    
+
     // Создаем назначение для теста
     if (testData.engineerId) {
       await request('POST', `/orders/${testData.orderId}/assign-engineer`, {
@@ -981,12 +1025,12 @@ async function test30_RemoveEngineerAssignment() {
           isPrimary: false,
         },
       });
-      
+
       // Получаем назначения снова
       const newAssignmentsResult = await request('GET', `/orders/${testData.orderId}/assignments`, {
         token: testData.managerToken,
       });
-      
+
       if (newAssignmentsResult.data && newAssignmentsResult.data.length > 0) {
         testData.assignmentId = newAssignmentsResult.data[0].id;
       }
@@ -1012,12 +1056,12 @@ async function test30_RemoveEngineerAssignment() {
   });
 
   log(`   Назначение удалено: Assignment ID ${testData.assignmentId}`, 'blue');
-  
+
   // Проверяем, что назначение действительно удалено
   const checkResult = await request('GET', `/orders/${testData.orderId}/assignments`, {
     token: testData.managerToken,
   });
-  
+
   const remainingCount = checkResult.data?.length || 0;
   log(`   Осталось назначений: ${remainingCount}`, 'blue');
 }
@@ -1031,7 +1075,7 @@ async function test31_DeleteOrder() {
     if (!testData.managerToken) {
       throw new Error('Manager token не установлен');
     }
-    
+
     // Создаем заявку специально для удаления
     const createResult = await request('POST', '/orders', {
       token: testData.managerToken,
@@ -1041,18 +1085,18 @@ async function test31_DeleteOrder() {
         location: 'Тест',
       },
     });
-    
+
     testData.orderIdForDeletion = createResult.data.id;
     log(`   Создана заявка для удаления: ID ${testData.orderIdForDeletion}`, 'blue');
   }
-  
+
   // Удаляем заявку
   await request('DELETE', `/orders/${testData.orderIdForDeletion}`, {
     token: testData.managerToken,
   });
 
   log(`   Заявка удалена: ID ${testData.orderIdForDeletion}`, 'blue');
-  
+
   // Проверяем, что заявка действительно удалена
   try {
     await request('GET', `/orders/${testData.orderIdForDeletion}`, {
@@ -1080,14 +1124,14 @@ async function runTests() {
     // ЭТАП 1: Инициализация
     ['Инициализация админа', test1_InitAdmin],
     ['Логин админа', test2_LoginAdmin],
-    
+
     // ЭТАП 2: Создание пользователей и организации
     ['Создание организации', test3_CreateOrganization],
     ['Создание инженера', test4_CreateEngineer],
     ['Создание менеджера', test5_CreateManager],
     ['Логин менеджера', test6_LoginManager],
     ['Логин инженера', test7_LoginEngineer],
-    
+
     // ЭТАП 3: Соглашения
     ['Получение соглашений', test8_GetAgreements],
     ['Принятие соглашений', test9_AcceptAgreements],
@@ -1096,18 +1140,18 @@ async function runTests() {
     ['История принятия соглашений', test25b_CheckUserAgreementsHistory],
     ['Проверка политики конфиденциальности', test25c_CheckPrivacyPolicyAccepted],
     ['Проверка поля hasAcceptedAgreements', test25d_CheckUserFieldInDatabase],
-    
+
     // ЭТАП 4: Базовые операции с заявками
     ['Создание заявки', test10_CreateOrder],
     ['Получение заявки', test11_GetOrder],
     ['Обновление заявки', test20_UpdateOrder],
-    
+
     // ЭТАП 5: Назначение инженеров
     ['Назначение инженера', test12_AssignEngineer],
     ['Получение назначений', test13_GetAssignments],
     ['Множественное назначение инженеров', test21_AssignMultipleEngineers],
     ['Удаление назначения инженера', test30_RemoveEngineerAssignment],
-    
+
     // ЭТАП 6: Работа с заявками (фильтрация и поиск)
     ['Получение моих заявок', test14_GetMyOrders],
     ['Фильтрация и пагинация заявок', test26_FilterOrders],
@@ -1115,21 +1159,21 @@ async function runTests() {
     ['Получение заявок по источнику', test28_GetOrdersBySource],
     ['Статистика заявок', test25_GetOrderStats],
     ['Создание автоматической заявки', test29_CreateAutomaticOrder],
-    
+
     // ЭТАП 7: Работа инженера с заявками
     ['Принятие заявки инженером', test15_AcceptOrder],
     ['Создание рабочей сессии', test16_CreateWorkSession],
     ['Получение рабочих сессий', test17_GetWorkSessions],
     ['Завершение работы', test18_CompleteWork],
-    
+
     // ЭТАП 8: Завершение заявок
     ['Завершение заявки', test19_CompleteOrder],
-    
+
     // ЭТАП 9: Статистика
     ['Статистика инженера', test22_GetEngineerStatistics],
     ['Статистика менеджера', test23_GetManagerStatistics],
     ['Статистика админа', test24_GetAdminStatistics],
-    
+
     // ЭТАП 10: Удаление (последний тест)
     ['Удаление заявки', test31_DeleteOrder],
   ];
@@ -1145,7 +1189,7 @@ async function runTests() {
       failed++;
     }
     // Небольшая задержка между тестами
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 500));
   }
 
   // Итоги
@@ -1165,11 +1209,10 @@ async function runTests() {
 }
 
 // Запуск тестов
-runTests().catch((error) => {
+runTests().catch(error => {
   log(`\n💥 КРИТИЧЕСКАЯ ОШИБКА: ${error.message}`, 'red');
   if (error.stack) {
     log(error.stack, 'red');
   }
   process.exit(1);
 });
-

@@ -94,10 +94,11 @@ export class WorkSessionsService {
 
     // Рассчитываем оплату от организации с использованием КОЭФФИЦИЕНТА
     const organizationRegularPayment = workData.regularHours * order.organization.baseRate;
-    const organizationOvertimeCoefficient = order.organization.hasOvertime 
-      ? (order.organization.overtimeMultiplier ?? 1.5) 
+    const organizationOvertimeCoefficient = order.organization.hasOvertime
+      ? (order.organization.overtimeMultiplier ?? 1.5)
       : 1.0;
-    const organizationOvertimePayment = workData.overtimeHours * order.organization.baseRate * organizationOvertimeCoefficient;
+    const organizationOvertimePayment =
+      workData.overtimeHours * order.organization.baseRate * organizationOvertimeCoefficient;
     const organizationPayment = organizationRegularPayment + organizationOvertimePayment;
 
     // Создаём рабочую сессию

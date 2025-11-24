@@ -47,11 +47,11 @@ export class AuthModule implements OnModuleInit {
     // Wait for database connection to be established
     // In Docker, MySQL needs time to be ready
     await new Promise(resolve => setTimeout(resolve, 5000));
-    
+
     try {
       console.log('🔄 Auto-initializing default users...');
       const result = await this.authService.initializeAdmin();
-      
+
       if (result.users.admin || result.users.manager || result.users.engineer) {
         console.log('✅ Default users initialized:', {
           admin: result.users.admin ? 'created/updated' : 'skipped',
@@ -65,7 +65,9 @@ export class AuthModule implements OnModuleInit {
       }
     } catch (error) {
       console.error('❌ Failed to auto-initialize users:', error.message);
-      console.error('   This is not critical - users can be initialized manually via GET /api/auth/init-admin');
+      console.error(
+        '   This is not critical - users can be initialized manually via GET /api/auth/init-admin'
+      );
       // Don't fail app startup if initialization fails
     }
   }

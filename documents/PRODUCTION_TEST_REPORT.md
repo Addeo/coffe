@@ -48,6 +48,7 @@
 **Root Cause:** The admin user has an active role of "manager" instead of "admin" in their JWT token. The RolesGuard checks the active role, and since "manager" doesn't have permission to create users (requires ADMIN role), the request is rejected.
 
 **JWT Token Analysis:**
+
 ```json
 {
   "email": "admin@coffee.com",
@@ -58,7 +59,8 @@
 }
 ```
 
-**Solution:** 
+**Solution:**
+
 - Fixed JWT strategy to return all role fields (primaryRole, activeRole) in the user object
 - Users need to reset their role to "admin" if they switched to "manager" role
 - The RolesGuard should check primaryRole for permission checks, not just activeRole
@@ -68,6 +70,7 @@
 ### 2. Missing Endpoints
 
 Some endpoints tested in the script don't exist:
+
 - `/api/statistics` - Should use `/api/statistics/comprehensive` instead
 - `/api/statistics/organizations` - Doesn't exist
 - `/api/statistics/engineers` - Should use `/api/statistics/admin/engineers` instead
@@ -161,12 +164,13 @@ To test the frontend:
 ## Test Command
 
 Run the production test suite:
+
 ```bash
 ./test-production.sh
 ```
 
 Or test specific endpoint:
+
 ```bash
 ./test-production.sh http://192.144.12.102:3001/api
 ```
-

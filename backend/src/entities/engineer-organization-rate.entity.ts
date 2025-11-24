@@ -35,7 +35,12 @@ export class EngineerOrganizationRate {
   @Column('decimal', { name: 'custom_base_rate', precision: 10, scale: 2, nullable: true })
   customBaseRate?: number; // индивидуальная базовая ставка (руб/час)
 
-  @Column('decimal', { name: 'custom_overtime_coefficient', precision: 5, scale: 2, nullable: true })
+  @Column('decimal', {
+    name: 'custom_overtime_coefficient',
+    precision: 5,
+    scale: 2,
+    nullable: true,
+  })
   customOvertimeCoefficient?: number; // индивидуальный коэффициент для сверхурочных (например, 1.6)
 
   // Legacy field - удалить после миграции данных

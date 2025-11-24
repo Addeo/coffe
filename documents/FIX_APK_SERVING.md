@@ -32,6 +32,7 @@ Response: 404 - Cannot GET /app-debug.apk
 ```
 
 Или вручную:
+
 ```bash
 scp ./apk-builds/app-debug-1.0.2.apk user1@192.144.12.102:~/coffe/app-debug.apk
 ```
@@ -45,6 +46,7 @@ docker compose -f docker-compose.fallback.yml restart backend
 ```
 
 Или пересобрать (если нужны изменения в коде):
+
 ```bash
 docker compose -f docker-compose.fallback.yml up -d --build backend
 ```
@@ -77,6 +79,7 @@ ssh user1@192.144.12.102 "docker logs coffee_backend_fallback | grep 'APK file p
    - Теперь `/app-debug.apk` доступен напрямую (не через `/api/`)
 
 2. **Добавлена переменная окружения:**
+
    ```typescript
    const apkPath = process.env.APK_PATH || join(__dirname, '../../app-debug.apk');
    ```
@@ -90,6 +93,7 @@ ssh user1@192.144.12.102 "docker logs coffee_backend_fallback | grep 'APK file p
 ### docker-compose.fallback.yml
 
 1. **Добавлен volume mount:**
+
    ```yaml
    volumes:
      - ./app-debug.apk:/app/app-debug.apk:ro
@@ -131,4 +135,3 @@ curl http://192.144.12.102:3001/api/app/version
 ---
 
 Готово! После этих изменений APK будет доступен по URL. 🚀
-

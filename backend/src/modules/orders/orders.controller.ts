@@ -17,11 +17,7 @@ import { JwtAuthGuard } from '../аутентификация/jwt-auth.guard';
 import { RolesGuard } from '../аутентификация/roles.guard';
 import { Roles } from '../аутентификация/roles.decorator';
 import { UserRole } from '../../entities/user.entity';
-import {
-  UpdateOrderDto,
-  AssignEngineerDto,
-  OrdersQueryDto,
-} from '../../shared/dtos/order.dto';
+import { UpdateOrderDto, AssignEngineerDto, OrdersQueryDto } from '../../shared/dtos/order.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderSource } from '../../entities/order.entity';
 import { TerritoryType } from '../../shared/interfaces/order.interface';
@@ -138,7 +134,7 @@ export class OrdersController {
       engineerIds: assignEngineerDto.engineerIds,
       userRole: req.user?.role,
     });
-    
+
     // Если передан массив engineerIds, используем множественное назначение
     if (assignEngineerDto.engineerIds && assignEngineerDto.engineerIds.length > 0) {
       return this.ordersService.assignMultipleEngineers(
@@ -148,7 +144,7 @@ export class OrdersController {
         req.user
       );
     }
-    
+
     return this.ordersService.assignEngineer(id, assignEngineerDto, req.user);
   }
 

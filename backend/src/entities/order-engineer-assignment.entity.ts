@@ -81,4 +81,3 @@ export class OrderEngineerAssignment {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 }
-

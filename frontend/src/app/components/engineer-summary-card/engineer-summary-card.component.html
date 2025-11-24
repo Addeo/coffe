@@ -37,14 +37,14 @@
           <div>
             <div class="item-label">Заработано</div>
             <div class="item-value">
-              {{ summary.earnedAmount | currency:'RUB':'symbol':'1.0-0':'ru-RU' }}
+              {{ summary.earnedAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}
               <span class="item-plan">
-                / {{ summary.planEarnings | currency:'RUB':'symbol':'1.0-0':'ru-RU' }}
+                / {{ summary.planEarnings | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}
               </span>
             </div>
             <div class="item-subvalue">
               С учётом автомобиля:
-              {{ totalEarned | currency:'RUB':'symbol':'1.0-0':'ru-RU' }}
+              {{ totalEarned | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}
             </div>
           </div>
         </div>
@@ -57,7 +57,8 @@
           <div>
             <div class="item-label">Отработано часов</div>
             <div class="item-value">
-              {{ summary.workedHours | number:'1.0-1' }} / {{ summary.planHours | number:'1.0-1' }}
+              {{ summary.workedHours | number: '1.0-1' }} /
+              {{ summary.planHours | number: '1.0-1' }}
             </div>
           </div>
         </div>
@@ -70,10 +71,10 @@
           <div>
             <div class="item-label">Выплата за автомобиль</div>
             <div class="item-value">
-              {{ summary.carPayments | currency:'RUB':'symbol':'1.0-0':'ru-RU' }}
+              {{ summary.carPayments | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}
             </div>
             <div class="item-subvalue" *ngIf="summary.plannedCarAmount">
-              План: {{ summary.plannedCarAmount | currency:'RUB':'symbol':'1.0-0':'ru-RU' }}
+              План: {{ summary.plannedCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}
             </div>
           </div>
         </div>

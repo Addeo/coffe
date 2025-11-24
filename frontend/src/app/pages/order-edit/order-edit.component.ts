@@ -22,7 +22,12 @@ import { AuthService } from '../../services/auth.service';
 import { WorkSessionListComponent } from '../../components/work-session-list/work-session-list.component';
 import { WorkSessionFormComponent } from '../../components/work-session-form/work-session-form.component';
 import { CreateOrderDto, UpdateOrderDto, OrderDto } from '@shared/dtos/order.dto';
-import { TerritoryType, OrderStatus, OrderSource, OrderStatusLabel } from '@shared/interfaces/order.interface';
+import {
+  TerritoryType,
+  OrderStatus,
+  OrderSource,
+  OrderStatusLabel,
+} from '@shared/interfaces/order.interface';
 import { UserRole } from '@shared/interfaces/user.interface';
 import { OrganizationDto } from '@shared/dtos/organization.dto';
 import { FileResponseDto, FileType } from '@shared/dtos/file.dto';
@@ -940,7 +945,7 @@ export class OrderEditComponent implements OnInit {
     // Временная заглушка: используем дефолтный коэффициент 1.6
     // TODO: Получить реальный коэффициент из WorkSession для этого заказа
     const overtimeCoefficient = 1.6;
-    return regularHours + (overtimeHours * overtimeCoefficient);
+    return regularHours + overtimeHours * overtimeCoefficient;
   }
 
   getTotalHours(): number {
