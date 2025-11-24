@@ -1,6 +1,62 @@
 <div class="statistics-container">
 
 
+  <!-- Manager Summary Buttons -->
+  <mat-card *ngIf="!isLoading() && statistics()" class="manager-summary-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>account_balance_wallet</mat-icon>
+        Финансовая сводка
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="manager-summary-grid">
+        <!-- Итого доход - вся сумма к оплате от заказчиков -->
+        <div class="summary-item primary">
+          <div class="summary-icon">
+            <mat-icon>account_balance</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">
+              {{ getTotalIncomeFromCustomers() | currency: 'RUB': 'symbol': '1.0-0': 'ru-RU' }}
+            </div>
+            <div class="summary-label">Итого доход</div>
+            <div class="summary-description">Вся сумма к оплате от заказчиков</div>
+          </div>
+        </div>
+
+        <!-- К оплате за часы - вся сумма к оплате за часы инженерам -->
+        <div class="summary-item info">
+          <div class="summary-icon">
+            <mat-icon>schedule</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">
+              {{ getTotalHoursPayment() | currency: 'RUB': 'symbol': '1.0-0': 'ru-RU' }}
+            </div>
+            <div class="summary-label">К оплате за часы</div>
+            <div class="summary-description">Вся сумма к оплате за часы инженерам</div>
+          </div>
+        </div>
+
+        <!-- К оплате за авто - вся сумма к оплате за эксплуатацию авто -->
+        <div class="summary-item accent">
+          <div class="summary-icon">
+            <mat-icon>directions_car</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">
+              {{ getTotalCarPayment() | currency: 'RUB': 'symbol': '1.0-0': 'ru-RU' }}
+            </div>
+            <div class="summary-label">К оплате за авто</div>
+            <div class="summary-description">Вся сумма к оплате за эксплуатацию авто штатных и наемных инженеров</div>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
   <!-- Earnings Summary Component -->
   <mat-card class="collapsible-section summary-cards-section">
     <mat-card-header (click)="toggleEarningsSummary()" class="collapsible-header earnings-header">
@@ -64,159 +120,120 @@
 
   <!-- Statistics Content -->
   <div *ngIf="!isLoading() && statistics()" class="statistics-content">
-    <!-- Summary Cards - Unified for all devices -->
-    <mat-card class="collapsible-section summary-cards-section">
-      <mat-card-header (click)="toggleSummaryCards()" class="collapsible-header earnings-header">
-        <div class="header-content">
-          <div class="title-section">
-            <mat-icon>dashboard</mat-icon>
-            <span class="title">Сводные показатели</span>
-          </div>
-          <div class="header-actions">
-            <button
-              mat-icon-button
-              matTooltip="{{ summaryCardsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-              class="collapse-btn"
-              (click)="toggleSummaryCards(); $event.stopPropagation()"
-            >
-              <mat-icon>{{ summaryCardsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-            </button>
-          </div>
+    <!-- Orders Overview Card -->
+    <mat-card class="orders-overview-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>dashboard</mat-icon>
+          Обзор заявок
+        </mat-card-title>
+        <div class="header-actions-right">
+          <button
+            mat-icon-button
+            (click)="toggleSummaryCards()"
+            matTooltip="{{ summaryCardsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+            class="collapse-toggle-btn"
+            [attr.aria-label]="summaryCardsCollapsed() ? 'Развернуть' : 'Свернуть'"
+          >
+            <mat-icon>{{ summaryCardsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+          </button>
         </div>
       </mat-card-header>
+
       <mat-card-content [class.collapsed]="summaryCardsCollapsed()">
-        <div class="earnings-grid">
-          <!-- Total Earnings -->
-          <div class="earning-card total-earnings">
-            <div class="earning-icon">
-              <mat-icon>attach_money</mat-icon>
-            </div>
-            <div class="earning-content">
-              <div class="earning-label">Общий доход</div>
-              <div class="earning-value">{{ formatCurrency(statistics()!.totalEarnings) }}</div>
-            </div>
-          </div>
-
-          <!-- Total Orders -->
-          <div class="earning-card orders-count">
-            <div class="earning-icon">
-            <mat-icon>shopping_cart</mat-icon>
-          </div>
-            <div class="earning-content">
-              <div class="earning-label">Всего заказов</div>
-              <div class="earning-value">{{ formatNumber(statistics()!.totalOrders) }}</div>
-            </div>
-          </div>
-
-          <!-- Overtime Hours -->
-          <div class="earning-card hours-count">
-            <div class="earning-icon">
-            <mat-icon>schedule</mat-icon>
-          </div>
-            <div class="earning-content">
-              <div class="earning-label">Сверхурочные часы</div>
-              <div class="earning-value">{{ formatNumber(statistics()!.totalOvertimeHours) }}</div>
-            </div>
-          </div>
-
-          <!-- Organization Revenue -->
-          <div class="earning-card work-earnings">
-            <div class="earning-icon">
-            <mat-icon>account_balance</mat-icon>
-          </div>
-            <div class="earning-content">
-              <div class="earning-label">Выручка от организаций</div>
-              <div class="earning-value">
-            {{ totalOrganizationRevenue | currency: 'RUB' : 'symbol' : '1.0-0' }}
-          </div>
-            </div>
-          </div>
-
-          <!-- Agent Earnings -->
-          <div class="earning-card car-earnings">
-            <div class="earning-icon">
-            <mat-icon>account_balance_wallet</mat-icon>
-          </div>
-            <div class="earning-content">
-              <div class="earning-label">Заработок инженеров</div>
-              <div class="earning-value">
-            {{ totalAgentEarnings | currency: 'RUB' : 'symbol' : '1.0-0' }}
-          </div>
-            </div>
-          </div>
-
-          <!-- Company Profit -->
+        <div class="orders-overview-grid">
           <div
-            class="earning-card"
-            [class.total-earnings]="companyProfit > 0"
-            [class.warning-earnings]="companyProfit < 0"
-          >
-            <div class="earning-icon">
-            <mat-icon>trending_up</mat-icon>
-          </div>
-            <div class="earning-content">
-              <div class="earning-label">Прибыль компании</div>
-              <div class="earning-value">
-                {{ companyProfit | currency: 'RUB' : 'symbol' : '1.0-0' }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Orders Overview Cards -->
-          <div class="earning-card work-earnings" role="button" (click)="navigateToOrders()">
-            <div class="earning-icon">
-              <mat-icon>assignment</mat-icon>
-            </div>
-            <div class="earning-content">
-              <div class="earning-label">Всего заявок</div>
-              <div class="earning-value">{{ orderStats()?.total || 0 }}</div>
-            </div>
-          </div>
-
-          <div
-            class="earning-card total-earnings"
+            class="summary-item warning"
             role="button"
-            (click)="navigateToOrders('completed')"
-          >
-            <div class="earning-icon">
-              <mat-icon>check_circle</mat-icon>
-            </div>
-            <div class="earning-content">
-              <div class="earning-label">Завершено</div>
-              <div class="earning-value">{{ orderStats()?.completed || 0 }}</div>
-            </div>
-          </div>
-
-          <div
-            class="earning-card car-earnings"
-            role="button"
-            (click)="navigateToOrders('working')"
-          >
-            <div class="earning-icon">
-              <mat-icon>build</mat-icon>
-            </div>
-            <div class="earning-content">
-              <div class="earning-label">В работе</div>
-              <div class="earning-value">{{ orderStats()?.working || 0 }}</div>
-            </div>
-          </div>
-
-          <div
-            class="earning-card hours-count"
-            role="button"
+            tabindex="0"
+            aria-label="Показать ожидающие заявки"
             (click)="navigateToOrders('waiting')"
+            (keydown.enter)="navigateToOrders('waiting')"
+            (keydown.space)="navigateToOrders('waiting'); $event.preventDefault()"
           >
-            <div class="earning-icon">
+            <div class="summary-icon">
               <mat-icon>schedule</mat-icon>
             </div>
-            <div class="earning-content">
-              <div class="earning-label">Ожидают</div>
-              <div class="earning-value">{{ orderStats()?.waiting || 0 }}</div>
+            <div class="summary-content">
+              <div class="summary-value">{{ orderStats()?.waiting || 0 }}</div>
+              <div class="summary-label">Ожидают</div>
             </div>
           </div>
+
+          <div
+            class="summary-item info"
+            role="button"
+            tabindex="0"
+            aria-label="Показать заявки в обработке"
+            (click)="navigateToOrders('processing')"
+            (keydown.enter)="navigateToOrders('processing')"
+            (keydown.space)="navigateToOrders('processing'); $event.preventDefault()"
+          >
+            <div class="summary-icon">
+              <mat-icon>person_add</mat-icon>
+            </div>
+            <div class="summary-content">
+              <div class="summary-value">{{ orderStats()?.processing || 0 }}</div>
+              <div class="summary-label">В обработке</div>
+            </div>
           </div>
-        </mat-card-content>
-      </mat-card>
+
+          <div
+            class="summary-item accent"
+            role="button"
+            tabindex="0"
+            aria-label="Показать заявки в работе"
+            (click)="navigateToOrders('working')"
+            (keydown.enter)="navigateToOrders('working')"
+            (keydown.space)="navigateToOrders('working'); $event.preventDefault()"
+          >
+            <div class="summary-icon">
+              <mat-icon>build</mat-icon>
+            </div>
+            <div class="summary-content">
+              <div class="summary-value">{{ orderStats()?.working || 0 }}</div>
+              <div class="summary-label">В работе</div>
+            </div>
+          </div>
+
+          <div
+            class="summary-item review"
+            role="button"
+            tabindex="0"
+            aria-label="Показать заявки на проверке"
+            (click)="navigateToOrders('review')"
+            (keydown.enter)="navigateToOrders('review')"
+            (keydown.space)="navigateToOrders('review'); $event.preventDefault()"
+          >
+            <div class="summary-icon">
+              <mat-icon>visibility</mat-icon>
+            </div>
+            <div class="summary-content">
+              <div class="summary-value">{{ orderStats()?.review || 0 }}</div>
+              <div class="summary-label">На проверке</div>
+            </div>
+          </div>
+
+          <div
+            class="summary-item success"
+            role="button"
+            tabindex="0"
+            aria-label="Показать завершённые заявки"
+            (click)="navigateToOrders('completed')"
+            (keydown.enter)="navigateToOrders('completed')"
+            (keydown.space)="navigateToOrders('completed'); $event.preventDefault()"
+          >
+            <div class="summary-icon">
+              <mat-icon>check_circle</mat-icon>
+            </div>
+            <div class="summary-content">
+              <div class="summary-value">{{ orderStats()?.completed || 0 }}</div>
+              <div class="summary-label">Завершено</div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
     <!-- Car Payments Card -->
     <mat-card class="car-payments-card collapsible-section">
@@ -427,6 +444,68 @@
               </div>
             </mat-tab>
           </mat-tab-group>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Engineers Hours Statistics (Детализация по инженерам) -->
+    <mat-card class="engineers-hours-stats-card collapsible-section" *ngIf="canViewAllData">
+      <mat-card-header (click)="toggleEngineersStats()" class="collapsible-header">
+        <div class="header-title-section">
+          <mat-card-title>
+            <mat-icon>people</mat-icon>
+            Детализация по инженерам
+          </mat-card-title>
+          <mat-card-subtitle>
+            Статистика по отработанным часам за {{ selectedMonth() }}/{{ selectedYear() }}
+          </mat-card-subtitle>
+        </div>
+        <div class="header-actions-right">
+          <button
+            mat-icon-button
+            matTooltip="{{ engineersStatsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+            class="collapse-toggle-btn"
+            (click)="toggleEngineersStats(); $event.stopPropagation()"
+          >
+            <mat-icon>{{ engineersStatsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+          </button>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content [class.collapsed]="engineersStatsCollapsed()">
+        <mat-progress-bar
+          mode="indeterminate"
+          *ngIf="isLoadingEngineerStats()"
+        ></mat-progress-bar>
+
+        <div *ngIf="!isLoadingEngineerStats() && engineerHoursStats() as stats">
+          <div class="engineers-list" *ngIf="stats.engineers.length > 0">
+            <h3 style="margin: 16px 0 12px 0; font-size: 14px; font-weight: 600;">Детализация по инженерам</h3>
+            <div class="engineers-progress-list">
+              <app-hours-progress-item
+                *ngFor="let engineer of stats.engineers"
+                [workedHours]="engineer.totalHours"
+                [planHours]="engineer.planHours"
+                [label]="engineer.engineerName + ':'"
+                icon="person"
+                [showSlider]="true"
+                iconColor="primary"
+                [statistics]="{
+                  regularHours: engineer.regularHours,
+                  overtimeHours: engineer.overtimeHours,
+                  completedOrders: engineer.completedOrders,
+                  averageHoursPerOrder: engineer.averageHoursPerOrder,
+                  earnedAmount: engineer.earnedAmount,
+                  carPayments: engineer.carPayments
+                }"
+              ></app-hours-progress-item>
+            </div>
+          </div>
+
+          <div class="no-data" *ngIf="stats.engineers.length === 0">
+            <mat-icon>info</mat-icon>
+            <p>Нет данных за выбранный период</p>
+          </div>
         </div>
       </mat-card-content>
     </mat-card>

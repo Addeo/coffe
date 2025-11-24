@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -21,6 +22,7 @@ import { MatInputModule } from '@angular/material/input';
 import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { HttpErrorResponse } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 
 import { StatisticsService } from '../../services/statistics.service';
 import { UsersService } from '../../services/users.service';
@@ -30,6 +32,7 @@ import { OrdersService } from '../../services/orders.service';
 import { ModalService } from '../../services/modal.service';
 import { ToastService } from '../../services/toast.service';
 import { EarningsSummaryComponent } from '../../components/earnings-summary/earnings-summary.component';
+import { HoursProgressItemComponent } from '../../components/hours-progress-item/hours-progress-item.component';
 import { UserRole } from '@shared/interfaces/user.interface';
 import { OrganizationDto, OrganizationsQueryDto } from '@shared/dtos/organization.dto';
 import { UserDto } from '@shared/dtos/user.dto';
@@ -94,6 +97,7 @@ interface ComprehensiveStatisticsDto {
     MatFormFieldModule,
     MatTableModule,
     MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatIconModule,
     MatTabsModule,
     MatButtonToggleModule,
@@ -104,6 +108,7 @@ interface ComprehensiveStatisticsDto {
     MatInputModule,
     BaseChartDirective,
     EarningsSummaryComponent,
+    HoursProgressItemComponent,
   ],
   templateUrl: './statistics.component.html',
   styleUrls: ['./statistics.component.scss'],
@@ -142,6 +147,26 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   carPaymentStatus = signal<any>(null);
   carPaymentOrgColumns = ['organizationName', 'totalCarAmount', 'paidCarAmount', 'pendingCarAmount', 'paymentStatus'];
   carPaymentEngineerColumns = ['engineerName', 'totalCarAmount', 'paidCarAmount', 'pendingCarAmount', 'paymentStatus'];
+
+  // Engineer hours statistics (similar to orders component)
+  engineerHoursStats = signal<{
+    engineers: Array<{
+      engineerId: number;
+      engineerName: string;
+      totalHours: number;
+      regularHours: number;
+      overtimeHours: number;
+      planHours: number;
+      completedOrders: number;
+      averageHoursPerOrder?: number;
+      engineerType?: string;
+      earnedAmount?: number;
+      carPayments?: number;
+    }>;
+    totalHours: number;
+    totalOrders: number;
+  } | null>(null);
+  isLoadingEngineerStats = signal(false);
 
   // Orders statistics for overview
   orderStats = signal<OrderStatsDto | null>(null);
@@ -186,6 +211,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   earningsSummaryCollapsed = signal(false);
   summaryCardsCollapsed = signal(false);
   carPaymentsCollapsed = signal(false);
+  engineersStatsCollapsed = signal(false);
   statisticsTabsCollapsed = signal(false);
   organizationsCollapsed = signal(false);
   usersCollapsed = signal(false);
@@ -397,6 +423,23 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     return this.getCompanyAgentDifference();
   }
 
+  // Manager summary methods
+  getTotalIncomeFromCustomers(): number {
+    // Итого доход - вся сумма к оплате от заказчиков
+    return this.getTotalOrganizationRevenue();
+  }
+
+  getTotalHoursPayment(): number {
+    // К оплате за часы - вся сумма к оплате за часы инженерам
+    return this.getTotalAgentEarnings();
+  }
+
+  getTotalCarPayment(): number {
+    // К оплате за авто - вся сумма к оплате за эксплуатацию авто
+    const carStatus = this.carPaymentStatus();
+    return carStatus?.totalCarAmount || 0;
+  }
+
   // Chart data for Agent Earnings (Bar Chart)
   get agentEarningsChartData(): ChartData<'bar'> {
     const data = this.statistics()?.agentEarnings || [];
@@ -506,6 +549,11 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
    * Загрузить статус автомобильных отчислений
    */
   private async loadCarPaymentStatus(): Promise<void> {
+    // Загружаем данные только для админов и менеджеров
+    if (!this.canViewAllData) {
+      return;
+    }
+
     try {
       const year = this.selectedYear();
       const month = this.selectedMonth();
@@ -518,6 +566,130 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         duration: 3000,
       });
     }
+  }
+
+  /**
+   * Загрузить статистику по часам инженеров (аналогично orders component)
+   */
+  private loadEngineerHoursStats(): void {
+    if (!this.canViewAllData) {
+      return;
+    }
+
+    this.isLoadingEngineerStats.set(true);
+    const year = this.selectedYear();
+    const month = this.selectedMonth();
+
+    // Load statistics, engineer profiles, and car payment status in parallel
+    forkJoin({
+      statistics: this.statisticsService.getMonthlyStatistics(year, month),
+      engineers: this.usersService.getUsers({ role: UserRole.USER }), // Get all engineers
+      carPayments: this.statisticsService.getCarPaymentStatus(year, month),
+    }).subscribe({
+      next: ({ statistics: data, engineers: usersResponse, carPayments }) => {
+        // Create a map of engineerId -> planHours and engineerType from user profiles
+        const engineerPlanHoursMap = new Map<number, number>();
+        const engineerTypeMap = new Map<number, string>();
+        usersResponse.data.forEach(user => {
+          if (user.engineer) {
+            if (user.engineer.planHoursMonth) {
+              engineerPlanHoursMap.set(user.id, user.engineer.planHoursMonth);
+            }
+            if (user.engineer.type) {
+              engineerTypeMap.set(user.id, user.engineer.type);
+            }
+          }
+        });
+
+        // Create a map of engineerId -> carPayments
+        const carPaymentsMap = new Map<number, number>();
+        if (carPayments?.engineerBreakdown) {
+          carPayments.engineerBreakdown.forEach((engineer: any) => {
+            carPaymentsMap.set(engineer.engineerId, engineer.totalCarAmount || 0);
+          });
+        }
+
+        // Use overtimeStatistics which has totalHours, regularHours, overtimeHours
+        // and merge with agentEarnings for completedOrders
+        const engineerMap = new Map<number, {
+          engineerId: number;
+          engineerName: string;
+          totalHours: number;
+          regularHours: number;
+          overtimeHours: number;
+          planHours: number;
+          completedOrders: number;
+          averageHoursPerOrder?: number;
+          engineerType?: string;
+          earnedAmount?: number;
+          carPayments?: number;
+        }>();
+        
+        // First, add hours from overtimeStatistics
+        data.overtimeStatistics.forEach(stat => {
+          const planHours = engineerPlanHoursMap.get(stat.agentId) || 160; // Default 160 if not found
+          const engineerType = engineerTypeMap.get(stat.agentId);
+          engineerMap.set(stat.agentId, {
+            engineerId: stat.agentId,
+            engineerName: stat.agentName,
+            totalHours: stat.totalHours || 0,
+            regularHours: stat.regularHours || 0,
+            overtimeHours: stat.overtimeHours || 0,
+            planHours,
+            completedOrders: 0,
+            engineerType,
+            carPayments: carPaymentsMap.get(stat.agentId) || 0,
+          });
+        });
+        
+        // Then, add completedOrders from agentEarnings and calculate averageHoursPerOrder
+        data.agentEarnings.forEach(agent => {
+          const existing = engineerMap.get(agent.agentId);
+          if (existing) {
+            existing.completedOrders = agent.completedOrders || 0;
+            existing.averageHoursPerOrder = existing.completedOrders > 0
+              ? existing.totalHours / existing.completedOrders
+              : 0;
+            existing.earnedAmount = agent.totalEarnings || 0; // Оплата за часы
+            if (!existing.carPayments) {
+              existing.carPayments = carPaymentsMap.get(agent.agentId) || 0;
+            }
+          } else {
+            const planHours = engineerPlanHoursMap.get(agent.agentId) || 160; // Default 160 if not found
+            const engineerType = engineerTypeMap.get(agent.agentId);
+            engineerMap.set(agent.agentId, {
+              engineerId: agent.agentId,
+              engineerName: agent.agentName,
+              totalHours: 0,
+              regularHours: 0,
+              overtimeHours: 0,
+              planHours,
+              completedOrders: agent.completedOrders || 0,
+              averageHoursPerOrder: 0,
+              earnedAmount: agent.totalEarnings || 0, // Оплата за часы
+              carPayments: carPaymentsMap.get(agent.agentId) || 0,
+              engineerType,
+            });
+          }
+        });
+
+        const engineers = Array.from(engineerMap.values());
+        const totalHours = engineers.reduce((sum, eng) => sum + eng.totalHours, 0);
+        const totalOrders = engineers.reduce((sum, eng) => sum + eng.completedOrders, 0);
+
+        this.engineerHoursStats.set({
+          engineers,
+          totalHours,
+          totalOrders,
+        });
+        this.isLoadingEngineerStats.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading engineer hours stats:', error);
+        this.toastService.showError('Ошибка загрузки статистики по часам инженеров');
+        this.isLoadingEngineerStats.set(false);
+      },
+    });
   }
 
   // Chart options
@@ -687,10 +859,12 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.loadStatistics();
+    this.loadCarPaymentStatus();
     this.loadUserStats();
     this.loadOrderStats();
     if (this.canViewAllData) {
       this.loadOrganizations();
+      this.loadEngineerHoursStats();
       if (this.canViewUsers) {
         this.loadUsers();
       }
@@ -739,6 +913,10 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
 
   toggleCarPayments(): void {
     this.carPaymentsCollapsed.set(!this.carPaymentsCollapsed());
+  }
+
+  toggleEngineersStats(): void {
+    this.engineersStatsCollapsed.set(!this.engineersStatsCollapsed());
   }
 
   toggleStatisticsTabs(): void {
@@ -853,6 +1031,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
             totalOvertimeHours: data.totalOvertimeHours,
           });
           this.loadAdditionalData();
+          this.loadEngineerHoursStats();
           this.isLoading.set(false);
         },
         error: error => {
@@ -866,6 +1045,8 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   onYearChange(year: number) {
     this.selectedYear.set(year);
     this.loadStatistics();
+    this.loadCarPaymentStatus();
+    this.loadEngineerHoursStats();
   }
 
   onMonthChange(month: number) {
@@ -880,12 +1061,16 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
       this.selectedYear.update(year => year - 1);
     }
     this.loadStatistics();
+    this.loadCarPaymentStatus();
+    this.loadEngineerHoursStats();
   }
 
   onMonthChangedFromEarnings(event: { month: number; year: number }) {
     this.selectedMonth.set(event.month);
     this.selectedYear.set(event.year);
     this.loadStatistics();
+    this.loadCarPaymentStatus();
+    this.loadEngineerHoursStats();
   }
 
   previousMonthForEarnings() {
@@ -902,6 +1087,8 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     this.selectedMonth.set(month);
     this.selectedYear.set(year);
     this.loadStatistics();
+    this.loadCarPaymentStatus();
+    this.loadEngineerHoursStats();
   }
 
   nextMonthForEarnings() {
@@ -918,11 +1105,16 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     this.selectedMonth.set(month);
     this.selectedYear.set(year);
     this.loadStatistics();
+    this.loadCarPaymentStatus();
+    this.loadEngineerHoursStats();
   }
 
   refreshStatistics() {
     this.loadStatistics();
     this.loadCarPaymentStatus();
+    if (this.canViewAllData) {
+      this.loadEngineerHoursStats();
+    }
   }
 
   formatCurrency(amount: number): string {

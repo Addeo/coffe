@@ -19,13 +19,13 @@ import { NotificationType, NotificationPriority } from '../../entities/notificat
 import { OrderSource } from '../../entities/order.entity';
 import { OrderStatus, TerritoryType } from '../../shared/interfaces/order.interface';
 import {
-  CreateOrderDto,
   UpdateOrderDto,
   AssignEngineerDto,
   OrdersQueryDto,
   OrderStatsDto,
   EngineerOrderSummaryDto,
 } from '../../shared/dtos/order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { OrderEngineerAssignment, AssignmentStatus } from '../../entities/order-engineer-assignment.entity';
 

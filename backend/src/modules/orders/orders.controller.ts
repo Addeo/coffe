@@ -18,11 +18,11 @@ import { RolesGuard } from '../аутентификация/roles.guard';
 import { Roles } from '../аутентификация/roles.decorator';
 import { UserRole } from '../../entities/user.entity';
 import {
-  CreateOrderDto,
   UpdateOrderDto,
   AssignEngineerDto,
   OrdersQueryDto,
 } from '../../shared/dtos/order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderSource } from '../../entities/order.entity';
 import { TerritoryType } from '../../shared/interfaces/order.interface';
 

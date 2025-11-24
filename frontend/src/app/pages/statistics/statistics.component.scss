@@ -3,6 +3,131 @@
   max-width: 1400px;
   margin: 0 auto;
 
+  // Manager summary card (same style as orders-overview-card)
+  .manager-summary-card {
+    margin-bottom: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+
+    mat-card-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      
+      mat-card-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+        
+        mat-icon {
+          font-size: 28px;
+          width: 28px;
+          height: 28px;
+          color: #667eea;
+        }
+      }
+    }
+
+    mat-card-content {
+      padding: 24px;
+    }
+
+    .manager-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .summary-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        &.primary {
+          background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        }
+
+        &.info {
+          background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+        }
+
+        &.accent {
+          background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        }
+
+        .summary-icon {
+          width: 48px;
+          height: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255, 255, 255, 0.5);
+          border-radius: 12px;
+          flex-shrink: 0;
+
+          mat-icon {
+            font-size: 24px;
+            width: 24px;
+            height: 24px;
+            color: #667eea;
+          }
+        }
+
+        .summary-content {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          min-width: 0;
+
+          .summary-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a237e;
+            line-height: 1.2;
+            word-break: break-word;
+          }
+
+          .summary-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+
+          .summary-description {
+            font-size: 11px;
+            color: rgba(0, 0, 0, 0.6);
+            margin-top: 2px;
+            line-height: 1.3;
+            word-break: break-word;
+          }
+        }
+      }
+    }
+  }
+
   // Collapsible sections styles
   .collapsible-section {
     margin-bottom: var(--spacing-lg);
