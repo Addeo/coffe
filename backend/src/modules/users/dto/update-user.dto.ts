@@ -48,7 +48,7 @@ export class UpdateUserDto {
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0)
-  overtimeRate?: number;
+  overtimeCoefficient?: number;
 
   @IsOptional()
   @IsNumber()

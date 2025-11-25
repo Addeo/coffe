@@ -138,16 +138,16 @@ export interface UserDialogData {
               </mat-form-field>
 
               <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Ставка за переработку (₽/час)</mat-label>
+                <mat-label>Коэффициент переработки</mat-label>
                 <input
                   matInput
-                  formControlName="overtimeRate"
+                  formControlName="overtimeCoefficient"
                   type="number"
-                  step="0.01"
-                  placeholder="700"
+                  step="0.1"
+                  placeholder="1.6"
                 />
-                <mat-error *ngIf="userForm.get('overtimeRate')?.hasError('min')">
-                  Ставка за переработку должна быть положительной
+                <mat-error *ngIf="userForm.get('overtimeCoefficient')?.hasError('min')">
+                  Коэффициент должен быть положительным
                 </mat-error>
               </mat-form-field>
             </div>
@@ -569,7 +569,7 @@ export class UserDialogComponent {
     // Engineer-specific fields
     engineerType: [EngineerType.STAFF],
     baseRate: [700, [Validators.min(0)]],
-    overtimeRate: [700, [Validators.min(0)]],
+    overtimeCoefficient: [1.6, [Validators.min(0)]],
     planHoursMonth: [160, [Validators.min(1)]],
     homeTerritoryFixedAmount: [0, [Validators.min(0)]],
     engineerIsActive: [true],
@@ -593,7 +593,7 @@ export class UserDialogComponent {
         this.userForm.patchValue({
           engineerType: this.data.user.engineer.type,
           baseRate: this.data.user.engineer.baseRate,
-          overtimeRate: this.data.user.engineer.overtimeRate || 0,
+          overtimeCoefficient: this.data.user.engineer.overtimeCoefficient || 1.6,
           planHoursMonth: this.data.user.engineer.planHoursMonth,
           homeTerritoryFixedAmount: this.data.user.engineer.homeTerritoryFixedAmount,
           engineerIsActive: this.data.user.engineer.isActive,
@@ -636,7 +636,8 @@ export class UserDialogComponent {
       // Engineer-specific fields (only if role is USER)
       engineerType: formValue.role === UserRole.USER ? formValue.engineerType : undefined,
       baseRate: formValue.role === UserRole.USER ? formValue.baseRate : undefined,
-      overtimeRate: formValue.role === UserRole.USER ? formValue.overtimeRate : undefined,
+      overtimeCoefficient:
+        formValue.role === UserRole.USER ? formValue.overtimeCoefficient : undefined,
       planHoursMonth: formValue.role === UserRole.USER ? formValue.planHoursMonth : undefined,
       homeTerritoryFixedAmount:
         formValue.role === UserRole.USER ? formValue.homeTerritoryFixedAmount : undefined,
@@ -658,8 +659,8 @@ export class UserDialogComponent {
         // Show password in alert for better visibility
         alert(
           message +
-            '\n\n' +
-            `📝 Данные для входа:\nEmail: ${user.email}\nПароль: ${createdPassword}\n\n⚠️ Сохраните эти данные - пароль больше не будет показан!`
+          '\n\n' +
+          `📝 Данные для входа:\nEmail: ${user.email}\nПароль: ${createdPassword}\n\n⚠️ Сохраните эти данные - пароль больше не будет показан!`
         );
 
         this.toastService.success(message);
@@ -705,11 +706,11 @@ export class UserDialogComponent {
       }
 
       if (
-        formValue.overtimeRate !== null &&
-        formValue.overtimeRate !== undefined &&
-        formValue.overtimeRate !== ''
+        formValue.overtimeCoefficient !== null &&
+        formValue.overtimeCoefficient !== undefined &&
+        formValue.overtimeCoefficient !== ''
       ) {
-        userData.overtimeRate = Number(formValue.overtimeRate);
+        userData.overtimeCoefficient = Number(formValue.overtimeCoefficient);
       }
 
       if (
@@ -751,7 +752,7 @@ export class UserDialogComponent {
       this.userForm.patchValue({
         engineerType: EngineerType.STAFF,
         baseRate: 700,
-        overtimeRate: 700,
+        overtimeCoefficient: 1.6,
         planHoursMonth: 160,
         homeTerritoryFixedAmount: 0,
         engineerIsActive: true,

@@ -16,7 +16,7 @@ export interface CreateUserDto {
   // Engineer-specific fields
   engineerType?: EngineerType;
   baseRate?: number;
-  overtimeRate?: number;
+  overtimeCoefficient?: number;
   planHoursMonth?: number;
   homeTerritoryFixedAmount?: number;
   fixedSalary?: number;
@@ -33,7 +33,7 @@ export interface UpdateUserDto {
   // Engineer-specific fields
   engineerType?: EngineerType;
   baseRate?: number;
-  overtimeRate?: number;
+  overtimeCoefficient?: number;
   planHoursMonth?: number;
   homeTerritoryFixedAmount?: number;
   fixedSalary?: number;
@@ -62,11 +62,11 @@ export interface UserDto extends Omit<User, 'password'> {
   engineer?: EngineerDto;
 }
 
-export interface AuthLoginDto extends LoginRequest {}
+export interface AuthLoginDto extends LoginRequest { }
 
-export interface AuthLoginResponse extends LoginResponse {}
+export interface AuthLoginResponse extends LoginResponse { }
 
-export interface AuthUserDto extends AuthUser {}
+export interface AuthUserDto extends AuthUser { }
 
 export interface SwitchRoleDto {
   newRole: UserRole;

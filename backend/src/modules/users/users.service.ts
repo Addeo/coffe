@@ -40,7 +40,7 @@ export class UsersService {
     private orderRepository: Repository<Order>,
     @InjectRepository(Notification)
     private notificationRepository: Repository<Notification>
-  ) {}
+  ) { }
 
   async create(createUserDto: CreateUserDto, createdById: number): Promise<User> {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
@@ -62,9 +62,9 @@ export class UsersService {
         userId: savedUser.id,
         type: createUserDto.engineerType,
         baseRate: createUserDto.baseRate || 700, // Default base rate
-        overtimeRate:
-          createUserDto.overtimeRate ||
-          (createUserDto.engineerType === EngineerType.CONTRACT ? 1200 : 700), // Default overtime rate
+        overtimeCoefficient:
+          createUserDto.overtimeCoefficient ||
+          1.6, // Default overtime coefficient
         planHoursMonth: createUserDto.planHoursMonth || 160, // Default plan hours
         homeTerritoryFixedAmount: createUserDto.homeTerritoryFixedAmount || 0,
         isActive: true,
@@ -267,7 +267,7 @@ export class UsersService {
     const {
       engineerType,
       baseRate,
-      overtimeRate,
+      overtimeCoefficient,
       planHoursMonth,
       homeTerritoryFixedAmount,
       fixedSalary,
@@ -289,7 +289,7 @@ export class UsersService {
     const hasEngineerData =
       updateUserDto.engineerType ||
       updateUserDto.baseRate !== undefined ||
-      updateUserDto.overtimeRate !== undefined ||
+      updateUserDto.overtimeCoefficient !== undefined ||
       updateUserDto.planHoursMonth !== undefined ||
       updateUserDto.homeTerritoryFixedAmount !== undefined ||
       updateUserDto.fixedSalary !== undefined ||
@@ -307,8 +307,8 @@ export class UsersService {
         await this.engineerRepository.update(engineer.id, {
           ...(updateUserDto.engineerType && { type: updateUserDto.engineerType }),
           ...(updateUserDto.baseRate !== undefined && { baseRate: updateUserDto.baseRate }),
-          ...(updateUserDto.overtimeRate !== undefined && {
-            overtimeRate: updateUserDto.overtimeRate,
+          ...(updateUserDto.overtimeCoefficient !== undefined && {
+            overtimeCoefficient: updateUserDto.overtimeCoefficient,
           }),
           ...(updateUserDto.planHoursMonth !== undefined && {
             planHoursMonth: updateUserDto.planHoursMonth,
@@ -332,8 +332,8 @@ export class UsersService {
           userId: id,
           ...(updateUserDto.engineerType && { type: updateUserDto.engineerType }),
           ...(updateUserDto.baseRate !== undefined && { baseRate: updateUserDto.baseRate }),
-          ...(updateUserDto.overtimeRate !== undefined && {
-            overtimeRate: updateUserDto.overtimeRate,
+          ...(updateUserDto.overtimeCoefficient !== undefined && {
+            overtimeCoefficient: updateUserDto.overtimeCoefficient,
           }),
           ...(updateUserDto.planHoursMonth !== undefined && {
             planHoursMonth: updateUserDto.planHoursMonth,

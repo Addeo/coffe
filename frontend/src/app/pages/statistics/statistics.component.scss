@@ -4,7 +4,8 @@
   margin: 0 auto;
 
   // Manager summary card (same style as orders-overview-card)
-  .manager-summary-card {
+  .manager-summary-card,
+  .orders-overview-card {
     margin-bottom: 24px;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -38,7 +39,8 @@
       padding: 24px;
     }
 
-    .manager-summary-grid {
+    .manager-summary-grid,
+    .orders-overview-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
@@ -57,6 +59,7 @@
         border-radius: 12px;
         transition: all 0.3s ease;
         border: 2px solid transparent;
+        cursor: pointer;
 
         &:hover {
           transform: translateY(-2px);
@@ -72,6 +75,18 @@
         }
 
         &.accent {
+          background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+        }
+
+        &.warning {
+          background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        }
+
+        &.success {
+          background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        }
+
+        &.review {
           background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
         }
 

@@ -33,7 +33,7 @@ export class StatisticsService {
     private engineerRepository: Repository<Engineer>,
     @InjectRepository(WorkSession)
     private workSessionRepository: Repository<WorkSession>
-  ) {}
+  ) { }
 
   async getUserEarningsStatistics(
     userId: number,
@@ -298,12 +298,12 @@ export class StatisticsService {
       previousMonth:
         prevSessions.length > 0
           ? {
-              totalEarnings: prevTotalEarnings,
-              completedOrders: prevUniqueOrders.size,
-              totalHours: prevTotalHours,
-              month: previousMonth,
-              year: previousYear,
-            }
+            totalEarnings: prevTotalEarnings,
+            completedOrders: prevUniqueOrders.size,
+            totalHours: prevTotalHours,
+            month: previousMonth,
+            year: previousYear,
+          }
           : null,
       growth,
     };
@@ -569,30 +569,35 @@ export class StatisticsService {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
-    // ВАЖНО: Статистика теперь считается ТОЛЬКО из WorkSession (по workDate!)
-    const engineerStats = await this.workSessionRepository
-      .createQueryBuilder('session')
+    // ВАЖНО: Начинаем с Engineer, чтобы включить ВСЕХ инженеров, даже без сессий
+    const engineerStats = await this.engineerRepository
+      .createQueryBuilder('engineer')
       .select('engineer.userId', 'engineerId')
       .addSelect('user.firstName', 'firstName')
       .addSelect('user.lastName', 'lastName')
       .addSelect('user.email', 'email')
+      .addSelect('engineer.planHoursMonth', 'planHoursMonth')
       .addSelect('COUNT(DISTINCT session.orderId)', 'completedOrders')
-      .addSelect('SUM(session.regularHours)', 'regularHours')
-      .addSelect('SUM(session.overtimeHours)', 'overtimeHours')
-      .addSelect('SUM(session.calculatedAmount)', 'engineerEarnings')
-      .addSelect('SUM(session.organizationPayment)', 'organizationPayments')
-      .addSelect('SUM(session.carUsageAmount)', 'carUsageAmount')
-      .addSelect('AVG(session.engineerOvertimeCoefficient)', 'avgOvertimeCoefficient')
-      .leftJoin('session.engineer', 'engineer')
-      .leftJoin('engineer.user', 'user')
-      .where('session.workDate >= :startDate', { startDate })
-      .andWhere('session.workDate < :endDate', { endDate })
-      .andWhere('session.status = :status', { status: 'completed' })
-      .andWhere('user.role = :role', { role: UserRole.USER })
+      .addSelect('COALESCE(SUM(session.regularHours), 0)', 'regularHours')
+      .addSelect('COALESCE(SUM(session.overtimeHours), 0)', 'overtimeHours')
+      .addSelect('COALESCE(SUM(session.calculatedAmount), 0)', 'engineerEarnings')
+      .addSelect('COALESCE(SUM(session.organizationPayment), 0)', 'organizationPayments')
+      .addSelect('COALESCE(SUM(session.carUsageAmount), 0)', 'carUsageAmount')
+      .addSelect('COALESCE(AVG(session.engineerOvertimeCoefficient), 1.6)', 'avgOvertimeCoefficient')
+      .innerJoin('engineer.user', 'user')
+      .leftJoin(
+        'work_sessions',
+        'session',
+        'session.engineerId = engineer.id AND session.workDate >= :startDate AND session.workDate < :endDate AND session.status = :status',
+        { startDate, endDate, status: 'completed' }
+      )
+      .where('user.role = :role', { role: UserRole.USER })
+      .andWhere('engineer.isActive = :isActive', { isActive: true })
       .groupBy('engineer.userId')
       .addGroupBy('user.firstName')
       .addGroupBy('user.lastName')
       .addGroupBy('user.email')
+      .addGroupBy('engineer.planHoursMonth')
       .orderBy('engineerEarnings', 'DESC')
       .getRawMany();
 
@@ -621,6 +626,7 @@ export class StatisticsService {
         engineerId: stat.engineerId,
         engineerName: `${stat.firstName || ''} ${stat.lastName || ''}`.trim() || 'Unknown',
         email: stat.email,
+        planHoursMonth: Number(stat.planHoursMonth) || 160,
         completedOrders: Number(stat.completedOrders) || 0,
         totalHours: totalHours, // Используем расчет с коэффициентом
         engineerEarnings: engineerEarnings, // Оплата за работу (без машины)
