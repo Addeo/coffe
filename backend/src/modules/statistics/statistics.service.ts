@@ -33,7 +33,7 @@ export class StatisticsService {
     private engineerRepository: Repository<Engineer>,
     @InjectRepository(WorkSession)
     private workSessionRepository: Repository<WorkSession>
-  ) { }
+  ) {}
 
   async getUserEarningsStatistics(
     userId: number,
@@ -298,12 +298,12 @@ export class StatisticsService {
       previousMonth:
         prevSessions.length > 0
           ? {
-            totalEarnings: prevTotalEarnings,
-            completedOrders: prevUniqueOrders.size,
-            totalHours: prevTotalHours,
-            month: previousMonth,
-            year: previousYear,
-          }
+              totalEarnings: prevTotalEarnings,
+              completedOrders: prevUniqueOrders.size,
+              totalHours: prevTotalHours,
+              month: previousMonth,
+              year: previousYear,
+            }
           : null,
       growth,
     };
@@ -583,7 +583,10 @@ export class StatisticsService {
       .addSelect('COALESCE(SUM(session.calculatedAmount), 0)', 'engineerEarnings')
       .addSelect('COALESCE(SUM(session.organizationPayment), 0)', 'organizationPayments')
       .addSelect('COALESCE(SUM(session.carUsageAmount), 0)', 'carUsageAmount')
-      .addSelect('COALESCE(AVG(session.engineerOvertimeCoefficient), 1.6)', 'avgOvertimeCoefficient')
+      .addSelect(
+        'COALESCE(AVG(session.engineerOvertimeCoefficient), 1.6)',
+        'avgOvertimeCoefficient'
+      )
       .innerJoin('engineer.user', 'user')
       .leftJoin(
         'work_sessions',

@@ -921,7 +921,6 @@
         }
 
         &.active .summary-content {
-
           .summary-value,
           .summary-label {
             color: white;
@@ -1668,9 +1667,11 @@
 
           &:hover {
             border-color: #667eea;
-            background: linear-gradient(135deg,
-                rgba(102, 126, 234, 0.05) 0%,
-                rgba(118, 75, 162, 0.05) 100%);
+            background: linear-gradient(
+              135deg,
+              rgba(102, 126, 234, 0.05) 0%,
+              rgba(118, 75, 162, 0.05) 100%
+            );
           }
         }
 
@@ -1688,9 +1689,11 @@
 
           &:hover {
             border-color: #4caf50;
-            background: linear-gradient(135deg,
-                rgba(76, 175, 80, 0.05) 0%,
-                rgba(56, 142, 60, 0.05) 100%);
+            background: linear-gradient(
+              135deg,
+              rgba(76, 175, 80, 0.05) 0%,
+              rgba(56, 142, 60, 0.05) 100%
+            );
           }
         }
 
@@ -1708,9 +1711,11 @@
 
           &:hover {
             border-color: #ff9800;
-            background: linear-gradient(135deg,
-                rgba(255, 152, 0, 0.05) 0%,
-                rgba(245, 124, 0, 0.05) 100%);
+            background: linear-gradient(
+              135deg,
+              rgba(255, 152, 0, 0.05) 0%,
+              rgba(245, 124, 0, 0.05) 100%
+            );
           }
         }
 
@@ -1728,9 +1733,11 @@
 
           &:hover {
             border-color: #2196f3;
-            background: linear-gradient(135deg,
-                rgba(33, 150, 243, 0.05) 0%,
-                rgba(25, 118, 210, 0.05) 100%);
+            background: linear-gradient(
+              135deg,
+              rgba(33, 150, 243, 0.05) 0%,
+              rgba(25, 118, 210, 0.05) 100%
+            );
           }
         }
       }

@@ -320,7 +320,12 @@ import {
               <p>Настройка индивидуальных ставок инженера по организациям.</p>
               <p>
                 <strong>Базовые:</strong> {{ getUser()?.engineer?.baseRate }} ₽/ч,
-                <strong>Коэффициент переработки:</strong> {{ getUser()?.engineer?.overtimeCoefficient || getUser()?.engineer?.overtimeRate || 1.6 }}
+                <strong>Коэффициент переработки:</strong>
+                {{
+                  getUser()?.engineer?.overtimeCoefficient ||
+                    getUser()?.engineer?.overtimeRate ||
+                    1.6
+                }}
               </p>
             </div>
 

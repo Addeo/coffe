@@ -40,7 +40,7 @@ export class UsersService {
     private orderRepository: Repository<Order>,
     @InjectRepository(Notification)
     private notificationRepository: Repository<Notification>
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto, createdById: number): Promise<User> {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
@@ -62,9 +62,7 @@ export class UsersService {
         userId: savedUser.id,
         type: createUserDto.engineerType,
         baseRate: createUserDto.baseRate || 700, // Default base rate
-        overtimeCoefficient:
-          createUserDto.overtimeCoefficient ||
-          1.6, // Default overtime coefficient
+        overtimeCoefficient: createUserDto.overtimeCoefficient || 1.6, // Default overtime coefficient
         planHoursMonth: createUserDto.planHoursMonth || 160, // Default plan hours
         homeTerritoryFixedAmount: createUserDto.homeTerritoryFixedAmount || 0,
         isActive: true,

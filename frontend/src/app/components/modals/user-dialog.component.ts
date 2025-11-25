@@ -658,8 +658,8 @@ export class UserDialogComponent {
         // Show password in alert for better visibility
         alert(
           message +
-          '\n\n' +
-          `📝 Данные для входа:\nEmail: ${user.email}\nПароль: ${createdPassword}\n\n⚠️ Сохраните эти данные - пароль больше не будет показан!`
+            '\n\n' +
+            `📝 Данные для входа:\nEmail: ${user.email}\nПароль: ${createdPassword}\n\n⚠️ Сохраните эти данные - пароль больше не будет показан!`
         );
 
         this.toastService.success(message);

@@ -62,11 +62,11 @@ export interface UserDto extends Omit<User, 'password'> {
   engineer?: EngineerDto;
 }
 
-export interface AuthLoginDto extends LoginRequest { }
+export interface AuthLoginDto extends LoginRequest {}
 
-export interface AuthLoginResponse extends LoginResponse { }
+export interface AuthLoginResponse extends LoginResponse {}
 
-export interface AuthUserDto extends AuthUser { }
+export interface AuthUserDto extends AuthUser {}
 
 export interface SwitchRoleDto {
   newRole: UserRole;
