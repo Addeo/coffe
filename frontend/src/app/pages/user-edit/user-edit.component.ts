@@ -152,16 +152,16 @@ import {
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" class="form-field">
-                    <mat-label>Ставка за переработку (₽/час)</mat-label>
+                    <mat-label>Коэффициент переработки</mat-label>
                     <input
                       matInput
                       formControlName="overtimeRate"
                       type="number"
-                      step="0.01"
-                      placeholder="700"
+                      step="0.1"
+                      placeholder="1.6"
                     />
                     <mat-error *ngIf="userForm.get('overtimeRate')?.hasError('min')">
-                      Ставка за переработку должна быть положительной
+                      Коэффициент должен быть положительным
                     </mat-error>
                   </mat-form-field>
                 </div>
@@ -320,7 +320,7 @@ import {
               <p>Настройка индивидуальных ставок инженера по организациям.</p>
               <p>
                 <strong>Базовые:</strong> {{ getUser()?.engineer?.baseRate }} ₽/ч,
-                <strong>Переработка:</strong> {{ getUser()?.engineer?.overtimeRate }} ₽/ч
+                <strong>Коэффициент переработки:</strong> {{ getUser()?.engineer?.overtimeCoefficient || getUser()?.engineer?.overtimeRate || 1.6 }}
               </p>
             </div>
 
@@ -710,7 +710,7 @@ export class UserEditComponent implements OnInit {
     // Engineer-specific fields
     engineerType: [EngineerType.STAFF],
     baseRate: [700, [Validators.min(0)]],
-    overtimeRate: [700, [Validators.min(0)]],
+    overtimeRate: [1.6, [Validators.min(0)]],
     planHoursMonth: [160, [Validators.min(1)]],
     homeTerritoryFixedAmount: [0, [Validators.min(0)]],
     engineerIsActive: [true],
@@ -746,7 +746,7 @@ export class UserEditComponent implements OnInit {
           this.userForm.patchValue({
             engineerType: user.engineer.type,
             baseRate: user.engineer.baseRate,
-            overtimeRate: user.engineer.overtimeRate || 0,
+            overtimeRate: user.engineer.overtimeCoefficient || user.engineer.overtimeRate || 1.6,
             planHoursMonth: user.engineer.planHoursMonth,
             homeTerritoryFixedAmount: user.engineer.homeTerritoryFixedAmount,
             engineerIsActive: user.engineer.isActive,
@@ -809,7 +809,7 @@ export class UserEditComponent implements OnInit {
       this.userForm.patchValue({
         engineerType: EngineerType.STAFF,
         baseRate: 700,
-        overtimeRate: 700,
+        overtimeRate: 1.6,
         planHoursMonth: 160,
         homeTerritoryFixedAmount: 0,
         engineerIsActive: true,
@@ -829,7 +829,7 @@ export class UserEditComponent implements OnInit {
         // Штатный инженер - базовая ставка 700 руб/час
         this.userForm.patchValue({
           baseRate: 700,
-          overtimeRate: 700,
+          overtimeRate: 1.6,
           planHoursMonth: 160, // Только для штатного инженера
           homeTerritoryFixedAmount: 0, // Только для штатного инженера
         });
@@ -843,7 +843,7 @@ export class UserEditComponent implements OnInit {
         // Наемный инженер - базовая ставка 700 руб/час, фиксированная ставка переработки 1200-1400 руб/час
         this.userForm.patchValue({
           baseRate: 700,
-          overtimeRate: 1200,
+          overtimeRate: 1.6,
           planHoursMonth: null, // Не применимо
           homeTerritoryFixedAmount: null, // Не применимо
         });
