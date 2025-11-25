@@ -881,7 +881,7 @@ export class UserEditComponent implements OnInit {
       // Engineer-specific fields (only if role is USER)
       engineerType: formValue.role === UserRole.USER ? formValue.engineerType : undefined,
       baseRate: formValue.role === UserRole.USER ? formValue.baseRate : undefined,
-      overtimeRate: formValue.role === UserRole.USER ? formValue.overtimeRate : undefined,
+      overtimeCoefficient: formValue.role === UserRole.USER ? formValue.overtimeRate : undefined,
       planHoursMonth: formValue.role === UserRole.USER ? formValue.planHoursMonth : undefined,
       homeTerritoryFixedAmount:
         formValue.role === UserRole.USER ? formValue.homeTerritoryFixedAmount : undefined,
@@ -926,7 +926,7 @@ export class UserEditComponent implements OnInit {
     if (formValue.role === UserRole.USER) {
       userData.engineerType = formValue.engineerType;
       userData.baseRate = formValue.baseRate;
-      userData.overtimeRate = formValue.overtimeRate;
+      userData.overtimeCoefficient = formValue.overtimeRate;
       userData.planHoursMonth = formValue.planHoursMonth;
       userData.homeTerritoryFixedAmount = formValue.homeTerritoryFixedAmount;
       userData.engineerIsActive = formValue.engineerIsActive;

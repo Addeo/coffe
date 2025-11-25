@@ -232,7 +232,6 @@ export interface OrganizationDialogData {
       @media (max-width: 600px) {
         .organization-dialog {
           min-width: 95vw;
-          margin: 16px;
         }
 
         .form-row {

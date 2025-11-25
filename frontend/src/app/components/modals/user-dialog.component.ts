@@ -365,7 +365,6 @@ export interface UserDialogData {
       @media (max-width: 600px) {
         .user-dialog {
           min-width: 95vw;
-          margin: 16px;
         }
 
         .form-row {

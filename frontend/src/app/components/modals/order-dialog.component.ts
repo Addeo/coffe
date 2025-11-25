@@ -672,7 +672,6 @@ export interface OrderDialogData {
       @media (max-width: 600px) {
         .order-dialog {
           min-width: 95vw;
-          margin: 16px;
         }
 
         .form-row {

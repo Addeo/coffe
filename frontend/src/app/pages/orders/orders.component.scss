@@ -921,6 +921,7 @@
         }
 
         &.active .summary-content {
+
           .summary-value,
           .summary-label {
             color: white;
@@ -1379,19 +1380,23 @@
         .mat-mdc-paginator {
           background: transparent;
         }
+
         .mat-mdc-paginator-container {
           justify-content: center;
           padding: 0 16px;
           min-height: 48px;
         }
+
         .mat-mdc-paginator-page-size {
           display: none !important;
         }
+
         .mat-mdc-paginator-range-actions {
           display: flex;
           align-items: center;
           gap: 8px;
         }
+
         .mat-mdc-paginator-range-label {
           font-size: 14px;
           margin: 0 16px;
@@ -1409,18 +1414,22 @@
           .mat-mdc-form-field-subscript-wrapper {
             display: none;
           }
+
           .mat-mdc-text-field-wrapper {
             background: white;
             border-radius: 12px;
             border: 2px solid rgba(0, 0, 0, 0.1);
             transition: all 0.3s;
           }
+
           .mat-mdc-text-field-wrapper:hover {
             border-color: rgba(102, 126, 234, 0.4);
           }
+
           .mat-mdc-form-field-focus-overlay {
             background: rgba(102, 126, 234, 0.05);
           }
+
           .mat-focused .mat-mdc-text-field-wrapper {
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -1431,10 +1440,12 @@
           font-size: 15px;
           padding: 12px 16px;
         }
+
         mat-label {
           font-weight: 500;
           color: rgba(0, 0, 0, 0.6);
         }
+
         mat-icon {
           color: rgba(0, 0, 0, 0.4);
         }
@@ -1657,11 +1668,9 @@
 
           &:hover {
             border-color: #667eea;
-            background: linear-gradient(
-              135deg,
-              rgba(102, 126, 234, 0.05) 0%,
-              rgba(118, 75, 162, 0.05) 100%
-            );
+            background: linear-gradient(135deg,
+                rgba(102, 126, 234, 0.05) 0%,
+                rgba(118, 75, 162, 0.05) 100%);
           }
         }
 
@@ -1679,11 +1688,9 @@
 
           &:hover {
             border-color: #4caf50;
-            background: linear-gradient(
-              135deg,
-              rgba(76, 175, 80, 0.05) 0%,
-              rgba(56, 142, 60, 0.05) 100%
-            );
+            background: linear-gradient(135deg,
+                rgba(76, 175, 80, 0.05) 0%,
+                rgba(56, 142, 60, 0.05) 100%);
           }
         }
 
@@ -1701,11 +1708,9 @@
 
           &:hover {
             border-color: #ff9800;
-            background: linear-gradient(
-              135deg,
-              rgba(255, 152, 0, 0.05) 0%,
-              rgba(245, 124, 0, 0.05) 100%
-            );
+            background: linear-gradient(135deg,
+                rgba(255, 152, 0, 0.05) 0%,
+                rgba(245, 124, 0, 0.05) 100%);
           }
         }
 
@@ -1723,11 +1728,9 @@
 
           &:hover {
             border-color: #2196f3;
-            background: linear-gradient(
-              135deg,
-              rgba(33, 150, 243, 0.05) 0%,
-              rgba(25, 118, 210, 0.05) 100%
-            );
+            background: linear-gradient(135deg,
+                rgba(33, 150, 243, 0.05) 0%,
+                rgba(25, 118, 210, 0.05) 100%);
           }
         }
       }
@@ -2035,15 +2038,18 @@
 
     .order-card-actions {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
       padding-top: 12px;
       border-top: 1px solid rgba(0, 0, 0, 0.08);
 
       button {
-        flex: 1;
+        flex: 0 1 auto;
+        min-width: fit-content;
         border-radius: 8px;
         font-size: 13px;
         font-weight: 500;
+        white-space: nowrap;
       }
     }
   }
@@ -2325,6 +2331,7 @@
               opacity: 0;
               transform: translateY(-10px);
             }
+
             to {
               opacity: 1;
               transform: translateY(0);

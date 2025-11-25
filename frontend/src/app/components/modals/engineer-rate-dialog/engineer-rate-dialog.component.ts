@@ -451,7 +451,6 @@ export interface EngineerRateDialogData {
       @media (max-width: 768px) {
         .engineer-rate-dialog {
           min-width: 95vw;
-          margin: 16px;
         }
 
         .form-row {

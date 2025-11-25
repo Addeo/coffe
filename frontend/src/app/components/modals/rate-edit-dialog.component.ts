@@ -146,7 +146,6 @@ export interface RateEditDialogData {
       @media (max-width: 600px) {
         .rate-edit-dialog {
           min-width: 95vw;
-          margin: 16px;
         }
 
         .rate-form {

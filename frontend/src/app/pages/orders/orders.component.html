@@ -1068,8 +1068,7 @@
             </button>
 
             <!-- Admin/Manager Actions -->
-            <button mat-button color="primary" (click)="onEditOrder(order)"
-              *ngIf="canEditOrder(order) || canEditCompletedOrder(order)">
+            <button mat-button color="primary" (click)="onEditOrder(order)">
               <mat-icon>edit</mat-icon>
               Редактировать
             </button>

@@ -232,7 +232,6 @@ export interface AssignEngineerDialogData {
       @media (max-width: 600px) {
         .assign-engineer-dialog {
           min-width: 95vw;
-          margin: 16px;
         }
 
         mat-dialog-content {

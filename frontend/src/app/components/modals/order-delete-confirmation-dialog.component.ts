@@ -188,7 +188,7 @@ export interface OrderDeleteConfirmationData {
       /* Responsive design */
       @media (max-width: 600px) {
         .delete-dialog {
-          margin: 16px;
+          min-width: 95vw;
           max-width: calc(100vw - 32px);
         }
 
