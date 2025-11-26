@@ -31,6 +31,7 @@ import {
   OrderEngineerAssignment,
   AssignmentStatus,
 } from '../../entities/order-engineer-assignment.entity';
+import { WorkSession, WorkSessionStatus } from '../../entities/work-session.entity';
 
 // Extended OrdersQueryDto with additional filters
 interface ExtendedOrdersQueryDto extends OrdersQueryDto {
@@ -78,8 +79,10 @@ export class OrdersService {
     private readonly assignmentRepository: Repository<OrderEngineerAssignment>,
     private readonly notificationsService: NotificationsService,
     private readonly statisticsService: StatisticsService,
-    private readonly calculationService: CalculationService
-  ) {}
+    private readonly calculationService: CalculationService,
+    @InjectRepository(WorkSession)
+    private readonly workSessionRepository: Repository<WorkSession>
+  ) { }
 
   async create(createOrderDto: CreateOrderDto, userId: number): Promise<Order> {
     console.log('🔨 [OrdersService] Starting order creation:', {
@@ -686,18 +689,18 @@ export class OrdersService {
       engineerFound: !!engineer,
       engineerData: engineer
         ? {
-            id: engineer.id,
-            userId: engineer.userId,
-            isActive: engineer.isActive,
-            hasUser: !!engineer.user,
-            user: engineer.user
-              ? {
-                  id: engineer.user.id,
-                  email: engineer.user.email,
-                  isActive: engineer.user.isActive,
-                }
-              : null,
-          }
+          id: engineer.id,
+          userId: engineer.userId,
+          isActive: engineer.isActive,
+          hasUser: !!engineer.user,
+          user: engineer.user
+            ? {
+              id: engineer.user.id,
+              email: engineer.user.email,
+              isActive: engineer.user.isActive,
+            }
+            : null,
+        }
         : null,
     });
 
@@ -1574,7 +1577,6 @@ export class OrdersService {
     }
 
     const savedOrder = await this.ordersRepository.save(order);
-
     console.log('✅ Work data saved with rates:', {
       regularHours: order.regularHours,
       overtimeHours: order.overtimeHours,
@@ -1584,6 +1586,53 @@ export class OrdersService {
       status: order.status,
       isFullyCompleted: workData.isFullyCompleted,
     });
+
+    // ⭐ Create WorkSession for statistics
+    try {
+      console.log('🏗️ Creating WorkSession for statistics...');
+      const workSession = this.workSessionRepository.create({
+        orderId: order.id,
+        engineerId: engineer.id,
+        workDate: order.actualStartDate || new Date(), // Use actual start date or now
+        regularHours: workData.regularHours,
+        overtimeHours: workData.overtimeHours,
+        calculatedAmount: totalPayment,
+        carUsageAmount: workData.carPayment,
+
+        // Rates
+        engineerBaseRate: rates.baseRate,
+        engineerOvertimeCoefficient: rates.overtimeCoefficient || 1.6,
+        engineerOvertimeRate: rates.overtimeRate || rates.baseRate, // Legacy
+
+        // Organization payments
+        organizationPayment: organizationPayment,
+        organizationBaseRate: order.organization.baseRate,
+        organizationOvertimeCoefficient: order.organization.overtimeMultiplier || 1.5, // Map multiplier to coefficient
+        organizationOvertimeMultiplier: order.organization.overtimeMultiplier, // Legacy
+
+        // Payment breakdown
+        regularPayment: regularPayment,
+        overtimePayment: overtimePayment,
+        organizationRegularPayment: organizationRegularPayment,
+        organizationOvertimePayment: organizationOvertimePayment,
+
+        profit: currentProfit,
+
+        // Details
+        distanceKm: workData.distanceKm,
+        territoryType: workData.territoryType,
+        notes: workData.notes,
+
+        status: WorkSessionStatus.COMPLETED,
+        canBeInvoiced: true
+      });
+
+      await this.workSessionRepository.save(workSession);
+      console.log('✅ WorkSession created successfully');
+    } catch (error) {
+      console.error('❌ Failed to create WorkSession:', error);
+      // Don't fail the request if statistics creation fails, but log it
+    }
 
     // Log activity
     const activityDescription = workData.isFullyCompleted
