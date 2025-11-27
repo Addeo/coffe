@@ -128,9 +128,13 @@
           Обзор заявок
         </mat-card-title>
         <div class="header-actions-right">
-          <button mat-icon-button (click)="toggleSummaryCards()"
-            matTooltip="{{ summaryCardsCollapsed() ? 'Развернуть' : 'Свернуть' }}" class="collapse-toggle-btn"
-            [attr.aria-label]="summaryCardsCollapsed() ? 'Развернуть' : 'Свернуть'">
+          <button
+            mat-icon-button
+            (click)="toggleSummaryCards()"
+            matTooltip="{{ summaryCardsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+            class="collapse-toggle-btn"
+            [attr.aria-label]="summaryCardsCollapsed() ? 'Развернуть' : 'Свернуть'"
+          >
             <mat-icon>{{ summaryCardsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
           </button>
         </div>
@@ -138,9 +142,15 @@
 
       <mat-card-content [class.collapsed]="summaryCardsCollapsed()">
         <div class="orders-overview-grid">
-          <div class="summary-item warning" role="button" tabindex="0" aria-label="Показать ожидающие заявки"
-            (click)="navigateToOrders('waiting')" (keydown.enter)="navigateToOrders('waiting')"
-            (keydown.space)="navigateToOrders('waiting'); $event.preventDefault()">
+          <div
+            class="summary-item warning"
+            role="button"
+            tabindex="0"
+            aria-label="Показать ожидающие заявки"
+            (click)="navigateToOrders('waiting')"
+            (keydown.enter)="navigateToOrders('waiting')"
+            (keydown.space)="navigateToOrders('waiting'); $event.preventDefault()"
+          >
             <div class="summary-icon">
               <mat-icon>schedule</mat-icon>
             </div>
@@ -150,9 +160,15 @@
             </div>
           </div>
 
-          <div class="summary-item info" role="button" tabindex="0" aria-label="Показать заявки в обработке"
-            (click)="navigateToOrders('processing')" (keydown.enter)="navigateToOrders('processing')"
-            (keydown.space)="navigateToOrders('processing'); $event.preventDefault()">
+          <div
+            class="summary-item info"
+            role="button"
+            tabindex="0"
+            aria-label="Показать заявки в обработке"
+            (click)="navigateToOrders('processing')"
+            (keydown.enter)="navigateToOrders('processing')"
+            (keydown.space)="navigateToOrders('processing'); $event.preventDefault()"
+          >
             <div class="summary-icon">
               <mat-icon>person_add</mat-icon>
             </div>
@@ -162,9 +178,15 @@
             </div>
           </div>
 
-          <div class="summary-item accent" role="button" tabindex="0" aria-label="Показать заявки в работе"
-            (click)="navigateToOrders('working')" (keydown.enter)="navigateToOrders('working')"
-            (keydown.space)="navigateToOrders('working'); $event.preventDefault()">
+          <div
+            class="summary-item accent"
+            role="button"
+            tabindex="0"
+            aria-label="Показать заявки в работе"
+            (click)="navigateToOrders('working')"
+            (keydown.enter)="navigateToOrders('working')"
+            (keydown.space)="navigateToOrders('working'); $event.preventDefault()"
+          >
             <div class="summary-icon">
               <mat-icon>build</mat-icon>
             </div>
@@ -174,9 +196,15 @@
             </div>
           </div>
 
-          <div class="summary-item review" role="button" tabindex="0" aria-label="Показать заявки на проверке"
-            (click)="navigateToOrders('review')" (keydown.enter)="navigateToOrders('review')"
-            (keydown.space)="navigateToOrders('review'); $event.preventDefault()">
+          <div
+            class="summary-item review"
+            role="button"
+            tabindex="0"
+            aria-label="Показать заявки на проверке"
+            (click)="navigateToOrders('review')"
+            (keydown.enter)="navigateToOrders('review')"
+            (keydown.space)="navigateToOrders('review'); $event.preventDefault()"
+          >
             <div class="summary-icon">
               <mat-icon>visibility</mat-icon>
             </div>
@@ -186,9 +214,15 @@
             </div>
           </div>
 
-          <div class="summary-item success" role="button" tabindex="0" aria-label="Показать завершённые заявки"
-            (click)="navigateToOrders('completed')" (keydown.enter)="navigateToOrders('completed')"
-            (keydown.space)="navigateToOrders('completed'); $event.preventDefault()">
+          <div
+            class="summary-item success"
+            role="button"
+            tabindex="0"
+            aria-label="Показать завершённые заявки"
+            (click)="navigateToOrders('completed')"
+            (keydown.enter)="navigateToOrders('completed')"
+            (keydown.space)="navigateToOrders('completed'); $event.preventDefault()"
+          >
             <div class="summary-icon">
               <mat-icon>check_circle</mat-icon>
             </div>
@@ -423,8 +457,12 @@
           </mat-card-subtitle>
         </div>
         <div class="header-actions-right">
-          <button mat-icon-button matTooltip="{{ engineersStatsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-            class="collapse-toggle-btn" (click)="toggleEngineersStats(); $event.stopPropagation()">
+          <button
+            mat-icon-button
+            matTooltip="{{ engineersStatsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+            class="collapse-toggle-btn"
+            (click)="toggleEngineersStats(); $event.stopPropagation()"
+          >
             <mat-icon>{{ engineersStatsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
           </button>
         </div>
@@ -439,16 +477,23 @@
               Детализация по инженерам
             </h3>
             <div class="engineers-progress-list">
-              <app-hours-progress-item *ngFor="let engineer of stats.engineers" [workedHours]="engineer.totalHours"
-                [planHours]="engineer.planHours" [label]="engineer.engineerName + ':'" icon="person" [showSlider]="true"
-                iconColor="primary" [statistics]="{
+              <app-hours-progress-item
+                *ngFor="let engineer of stats.engineers"
+                [workedHours]="engineer.totalHours"
+                [planHours]="engineer.planHours"
+                [label]="engineer.engineerName + ':'"
+                icon="person"
+                [showSlider]="true"
+                iconColor="primary"
+                [statistics]="{
                   regularHours: engineer.regularHours,
                   overtimeHours: engineer.overtimeHours,
                   completedOrders: engineer.completedOrders,
                   averageHoursPerOrder: engineer.averageHoursPerOrder,
                   earnedAmount: engineer.earnedAmount,
                   carPayments: engineer.carPayments,
-                }"></app-hours-progress-item>
+                }"
+              ></app-hours-progress-item>
             </div>
           </div>
 
@@ -480,8 +525,12 @@
               </mat-button-toggle>
             </mat-button-toggle-group>
           </div>
-          <button mat-icon-button matTooltip="{{ statisticsTabsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-            class="collapse-toggle-btn" (click)="toggleStatisticsTabs(); $event.stopPropagation()">
+          <button
+            mat-icon-button
+            matTooltip="{{ statisticsTabsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+            class="collapse-toggle-btn"
+            (click)="toggleStatisticsTabs(); $event.stopPropagation()"
+          >
             <mat-icon>{{ statisticsTabsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
           </button>
         </div>
@@ -493,8 +542,10 @@
             <div class="tab-content">
               <mat-card>
                 <mat-card-header>
-                  <mat-card-title>Личная статистика за {{ statistics()?.monthName }}
-                    {{ statistics()?.year }}</mat-card-title>
+                  <mat-card-title
+                    >Личная статистика за {{ statistics()?.monthName }}
+                    {{ statistics()?.year }}</mat-card-title
+                  >
                 </mat-card-header>
                 <mat-card-content>
                   <div class="engineer-personal-stats">
@@ -554,35 +605,53 @@
             <div class="tab-content">
               <mat-card>
                 <mat-card-header>
-                  <mat-card-title>Доходы инженеров за {{ statistics()?.monthName }}
-                    {{ statistics()?.year }}</mat-card-title>
+                  <mat-card-title
+                    >Доходы инженеров за {{ statistics()?.monthName }}
+                    {{ statistics()?.year }}</mat-card-title
+                  >
                 </mat-card-header>
                 <mat-card-content>
-                  <div *ngIf="!statistics()?.agentEarnings || statistics()!.agentEarnings.length === 0"
-                    class="empty-state">
+                  <div
+                    *ngIf="!statistics()?.agentEarnings || statistics()!.agentEarnings.length === 0"
+                    class="empty-state"
+                  >
                     <mat-icon>info_outline</mat-icon>
                     <p>Нет данных за выбранный период</p>
                   </div>
 
                   <!-- Chart View -->
-                  <div *ngIf="
+                  <div
+                    *ngIf="
                       viewMode === 'charts' &&
                       statistics()?.agentEarnings &&
                       statistics()!.agentEarnings.length > 0
-                    " class="chart-container">
+                    "
+                    class="chart-container"
+                  >
                     <div class="chart-wrapper-large">
-                      <canvas baseChart [data]="agentEarningsChartData" [options]="barChartOptions"
-                        [type]="'bar'"></canvas>
+                      <canvas
+                        baseChart
+                        [data]="agentEarningsChartData"
+                        [options]="barChartOptions"
+                        [type]="'bar'"
+                      ></canvas>
                     </div>
                   </div>
 
                   <!-- Table View -->
-                  <div *ngIf="
+                  <div
+                    *ngIf="
                       viewMode === 'tables' &&
                       statistics()?.agentEarnings &&
                       statistics()!.agentEarnings.length > 0
-                    " class="table-container">
-                    <table mat-table [dataSource]="statistics()?.agentEarnings || []" class="mat-elevation-z8">
+                    "
+                    class="table-container"
+                  >
+                    <table
+                      mat-table
+                      [dataSource]="statistics()?.agentEarnings || []"
+                      class="mat-elevation-z8"
+                    >
                       <ng-container matColumnDef="agentName">
                         <th mat-header-cell *matHeaderCellDef>Имя инженера</th>
                         <td mat-cell *matCellDef="let element">{{ element.agentName }}</td>
@@ -623,51 +692,73 @@
             <div class="tab-content">
               <mat-card>
                 <mat-card-header>
-                  <mat-card-title>Финансовый анализ по организациям за {{ statistics()?.monthName }}
-                    {{ statistics()?.year }}</mat-card-title>
+                  <mat-card-title
+                    >Финансовый анализ по организациям за {{ statistics()?.monthName }}
+                    {{ statistics()?.year }}</mat-card-title
+                  >
                 </mat-card-header>
                 <mat-card-content>
-                  <div *ngIf="
+                  <div
+                    *ngIf="
                       !statistics()?.organizationEarnings ||
                       statistics()!.organizationEarnings.length === 0
-                    " class="empty-state">
+                    "
+                    class="empty-state"
+                  >
                     <mat-icon>info_outline</mat-icon>
                     <p>Нет данных за выбранный период</p>
                   </div>
 
                   <!-- Chart View -->
-                  <div *ngIf="
+                  <div
+                    *ngIf="
                       viewMode === 'charts' &&
                       statistics()?.organizationEarnings &&
                       statistics()!.organizationEarnings.length > 0
-                    " class="chart-container">
+                    "
+                    class="chart-container"
+                  >
                     <div class="charts-grid">
                       <div class="chart-section">
                         <h3>Финансовые показатели</h3>
                         <div class="chart-wrapper-large">
-                          <canvas baseChart [data]="organizationEarningsChartData" [options]="barChartOptions"
-                            [type]="'bar'"></canvas>
+                          <canvas
+                            baseChart
+                            [data]="organizationEarningsChartData"
+                            [options]="barChartOptions"
+                            [type]="'bar'"
+                          ></canvas>
                         </div>
                       </div>
 
                       <div class="chart-section">
                         <h3>Маржа прибыли по организациям</h3>
                         <div class="chart-wrapper-large">
-                          <canvas baseChart [data]="profitMarginChartData" [options]="lineChartOptions"
-                            [type]="'line'"></canvas>
+                          <canvas
+                            baseChart
+                            [data]="profitMarginChartData"
+                            [options]="lineChartOptions"
+                            [type]="'line'"
+                          ></canvas>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   <!-- Table View -->
-                  <div *ngIf="
+                  <div
+                    *ngIf="
                       viewMode === 'tables' &&
                       statistics()?.organizationEarnings &&
                       statistics()!.organizationEarnings.length > 0
-                    " class="table-container">
-                    <table mat-table [dataSource]="statistics()?.organizationEarnings || []"
-                      class="mat-elevation-z8 financial-table">
+                    "
+                    class="table-container"
+                  >
+                    <table
+                      mat-table
+                      [dataSource]="statistics()?.organizationEarnings || []"
+                      class="mat-elevation-z8 financial-table"
+                    >
                       <ng-container matColumnDef="organizationName">
                         <th mat-header-cell *matHeaderCellDef>Организация</th>
                         <td mat-cell *matCellDef="let element" class="org-name">
@@ -692,7 +783,10 @@
                       <ng-container matColumnDef="totalProfit">
                         <th mat-header-cell *matHeaderCellDef>Прибыль (₽)</th>
                         <td mat-cell *matCellDef="let element" class="profit">
-                          <span [style.color]="getProfitColor(element.totalProfit)" [style.font-weight]="'600'">
+                          <span
+                            [style.color]="getProfitColor(element.totalProfit)"
+                            [style.font-weight]="'600'"
+                          >
                             {{ formatCurrency(element.totalProfit) }}
                           </span>
                         </td>
@@ -701,7 +795,10 @@
                       <ng-container matColumnDef="profitMargin">
                         <th mat-header-cell *matHeaderCellDef>Маржа (%)</th>
                         <td mat-cell *matCellDef="let element" class="margin">
-                          <span [style.color]="getProfitMarginColor(element.profitMargin)" [style.font-weight]="'600'">
+                          <span
+                            [style.color]="getProfitMarginColor(element.profitMargin)"
+                            [style.font-weight]="'600'"
+                          >
                             {{ formatPercentage(element.profitMargin) }}
                           </span>
                         </td>
@@ -728,27 +825,43 @@
             <div class="tab-content">
               <mat-card>
                 <mat-card-header>
-                  <mat-card-title>Статистика сверхурочных за {{ statistics()?.monthName }}
-                    {{ statistics()?.year }}</mat-card-title>
+                  <mat-card-title
+                    >Статистика сверхурочных за {{ statistics()?.monthName }}
+                    {{ statistics()?.year }}</mat-card-title
+                  >
                 </mat-card-header>
                 <mat-card-content>
                   <!-- Chart View -->
-                  <div *ngIf="
+                  <div
+                    *ngIf="
                       viewMode === 'charts' &&
                       statistics()?.overtimeStatistics &&
                       statistics()!.overtimeStatistics.length > 0
-                    " class="chart-container">
+                    "
+                    class="chart-container"
+                  >
                     <div class="charts-grid">
                       <div class="chart-section">
                         <h3>Общее распределение часов</h3>
                         <div class="chart-wrapper-medium">
-                          <canvas baseChart [data]="overtimeChartData" [options]="doughnutChartOptions"
-                            [type]="'doughnut'" [plugins]="chartPlugins"></canvas>
+                          <canvas
+                            baseChart
+                            [data]="overtimeChartData"
+                            [options]="doughnutChartOptions"
+                            [type]="'doughnut'"
+                            [plugins]="chartPlugins"
+                          ></canvas>
                         </div>
                         <div class="chart-summary" *ngIf="statistics()?.overtimeStatistics">
                           <div class="summary-stats">
-                            <div class="stat-item" *ngFor="let stat of statistics()!.overtimeStatistics">
-                              <div class="stat-color" [style.background-color]="getOvertimeColor(stat)"></div>
+                            <div
+                              class="stat-item"
+                              *ngFor="let stat of statistics()!.overtimeStatistics"
+                            >
+                              <div
+                                class="stat-color"
+                                [style.background-color]="getOvertimeColor(stat)"
+                              ></div>
                               <span class="stat-label">{{ stat.agentName }}:</span>
                               <span class="stat-value">{{ stat.overtimeHours }} ч</span>
                               <span class="stat-percentage">({{ stat.overtimePercentage }}%)</span>
@@ -760,20 +873,31 @@
                       <div class="chart-section">
                         <h3>Распределение по инженерам</h3>
                         <div class="chart-wrapper-medium">
-                          <canvas baseChart [data]="agentOvertimeChartData" [options]="stackedBarChartOptions"
-                            [type]="'bar'"></canvas>
+                          <canvas
+                            baseChart
+                            [data]="agentOvertimeChartData"
+                            [options]="stackedBarChartOptions"
+                            [type]="'bar'"
+                          ></canvas>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   <!-- Table View -->
-                  <div *ngIf="
+                  <div
+                    *ngIf="
                       viewMode === 'tables' &&
                       statistics()?.overtimeStatistics &&
                       statistics()!.overtimeStatistics.length > 0
-                    " class="table-container">
-                    <table mat-table [dataSource]="statistics()?.overtimeStatistics || []" class="mat-elevation-z8">
+                    "
+                    class="table-container"
+                  >
+                    <table
+                      mat-table
+                      [dataSource]="statistics()?.overtimeStatistics || []"
+                      class="mat-elevation-z8"
+                    >
                       <ng-container matColumnDef="agentName">
                         <th mat-header-cell *matHeaderCellDef>Имя инженера</th>
                         <td mat-cell *matCellDef="let element">{{ element.agentName }}</td>
@@ -784,8 +908,10 @@
                         <td mat-cell *matCellDef="let element">
                           {{ formatNumber(element.overtimeHours) }}
                           <div class="progress-bar">
-                            <div class="progress-fill" [style.width]="getProgressBarWidth(element.overtimePercentage)">
-                            </div>
+                            <div
+                              class="progress-fill"
+                              [style.width]="getProgressBarWidth(element.overtimePercentage)"
+                            ></div>
                           </div>
                         </td>
                       </ng-container>
@@ -838,8 +964,12 @@
         Управление организациями
       </mat-card-title>
       <div class="header-actions-right">
-        <button mat-icon-button matTooltip="{{ organizationsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-          class="collapse-toggle-btn" (click)="toggleOrganizations(); $event.stopPropagation()">
+        <button
+          mat-icon-button
+          matTooltip="{{ organizationsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+          class="collapse-toggle-btn"
+          (click)="toggleOrganizations(); $event.stopPropagation()"
+        >
           <mat-icon>{{ organizationsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
         </button>
       </div>
@@ -849,20 +979,34 @@
         <div class="actions-row">
           <mat-form-field class="search-field" appearance="outline">
             <mat-label>Поиск организаций</mat-label>
-            <input matInput (input)="onOrganizationsSearchChange($any($event.target).value)"
-              [value]="organizationsSearchQuery()" placeholder="Поиск по названию..." />
+            <input
+              matInput
+              (input)="onOrganizationsSearchChange($any($event.target).value)"
+              [value]="organizationsSearchQuery()"
+              placeholder="Поиск по названию..."
+            />
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
 
-          <button mat-raised-button color="primary" (click)="onCreateOrganization()" *ngIf="canEditOrganizations()">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="onCreateOrganization()"
+            *ngIf="canEditOrganizations()"
+          >
             <mat-icon>add</mat-icon>
             <span>Добавить организацию</span>
           </button>
         </div>
 
         <div class="table-container">
-          <table mat-table [dataSource]="organizationsDataSource" matSort #organizationsSort="matSort"
-            class="organizations-table">
+          <table
+            mat-table
+            [dataSource]="organizationsDataSource"
+            matSort
+            #organizationsSort="matSort"
+            class="organizations-table"
+          >
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Название</th>
               <td mat-cell *matCellDef="let organization">
@@ -920,25 +1064,44 @@
               <th mat-header-cell *matHeaderCellDef>Действия</th>
               <td mat-cell *matCellDef="let organization">
                 <div class="action-buttons">
-                  <button mat-icon-button (click)="onEditOrganization(organization)"
-                    [disabled]="!canEditOrganizations()" color="primary" matTooltip="Редактировать организацию"
-                    aria-label="Редактировать" class="action-btn-icon edit-btn">
+                  <button
+                    mat-icon-button
+                    (click)="onEditOrganization(organization)"
+                    [disabled]="!canEditOrganizations()"
+                    color="primary"
+                    matTooltip="Редактировать организацию"
+                    aria-label="Редактировать"
+                    class="action-btn-icon edit-btn"
+                  >
                     <mat-icon>edit</mat-icon>
                   </button>
 
-                  <button mat-icon-button (click)="onToggleOrganizationStatus(organization)"
-                    [disabled]="!canEditOrganizations()" [color]="organization.isActive ? 'warn' : 'primary'"
+                  <button
+                    mat-icon-button
+                    (click)="onToggleOrganizationStatus(organization)"
+                    [disabled]="!canEditOrganizations()"
+                    [color]="organization.isActive ? 'warn' : 'primary'"
                     [matTooltip]="
                       organization.isActive
                         ? 'Деактивировать организацию'
                         : 'Активировать организацию'
-                    " aria-label="Изменить статус" class="action-btn-icon status-btn">
+                    "
+                    aria-label="Изменить статус"
+                    class="action-btn-icon status-btn"
+                  >
                     <mat-icon>{{ organization.isActive ? 'block' : 'check_circle' }}</mat-icon>
                   </button>
 
-                  <button mat-icon-button (click)="onDeleteOrganization(organization)"
-                    [disabled]="!canDeleteOrganizations()" color="warn" matTooltip="Удалить организацию"
-                    aria-label="Удалить" *ngIf="canDeleteOrganizations()" class="action-btn-icon delete-btn">
+                  <button
+                    mat-icon-button
+                    (click)="onDeleteOrganization(organization)"
+                    [disabled]="!canDeleteOrganizations()"
+                    color="warn"
+                    matTooltip="Удалить организацию"
+                    aria-label="Удалить"
+                    *ngIf="canDeleteOrganizations()"
+                    class="action-btn-icon delete-btn"
+                  >
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
@@ -954,23 +1117,34 @@
             <p>Загрузка организаций...</p>
           </div>
 
-          <div *ngIf="!organizationsLoading() && organizations().length === 0" class="no-data-container">
+          <div
+            *ngIf="!organizationsLoading() && organizations().length === 0"
+            class="no-data-container"
+          >
             <mat-icon class="no-data-icon">business</mat-icon>
             <h3>Организации не найдены</h3>
             <p *ngIf="organizationsSearchQuery()">
               Нет организаций, соответствующих критериям поиска.
             </p>
             <p *ngIf="!organizationsSearchQuery()">Начните с создания первой организации.</p>
-            <button *ngIf="canEditOrganizations() && !organizationsSearchQuery()" mat-raised-button color="primary"
-              (click)="onCreateOrganization()">
+            <button
+              *ngIf="canEditOrganizations() && !organizationsSearchQuery()"
+              mat-raised-button
+              color="primary"
+              (click)="onCreateOrganization()"
+            >
               <mat-icon>add</mat-icon>
               <span>Добавить организацию</span>
             </button>
           </div>
         </div>
 
-        <mat-paginator *ngIf="organizations().length > 0" #organizationsPaginator [pageSizeOptions]="[10, 25, 50]"
-          showFirstLastButtons>
+        <mat-paginator
+          *ngIf="organizations().length > 0"
+          #organizationsPaginator
+          [pageSizeOptions]="[10, 25, 50]"
+          showFirstLastButtons
+        >
         </mat-paginator>
       </div>
     </mat-card-content>
@@ -984,8 +1158,12 @@
         Управление пользователями
       </mat-card-title>
       <div class="header-actions-right">
-        <button mat-icon-button matTooltip="{{ usersCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-          class="collapse-toggle-btn" (click)="toggleUsers(); $event.stopPropagation()">
+        <button
+          mat-icon-button
+          matTooltip="{{ usersCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+          class="collapse-toggle-btn"
+          (click)="toggleUsers(); $event.stopPropagation()"
+        >
           <mat-icon>{{ usersCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
         </button>
       </div>
@@ -995,7 +1173,11 @@
         <div class="header-actions" *ngIf="canViewUsers">
           <mat-form-field class="search-field">
             <mat-label>Поиск пользователей</mat-label>
-            <input matInput (keyup)="applyUsersFilter($event)" placeholder="Поиск по имени, email или роли" />
+            <input
+              matInput
+              (keyup)="applyUsersFilter($event)"
+              placeholder="Поиск по имени, email или роли"
+            />
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
           <button mat-raised-button color="primary" (click)="onCreateUser()" *ngIf="canCreateUsers">
@@ -1010,7 +1192,13 @@
         </div>
 
         <div class="table-container" *ngIf="!usersLoading()">
-          <table mat-table [dataSource]="usersDataSource" matSort #usersSort="matSort" class="users-table">
+          <table
+            mat-table
+            [dataSource]="usersDataSource"
+            matSort
+            #usersSort="matSort"
+            class="users-table"
+          >
             <ng-container matColumnDef="id">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
               <td mat-cell *matCellDef="let user">{{ user.id }}</td>
@@ -1067,18 +1255,33 @@
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>Действия</th>
               <td mat-cell *matCellDef="let user">
-                <button mat-icon-button (click)="onEditUser(user)" color="primary"
-                  matTooltip="Редактировать пользователя" *ngIf="canEditUsers">
+                <button
+                  mat-icon-button
+                  (click)="onEditUser(user)"
+                  color="primary"
+                  matTooltip="Редактировать пользователя"
+                  *ngIf="canEditUsers"
+                >
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button (click)="onToggleUserStatus(user)" [color]="user.isActive ? 'warn' : 'primary'"
+                <button
+                  mat-icon-button
+                  (click)="onToggleUserStatus(user)"
+                  [color]="user.isActive ? 'warn' : 'primary'"
                   [matTooltip]="
                     user.isActive ? 'Деактивировать пользователя' : 'Активировать пользователя'
-                  " *ngIf="canEditUsers">
+                  "
+                  *ngIf="canEditUsers"
+                >
                   <mat-icon>{{ user.isActive ? 'block' : 'check_circle' }}</mat-icon>
                 </button>
-                <button mat-icon-button (click)="onDeleteUser(user)" color="warn" matTooltip="Удалить пользователя"
-                  *ngIf="canDeleteUsers">
+                <button
+                  mat-icon-button
+                  (click)="onDeleteUser(user)"
+                  color="warn"
+                  matTooltip="Удалить пользователя"
+                  *ngIf="canDeleteUsers"
+                >
                   <mat-icon>delete</mat-icon>
                 </button>
               </td>
@@ -1098,8 +1301,12 @@
           </div>
         </div>
 
-        <mat-paginator #usersPaginator [pageSizeOptions]="[5, 10, 20, 50]" showFirstLastButtons
-          aria-label="Выберите страницу пользователей">
+        <mat-paginator
+          #usersPaginator
+          [pageSizeOptions]="[5, 10, 20, 50]"
+          showFirstLastButtons
+          aria-label="Выберите страницу пользователей"
+        >
         </mat-paginator>
       </div>
     </mat-card-content>

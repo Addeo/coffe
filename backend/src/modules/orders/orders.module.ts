@@ -38,4 +38,4 @@ import { WorkSessionsModule } from '../work-sessions/work-sessions.module';
   providers: [OrdersService],
   exports: [OrdersService],
 })
-export class OrdersModule { }
+export class OrdersModule {}

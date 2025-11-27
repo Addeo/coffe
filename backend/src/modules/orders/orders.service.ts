@@ -82,7 +82,7 @@ export class OrdersService {
     private readonly calculationService: CalculationService,
     @InjectRepository(WorkSession)
     private readonly workSessionRepository: Repository<WorkSession>
-  ) { }
+  ) {}
 
   async create(createOrderDto: CreateOrderDto, userId: number): Promise<Order> {
     console.log('🔨 [OrdersService] Starting order creation:', {
@@ -689,18 +689,18 @@ export class OrdersService {
       engineerFound: !!engineer,
       engineerData: engineer
         ? {
-          id: engineer.id,
-          userId: engineer.userId,
-          isActive: engineer.isActive,
-          hasUser: !!engineer.user,
-          user: engineer.user
-            ? {
-              id: engineer.user.id,
-              email: engineer.user.email,
-              isActive: engineer.user.isActive,
-            }
-            : null,
-        }
+            id: engineer.id,
+            userId: engineer.userId,
+            isActive: engineer.isActive,
+            hasUser: !!engineer.user,
+            user: engineer.user
+              ? {
+                  id: engineer.user.id,
+                  email: engineer.user.email,
+                  isActive: engineer.user.isActive,
+                }
+              : null,
+          }
         : null,
     });
 
@@ -1624,7 +1624,7 @@ export class OrdersService {
         notes: workData.notes,
 
         status: WorkSessionStatus.COMPLETED,
-        canBeInvoiced: true
+        canBeInvoiced: true,
       });
 
       await this.workSessionRepository.save(workSession);
