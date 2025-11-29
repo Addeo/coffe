@@ -12,6 +12,11 @@ import { Notification } from '../../entities/notification.entity';
 import { Document } from '../../entities/document.entity';
 import { File } from '../../entities/file.entity';
 import { UserAgreement } from '../../entities/user-agreement.entity';
+import { OrderEngineerAssignment } from '../../entities/order-engineer-assignment.entity';
+import { EngineerBalance } from '../../entities/engineer-balance.entity';
+import { WorkSession } from '../../entities/work-session.entity';
+import { SalaryCalculation } from '../../entities/salary-calculation.entity';
+import { SalaryPayment } from '../../entities/salary-payment.entity';
 
 @Module({
   imports: [
@@ -26,6 +31,11 @@ import { UserAgreement } from '../../entities/user-agreement.entity';
       Document,
       File,
       UserAgreement,
+      OrderEngineerAssignment,
+      EngineerBalance,
+      WorkSession,
+      SalaryCalculation,
+      SalaryPayment,
     ]),
   ],
   controllers: [UsersController],

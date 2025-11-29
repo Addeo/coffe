@@ -710,7 +710,7 @@ export class UserEditComponent implements OnInit {
     lastName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     role: [UserRole.USER, [Validators.required]],
-    password: [''],
+    password: ['', [Validators.required]],
     isActive: [true],
     // Engineer-specific fields
     engineerType: [EngineerType.STAFF],
@@ -1121,6 +1121,6 @@ export class UserEditComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/users']);
+    this.router.navigate(['/statistics']);
   }
 }

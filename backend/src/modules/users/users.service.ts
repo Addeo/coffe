@@ -12,6 +12,11 @@ import { Notification } from '../../entities/notification.entity';
 import { Document } from '../../entities/document.entity';
 import { File } from '../../entities/file.entity';
 import { UserAgreement } from '../../entities/user-agreement.entity';
+import { OrderEngineerAssignment } from '../../entities/order-engineer-assignment.entity';
+import { EngineerBalance } from '../../entities/engineer-balance.entity';
+import { WorkSession } from '../../entities/work-session.entity';
+import { SalaryCalculation } from '../../entities/salary-calculation.entity';
+import { SalaryPayment } from '../../entities/salary-payment.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersQueryDto } from '../../shared/dtos/user.dto';
@@ -48,7 +53,17 @@ export class UsersService {
     @InjectRepository(File)
     private fileRepository: Repository<File>,
     @InjectRepository(UserAgreement)
-    private userAgreementRepository: Repository<UserAgreement>
+    private userAgreementRepository: Repository<UserAgreement>,
+    @InjectRepository(OrderEngineerAssignment)
+    private orderEngineerAssignmentRepository: Repository<OrderEngineerAssignment>,
+    @InjectRepository(EngineerBalance)
+    private engineerBalanceRepository: Repository<EngineerBalance>,
+    @InjectRepository(WorkSession)
+    private workSessionRepository: Repository<WorkSession>,
+    @InjectRepository(SalaryCalculation)
+    private salaryCalculationRepository: Repository<SalaryCalculation>,
+    @InjectRepository(SalaryPayment)
+    private salaryPaymentRepository: Repository<SalaryPayment>
   ) { }
 
   async create(createUserDto: CreateUserDto, createdById: number): Promise<User> {
@@ -434,17 +449,53 @@ export class UsersService {
    * Perform cascade deletion of all user-related data
    */
   private async performCascadeDeletion(userId: number): Promise<void> {
-    // Delete engineer organization rates first
-    await this.engineerOrganizationRateRepository.delete({ engineerId: userId });
+    // 1. Handle Engineer data (if user is an engineer)
+    const engineer = await this.engineerRepository.findOne({ where: { userId } });
+    if (engineer) {
+      // Unassign orders assigned to this engineer
+      await this.orderRepository.update(
+        { assignedEngineerId: engineer.id },
+        { assignedEngineerId: null, status: OrderStatus.WAITING }
+      );
 
-    // Delete engineer profile
-    await this.engineerRepository.delete({ userId });
+      // Delete order engineer assignments for this engineer
+      await this.orderEngineerAssignmentRepository.delete({ engineerId: engineer.id });
 
-    // Delete orders created by this user
+      // Delete financial data
+      await this.engineerBalanceRepository.delete({ engineerId: engineer.id });
+      await this.workSessionRepository.delete({ engineerId: engineer.id });
+      await this.salaryPaymentRepository.delete({ engineerId: engineer.id });
+      await this.salaryCalculationRepository.delete({ engineerId: engineer.id });
+
+      // Delete engineer organization rates
+      await this.engineerOrganizationRateRepository.delete({ engineerId: engineer.id });
+
+      // Delete engineer profile
+      await this.engineerRepository.delete(engineer.id);
+    }
+
+    // 2. Handle User data
+
+    // Unassign orders created by this user
     await this.orderRepository.update({ createdById: userId }, { createdById: null });
 
-    // Delete orders assigned by this user
+    // Unassign orders assigned by this user
     await this.orderRepository.update({ assignedById: userId }, { assignedById: null });
+
+    // Delete order engineer assignments assigned by this user
+    await this.orderEngineerAssignmentRepository.delete({ assignedById: userId });
+
+    // Unassign documents created by this user
+    await this.documentRepository.update({ createdById: userId }, { createdById: null });
+
+    // Unassign files uploaded by this user
+    await this.fileRepository.update({ uploadedById: userId }, { uploadedById: null });
+
+    // Unassign salary calculations performed by this user
+    await this.salaryCalculationRepository.update({ calculatedById: userId }, { calculatedById: null });
+
+    // Unassign salary payments performed by this user
+    await this.salaryPaymentRepository.update({ paidById: userId }, { paidById: null });
 
     // Delete user activity logs performed by this user
     await this.activityLogRepository.delete({ performedById: userId });
@@ -454,21 +505,6 @@ export class UsersService {
 
     // Delete notifications for this user
     await this.notificationRepository.delete({ userId });
-
-    // Update orders to remove engineer assignment (if engineer exists)
-    const engineer = await this.engineerRepository.findOne({ where: { userId } });
-    if (engineer) {
-      await this.orderRepository.update(
-        { assignedEngineerId: engineer.id },
-        { assignedEngineerId: null, status: OrderStatus.WAITING }
-      );
-    }
-
-    // Update documents created by this user
-    await this.documentRepository.update({ createdById: userId }, { createdById: null });
-
-    // Update files uploaded by this user
-    await this.fileRepository.update({ uploadedById: userId }, { uploadedById: null });
 
     // Delete user agreements
     await this.userAgreementRepository.delete({ userId });
