@@ -6,9 +6,20 @@
         <mat-icon>account_balance_wallet</mat-icon>
         Финансовая сводка
       </mat-card-title>
+      <div class="header-actions-right">
+          <button
+            mat-icon-button
+            (click)="toggleFinancialSummaryCards()"
+            matTooltip="{{ financialSummaryCards() ? 'Развернуть' : 'Свернуть' }}"
+            class="collapse-toggle-btn"
+            [attr.aria-label]="financialSummaryCards() ? 'Развернуть' : 'Свернуть'"
+          >
+            <mat-icon>{{ financialSummaryCards() ? 'expand_more' : 'expand_less' }}</mat-icon>
+          </button>
+        </div>
     </mat-card-header>
 
-    <mat-card-content>
+    <mat-card-content [class.collapsed]="financialSummaryCards()">
       <div class="manager-summary-grid">
         <!-- Итого доход - вся сумма к оплате от заказчиков -->
         <div class="summary-item primary">

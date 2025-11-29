@@ -229,13 +229,14 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   @ViewChild('usersSort') usersSort!: MatSort;
 
   // Collapse states for blocks
-  earningsSummaryCollapsed = signal(false);
-  summaryCardsCollapsed = signal(false);
-  carPaymentsCollapsed = signal(false);
-  engineersStatsCollapsed = signal(false);
-  statisticsTabsCollapsed = signal(false);
-  organizationsCollapsed = signal(false);
-  usersCollapsed = signal(false);
+  earningsSummaryCollapsed = signal(true);
+  summaryCardsCollapsed = signal(true);
+  financialSummaryCards = signal(true)
+  carPaymentsCollapsed = signal(true);
+  engineersStatsCollapsed = signal(true);
+  statisticsTabsCollapsed = signal(true);
+  organizationsCollapsed = signal(true);
+  usersCollapsed = signal(true);
 
   // Month and year selection
   selectedYear = signal(new Date().getFullYear());
@@ -932,6 +933,10 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
 
   toggleSummaryCards(): void {
     this.summaryCardsCollapsed.set(!this.summaryCardsCollapsed());
+  }
+
+  toggleFinancialSummaryCards(): void {
+    this.financialSummaryCards.set(!this.financialSummaryCards());
   }
 
   toggleCarPayments(): void {

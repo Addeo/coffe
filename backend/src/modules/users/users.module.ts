@@ -9,6 +9,9 @@ import { EngineerOrganizationRate } from '../../entities/engineer-organization-r
 import { Organization } from '../../entities/organization.entity';
 import { Order } from '../../entities/order.entity';
 import { Notification } from '../../entities/notification.entity';
+import { Document } from '../../entities/document.entity';
+import { File } from '../../entities/file.entity';
+import { UserAgreement } from '../../entities/user-agreement.entity';
 
 @Module({
   imports: [
@@ -20,10 +23,13 @@ import { Notification } from '../../entities/notification.entity';
       Organization,
       Order,
       Notification,
+      Document,
+      File,
+      UserAgreement,
     ]),
   ],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],
 })
-export class UsersModule {}
+export class UsersModule { }

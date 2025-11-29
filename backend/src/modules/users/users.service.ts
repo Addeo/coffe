@@ -9,6 +9,9 @@ import { EngineerOrganizationRate } from '../../entities/engineer-organization-r
 import { Organization } from '../../entities/organization.entity';
 import { Order } from '../../entities/order.entity';
 import { Notification } from '../../entities/notification.entity';
+import { Document } from '../../entities/document.entity';
+import { File } from '../../entities/file.entity';
+import { UserAgreement } from '../../entities/user-agreement.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersQueryDto } from '../../shared/dtos/user.dto';
@@ -39,8 +42,14 @@ export class UsersService {
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
     @InjectRepository(Notification)
-    private notificationRepository: Repository<Notification>
-  ) {}
+    private notificationRepository: Repository<Notification>,
+    @InjectRepository(Document)
+    private documentRepository: Repository<Document>,
+    @InjectRepository(File)
+    private fileRepository: Repository<File>,
+    @InjectRepository(UserAgreement)
+    private userAgreementRepository: Repository<UserAgreement>
+  ) { }
 
   async create(createUserDto: CreateUserDto, createdById: number): Promise<User> {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
@@ -454,6 +463,15 @@ export class UsersService {
         { assignedEngineerId: null, status: OrderStatus.WAITING }
       );
     }
+
+    // Update documents created by this user
+    await this.documentRepository.update({ createdById: userId }, { createdById: null });
+
+    // Update files uploaded by this user
+    await this.fileRepository.update({ uploadedById: userId }, { uploadedById: null });
+
+    // Delete user agreements
+    await this.userAgreementRepository.delete({ userId });
   }
 
   private async logActivity(

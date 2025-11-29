@@ -73,7 +73,7 @@ export interface OrderDeleteConfirmationData {
   styles: [
     `
       .delete-dialog {
-        max-width: 450px;
+        // max-width: 450px;
         border-radius: 12px;
         overflow: hidden;
       }

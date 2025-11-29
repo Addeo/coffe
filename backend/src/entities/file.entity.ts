@@ -45,11 +45,11 @@ export class File {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'uploaded_by' })
   uploadedBy: User;
 
-  @Column({ name: 'uploaded_by' })
+  @Column({ name: 'uploaded_by', nullable: true })
   uploadedById: number;
 
   @ManyToOne(() => Order, { nullable: true })

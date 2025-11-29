@@ -39,11 +39,11 @@ export class Document {
   @Column({ name: 'file_id' })
   fileId: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { nullable: true })
   @JoinColumn({ name: 'created_by' })
   createdBy: User;
 
-  @Column({ name: 'created_by' })
+  @Column({ name: 'created_by', nullable: true })
   createdById: number;
 
   @Column({ nullable: true })
