@@ -288,7 +288,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
     }>;
     totalHours: number;
     totalOrders: number;
-  } | null>(null);
+  }>({
+    engineers: [],
+    totalHours: 0,
+    totalOrders: 0,
+  });
 
   // Engineers list collapse state
   engineersListCollapsed = signal(true);
@@ -323,7 +327,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
           this.loadManagerEngineerHoursStats();
         } else {
           // Clear manager stats if switched away from manager role
-          this.managerEngineerHoursStats.set(null);
+          this.managerEngineerHoursStats.set({
+            engineers: [],
+            totalHours: 0,
+            totalOrders: 0,
+          });
         }
       }
 

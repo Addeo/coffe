@@ -2,7 +2,7 @@
   <mat-card class="login-card">
     <mat-card-header>
       <mat-card-title class="login-title" i18n="@@login.title"
-        >Панель руководителя Coffee</mat-card-title
+        >Панель управления заявками</mat-card-title
       >
       <!-- <mat-card-subtitle class="login-subtitle" i18n="@@login.subtitle"
         >Пожалуйста, войдите для продолжения</mat-card-subtitle
@@ -93,9 +93,12 @@
       <div class="version-info">
         <span class="version-text">Версия: {{ appVersion() }}</span>
       </div>
-
+      <div class="version-info">
+        <span class="version-text">Производя вход в приложение вы соглашаетесь с пользовательским соглашением и политикой конфиденциальности</span>
+      </div>
       <!-- Policy Links -->
       <div class="policy-links">
+
         <a routerLink="/privacy-policy" class="policy-link" (click)="$event.stopPropagation()">
           Политика конфиденциальности
         </a>
