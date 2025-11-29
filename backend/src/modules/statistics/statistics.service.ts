@@ -33,7 +33,7 @@ export class StatisticsService {
     private engineerRepository: Repository<Engineer>,
     @InjectRepository(WorkSession)
     private workSessionRepository: Repository<WorkSession>
-  ) {}
+  ) { }
 
   async getUserEarningsStatistics(
     userId: number,
@@ -298,12 +298,12 @@ export class StatisticsService {
       previousMonth:
         prevSessions.length > 0
           ? {
-              totalEarnings: prevTotalEarnings,
-              completedOrders: prevUniqueOrders.size,
-              totalHours: prevTotalHours,
-              month: previousMonth,
-              year: previousYear,
-            }
+            totalEarnings: prevTotalEarnings,
+            completedOrders: prevUniqueOrders.size,
+            totalHours: prevTotalHours,
+            month: previousMonth,
+            year: previousYear,
+          }
           : null,
       growth,
     };
@@ -682,22 +682,31 @@ export class StatisticsService {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
-    const agentData = await this.workSessionRepository
-      .createQueryBuilder('session')
+    const agentData = await this.engineerRepository
+      .createQueryBuilder('engineer')
       .select('engineer.userId', 'userId')
       .addSelect('user.firstName', 'firstName')
       .addSelect('user.lastName', 'lastName')
-      .addSelect('SUM(session.calculatedAmount + session.carUsageAmount)', 'totalEarnings')
-      .addSelect('SUM(session.calculatedAmount)', 'earnedAmount')
-      .addSelect('SUM(session.carUsageAmount)', 'carPayments')
+      .addSelect(
+        'COALESCE(SUM(session.calculatedAmount + session.carUsageAmount), 0)',
+        'totalEarnings'
+      )
+      .addSelect('COALESCE(SUM(session.calculatedAmount), 0)', 'earnedAmount')
+      .addSelect('COALESCE(SUM(session.carUsageAmount), 0)', 'carPayments')
       .addSelect('COUNT(DISTINCT session.orderId)', 'completedOrders')
-      .addSelect('AVG(session.calculatedAmount + session.carUsageAmount)', 'averageOrderValue')
-      .innerJoin('session.engineer', 'engineer')
+      .addSelect(
+        'COALESCE(AVG(session.calculatedAmount + session.carUsageAmount), 0)',
+        'averageOrderValue'
+      )
       .innerJoin('engineer.user', 'user')
-      .where('session.workDate >= :startDate', { startDate })
-      .andWhere('session.workDate < :endDate', { endDate })
-      .andWhere('session.status = :status', { status: 'completed' })
-      .andWhere('user.role = :role', { role: UserRole.USER })
+      .leftJoin(
+        'work_sessions',
+        'session',
+        'session.engineerId = engineer.id AND session.workDate >= :startDate AND session.workDate < :endDate AND session.status = :status',
+        { startDate, endDate, status: 'completed' }
+      )
+      .where('user.role = :role', { role: UserRole.USER })
+      .andWhere('engineer.isActive = :isActive', { isActive: true })
       .groupBy('engineer.userId')
       .addGroupBy('user.firstName')
       .addGroupBy('user.lastName')
@@ -723,25 +732,30 @@ export class StatisticsService {
     // 1. Revenue: organizationPayment (what organizations pay us)
     // 2. Costs: calculatedAmount + carUsageAmount (what we pay engineers)
     // 3. Profit: Revenue - Costs
-    const organizationStats = await this.workSessionRepository
-      .createQueryBuilder('session')
-      .select('order.organizationId', 'organizationId')
+    const organizationStats = await this.organizationRepository
+      .createQueryBuilder('organization')
+      .select('organization.id', 'organizationId')
       .addSelect('organization.name', 'organizationName')
       .addSelect('COUNT(DISTINCT session.orderId)', 'totalOrders')
       .addSelect(
-        'SUM(session.regularHours + session.overtimeHours * COALESCE(session.engineerOvertimeCoefficient, 1.6))',
+        'COALESCE(SUM(session.regularHours + session.overtimeHours * COALESCE(session.engineerOvertimeCoefficient, 1.6)), 0)',
         'totalHours'
       )
-      .addSelect('SUM(session.organizationPayment)', 'totalRevenue')
-      .addSelect('SUM(session.calculatedAmount + session.carUsageAmount)', 'totalCosts')
-      .addSelect('AVG(session.organizationPayment)', 'averageOrderValue')
-      .innerJoin('session.order', 'order')
-      .leftJoin('order.organization', 'organization')
-      .where('session.workDate >= :startDate', { startDate })
-      .andWhere('session.workDate < :endDate', { endDate })
-      .andWhere('session.status = :status', { status: 'completed' })
-      .andWhere('order.organizationId IS NOT NULL')
-      .groupBy('order.organizationId')
+      .addSelect('COALESCE(SUM(session.organizationPayment), 0)', 'totalRevenue')
+      .addSelect(
+        'COALESCE(SUM(session.calculatedAmount + session.carUsageAmount), 0)',
+        'totalCosts'
+      )
+      .addSelect('COALESCE(AVG(session.organizationPayment), 0)', 'averageOrderValue')
+      .leftJoin('organization.orders', 'order')
+      .leftJoin(
+        'work_sessions',
+        'session',
+        'session.orderId = order.id AND session.workDate >= :startDate AND session.workDate < :endDate AND session.status = :status',
+        { startDate, endDate, status: 'completed' }
+      )
+      .where('organization.isActive = :isActive', { isActive: true })
+      .groupBy('organization.id')
       .addGroupBy('organization.name')
       .orderBy('totalRevenue', 'DESC')
       .getRawMany();

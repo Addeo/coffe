@@ -57,7 +57,7 @@
     </div>
   </div> -->
 
-  <div class="stats-switcher">
+  <!-- <div class="stats-switcher">
     <mat-button-toggle-group [(ngModel)]="statsView" aria-label="Вариант отображения статистики"
       class="stats-toggle-group">
       <mat-button-toggle value="compact" class="stats-toggle-btn">
@@ -73,25 +73,18 @@
         <span class="toggle-text">С прогрессом</span>
       </mat-button-toggle>
     </mat-button-toggle-group>
-  </div>
+  </div> -->
 
-  <app-engineer-summary-card *ngIf="isEngineerView() && !isMobileView()" [summary]="engineerSummary()!"
-    (monthChanged)="onEngineerMonthChanged($event)"></app-engineer-summary-card>
+  <!-- <app-engineer-summary-card *ngIf="isEngineerView()" [summary]="engineerSummary()!"
+    (monthChanged)="onEngineerMonthChanged($event)"></app-engineer-summary-card> -->
 
-  <!-- Orders Overview Card (for Admins and Managers) -->
-  <mat-card class="orders-overview-card" *ngIf="canEditOrders() && !isMobileView()">
+
+  <mat-card class="orders-overview-card" *ngIf="canEditOrders()">
     <mat-card-header>
       <mat-card-title>
         <mat-icon>dashboard</mat-icon>
         Обзор заявок
       </mat-card-title>
-      <div class="header-actions-right">
-        <button mat-icon-button (click)="toggleOrdersOverview()"
-          matTooltip="{{ ordersOverviewCollapsed() ? 'Развернуть' : 'Свернуть' }}" class="collapse-toggle-btn"
-          [attr.aria-label]="ordersOverviewCollapsed() ? 'Развернуть' : 'Свернуть'">
-          <mat-icon>{{ ordersOverviewCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-        </button>
-      </div>
     </mat-card-header>
 
     <mat-card-content [class.collapsed]="ordersOverviewCollapsed()">
@@ -168,10 +161,18 @@
         </div>
       </div>
     </mat-card-content>
+
+    <div class="header-actions-right" (click)="toggleManagerStats()"
+      style="display: flex; align-items: center; gap: 10px; justify-content: center">
+      <button mat-icon-button (click)="toggleOrdersOverview()"
+          matTooltip="{{ ordersOverviewCollapsed() ? 'Развернуть' : 'Свернуть' }}" class="collapse-toggle-btn"
+          [attr.aria-label]="ordersOverviewCollapsed() ? 'Развернуть' : 'Свернуть'">
+          <mat-icon>{{ ordersOverviewCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
+    </div>
   </mat-card>
 
-  <!-- Manager Engineer Hours Statistics -->
-  <mat-card class="manager-hours-stats-card" *ngIf="isManager() && !isMobileView()">
+  <!-- <mat-card class="manager-hours-stats-card" *ngIf="isManager() && !isMobileView()">
     <mat-card-header>
       <mat-card-title>
         <mat-icon>schedule</mat-icon>
@@ -201,7 +202,7 @@
       <mat-progress-bar mode="indeterminate" *ngIf="isLoadingManagerStats()"></mat-progress-bar>
 
       <div class="manager-stats-content" *ngIf="!isLoadingManagerStats()">
-        <!-- Engineers Button with Menu -->
+
         <div class="engineers-menu-button" *ngIf="managerEngineerHoursStats().engineers.length > 0">
           <button mat-stroked-button color="primary" class="engineers-toggle-btn" [matMenuTriggerFor]="engineersMenu">
             <mat-icon>people</mat-icon>
@@ -214,7 +215,7 @@
               <div *ngFor="let engineer of managerEngineerHoursStats().engineers" class="engineer-menu-item"
                 [class.staff-engineer]="engineer.engineerType === 'staff'"
                 [class.contract-engineer]="engineer.engineerType === 'contract'">
-                <!-- Staff Engineer: Show progress bar with percentage -->
+
                 <div *ngIf="engineer.engineerType === 'staff'" class="engineer-staff-display">
                   <div class="engineer-header">
                     <mat-icon color="primary">person</mat-icon>
@@ -243,7 +244,7 @@
                     "></mat-progress-bar>
                 </div>
 
-                <!-- Contract Engineer: Show only hours -->
+
                 <div *ngIf="engineer.engineerType === 'contract' || !engineer.engineerType"
                   class="engineer-contract-display">
                   <div class="engineer-header">
@@ -268,101 +269,10 @@
         </div>
       </div>
     </mat-card-content>
-  </mat-card>
+  </mat-card> -->
 
-  <!-- Orders Overview Card (for Managers - intermediate field) -->
-  <mat-card class="orders-overview-card" *ngIf="isManager() && !isMobileView()">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>dashboard</mat-icon>
-        Обзор заявок
-      </mat-card-title>
-      <div class="header-actions-right">
-        <button mat-icon-button (click)="toggleOrdersOverview()"
-          matTooltip="{{ ordersOverviewCollapsed() ? 'Развернуть' : 'Свернуть' }}" class="collapse-toggle-btn"
-          [attr.aria-label]="ordersOverviewCollapsed() ? 'Развернуть' : 'Свернуть'">
-          <mat-icon>{{ ordersOverviewCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-        </button>
-      </div>
-    </mat-card-header>
 
-    <mat-card-content [class.collapsed]="ordersOverviewCollapsed()">
-      <div class="orders-overview-grid">
-        <div class="summary-item warning" role="button" tabindex="0" aria-label="Показать ожидающие заявки"
-          [class.active]="selectedStatus() === OrderStatus.WAITING" (click)="onSummaryStatusClick('waiting')"
-          (keydown)="onSummaryStatusKeydown($event, 'waiting')">
-          <div class="summary-icon">
-            <mat-icon>schedule</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().waiting }}</div>
-            <div class="summary-label">Ожидают</div>
-          </div>
-        </div>
-
-        <div class="summary-item info" role="button" tabindex="0" aria-label="Показать заявки в обработке"
-          [class.active]="selectedStatus() === OrderStatus.PROCESSING" (click)="onSummaryStatusClick('processing')"
-          (keydown)="onSummaryStatusKeydown($event, 'processing')">
-          <div class="summary-icon">
-            <mat-icon>person_add</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().processing }}</div>
-            <div class="summary-label">В обработке</div>
-          </div>
-        </div>
-
-        <div class="summary-item accent" role="button" tabindex="0" aria-label="Создать новую заявку"
-          (click)="scrollToMainContent()" (keydown)="onSummaryStatusKeydown($event, 'create')">
-          <div class="summary-icon">
-            <mat-icon>add_circle</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">+</div>
-            <div class="summary-label">Создать новую заявку</div>
-          </div>
-        </div>
-
-        <div class="summary-item accent" role="button" tabindex="0" aria-label="Показать заявки в работе"
-          [class.active]="selectedStatus() === OrderStatus.WORKING" (click)="onSummaryStatusClick('working')"
-          (keydown)="onSummaryStatusKeydown($event, 'working')">
-          <div class="summary-icon">
-            <mat-icon>build</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().working }}</div>
-            <div class="summary-label">В работе</div>
-          </div>
-        </div>
-
-        <div class="summary-item review" role="button" tabindex="0" aria-label="Показать заявки на проверке"
-          [class.active]="selectedStatus() === OrderStatus.REVIEW" (click)="onSummaryStatusClick('review')"
-          (keydown)="onSummaryStatusKeydown($event, 'review')">
-          <div class="summary-icon">
-            <mat-icon>visibility</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().review }}</div>
-            <div class="summary-label">На проверке</div>
-          </div>
-        </div>
-
-        <div class="summary-item success" role="button" tabindex="0" aria-label="Показать завершённые заявки"
-          [class.active]="selectedStatus() === OrderStatus.COMPLETED" (click)="onSummaryStatusClick('completed')"
-          (keydown)="onSummaryStatusKeydown($event, 'completed')">
-          <div class="summary-icon">
-            <mat-icon>check_circle</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().completed }}</div>
-            <div class="summary-label">Завершено</div>
-          </div>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
-  <mat-card class="stats-card-unified" *ngIf="statsView === 'compact'">
+  <!-- <mat-card class="stats-card-unified" *ngIf="statsView === 'compact'">
     <mat-card-header>
       <mat-card-title>
         <mat-icon>bar_chart</mat-icon>
@@ -433,7 +343,6 @@
           </div>
         </div>
 
-        <!-- Payment Statistics Section -->
         <div class="stats-section">
           <h3>Статистика по платежам</h3>
           <div class="stats-row">
@@ -461,8 +370,9 @@
         </div>
       </div>
     </mat-card-content>
-  </mat-card>
-  <mat-card class="stats-card-charts" *ngIf="statsView === 'charts'">
+  </mat-card> -->
+  
+  <!-- <mat-card class="stats-card-charts" *ngIf="statsView === 'charts'">
     <mat-card-header>
       <mat-card-title>
         <mat-icon>bar_chart</mat-icon>
@@ -498,7 +408,6 @@
           </div>
         </div>
 
-        <!-- Payment Statistics Chart -->
         <div class="chart-section">
           <h3>Статистика по платежам</h3>
           <div class="chart-wrapper">
@@ -537,7 +446,7 @@
         </div>
       </div>
     </mat-card-content>
-  </mat-card>
+  </mat-card> -->
 
   <!--
   <mat-card class="stats-card-progress" *ngIf="statsView === 'progress'">
@@ -689,7 +598,6 @@
     </button>
   </div>
 
-  <!-- Mobile Manager Engineer Hours Statistics -->
   <mat-card class="mobile-summary-card" *ngIf="isMobileView() && isManager()">
     <mat-card-header (click)="toggleManagerStats()"
       style="flex-wrap: wrap !important; justify-content: center !important">
@@ -713,15 +621,7 @@
           class="month-nav-btn" aria-label="Следующий месяц">
           <mat-icon>chevron_right</mat-icon>
         </button>
-        <!-- <button
-          mat-icon-button
-          (click)="toggleManagerStats(); $event.stopPropagation()"
-          matTooltip="{{ managerStatsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-          class="collapse-toggle-btn"
-          [attr.aria-label]="managerStatsCollapsed() ? 'Развернуть' : 'Свернуть'"
-        >
-          <mat-icon>{{ managerStatsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-        </button> -->
+      
       </div>
     </mat-card-header>
 
@@ -750,7 +650,6 @@
         </div>
       </div>
 
-      <!-- Engineers List for Mobile -->
       <ng-container *ngIf="!isLoadingManagerStats()">
         <div class="engineers-list-mobile" *ngIf="managerEngineerHoursStats().engineers.length > 0">
           <h3 style="margin: 16px 0 12px 0; font-size: 14px; font-weight: 600">
@@ -789,6 +688,16 @@
       </button>
     </div>
   </mat-card>
+
+    <!-- <button
+          mat-icon-button
+          (click)="toggleManagerStats(); $event.stopPropagation()"
+          matTooltip="{{ managerStatsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+          class="collapse-toggle-btn"
+          [attr.aria-label]="managerStatsCollapsed() ? 'Развернуть' : 'Свернуть'"
+        >
+          <mat-icon>{{ managerStatsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button> -->
 
   <!-- Mobile Engineer Summary (replaces desktop engineer-summary-card) -->
   <mat-card class="mobile-summary-card" *ngIf="isMobileView() && isEngineerView()">

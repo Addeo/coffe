@@ -98,7 +98,7 @@ export interface UserDialogData {
           <mat-form-field appearance="outline" class="form-field">
             <mat-label>Роль</mat-label>
             <mat-select formControlName="role" (selectionChange)="onRoleChange()">
-              <mat-option [value]="UserRole.USER">Пользователь</mat-option>
+              <mat-option [value]="UserRole.USER">Инженер</mat-option>
               <mat-option [value]="UserRole.MANAGER">Диспетчер</mat-option>
               <mat-option [value]="UserRole.ADMIN">Руководитель</mat-option>
             </mat-select>

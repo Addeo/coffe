@@ -4,7 +4,9 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { Order } from './order.entity';
 
 @Entity('organizations')
 export class Organization {
@@ -25,6 +27,9 @@ export class Organization {
 
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
+
+  @OneToMany(() => Order, order => order.organization)
+  orders: Order[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
