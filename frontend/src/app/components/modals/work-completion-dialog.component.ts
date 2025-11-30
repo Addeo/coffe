@@ -431,6 +431,11 @@ export interface WorkCompletionDialogData {
       }
 
       /* Responsive */
+      @media (max-width: 768px) {
+        .work-completion-dialog {
+          min-width: 95vw;
+        }
+
         .form-row {
           grid-template-columns: 1fr;
         }
