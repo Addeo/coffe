@@ -15,6 +15,10 @@ import { OrdersService } from '../../services/orders.service';
 import { ToastService } from '../../services/toast.service';
 import { OrderDto } from '@shared/dtos/order.dto';
 import { TerritoryType } from '@shared/interfaces/order.interface';
+import { FilesService } from '../../services/files.service';
+import { FileResponseDto } from '@shared/dtos/file.dto';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 export interface WorkCompletionDialogData {
   order: OrderDto;
@@ -151,7 +155,6 @@ export interface WorkCompletionDialogData {
             </mat-form-field>
           </div>
 
-          <!-- Notes Section -->
           <div class="form-section">
             <h4>📝 Примечания</h4>
             <mat-form-field appearance="outline" class="form-field-full">
@@ -164,6 +167,38 @@ export interface WorkCompletionDialogData {
               ></textarea>
               <mat-icon matSuffix>description</mat-icon>
             </mat-form-field>
+          </div>
+
+          <!-- Files Section -->
+          <div class="form-section">
+            <h4>📎 Файлы и документы</h4>
+            <div class="file-upload-container">
+              <input
+                type="file"
+                #fileInput
+                hidden
+                multiple
+                (change)="onFileSelected($event)"
+              />
+              <button mat-stroked-button color="primary" (click)="fileInput.click()" type="button">
+                <mat-icon>cloud_upload</mat-icon>
+                Добавить файлы
+              </button>
+              <span class="file-hint">Фотоотчеты, акты, сканы документов</span>
+            </div>
+
+            <div class="files-list" *ngIf="selectedFiles().length > 0">
+              <div class="file-item" *ngFor="let file of selectedFiles(); let i = index">
+                <mat-icon class="file-icon">description</mat-icon>
+                <div class="file-info">
+                  <span class="file-name">{{ file.name }}</span>
+                  <span class="file-size">{{ formatFileSize(file.size) }}</span>
+                </div>
+                <button mat-icon-button color="warn" (click)="removeFile(i)" type="button">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- Completion Status -->
@@ -194,7 +229,8 @@ export interface WorkCompletionDialogData {
 
         <div *ngIf="isLoading()" class="loading">
           <mat-spinner diameter="30"></mat-spinner>
-          <p>Сохранение данных...</p>
+          <mat-spinner diameter="30"></mat-spinner>
+          <p>{{ loadingMessage() }}</p>
         </div>
       </mat-dialog-content>
 
@@ -395,11 +431,6 @@ export interface WorkCompletionDialogData {
       }
 
       /* Responsive */
-      @media (max-width: 768px) {
-        .work-completion-dialog {
-          min-width: 95vw;
-        }
-
         .form-row {
           grid-template-columns: 1fr;
         }
@@ -408,17 +439,69 @@ export interface WorkCompletionDialogData {
           font-size: 18px;
         }
       }
+
+      .file-upload-container {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .file-hint {
+        color: #666;
+        font-size: 12px;
+      }
+
+      .files-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .file-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 12px;
+        background: #f5f5f5;
+        border-radius: 4px;
+        border: 1px solid #e0e0e0;
+      }
+
+      .file-icon {
+        color: #666;
+      }
+
+      .file-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .file-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+      }
+
+      .file-size {
+        font-size: 12px;
+        color: #666;
+      }
     `,
   ],
 })
 export class WorkCompletionDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   private ordersService = inject(OrdersService);
+  private filesService = inject(FilesService);
   private toastService = inject(ToastService);
   private dialogRef = inject(MatDialogRef<WorkCompletionDialogComponent>);
   data: WorkCompletionDialogData = inject(MAT_DIALOG_DATA);
 
   isLoading = signal(false);
+  loadingMessage = signal('Сохранение данных...');
+  selectedFiles = signal<File[]>([]);
   workForm!: FormGroup;
 
   ngOnInit() {
@@ -437,11 +520,67 @@ export class WorkCompletionDialogComponent implements OnInit {
     return this.data.order.organization?.name || 'N/A';
   }
 
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const newFiles = Array.from(input.files);
+      this.selectedFiles.update(files => [...files, ...newFiles]);
+    }
+  }
+
+  removeFile(index: number) {
+    this.selectedFiles.update(files => files.filter((_, i) => i !== index));
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
   onSave() {
     if (this.workForm.invalid) {
       return;
     }
 
+    this.isLoading.set(true);
+    this.loadingMessage.set('Загрузка файлов...');
+
+    const files = this.selectedFiles();
+    if (files.length > 0) {
+      // Upload files first
+      const uploadObservables = files.map(file =>
+        this.filesService.uploadFile(file, undefined, 'Отчет о работе').pipe(
+          catchError(error => {
+            console.error('Error uploading file:', file.name, error);
+            return of(null);
+          })
+        )
+      );
+
+      forkJoin(uploadObservables).subscribe({
+        next: (responses) => {
+          const uploadedFileIds = responses
+            .filter((res): res is FileResponseDto => res !== null)
+            .map(res => res.id);
+          
+          this.submitWorkData(uploadedFileIds);
+        },
+        error: (error) => {
+          console.error('Error uploading files:', error);
+          this.toastService.error('Ошибка при загрузке файлов');
+          this.isLoading.set(false);
+        }
+      });
+    } else {
+      this.submitWorkData([]);
+    }
+  }
+
+  private submitWorkData(fileIds: string[]) {
+    this.loadingMessage.set('Сохранение данных...');
     const formValue = this.workForm.value;
     const workData = {
       regularHours: formValue.regularHours || 0,
@@ -451,14 +590,13 @@ export class WorkCompletionDialogComponent implements OnInit {
       carPayment: formValue.carPayment || 0,
       notes: formValue.notes,
       isFullyCompleted: formValue.isFullyCompleted,
+      files: fileIds
     };
 
     console.log('💾 Saving work data:', {
       orderId: this.data.order.id,
       ...workData,
     });
-
-    this.isLoading.set(true);
 
     this.ordersService.completeWork(this.data.order.id, workData).subscribe({
       next: (updatedOrder: OrderDto) => {

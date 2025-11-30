@@ -61,7 +61,7 @@
 // Mobile Navigation Styles
 .mobile-navbar {
   @media (min-width: 961px) {
-    display: none;
+    // display: none; // Removed to allow Angular to control visibility via isMobileView
   }
 
   display: flex;

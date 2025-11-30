@@ -95,6 +95,7 @@ export class OrdersService {
       territoryType?: string;
       notes?: string;
       isFullyCompleted?: boolean;
+      files?: string[];
     }
   ): Observable<OrderDto> {
     return this.http.post<OrderDto>(

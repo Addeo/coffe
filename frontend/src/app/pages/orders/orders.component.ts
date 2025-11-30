@@ -103,16 +103,32 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
   OrderStatus = OrderStatus;
 
-  displayedColumns: string[] = [
-    'id',
-    'title',
-    'organization',
-    'assignedEngineer',
-    'status',
-    'paymentStatus',
-    'createdAt',
-    'actions',
-  ];
+  // Dynamic columns based on user role
+  displayedColumns = computed(() => {
+    // Engineers see only relevant columns
+    if (this.isEngineerView()) {
+      return [
+        'id',
+        'title',
+        'organization',
+        'status',
+        'createdAt',
+        'actions',
+      ];
+    }
+
+    // Managers and admins see all columns
+    return [
+      'id',
+      'title',
+      'organization',
+      'assignedEngineer',
+      'status',
+      'paymentStatus',
+      'createdAt',
+      'actions',
+    ];
+  });
   dataSource = new MatTableDataSource<OrderDto>([]);
   isLoading = signal(false);
   orderStats = signal<OrderStatsDto>({
@@ -196,8 +212,10 @@ export class OrdersComponent implements OnInit, OnDestroy {
     // Admins and managers can always edit non-completed orders
     if (this.canEditOrders()) return true;
 
-    // Engineers can only edit their own assigned orders
-    return currentUser.role === UserRole.USER && order.assignedEngineerId === currentUser.id;
+    // Engineers cannot edit orders (only complete work)
+    if (currentUser.role === UserRole.USER) return false;
+
+    return false;
   }
 
   // Engineers can update status of their assigned orders
@@ -333,6 +351,9 @@ export class OrdersComponent implements OnInit, OnDestroy {
             totalOrders: 0,
           });
         }
+
+        // Log column changes for debugging
+        console.log('📊 Displayed columns updated:', this.displayedColumns());
       }
 
       // Update previous role

@@ -226,7 +226,8 @@ export class OrdersController {
       distanceKm?: number;
       territoryType?: string;
       notes?: string;
-      isFullyCompleted?: boolean; // New field
+      isFullyCompleted?: boolean;
+      files?: string[];
     },
     @Request() req
   ) {

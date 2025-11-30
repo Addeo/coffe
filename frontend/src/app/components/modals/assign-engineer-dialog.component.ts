@@ -64,7 +64,7 @@ export interface AssignEngineerDialogData {
             <mat-select formControlName="engineerId" placeholder="Выберите инженера для назначения">
               <mat-option
                 *ngFor="let engineer of availableEngineers"
-                [value]="engineer.engineer?.id || engineer.id"
+                [value]="engineer.engineer!.id"
               >
                 {{ engineer.firstName }} {{ engineer.lastName }} ({{ engineer.email }})
               </mat-option>
@@ -280,16 +280,21 @@ export class AssignEngineerDialogComponent {
   private loadAvailableEngineers() {
     this.usersService.getUsers().subscribe({
       next: (response: any) => {
-        // Filter only active engineers (users with role USER) - exclude managers and admins
+        // Filter only active engineers (users with role USER and valid engineer profile)
+        // Exclude managers, admins, and users without engineer profiles
         this.availableEngineers = response.data.filter(
-          (user: UserDto) => user.role === UserRole.USER && user.isActive
+          (user: UserDto) =>
+            user.role === UserRole.USER &&
+            user.isActive &&
+            user.engineer &&
+            user.engineer.id
         );
 
         console.log('Available engineers:', this.availableEngineers);
         console.log(
-          'Filtered out managers/admins:',
+          'Users without engineer profiles:',
           response.data.filter(
-            (user: UserDto) => user.role === UserRole.MANAGER || user.role === UserRole.ADMIN
+            (user: UserDto) => user.role === UserRole.USER && (!user.engineer || !user.engineer.id)
           )
         );
       },
