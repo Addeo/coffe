@@ -6,7 +6,7 @@
   background-color: var(--bg-primary);
   min-height: calc(100vh - 64px);
 
-  @media (max-width: 768px) {
+  @media (max-width: 600px) {
     padding-bottom: 80px; // Space for fixed paginator
   }
 }
@@ -721,7 +721,7 @@
 }
 
 // Responsive design
-@media (max-width: 768px) {
+// @media (max-width: 600px) {
   .orders-container {
     padding: 16px;
     padding-bottom: 120px; // Место для floating action buttons
@@ -1143,7 +1143,7 @@
             }
           }
 
-          @media (max-width: 768px) {
+          @media (max-width: 600px) {
             min-width: 160px;
             padding: 0 12px;
 
@@ -1582,7 +1582,7 @@
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 600px) {
     .header {
       margin-bottom: 24px;
 
@@ -2370,7 +2370,7 @@
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 600px) {
     mat-card-header {
       flex-direction: column;
       align-items: flex-start;
@@ -2483,7 +2483,7 @@
       }
     }
   }
-}
+// }
 
 // Orders Overview Card (for Managers/Admins)
 .orders-overview-card {

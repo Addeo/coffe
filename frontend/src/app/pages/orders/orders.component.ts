@@ -1257,7 +1257,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
   // Mobile view detection - reactive signal
   private windowWidth = signal(window.innerWidth);
-  isMobileView = computed(() => this.windowWidth() <= 768);
+  isMobileView = computed(() => this.windowWidth() <= 600);
 
   @HostListener('window:resize', ['$event'])
   onResize(event: Event): void {
