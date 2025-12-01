@@ -1237,20 +1237,44 @@ export class OrdersService {
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
+      console.log('📅 Calculating engineer summary for:', {
+        engineerId: engineerProfile.id,
+        month: now.getMonth() + 1,
+        year: now.getFullYear(),
+        startOfMonth,
+        endOfMonth,
+      });
+
+      // For engineer summary:
+      // - Completed orders: count by completion date in the current month
+      // - Active orders (not completed): include ALL active orders regardless of start date
       const engineerOrders = await this.ordersRepository
         .createQueryBuilder('monthlyOrder')
         .where('monthlyOrder.assignedEngineerId = :engineerId', {
           engineerId: engineerProfile.id,
         })
         .andWhere(
-          'COALESCE(monthlyOrder.actualStartDate, monthlyOrder.completionDate, monthlyOrder.createdAt) >= :startOfMonth',
-          { startOfMonth }
-        )
-        .andWhere(
-          'COALESCE(monthlyOrder.actualStartDate, monthlyOrder.completionDate, monthlyOrder.createdAt) < :endOfMonth',
-          { endOfMonth }
+          `(
+            (monthlyOrder.status IN ('completed', 'paid_to_engineer') AND monthlyOrder.completionDate >= :startOfMonth AND monthlyOrder.completionDate < :endOfMonth) OR
+            (monthlyOrder.status NOT IN ('completed', 'paid_to_engineer', 'waiting', 'assigned'))
+          )`,
+          { startOfMonth, endOfMonth }
         )
         .getMany();
+
+      console.log('📦 Found engineer orders for current month:', {
+        count: engineerOrders.length,
+        orders: engineerOrders.map(o => ({
+          id: o.id,
+          status: o.status,
+          regularHours: o.regularHours,
+          overtimeHours: o.overtimeHours,
+          calculatedAmount: o.calculatedAmount,
+          carUsageAmount: o.carUsageAmount,
+          actualStartDate: o.actualStartDate,
+          completionDate: o.completionDate,
+        })),
+      });
 
       let workedHours = 0;
       let overtimeHours = 0;
@@ -1264,6 +1288,13 @@ export class OrdersService {
         overtimeHours += overtime;
         earnedAmount += Number(order.calculatedAmount ?? 0);
         carPayments += Number(order.carUsageAmount ?? 0);
+      });
+
+      console.log('💰 Calculated totals:', {
+        workedHours,
+        overtimeHours,
+        earnedAmount,
+        carPayments,
       });
 
       const planHours = Number(engineerProfile.planHoursMonth ?? 0);
