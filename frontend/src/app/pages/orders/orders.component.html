@@ -89,6 +89,19 @@
 
     <mat-card-content [class.collapsed]="ordersOverviewCollapsed()">
       <div class="orders-overview-grid">
+        <!-- Всего заявок -->
+        <div class="summary-item primary" role="button" tabindex="0" aria-label="Показать все заявки"
+          [class.active]="!selectedStatus()" (click)="onSummaryStatusClick(undefined)"
+          (keydown)="onSummaryStatusKeydown($event, undefined)">
+          <div class="summary-icon">
+            <mat-icon>assignment</mat-icon>
+          </div>
+          <div class="summary-content">
+            <div class="summary-value">{{ orderStats().total }}</div>
+            <div class="summary-label">Всего заявок</div>
+          </div>
+        </div>
+
         <div class="summary-item warning" role="button" tabindex="0" aria-label="Показать ожидающие заявки"
           [class.active]="selectedStatus() === OrderStatus.WAITING" (click)="onSummaryStatusClick('waiting')"
           (keydown)="onSummaryStatusKeydown($event, 'waiting')">
@@ -110,17 +123,6 @@
           <div class="summary-content">
             <div class="summary-value">{{ orderStats().processing }}</div>
             <div class="summary-label">В обработке</div>
-          </div>
-        </div>
-
-        <div class="summary-item accent" role="button" tabindex="0" aria-label="Создать новую заявку"
-          (click)="scrollToMainContent()" (keydown)="onSummaryStatusKeydown($event, 'create')">
-          <div class="summary-icon">
-            <mat-icon>add_circle</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">+</div>
-            <div class="summary-label">Создать новую заявку</div>
           </div>
         </div>
 

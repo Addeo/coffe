@@ -17,7 +17,7 @@ NC='\033[0m'
 # Configuration
 VPS_HOST="${1:-192.144.12.102}"
 VPS_USER="${2:-user1}"
-DB_NAME="coffee_db"
+DB_NAME="coffee_admin"
 SCRIPT_PATH="scripts/seed-production-orders.sql"
 
 print_step() {
@@ -63,11 +63,11 @@ print_step "4/5" "Executing SQL migration..."
 ssh -o StrictHostKeyChecking=no "${VPS_USER}@${VPS_HOST}" << 'EOF'
   cd ~/coffe
   
-  # Get MySQL credentials from docker-compose
-  DB_PASSWORD=$(grep MYSQL_ROOT_PASSWORD docker-compose.fallback.yml | awk '{print $2}')
+  # Get MySQL credentials from .env file
+  source .env
   
   echo "Executing SQL migration..."
-  docker exec -i coffee_mysql_fallback mysql -uroot -p"${DB_PASSWORD}" coffee_db < /tmp/seed-orders.sql
+  docker exec -i coffee_mysql_fallback mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" coffee_admin < /tmp/seed-orders.sql
   
   if [ $? -eq 0 ]; then
     echo "✅ Migration executed successfully"
@@ -88,17 +88,17 @@ print_ok "Migration executed successfully"
 print_step "5/5" "Verifying data..."
 ssh -o StrictHostKeyChecking=no "${VPS_USER}@${VPS_HOST}" << 'EOF'
   cd ~/coffe
-  DB_PASSWORD=$(grep MYSQL_ROOT_PASSWORD docker-compose.fallback.yml | awk '{print $2}')
+  source .env
   
   echo "Current month statistics:"
-  docker exec -i coffee_mysql_fallback mysql -uroot -p"${DB_PASSWORD}" coffee_db -e "
+  docker exec -i coffee_mysql_fallback mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" coffee_admin -e "
     SELECT 
       status, 
       COUNT(*) as count,
-      COALESCE(SUM(calculatedAmount), 0) as total_engineer,
-      COALESCE(SUM(organizationPayment), 0) as total_org
+      COALESCE(SUM(calculated_amount), 0) as total_engineer,
+      COALESCE(SUM(organization_payment), 0) as total_org
     FROM orders 
-    WHERE createdAt >= DATE_FORMAT(NOW(), '%Y-%m-01')
+    WHERE created_at >= DATE_FORMAT(NOW(), '%Y-%m-01')
     GROUP BY status
     ORDER BY FIELD(status, 'waiting', 'assigned', 'processing', 'working', 'review', 'completed', 'paid_to_engineer');
   "

@@ -794,7 +794,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   onSummaryStatusClick(
-    key:
+    key?:
       | 'total'
       | 'waiting'
       | 'processing'
@@ -825,6 +825,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
         status = OrderStatus.PAID_TO_ENGINEER;
         break;
       case 'total':
+      case undefined:
       default:
         status = '';
         break;
@@ -835,7 +836,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
   onSummaryStatusKeydown(
     event: KeyboardEvent,
-    key:
+    key?:
       | 'total'
       | 'waiting'
       | 'processing'
@@ -845,8 +846,13 @@ export class OrdersComponent implements OnInit, OnDestroy {
       | 'paid_to_engineer'
       | 'create'
   ): void {
-    if (event.key === 'Enter' || event.key === ' ') {
+    const { code } = event;
+
+    // Handle Enter and Space
+    if (code === 'Enter' || code === 'Space') {
       event.preventDefault();
+      event.stopPropagation();
+
       if (key === 'create') {
         this.scrollToMainContent();
       } else {

@@ -20,48 +20,95 @@
     </mat-card-header>
 
     <mat-card-content [class.collapsed]="financialSummaryCards()">
-      <div class="manager-summary-grid">
-        <!-- Итого доход - вся сумма к оплате от заказчиков -->
-        <div class="summary-item primary">
-          <div class="summary-icon">
-            <mat-icon>account_balance</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">
-              {{ getTotalIncomeFromCustomers() | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}
-            </div>
-            <div class="summary-label">Итого доход</div>
-            <div class="summary-description">Вся сумма к оплате от заказчиков</div>
-          </div>
+      <!-- 1. Итого доход -->
+      <div class="financial-item total-revenue">
+        <div class="financial-icon">
+          <mat-icon>account_balance</mat-icon>
         </div>
+        <div class="financial-content">
+          <div class="financial-label">Итого доход</div>
+          <div class="financial-value">
+            {{ getTotalIncomeFromCustomers() | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}
+          </div>
+          <div class="financial-description">Вся сумма к оплате от заказчиков</div>
+        </div>
+      </div>
 
-        <!-- К оплате за часы - вся сумма к оплате за часы инженерам -->
-        <div class="summary-item info">
-          <div class="summary-icon">
+      <!-- 2. К оплате за часы (раскрывающийся список) -->
+      <div class="financial-item collapsible">
+        <div class="financial-header" (click)="toggleHoursPaymentList()">
+          <div class="financial-icon">
             <mat-icon>schedule</mat-icon>
           </div>
-          <div class="summary-content">
-            <div class="summary-value">
+          <div class="financial-content">
+            <div class="financial-label">К оплате за часы</div>
+            <div class="financial-value">
               {{ getTotalHoursPayment() | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}
             </div>
-            <div class="summary-label">К оплате за часы</div>
-            <div class="summary-description">Вся сумма к оплате за часы инженерам</div>
+            <div class="financial-description">Вся сумма к оплате за часы инженерам</div>
           </div>
+          <button mat-icon-button class="expand-button">
+            <mat-icon>{{ hoursPaymentListCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+          </button>
         </div>
 
-        <!-- К оплате за авто - вся сумма к оплате за эксплуатацию авто -->
-        <div class="summary-item accent">
-          <div class="summary-icon">
+        <!-- Список инженеров для оплаты за часы -->
+        <div class="engineer-payment-list" [class.collapsed]="hoursPaymentListCollapsed()">
+          <div *ngIf="engineerHoursStats() && engineerHoursStats()!.engineers.length > 0" class="engineer-items">
+            <div *ngFor="let engineer of engineerHoursStats()!.engineers" class="engineer-payment-item">
+              <div class="engineer-info">
+                <mat-icon class="engineer-icon">person</mat-icon>
+                <span class="engineer-name">{{ engineer.engineerName }}</span>
+              </div>
+              <div class="payment-details">
+                <span class="hours-info">{{ engineer.totalHours.toFixed(1) }} ч</span>
+                <span class="payment-amount">{{ (engineer.earnedAmount || 0) | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="!engineerHoursStats() || engineerHoursStats()!.engineers.length === 0" class="no-data">
+            <mat-icon>info</mat-icon>
+            <p>Нет данных по инженерам</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. К оплате за авто (раскрывающийся список) -->
+      <div class="financial-item collapsible">
+        <div class="financial-header" (click)="toggleCarPaymentList()">
+          <div class="financial-icon">
             <mat-icon>directions_car</mat-icon>
           </div>
-          <div class="summary-content">
-            <div class="summary-value">
+          <div class="financial-content">
+            <div class="financial-label">К оплате за авто</div>
+            <div class="financial-value">
               {{ getTotalCarPayment() | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}
             </div>
-            <div class="summary-label">К оплате за авто</div>
-            <div class="summary-description">
+            <div class="financial-description">
               Вся сумма к оплате за эксплуатацию авто штатных и наемных инженеров
             </div>
+          </div>
+          <button mat-icon-button class="expand-button">
+            <mat-icon>{{ carPaymentListCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+          </button>
+        </div>
+
+        <!-- Список инженеров для оплаты за авто -->
+        <div class="engineer-payment-list" [class.collapsed]="carPaymentListCollapsed()">
+          <div *ngIf="engineerHoursStats() && engineerHoursStats()!.engineers.length > 0" class="engineer-items">
+            <div *ngFor="let engineer of engineerHoursStats()!.engineers" class="engineer-payment-item">
+              <div class="engineer-info">
+                <mat-icon class="engineer-icon">person</mat-icon>
+                <span class="engineer-name">{{ engineer.engineerName }}</span>
+              </div>
+              <div class="payment-details">
+                <span class="payment-amount">{{ (engineer.carPayments || 0) | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="!engineerHoursStats() || engineerHoursStats()!.engineers.length === 0" class="no-data">
+            <mat-icon>info</mat-icon>
+            <p>Нет данных по инженерам</p>
           </div>
         </div>
       </div>
@@ -153,6 +200,25 @@
 
       <mat-card-content [class.collapsed]="summaryCardsCollapsed()">
         <div class="orders-overview-grid">
+          <!-- Всего заявок -->
+          <div
+            class="summary-item primary"
+            role="button"
+            tabindex="0"
+            aria-label="Показать все заявки"
+            (click)="navigateToOrders()"
+            (keydown.enter)="navigateToOrders()"
+            (keydown.space)="navigateToOrders(); $event.preventDefault()"
+          >
+            <div class="summary-icon">
+              <mat-icon>assignment</mat-icon>
+            </div>
+            <div class="summary-content">
+              <div class="summary-value">{{ orderStats()?.total || 0 }}</div>
+              <div class="summary-label">Всего заявок</div>
+            </div>
+          </div>
+
           <div
             class="summary-item warning"
             role="button"

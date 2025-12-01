@@ -231,7 +231,9 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   // Collapse states for blocks
   earningsSummaryCollapsed = signal(true);
   summaryCardsCollapsed = signal(true);
-  financialSummaryCards = signal(true)
+  financialSummaryCards = signal(true);
+  hoursPaymentListCollapsed = signal(true);  // Для списка "К оплате за часы"
+  carPaymentListCollapsed = signal(true);    // Для списка "К оплате за авто"
   carPaymentsCollapsed = signal(true);
   engineersStatsCollapsed = signal(true);
   statisticsTabsCollapsed = signal(true);
@@ -937,6 +939,14 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
 
   toggleFinancialSummaryCards(): void {
     this.financialSummaryCards.set(!this.financialSummaryCards());
+  }
+
+  toggleHoursPaymentList(): void {
+    this.hoursPaymentListCollapsed.set(!this.hoursPaymentListCollapsed());
+  }
+
+  toggleCarPaymentList(): void {
+    this.carPaymentListCollapsed.set(!this.carPaymentListCollapsed());
   }
 
   toggleCarPayments(): void {
