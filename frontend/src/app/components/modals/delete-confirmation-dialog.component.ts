@@ -29,7 +29,9 @@ export interface DeleteConfirmationData {
   template: `
     <div class="delete-dialog">
       <div class="delete-header">
-        <mat-icon style="margin-left: 20px; width: 30px; height: 30px" color="warn">warning</mat-icon>
+        <mat-icon style="margin-left: 20px; width: 30px; height: 30px" color="warn"
+          >warning</mat-icon
+        >
         <h2 mat-dialog-title>{{ data.title || 'Подтвердить удаление' }}</h2>
       </div>
 
@@ -45,15 +47,14 @@ export interface DeleteConfirmationData {
         <p class="warning-text">Это действие нельзя отменить.</p>
       </mat-dialog-content>
 
-      <mat-dialog-actions align="end" direction="row" >
+      <mat-dialog-actions align="end" direction="row">
         <div style="display: flex, flex-direction: row">
-        <button mat-button (click)="onCancel()">{{ data.cancelText || 'Отмена' }}</button>
-        <button mat-raised-button color="warn" (click)="onConfirm()" [disabled]="isLoading()">
-          <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
-          <span *ngIf="!isLoading()">{{ data.confirmText || 'Удалить' }}</span>
-        </button>
+          <button mat-button (click)="onCancel()">{{ data.cancelText || 'Отмена' }}</button>
+          <button mat-raised-button color="warn" (click)="onConfirm()" [disabled]="isLoading()">
+            <mat-spinner diameter="20" *ngIf="isLoading()"></mat-spinner>
+            <span *ngIf="!isLoading()">{{ data.confirmText || 'Удалить' }}</span>
+          </button>
         </div>
-       
       </mat-dialog-actions>
     </div>
   `,

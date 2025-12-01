@@ -232,8 +232,8 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   earningsSummaryCollapsed = signal(true);
   summaryCardsCollapsed = signal(true);
   financialSummaryCards = signal(true);
-  hoursPaymentListCollapsed = signal(true);  // Для списка "К оплате за часы"
-  carPaymentListCollapsed = signal(true);    // Для списка "К оплате за авто"
+  hoursPaymentListCollapsed = signal(true); // Для списка "К оплате за часы"
+  carPaymentListCollapsed = signal(true); // Для списка "К оплате за авто"
   carPaymentsCollapsed = signal(true);
   engineersStatsCollapsed = signal(true);
   statisticsTabsCollapsed = signal(true);

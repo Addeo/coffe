@@ -284,10 +284,7 @@ export class AssignEngineerDialogComponent {
         // Exclude managers, admins, and users without engineer profiles
         this.availableEngineers = response.data.filter(
           (user: UserDto) =>
-            user.role === UserRole.USER &&
-            user.isActive &&
-            user.engineer &&
-            user.engineer.id
+            user.role === UserRole.USER && user.isActive && user.engineer && user.engineer.id
         );
 
         console.log('Available engineers:', this.availableEngineers);

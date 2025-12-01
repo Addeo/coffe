@@ -42,4 +42,4 @@ import { SalaryPayment } from '../../entities/salary-payment.entity';
   providers: [UsersService],
   exports: [UsersService],
 })
-export class UsersModule { }
+export class UsersModule {}

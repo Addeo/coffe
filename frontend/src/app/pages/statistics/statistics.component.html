@@ -7,16 +7,16 @@
         Финансовая сводка
       </mat-card-title>
       <div class="header-actions-right">
-          <button
-            mat-icon-button
-            (click)="toggleFinancialSummaryCards()"
-            matTooltip="{{ financialSummaryCards() ? 'Развернуть' : 'Свернуть' }}"
-            class="collapse-toggle-btn"
-            [attr.aria-label]="financialSummaryCards() ? 'Развернуть' : 'Свернуть'"
-          >
-            <mat-icon>{{ financialSummaryCards() ? 'expand_more' : 'expand_less' }}</mat-icon>
-          </button>
-        </div>
+        <button
+          mat-icon-button
+          (click)="toggleFinancialSummaryCards()"
+          matTooltip="{{ financialSummaryCards() ? 'Развернуть' : 'Свернуть' }}"
+          class="collapse-toggle-btn"
+          [attr.aria-label]="financialSummaryCards() ? 'Развернуть' : 'Свернуть'"
+        >
+          <mat-icon>{{ financialSummaryCards() ? 'expand_more' : 'expand_less' }}</mat-icon>
+        </button>
+      </div>
     </mat-card-header>
 
     <mat-card-content [class.collapsed]="financialSummaryCards()">
@@ -54,19 +54,30 @@
 
         <!-- Список инженеров для оплаты за часы -->
         <div class="engineer-payment-list" [class.collapsed]="hoursPaymentListCollapsed()">
-          <div *ngIf="engineerHoursStats() && engineerHoursStats()!.engineers.length > 0" class="engineer-items">
-            <div *ngFor="let engineer of engineerHoursStats()!.engineers" class="engineer-payment-item">
+          <div
+            *ngIf="engineerHoursStats() && engineerHoursStats()!.engineers.length > 0"
+            class="engineer-items"
+          >
+            <div
+              *ngFor="let engineer of engineerHoursStats()!.engineers"
+              class="engineer-payment-item"
+            >
               <div class="engineer-info">
                 <mat-icon class="engineer-icon">person</mat-icon>
                 <span class="engineer-name">{{ engineer.engineerName }}</span>
               </div>
               <div class="payment-details">
                 <span class="hours-info">{{ engineer.totalHours.toFixed(1) }} ч</span>
-                <span class="payment-amount">{{ (engineer.earnedAmount || 0) | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</span>
+                <span class="payment-amount">{{
+                  engineer.earnedAmount || 0 | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
+                }}</span>
               </div>
             </div>
           </div>
-          <div *ngIf="!engineerHoursStats() || engineerHoursStats()!.engineers.length === 0" class="no-data">
+          <div
+            *ngIf="!engineerHoursStats() || engineerHoursStats()!.engineers.length === 0"
+            class="no-data"
+          >
             <mat-icon>info</mat-icon>
             <p>Нет данных по инженерам</p>
           </div>
@@ -95,18 +106,29 @@
 
         <!-- Список инженеров для оплаты за авто -->
         <div class="engineer-payment-list" [class.collapsed]="carPaymentListCollapsed()">
-          <div *ngIf="engineerHoursStats() && engineerHoursStats()!.engineers.length > 0" class="engineer-items">
-            <div *ngFor="let engineer of engineerHoursStats()!.engineers" class="engineer-payment-item">
+          <div
+            *ngIf="engineerHoursStats() && engineerHoursStats()!.engineers.length > 0"
+            class="engineer-items"
+          >
+            <div
+              *ngFor="let engineer of engineerHoursStats()!.engineers"
+              class="engineer-payment-item"
+            >
               <div class="engineer-info">
                 <mat-icon class="engineer-icon">person</mat-icon>
                 <span class="engineer-name">{{ engineer.engineerName }}</span>
               </div>
               <div class="payment-details">
-                <span class="payment-amount">{{ (engineer.carPayments || 0) | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</span>
+                <span class="payment-amount">{{
+                  engineer.carPayments || 0 | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
+                }}</span>
               </div>
             </div>
           </div>
-          <div *ngIf="!engineerHoursStats() || engineerHoursStats()!.engineers.length === 0" class="no-data">
+          <div
+            *ngIf="!engineerHoursStats() || engineerHoursStats()!.engineers.length === 0"
+            class="no-data"
+          >
             <mat-icon>info</mat-icon>
             <p>Нет данных по инженерам</p>
           </div>

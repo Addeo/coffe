@@ -33,7 +33,7 @@ export class StatisticsService {
     private engineerRepository: Repository<Engineer>,
     @InjectRepository(WorkSession)
     private workSessionRepository: Repository<WorkSession>
-  ) { }
+  ) {}
 
   async getUserEarningsStatistics(
     userId: number,
@@ -298,12 +298,12 @@ export class StatisticsService {
       previousMonth:
         prevSessions.length > 0
           ? {
-            totalEarnings: prevTotalEarnings,
-            completedOrders: prevUniqueOrders.size,
-            totalHours: prevTotalHours,
-            month: previousMonth,
-            year: previousYear,
-          }
+              totalEarnings: prevTotalEarnings,
+              completedOrders: prevUniqueOrders.size,
+              totalHours: prevTotalHours,
+              month: previousMonth,
+              year: previousYear,
+            }
           : null,
       growth,
     };

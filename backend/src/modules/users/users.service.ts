@@ -64,7 +64,7 @@ export class UsersService {
     private salaryCalculationRepository: Repository<SalaryCalculation>,
     @InjectRepository(SalaryPayment)
     private salaryPaymentRepository: Repository<SalaryPayment>
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto, createdById: number): Promise<User> {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
@@ -492,7 +492,10 @@ export class UsersService {
     await this.fileRepository.update({ uploadedById: userId }, { uploadedById: null });
 
     // Unassign salary calculations performed by this user
-    await this.salaryCalculationRepository.update({ calculatedById: userId }, { calculatedById: null });
+    await this.salaryCalculationRepository.update(
+      { calculatedById: userId },
+      { calculatedById: null }
+    );
 
     // Unassign salary payments performed by this user
     await this.salaryPaymentRepository.update({ paidById: userId }, { paidById: null });

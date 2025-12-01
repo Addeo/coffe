@@ -107,14 +107,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   displayedColumns = computed(() => {
     // Engineers see only relevant columns
     if (this.isEngineerView()) {
-      return [
-        'id',
-        'title',
-        'organization',
-        'status',
-        'createdAt',
-        'actions',
-      ];
+      return ['id', 'title', 'organization', 'status', 'createdAt', 'actions'];
     }
 
     // Managers and admins see all columns

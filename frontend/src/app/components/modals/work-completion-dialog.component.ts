@@ -173,13 +173,7 @@ export interface WorkCompletionDialogData {
           <div class="form-section">
             <h4>📎 Файлы и документы</h4>
             <div class="file-upload-container">
-              <input
-                type="file"
-                #fileInput
-                hidden
-                multiple
-                (change)="onFileSelected($event)"
-              />
+              <input type="file" #fileInput hidden multiple (change)="onFileSelected($event)" />
               <button mat-stroked-button color="primary" (click)="fileInput.click()" type="button">
                 <mat-icon>cloud_upload</mat-icon>
                 Добавить файлы
@@ -566,18 +560,18 @@ export class WorkCompletionDialogComponent implements OnInit {
       );
 
       forkJoin(uploadObservables).subscribe({
-        next: (responses) => {
+        next: responses => {
           const uploadedFileIds = responses
             .filter((res): res is FileResponseDto => res !== null)
             .map(res => res.id);
-          
+
           this.submitWorkData(uploadedFileIds);
         },
-        error: (error) => {
+        error: error => {
           console.error('Error uploading files:', error);
           this.toastService.error('Ошибка при загрузке файлов');
           this.isLoading.set(false);
-        }
+        },
       });
     } else {
       this.submitWorkData([]);
@@ -595,7 +589,7 @@ export class WorkCompletionDialogComponent implements OnInit {
       carPayment: formValue.carPayment || 0,
       notes: formValue.notes,
       isFullyCompleted: formValue.isFullyCompleted,
-      files: fileIds
+      files: fileIds,
     };
 
     console.log('💾 Saving work data:', {
