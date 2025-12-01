@@ -1114,6 +1114,8 @@ export class OrdersService {
       .groupBy('order.status')
       .getRawMany();
 
+    console.log('📊 Order stats by status:', stats);
+
     const result = {
       total: 0,
       waiting: 0,
@@ -1142,6 +1144,16 @@ export class OrdersService {
     stats.forEach(stat => {
       result.total += parseInt(stat.count);
       result[stat.status] = parseInt(stat.count);
+    });
+
+    console.log('📊 Processed result:', {
+      total: result.total,
+      waiting: result.waiting,
+      processing: result.processing,
+      working: result.working,
+      review: result.review,
+      completed: result.completed,
+      paid_to_engineer: result.paid_to_engineer,
     });
 
     // Get source statistics

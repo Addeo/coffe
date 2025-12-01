@@ -266,8 +266,10 @@ export class DashboardComponent implements OnInit {
    * @param amount Сумма в рублях
    */
   formatAmount(amount: number): string {
-    if (amount == null || isNaN(amount)) return '0 ₽';
-    return amount.toLocaleString('ru-RU') + ' ₽';
+    if (amount == null) return '0 ₽';
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (isNaN(numAmount)) return '0 ₽';
+    return `${numAmount.toFixed(2)} ₽`;
   }
 
   // Новые методы для улучшенного Dashboard

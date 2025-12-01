@@ -999,8 +999,10 @@ export class OrderEditComponent implements OnInit {
   }
 
   formatAmount(amount: number): string {
-    if (amount == null || isNaN(amount)) return '0 ₽';
-    return `${amount.toFixed(2)} ₽`;
+    if (amount == null) return '0 ₽';
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+    if (isNaN(numAmount)) return '0 ₽';
+    return `${numAmount.toFixed(2)} ₽`;
   }
 
   // Check if current user is admin or manager
