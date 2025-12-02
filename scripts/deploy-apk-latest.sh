@@ -106,7 +106,7 @@ echo ""
 
 # 4. Restart backend container
 print_step "4/5" "Restarting backend container..."
-ssh_exec "cd ${PROJECT_DIR} && docker compose -f ${DOCKER_COMPOSE_FILE} up -d backend"
+ssh_exec "cd ${PROJECT_DIR} && docker stop ${CONTAINER_NAME} || true && docker rm ${CONTAINER_NAME} || true && docker compose -f ${DOCKER_COMPOSE_FILE} up -d backend"
 print_ok "Backend container restarted"
 
 echo ""

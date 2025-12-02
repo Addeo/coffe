@@ -191,10 +191,11 @@
             role="button"
             tabindex="0"
             aria-label="Показать ожидающие заявки"
-            (click)="navigateToOrders('waiting')"
-            (keydown.enter)="navigateToOrders('waiting')"
-            (keydown.space)="navigateToOrders('waiting'); $event.preventDefault()"
+     
           >
+                 <!-- (click)="navigateToOrders('waiting')"
+            (keydown.enter)="navigateToOrders('waiting')"
+            (keydown.space)="navigateToOrders('waiting'); $event.preventDefault()" -->
             <div class="summary-icon">
               <mat-icon>schedule</mat-icon>
             </div>
@@ -227,10 +228,11 @@
             role="button"
             tabindex="0"
             aria-label="Показать заявки в работе"
-            (click)="navigateToOrders('working')"
-            (keydown.enter)="navigateToOrders('working')"
-            (keydown.space)="navigateToOrders('working'); $event.preventDefault()"
+
           >
+                      <!-- (click)="navigateToOrders('working')"
+            (keydown.enter)="navigateToOrders('working')"
+            (keydown.space)="navigateToOrders('working'); $event.preventDefault()" -->
             <div class="summary-icon">
               <mat-icon>build</mat-icon>
             </div>
@@ -263,10 +265,11 @@
             role="button"
             tabindex="0"
             aria-label="Показать завершённые заявки"
-            (click)="navigateToOrders('completed')"
-            (keydown.enter)="navigateToOrders('completed')"
-            (keydown.space)="navigateToOrders('completed'); $event.preventDefault()"
+
           >
+                      <!-- (click)="navigateToOrders('completed')"
+            (keydown.enter)="navigateToOrders('completed')"
+            (keydown.space)="navigateToOrders('completed'); $event.preventDefault()" -->
             <div class="summary-icon">
               <mat-icon>check_circle</mat-icon>
             </div>

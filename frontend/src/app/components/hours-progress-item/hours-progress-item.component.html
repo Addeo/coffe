@@ -114,7 +114,7 @@
         (statistics.earnedAmount !== undefined || statistics.carPayments !== undefined)
       "
     >
-      <button
+      <!-- <button
         *ngIf="statistics.earnedAmount !== undefined && statistics.earnedAmount > 0"
         mat-stroked-button
         color="primary"
@@ -128,9 +128,9 @@
           {{ statistics.earnedAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</span
         >
         <mat-icon>{{ showHoursPayments() ? 'expand_less' : 'expand_more' }}</mat-icon>
-      </button>
+      </button> -->
 
-      <button
+      <!-- <button
         *ngIf="statistics.carPayments !== undefined && statistics.carPayments > 0"
         mat-stroked-button
         color="accent"
@@ -144,7 +144,7 @@
           {{ statistics.carPayments | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</span
         >
         <mat-icon>{{ showCarPayments() ? 'expand_less' : 'expand_more' }}</mat-icon>
-      </button>
+      </button> -->
     </div>
 
     <!-- Payment Details Lists -->

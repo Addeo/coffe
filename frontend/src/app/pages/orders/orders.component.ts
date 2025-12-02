@@ -1252,6 +1252,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   ordersOverviewCollapsed = signal(false);
   ordersHeaderCollapsed = signal(false);
   engineerSummaryCollapsed = signal(true);
+  carPaymentsCollapsed = signal(true);
   mobileStatisticsCollapsed = signal(false);
   managerStatsCollapsed = signal(false);
 
@@ -1290,6 +1291,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
   // Toggle engineer summary block
   toggleEngineerSummary() {
     this.engineerSummaryCollapsed.set(!this.engineerSummaryCollapsed());
+  }
+
+  // Toggle car payments block
+  toggleCarPayments() {
+    this.carPaymentsCollapsed.set(!this.carPaymentsCollapsed());
   }
 
   // Toggle mobile statistics block
