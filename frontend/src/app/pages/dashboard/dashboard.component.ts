@@ -76,7 +76,7 @@ export class DashboardComponent implements OnInit {
       case UserRole.ADMIN:
         return 'Панель руководителя';
       case UserRole.MANAGER:
-        return 'Панель логиста';
+        return 'Панель Логиста';
       case UserRole.USER:
         return 'Моя панель';
       default:

@@ -1,5 +1,4 @@
 <div class="orders-container">
-
   <mat-card class="orders-overview-card" *ngIf="canEditOrders()">
     <mat-card-header>
       <mat-card-title>
@@ -298,8 +297,8 @@
           iconColor="accent"
           [showSlider]="true"
           [statistics]="{
-            regularHours: ((summary.workedHours ?? 0) - (summary.overtimeHours ?? 0)),
-            overtimeHours: (summary.overtimeHours ?? 0),
+            regularHours: (summary.workedHours ?? 0) - (summary.overtimeHours ?? 0),
+            overtimeHours: summary.overtimeHours ?? 0,
           }"
         ></app-hours-progress-item>
 
@@ -319,26 +318,47 @@
           <!-- <mat-progress-bar mode="determinate" [value]="getEarningsProgress(summary)"></mat-progress-bar> -->
         </div>
 
-        <div class="summary-item summary-item--compact collapsible" [class.collapsed]="carPaymentsCollapsed()">
+        <div
+          class="summary-item summary-item--compact collapsible"
+          [class.collapsed]="carPaymentsCollapsed()"
+        >
           <div class="item-header" (click)="toggleCarPayments()">
             <mat-icon color="warn">directions_car</mat-icon>
             <div>
               <div class="item-label">Итого авто:</div>
               <div class="item-value">
-                {{ ((summary.carPayments ?? 0) + (summary.plannedCarAmount ?? 0)) | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}
+                {{
+                  (summary.carPayments ?? 0) + (summary.plannedCarAmount ?? 0)
+                    | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
+                }}
               </div>
             </div>
-            <mat-icon class="collapse-icon">{{ carPaymentsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+            <mat-icon class="collapse-icon">{{
+      carPaymentsCollapsed() ? 'expand_more' : 'expand_less'
+            }}</mat-icon>
           </div>
 
           <div class="item-details" *ngIf="!carPaymentsCollapsed()">
-            <div class="detail-row">
-              <span class="detail-label">Обязательные:</span>
-              <span class="detail-value">{{ summary.plannedCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="detail-label">Дополнительные:</span>
-              <span class="detail-value">{{ summary.carPayments | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</span>
+            <div class="statistics-grid">
+              <div class="stat-item">
+                <div class="stat-icon">
+                  <mat-icon>account_balance</mat-icon>
+                </div>
+                <div class="stat-info">
+                  <div class="stat-label">Обязательные</div>
+                  <div class="stat-value">{{ summary.plannedCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</div>
+                </div>
+              </div>
+
+              <div class="stat-item">
+                <div class="stat-icon">
+                  <mat-icon>add_circle</mat-icon>
+                </div>
+                <div class="stat-info">
+                  <div class="stat-label">Дополнительные</div>
+                  <div class="stat-value">{{ summary.carPayments | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -588,10 +608,7 @@
       </div>
 
       <!-- Mobile Orders List (Cards) -->
-      <div
-        class="mobile-orders-list"
-        *ngIf="!isLoading() && dataSource.data.length > 0"
-      >
+      <div class="mobile-orders-list" *ngIf="!isLoading() && dataSource.data.length > 0">
         <div
           class="mobile-order-card"
           *ngFor="let order of dataSource.data; trackBy: trackByOrderId"
@@ -650,7 +667,12 @@
             </button>
 
             <!-- Admin/Manager Actions -->
-            <button mat-button color="primary" (click)="onEditOrder(order)" *ngIf="canEditOrder(order)">
+            <button
+              mat-button
+              color="primary"
+              (click)="onEditOrder(order)"
+              *ngIf="canEditOrder(order)"
+            >
               <mat-icon>edit</mat-icon>
               Редактировать
             </button>
@@ -994,7 +1016,7 @@
   </mat-paginator>
 </div>
 
-  <!-- <button
+<!-- <button
           mat-icon-button
           (click)="toggleManagerStats(); $event.stopPropagation()"
           matTooltip="{{ managerStatsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
@@ -1004,7 +1026,7 @@
           <mat-icon>{{ managerStatsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
         </button> -->
 
-  <!-- <mat-card class="manager-hours-stats-card" *ngIf="isManager() && !isMobileView()">
+<!-- <mat-card class="manager-hours-stats-card" *ngIf="isManager() && !isMobileView()">
     <mat-card-header>
       <mat-card-title>
         <mat-icon>schedule</mat-icon>
@@ -1103,7 +1125,7 @@
     </mat-card-content>
   </mat-card> -->
 
-  <!-- <mat-card class="stats-card-unified" *ngIf="statsView === 'compact'">
+<!-- <mat-card class="stats-card-unified" *ngIf="statsView === 'compact'">
     <mat-card-header>
       <mat-card-title>
         <mat-icon>bar_chart</mat-icon>
@@ -1203,7 +1225,7 @@
     </mat-card-content>
   </mat-card> -->
 
-  <!-- <mat-card class="stats-card-charts" *ngIf="statsView === 'charts'">
+<!-- <mat-card class="stats-card-charts" *ngIf="statsView === 'charts'">
     <mat-card-header>
       <mat-card-title>
         <mat-icon>bar_chart</mat-icon>
@@ -1279,7 +1301,7 @@
     </mat-card-content>
   </mat-card> -->
 
-  <!--
+<!--
   <mat-card class="stats-card-progress" *ngIf="statsView === 'progress'">
     <mat-card-header>
       <mat-card-title>
@@ -1411,10 +1433,8 @@
   </mat-card>
   -->
 
-
-
-  <!-- Test examples for hours-progress-item component -->
-  <!-- <div class="test-examples-container" style="margin-bottom: 24px; padding: 16px; background: #f5f5f5; border-radius: 8px;">
+<!-- Test examples for hours-progress-item component -->
+<!-- <div class="test-examples-container" style="margin-bottom: 24px; padding: 16px; background: #f5f5f5; border-radius: 8px;">
     <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600; color: rgba(0, 0, 0, 0.87);">
       Тестовые примеры компонента hours-progress-item
     </h3>
@@ -1471,7 +1491,7 @@
     </div>
   </div> -->
 
-  <!-- <div class="stats-switcher">
+<!-- <div class="stats-switcher">
     <mat-button-toggle-group [(ngModel)]="statsView" aria-label="Вариант отображения статистики"
       class="stats-toggle-group">
       <mat-button-toggle value="compact" class="stats-toggle-btn">
@@ -1489,10 +1509,10 @@
     </mat-button-toggle-group>
   </div> -->
 
-  <!-- <app-engineer-summary-card *ngIf="isEngineerView()" [summary]="engineerSummary()!"
+<!-- <app-engineer-summary-card *ngIf="isEngineerView()" [summary]="engineerSummary()!"
     (monthChanged)="onEngineerMonthChanged($event)"></app-engineer-summary-card> -->
 
-    <!-- <mat-paginator
+<!-- <mat-paginator
 [pageSizeOptions]="[5, 10, 20, 50]"
 showFirstLastButtons
 aria-label="Выберите страницу заявок"
