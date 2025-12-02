@@ -362,11 +362,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
     // Set initial role
     this.previousRole = this.authService.activeRole() ?? null;
 
-    // Подписка на события роутера для автоматической перезагрузки при переходе на страницу для диспетчера
+    // Подписка на события роутера для автоматической перезагрузки при переходе на страницу для логиста
     this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
-        // Если диспетчер (MANAGER) и перешли на страницу orders, перезагружаем страницу
+        // Если логист (MANAGER) и перешли на страницу orders, перезагружаем страницу
         if (
           this.isManager() &&
           event.url === '/orders' &&

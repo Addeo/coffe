@@ -137,61 +137,6 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Earnings Summary Component -->
-  <!-- <mat-card class="collapsible-section summary-cards-section">
-    <mat-card-header (click)="toggleEarningsSummary()" class="collapsible-header earnings-header">
-      <div class="header-content">
-        <div class="title-section">
-          <mat-icon>account_balance_wallet</mat-icon>
-          <span class="title">Сводка по доходам</span>
-        </div>
-
-        <div class="month-selector" (click)="$event.stopPropagation()">
-          <button
-            mat-icon-button
-            (click)="previousMonthForEarnings()"
-            matTooltip="Предыдущий месяц"
-            class="nav-btn"
-          >
-            <mat-icon>chevron_left</mat-icon>
-          </button>
-
-          <span class="month-display">
-            {{ getMonthName(selectedMonth()) }} {{ selectedYear() }}
-          </span>
-
-          <button
-            mat-icon-button
-            (click)="nextMonthForEarnings()"
-            matTooltip="Следующий месяц"
-            class="nav-btn"
-          >
-            <mat-icon>chevron_right</mat-icon>
-          </button>
-        </div>
-      </div>
-    </mat-card-header>
-    <mat-card-content [class.collapsed]="earningsSummaryCollapsed()">
-      <app-earnings-summary
-        [month]="selectedMonth()"
-        [year]="selectedYear()"
-        [collapsible]="false"
-        (monthChanged)="onMonthChangedFromEarnings($event)"
-      >
-      </app-earnings-summary>
-    </mat-card-content>
-
-    <div class="header-actions-right" (click)="toggleEarningsSummary()">
-      <button
-        class="collapse-toggle-btn-bottom"
-        matTooltip="{{ earningsSummaryCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-      >
-        {{ earningsSummaryCollapsed() ? 'Развернуть' : 'Свернуть' }}
-        <mat-icon>{{ earningsSummaryCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-      </button>
-    </div>
-  </mat-card> -->
-
   <!-- Loading Spinner -->
   <div *ngIf="isLoading()" class="loading-container">
     <mat-spinner diameter="50"></mat-spinner>
@@ -259,7 +204,7 @@
             </div>
           </div>
 
-          <div
+          <!-- <div
             class="summary-item info"
             role="button"
             tabindex="0"
@@ -275,7 +220,7 @@
               <div class="summary-value">{{ orderStats()?.processing || 0 }}</div>
               <div class="summary-label">В обработке</div>
             </div>
-          </div>
+          </div> -->
 
           <div
             class="summary-item accent"
@@ -295,7 +240,7 @@
             </div>
           </div>
 
-          <div
+          <!-- <div
             class="summary-item review"
             role="button"
             tabindex="0"
@@ -311,7 +256,7 @@
               <div class="summary-value">{{ orderStats()?.review || 0 }}</div>
               <div class="summary-label">На проверке</div>
             </div>
-          </div>
+          </div> -->
 
           <div
             class="summary-item success"
@@ -544,7 +489,7 @@
     </mat-card> -->
 
     <!-- Engineers Hours Statistics (Детализация по инженерам) -->
-    <mat-card class="engineers-hours-stats-card collapsible-section" *ngIf="canViewAllData">
+    <!-- <mat-card class="engineers-hours-stats-card collapsible-section" *ngIf="canViewAllData">
       <mat-card-header (click)="toggleEngineersStats()" class="collapsible-header">
         <div class="header-title-section">
           <mat-card-title>
@@ -602,7 +547,7 @@
           </div>
         </div>
       </mat-card-content>
-    </mat-card>
+    </mat-card> -->
 
     <!-- Statistics Tabs with View Mode Toggle -->
     <mat-card *ngIf="false" class="collapsible-section">
@@ -1411,6 +1356,63 @@
     </mat-card-content>
   </mat-card>
 </div>
+
+
+  <!-- Earnings Summary Component -->
+  <!-- <mat-card class="collapsible-section summary-cards-section">
+    <mat-card-header (click)="toggleEarningsSummary()" class="collapsible-header earnings-header">
+      <div class="header-content">
+        <div class="title-section">
+          <mat-icon>account_balance_wallet</mat-icon>
+          <span class="title">Сводка по доходам</span>
+        </div>
+
+        <div class="month-selector" (click)="$event.stopPropagation()">
+          <button
+            mat-icon-button
+            (click)="previousMonthForEarnings()"
+            matTooltip="Предыдущий месяц"
+            class="nav-btn"
+          >
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+
+          <span class="month-display">
+            {{ getMonthName(selectedMonth()) }} {{ selectedYear() }}
+          </span>
+
+          <button
+            mat-icon-button
+            (click)="nextMonthForEarnings()"
+            matTooltip="Следующий месяц"
+            class="nav-btn"
+          >
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-card-header>
+    <mat-card-content [class.collapsed]="earningsSummaryCollapsed()">
+      <app-earnings-summary
+        [month]="selectedMonth()"
+        [year]="selectedYear()"
+        [collapsible]="false"
+        (monthChanged)="onMonthChangedFromEarnings($event)"
+      >
+      </app-earnings-summary>
+    </mat-card-content>
+
+    <div class="header-actions-right" (click)="toggleEarningsSummary()">
+      <button
+        class="collapse-toggle-btn-bottom"
+        matTooltip="{{ earningsSummaryCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+      >
+        {{ earningsSummaryCollapsed() ? 'Развернуть' : 'Свернуть' }}
+        <mat-icon>{{ earningsSummaryCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+      </button>
+    </div>
+  </mat-card> -->
+
 
 <!-- View Mode Toggle -->
 <!-- <div class="view-toggle">

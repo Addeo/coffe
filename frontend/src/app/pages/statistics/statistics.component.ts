@@ -1294,7 +1294,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   get userStatsChartData(): ChartData<'doughnut'> {
     const stats = this.userStats();
     return {
-      labels: ['Руководители', 'Диспетчеры', 'Инженеры'],
+      labels: ['Руководители', 'логисты', 'Инженеры'],
       datasets: [
         {
           data: [stats.usersByRole.admin, stats.usersByRole.manager, stats.usersByRole.user],

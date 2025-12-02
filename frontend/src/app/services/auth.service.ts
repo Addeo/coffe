@@ -458,7 +458,7 @@ export class AuthService {
       case UserRole.ADMIN:
         return 'Руководитель';
       case UserRole.MANAGER:
-        return 'Диспетчер';
+        return 'логист';
       case UserRole.USER:
         return 'Инженер';
       default:
