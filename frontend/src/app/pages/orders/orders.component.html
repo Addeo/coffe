@@ -334,31 +334,22 @@
               </div>
             </div>
             <mat-icon class="collapse-icon">{{
-      carPaymentsCollapsed() ? 'expand_more' : 'expand_less'
+              carPaymentsCollapsed() ? 'expand_more' : 'expand_less'
             }}</mat-icon>
           </div>
 
           <div class="item-details" *ngIf="!carPaymentsCollapsed()">
-            <div class="statistics-grid">
-              <div class="stat-item">
-                <div class="stat-icon">
-                  <mat-icon>account_balance</mat-icon>
-                </div>
-                <div class="stat-info">
-                  <div class="stat-label">Обязательные</div>
-                  <div class="stat-value">{{ summary.plannedCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</div>
-                </div>
-              </div>
-
-              <div class="stat-item">
-                <div class="stat-icon">
-                  <mat-icon>add_circle</mat-icon>
-                </div>
-                <div class="stat-info">
-                  <div class="stat-label">Дополнительные</div>
-                  <div class="stat-value">{{ summary.carPayments | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</div>
-                </div>
-              </div>
+            <div class="detail-row">
+              <span class="detail-label">Обязательные:</span>
+              <span class="detail-value">{{
+                summary.plannedCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
+              }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Дополнительные:</span>
+              <span class="detail-value">{{
+                summary.carPayments | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
+              }}</span>
             </div>
           </div>
         </div>
