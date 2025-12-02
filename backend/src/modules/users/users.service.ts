@@ -401,20 +401,20 @@ export class UsersService {
       return false;
     }
 
+    // Log activity BEFORE deletion to avoid foreign key constraint errors
+    await this.logActivity(
+      id,
+      ActivityType.USER_DELETED,
+      `User ${existingUser.firstName} ${existingUser.lastName} will be cascade deleted`,
+      { deletedUser: existingUser, cascadeDeletion: true },
+      currentUser.id
+    );
+
     // Perform cascade deletion (always, ignoring conflicts)
     await this.performCascadeDeletion(id);
 
     // Delete the user
     await this.userRepository.delete(id);
-
-    // Логируем удаление пользователя
-    await this.logActivity(
-      id,
-      ActivityType.USER_DELETED,
-      `User ${existingUser.firstName} ${existingUser.lastName} was cascade deleted`,
-      { deletedUser: existingUser, cascadeDeletion: true },
-      currentUser.id
-    );
 
     console.log(`User ${id} cascade deleted successfully`);
     return true;
