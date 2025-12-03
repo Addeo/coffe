@@ -1,5 +1,122 @@
 <div class="orders-container">
-  <mat-card class="orders-overview-card" *ngIf="canEditOrders()">
+  <mat-card class="mobile-summary-card" *ngIf="isManager()">
+    <mat-card-header
+      (click)="toggleManagerStats()"
+      style="flex-wrap: wrap !important; justify-content: center !important"
+    >
+      <div class="header-actions-right">
+        <button
+          mat-icon-button
+          (click)="previousManagerMonth(); $event.stopPropagation()"
+          matTooltip="Предыдущий месяц"
+          class="month-nav-btn"
+          aria-label="Предыдущий месяц"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <span class="current-month">
+          <div class="month-header">
+            <div class="month-label">
+              <mat-icon>schedule</mat-icon>
+              <span>Часы инженеров</span>
+            </div>
+            <div class="month-date">
+              {{ getMonthName(managerStatsMonth()) }} {{ managerStatsYear() }}
+            </div>
+          </div>
+        </span>
+        <button
+          mat-icon-button
+          (click)="nextManagerMonth(); $event.stopPropagation()"
+          matTooltip="Следующий месяц"
+          class="month-nav-btn"
+          aria-label="Следующий месяц"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content [class.collapsed]="managerStatsCollapsed()">
+      <mat-progress-bar mode="indeterminate" *ngIf="isLoadingManagerStats()"></mat-progress-bar>
+
+      <div class="mobile-summary-grid" *ngIf="!isLoadingManagerStats()">
+        <div class="summary-item">
+          <div class="item-header">
+            <mat-icon color="primary">schedule</mat-icon>
+            <div>
+              <div class="item-label">Всего часов</div>
+              <div class="item-value">
+                {{ managerEngineerHoursStats().totalHours | number: '1.0-1' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-item">
+          <div class="item-header">
+            <mat-icon color="warn">people</mat-icon>
+            <div>
+              <div class="item-label">Инженеров</div>
+              <div class="item-value">{{ managerEngineerHoursStats().engineers.length }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-container *ngIf="!isLoadingManagerStats()">
+        <div class="engineers-list-mobile" *ngIf="managerEngineerHoursStats().engineers.length > 0">
+          <h3 style="margin: 16px 0 12px 0; font-size: 14px; font-weight: 600">
+            Детализация по инженерам
+          </h3>
+          <div class="engineers-progress-list-mobile">
+            <app-hours-progress-item
+              *ngFor="let engineer of managerEngineerHoursStats().engineers"
+              [workedHours]="engineer.totalHours"
+              [planHours]="engineer.planHours"
+              [label]="engineer.engineerName + ':'"
+              icon="person"
+              [showSlider]="true"
+              iconColor="primary"
+              [statistics]="{
+                regularHours: engineer.regularHours,
+                overtimeHours: engineer.overtimeHours,
+                completedOrders: engineer.completedOrders,
+                averageHoursPerOrder: engineer.averageHoursPerOrder,
+                earnedAmount: engineer.earnedAmount,
+                carPayments: engineer.carPayments,
+              }"
+            ></app-hours-progress-item>
+          </div>
+        </div>
+      </ng-container>
+
+      <div
+        class="no-data"
+        *ngIf="!isLoadingManagerStats() && managerEngineerHoursStats().engineers.length === 0"
+      >
+        <mat-icon>info</mat-icon>
+        <p>Нет данных за выбранный период</p>
+      </div>
+    </mat-card-content>
+
+    <div
+      class="header-actions-right"
+      (click)="toggleManagerStats()"
+      style="display: flex; align-items: center; gap: 10px; justify-content: center"
+    >
+      <button
+        style="display: flex; align-items: center; gap: 10px"
+        class="collapse-toggle-btn-bottom"
+        matTooltip="{{ managerStatsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
+      >
+        {{ managerStatsCollapsed() ? 'Развернуть' : 'Свернуть' }}
+        <mat-icon>{{ managerStatsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+      </button>
+    </div>
+  </mat-card>
+
+  <mat-card class="orders-overview-card">
     <mat-card-header>
       <mat-card-title>
         <mat-icon>dashboard</mat-icon>
@@ -133,123 +250,6 @@
         [attr.aria-label]="ordersOverviewCollapsed() ? 'Развернуть' : 'Свернуть'"
       >
         <mat-icon>{{ ordersOverviewCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-      </button>
-    </div>
-  </mat-card>
-
-  <mat-card class="mobile-summary-card" *ngIf="isManager()">
-    <mat-card-header
-      (click)="toggleManagerStats()"
-      style="flex-wrap: wrap !important; justify-content: center !important"
-    >
-      <div class="header-actions-right">
-        <button
-          mat-icon-button
-          (click)="previousManagerMonth(); $event.stopPropagation()"
-          matTooltip="Предыдущий месяц"
-          class="month-nav-btn"
-          aria-label="Предыдущий месяц"
-        >
-          <mat-icon>chevron_left</mat-icon>
-        </button>
-        <span class="current-month">
-          <div class="month-header">
-            <div class="month-label">
-              <mat-icon>schedule</mat-icon>
-              <span>Часы инженеров</span>
-            </div>
-            <div class="month-date">
-              {{ getMonthName(managerStatsMonth()) }} {{ managerStatsYear() }}
-            </div>
-          </div>
-        </span>
-        <button
-          mat-icon-button
-          (click)="nextManagerMonth(); $event.stopPropagation()"
-          matTooltip="Следующий месяц"
-          class="month-nav-btn"
-          aria-label="Следующий месяц"
-        >
-          <mat-icon>chevron_right</mat-icon>
-        </button>
-      </div>
-    </mat-card-header>
-
-    <mat-card-content [class.collapsed]="managerStatsCollapsed()">
-      <mat-progress-bar mode="indeterminate" *ngIf="isLoadingManagerStats()"></mat-progress-bar>
-
-      <div class="mobile-summary-grid" *ngIf="!isLoadingManagerStats()">
-        <div class="summary-item">
-          <div class="item-header">
-            <mat-icon color="primary">schedule</mat-icon>
-            <div>
-              <div class="item-label">Всего часов</div>
-              <div class="item-value">
-                {{ managerEngineerHoursStats().totalHours | number: '1.0-1' }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="summary-item">
-          <div class="item-header">
-            <mat-icon color="warn">people</mat-icon>
-            <div>
-              <div class="item-label">Инженеров</div>
-              <div class="item-value">{{ managerEngineerHoursStats().engineers.length }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <ng-container *ngIf="!isLoadingManagerStats()">
-        <div class="engineers-list-mobile" *ngIf="managerEngineerHoursStats().engineers.length > 0">
-          <h3 style="margin: 16px 0 12px 0; font-size: 14px; font-weight: 600">
-            Детализация по инженерам
-          </h3>
-          <div class="engineers-progress-list-mobile">
-            <app-hours-progress-item
-              *ngFor="let engineer of managerEngineerHoursStats().engineers"
-              [workedHours]="engineer.totalHours"
-              [planHours]="engineer.planHours"
-              [label]="engineer.engineerName + ':'"
-              icon="person"
-              [showSlider]="true"
-              iconColor="primary"
-              [statistics]="{
-                regularHours: engineer.regularHours,
-                overtimeHours: engineer.overtimeHours,
-                completedOrders: engineer.completedOrders,
-                averageHoursPerOrder: engineer.averageHoursPerOrder,
-                earnedAmount: engineer.earnedAmount,
-                carPayments: engineer.carPayments,
-              }"
-            ></app-hours-progress-item>
-          </div>
-        </div>
-      </ng-container>
-
-      <div
-        class="no-data"
-        *ngIf="!isLoadingManagerStats() && managerEngineerHoursStats().engineers.length === 0"
-      >
-        <mat-icon>info</mat-icon>
-        <p>Нет данных за выбранный период</p>
-      </div>
-    </mat-card-content>
-
-    <div
-      class="header-actions-right"
-      (click)="toggleManagerStats()"
-      style="display: flex; align-items: center; gap: 10px; justify-content: center"
-    >
-      <button
-        style="display: flex; align-items: center; gap: 10px"
-        class="collapse-toggle-btn-bottom"
-        matTooltip="{{ managerStatsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-      >
-        {{ managerStatsCollapsed() ? 'Развернуть' : 'Свернуть' }}
-        <mat-icon>{{ managerStatsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
       </button>
     </div>
   </mat-card>

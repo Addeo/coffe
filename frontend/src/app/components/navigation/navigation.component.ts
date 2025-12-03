@@ -13,6 +13,7 @@ import { Subscription, filter } from 'rxjs';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 import { MaterialModule } from '../../shared/material/material.module';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
@@ -39,12 +40,16 @@ interface NavigationItem {
 export class NavigationComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private themeService = inject(ThemeService);
-  private router = inject(Router);
+  public router = inject(Router);
   private notificationsService = inject(NotificationsService);
   private ordersService = inject(OrdersService);
   private cdr = inject(ChangeDetectorRef);
+  private snackBar = inject(MatSnackBar);
   private breakpointObserver = inject(BreakpointObserver);
   private subscriptions: Subscription[] = [];
+
+  // ... (existing code)
+
 
   // Check if mobile view (using signal for template)
   isMobileView = signal(false);
@@ -162,6 +167,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
     // Проверяем состояние индикатора при инициализации
     if (this.isRoleIndicatorHidden()) {
       document.body.classList.add('role-indicator-hidden');
+    } else {
+      // Auto-hide role indicator after 10 seconds
+      setTimeout(() => {
+        this.hideRoleIndicator();
+      }, 10000);
     }
 
     // Subscribe to breakpoint changes
@@ -316,6 +326,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
       next: response => {
         console.log('✅ Role switched successfully in navigation');
         this.isLoadingRoleSwitch.set(false);
+        this.isRoleIndicatorHidden.set(false);
 
         // Определяем доступную страницу для новой роли
         let redirectPath: string;

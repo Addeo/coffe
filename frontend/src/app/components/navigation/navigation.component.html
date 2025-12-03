@@ -164,7 +164,7 @@
       <button
         mat-icon-button
         class="mobile-nav-button"
-        (click)="onViewAllNotifications()"
+        [routerLink]="['/notifications']"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: false }"
         aria-label="Уведомления"
@@ -178,14 +178,16 @@
         mat-icon-button
         class="mobile-nav-button"
         [matMenuTriggerFor]="mobileUserMenu"
+        #userMenuTrigger="matMenuTrigger"
         aria-label="Профиль пользователя"
+        [class.active]="router.url.includes('/profile') || userMenuTrigger.menuOpen"
       >
         <mat-icon>account_circle</mat-icon>
       </button>
     </div>
 
-    <!-- Role Indicator for Admin (shown below navigation buttons in header) -->
-    @if (primaryRole() === UserRole.ADMIN && canSwitchRoles() && !isRoleIndicatorHidden()) {
+    <!-- Role Indicator (shown below navigation buttons in header) -->
+    @if (!isRoleIndicatorHidden()) {
       <div class="mobile-role-indicator">
         <div class="role-indicator-content">
           <mat-icon class="role-indicator-icon">{{ getRoleIcon(activeRole()!) }}</mat-icon>
