@@ -1020,7 +1020,7 @@ export class OrdersService {
       );
 
       // Check permissions: Admin can delete any order, others can only delete waiting orders they created
-      if (user.role !== UserRole.ADMIN) {
+      if (user.role !== UserRole.ADMIN && user.role !== UserRole.MANAGER) {
         // Non-admins can only delete waiting orders they created
         if (order.status !== OrderStatus.WAITING) {
           console.log(`Cannot delete order: status is ${order.status}, not WAITING`);

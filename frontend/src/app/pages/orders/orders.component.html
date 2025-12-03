@@ -40,7 +40,11 @@
     <mat-card-content [class.collapsed]="managerStatsCollapsed()">
       <mat-progress-bar mode="indeterminate" *ngIf="isLoadingManagerStats()"></mat-progress-bar>
 
-      <div class="mobile-summary-grid" style="display: flex; flex-direction: column; gap: 16px; width: 100%;" *ngIf="!isLoadingManagerStats()">
+      <div
+        class="mobile-summary-grid"
+        style="display: flex; flex-direction: column; gap: 16px; width: 100%"
+        *ngIf="!isLoadingManagerStats()"
+      >
         <div class="summary-item">
           <div class="item-header">
             <mat-icon color="primary">schedule</mat-icon>
@@ -697,8 +701,7 @@
         </div>
       </div>
 
-
-       <!-- <div class="table-container" *ngIf="!isLoading()">
+      <!-- <div class="table-container" *ngIf="!isLoading()">
         <table mat-table [dataSource]="dataSource" matSort class="orders-table">
 
           <ng-container matColumnDef="id">

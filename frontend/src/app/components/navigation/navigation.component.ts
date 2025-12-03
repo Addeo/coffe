@@ -50,7 +50,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
   // ... (existing code)
 
-
   // Check if mobile view (using signal for template)
   isMobileView = signal(false);
 
