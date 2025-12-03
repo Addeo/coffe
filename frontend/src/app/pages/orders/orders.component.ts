@@ -310,6 +310,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   isLoadingManagerStats = signal(false);
   managerStatsMonth = signal(new Date().getMonth() + 1);
   managerStatsYear = signal(new Date().getFullYear());
+  isSummaryStatusClick = signal(false);
 
   // Track previous role to detect role changes
   private previousRole: UserRole | null = null;
@@ -1742,6 +1743,14 @@ export class OrdersComponent implements OnInit, OnDestroy {
     // Отписка от событий роутера
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
+    }
+  }
+
+  onSummaryStatusClickStat() {
+    if (this.isSummaryStatusClick()) {
+      this.isSummaryStatusClick.set(false);
+    } else {
+      this.isSummaryStatusClick.set(true);
     }
   }
 }

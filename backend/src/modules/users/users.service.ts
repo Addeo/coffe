@@ -401,6 +401,12 @@ export class UsersService {
       return false;
     }
 
+    // Prevent deletion of system admin
+    if (id === 1) {
+      console.log('Cannot delete system admin (ID 1)');
+      return false;
+    }
+
     // Log activity BEFORE deletion to avoid foreign key constraint errors
     await this.logActivity(
       id,
@@ -475,30 +481,31 @@ export class UsersService {
     }
 
     // 2. Handle User data
+    const systemAdminId = 1;
 
-    // Unassign orders created by this user
-    await this.orderRepository.update({ createdById: userId }, { createdById: null });
+    // Unassign orders created by this user (reassign to system admin)
+    await this.orderRepository.update({ createdById: userId }, { createdById: systemAdminId });
 
-    // Unassign orders assigned by this user
-    await this.orderRepository.update({ assignedById: userId }, { assignedById: null });
+    // Unassign orders assigned by this user (reassign to system admin)
+    await this.orderRepository.update({ assignedById: userId }, { assignedById: systemAdminId });
 
     // Delete order engineer assignments assigned by this user
     await this.orderEngineerAssignmentRepository.delete({ assignedById: userId });
 
-    // Unassign documents created by this user
-    await this.documentRepository.update({ createdById: userId }, { createdById: null });
+    // Unassign documents created by this user (reassign to system admin)
+    await this.documentRepository.update({ createdById: userId }, { createdById: systemAdminId });
 
-    // Unassign files uploaded by this user
-    await this.fileRepository.update({ uploadedById: userId }, { uploadedById: null });
+    // Unassign files uploaded by this user (reassign to system admin)
+    await this.fileRepository.update({ uploadedById: userId }, { uploadedById: systemAdminId });
 
     // Unassign salary calculations performed by this user
     await this.salaryCalculationRepository.update(
       { calculatedById: userId },
-      { calculatedById: null }
+      { calculatedById: systemAdminId }
     );
 
     // Unassign salary payments performed by this user
-    await this.salaryPaymentRepository.update({ paidById: userId }, { paidById: null });
+    await this.salaryPaymentRepository.update({ paidById: userId }, { paidById: systemAdminId });
 
     // Delete user activity logs performed by this user
     await this.activityLogRepository.delete({ performedById: userId });

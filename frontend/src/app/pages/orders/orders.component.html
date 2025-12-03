@@ -40,7 +40,7 @@
     <mat-card-content [class.collapsed]="managerStatsCollapsed()">
       <mat-progress-bar mode="indeterminate" *ngIf="isLoadingManagerStats()"></mat-progress-bar>
 
-      <div class="mobile-summary-grid" *ngIf="!isLoadingManagerStats()">
+      <div class="mobile-summary-grid" style="display: flex; flex-direction: column; gap: 16px; width: 100%;" *ngIf="!isLoadingManagerStats()">
         <div class="summary-item">
           <div class="item-header">
             <mat-icon color="primary">schedule</mat-icon>
@@ -53,7 +53,7 @@
           </div>
         </div>
 
-        <div class="summary-item">
+        <div class="summary-item" (click)="onSummaryStatusClickStat()">
           <div class="item-header">
             <mat-icon color="warn">people</mat-icon>
             <div>
@@ -64,7 +64,7 @@
         </div>
       </div>
 
-      <ng-container *ngIf="!isLoadingManagerStats()">
+      <ng-container *ngIf="!isLoadingManagerStats() && isSummaryStatusClick()">
         <div class="engineers-list-mobile" *ngIf="managerEngineerHoursStats().engineers.length > 0">
           <h3 style="margin: 16px 0 12px 0; font-size: 14px; font-weight: 600">
             Детализация по инженерам
@@ -697,16 +697,15 @@
         </div>
       </div>
 
-      <!-- Desktop Table -->
-      <div class="table-container" *ngIf="!isLoading()">
+
+       <!-- <div class="table-container" *ngIf="!isLoading()">
         <table mat-table [dataSource]="dataSource" matSort class="orders-table">
-          <!-- ID Column -->
+
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.id">№</th>
             <td mat-cell *matCellDef="let order; let i = index">{{ getRowIndex(i) }}</td>
           </ng-container>
 
-          <!-- Title Column -->
           <ng-container matColumnDef="title">
             <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.title">
               Название
@@ -718,7 +717,7 @@
             </td>
           </ng-container>
 
-          <!-- Organization Column -->
+
           <ng-container matColumnDef="organization">
             <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.organization">
               Организация
@@ -726,7 +725,6 @@
             <td mat-cell *matCellDef="let order">{{ getOrganizationName(order) }}</td>
           </ng-container>
 
-          <!-- Assigned Engineer Column -->
           <ng-container matColumnDef="assignedEngineer">
             <th mat-header-cell *matHeaderCellDef mat-sort-header i18n="@@orders.engineer">
               Инженер
@@ -749,7 +747,7 @@
             </td>
           </ng-container>
 
-          <!-- Status Column -->
+
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Статус</th>
             <td mat-cell *matCellDef="let order">
@@ -759,7 +757,6 @@
             </td>
           </ng-container>
 
-          <!-- Payment Status Column -->
           <ng-container matColumnDef="paymentStatus">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Оплата от организации</th>
             <td mat-cell *matCellDef="let order">
@@ -791,19 +788,15 @@
               </div>
             </td>
           </ng-container>
-
-          <!-- Created Date Column -->
           <ng-container matColumnDef="createdAt">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Создан</th>
             <td mat-cell *matCellDef="let order">{{ order.createdAt | date: 'short' }}</td>
           </ng-container>
 
-          <!-- Actions Column -->
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Действия</th>
             <td mat-cell *matCellDef="let order">
               <div class="actions-container">
-                <!-- Engineer Actions Group -->
                 <div
                   class="action-group engineer-actions"
                   *ngIf="canAcceptOrder(order) || canCompleteWork(order)"
@@ -833,9 +826,7 @@
                   </button>
                 </div>
 
-                <!-- Admin/Manager Actions Group -->
                 <div class="action-group admin-actions">
-                  <!-- Edit Actions -->
                   <div
                     class="edit-actions"
                     *ngIf="canEditOrder(order) || canEditCompletedOrder(order)"
@@ -864,8 +855,6 @@
                       <mat-icon>edit_note</mat-icon>
                     </button>
                   </div>
-
-                  <!-- Status Management -->
                   <div class="status-actions" *ngIf="canUpdateOrderStatus(order)">
                     <button
                       mat-icon-button
@@ -879,7 +868,6 @@
                     </button>
                   </div>
 
-                  <!-- Payment Status Management -->
                   <div class="payment-actions" *ngIf="canManagePaymentStatus(order)">
                     <button
                       mat-icon-button
@@ -903,7 +891,6 @@
                     </button>
                   </div>
 
-                  <!-- Assignment Actions -->
                   <div class="assignment-actions" *ngIf="canAssignEngineers()">
                     <button
                       mat-icon-button
@@ -924,7 +911,6 @@
                     </button>
                   </div>
 
-                  <!-- Danger Actions -->
                   <div class="danger-actions" *ngIf="canDeleteOrders()">
                     <button
                       mat-icon-button
@@ -946,7 +932,6 @@
           <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
         </table>
 
-        <!-- No data message -->
         <div class="no-data" *ngIf="dataSource.data.length === 0">
           <mat-icon>assignment</mat-icon>
           <h3>Заявки не найдены</h3>
@@ -956,7 +941,7 @@
           <p>DataSource data length: {{ dataSource.data.length }}</p>
           <p>Total orders in stats: {{ orderStats().total }}</p>
         </div>
-      </div>
+      </div>  -->
     </mat-card-content>
   </mat-card>
 </div>

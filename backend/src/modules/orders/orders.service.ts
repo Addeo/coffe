@@ -754,7 +754,7 @@ export class OrdersService {
     await this.notificationsService.createOrderAssignedNotification(
       id,
       order.title,
-      engineer.id, // ← Send notification using actual engineer ID
+      engineer.userId, // ← Send notification using actual user ID
       user.id
     );
 
@@ -1542,11 +1542,11 @@ export class OrdersService {
     const organizationPayment = organizationRegularPayment + organizationOvertimePayment;
 
     // Update order with work data AND RATES
-    order.regularHours = (order.regularHours || 0) + workData.regularHours;
-    order.overtimeHours = (order.overtimeHours || 0) + workData.overtimeHours;
-    order.calculatedAmount = (order.calculatedAmount || 0) + totalPayment;
-    order.carUsageAmount = (order.carUsageAmount || 0) + workData.carPayment;
-    order.organizationPayment = (order.organizationPayment || 0) + organizationPayment;
+    order.regularHours = Number(order.regularHours || 0) + workData.regularHours;
+    order.overtimeHours = Number(order.overtimeHours || 0) + workData.overtimeHours;
+    order.calculatedAmount = Number(order.calculatedAmount || 0) + totalPayment;
+    order.carUsageAmount = Number(order.carUsageAmount || 0) + workData.carPayment;
+    order.organizationPayment = Number(order.organizationPayment || 0) + organizationPayment;
 
     // 🔥 SAVE RATES for audit
     order.engineerBaseRate = rates.baseRate;
@@ -1555,16 +1555,16 @@ export class OrdersService {
     order.organizationOvertimeMultiplier = order.organization.overtimeMultiplier;
 
     // 🔥 SAVE PAYMENT BREAKDOWN for detailed reporting
-    order.regularPayment = (order.regularPayment || 0) + regularPayment;
-    order.overtimePayment = (order.overtimePayment || 0) + overtimePayment;
+    order.regularPayment = Number(order.regularPayment || 0) + regularPayment;
+    order.overtimePayment = Number(order.overtimePayment || 0) + overtimePayment;
     order.organizationRegularPayment =
-      (order.organizationRegularPayment || 0) + organizationRegularPayment;
+      Number(order.organizationRegularPayment || 0) + organizationRegularPayment;
     order.organizationOvertimePayment =
-      (order.organizationOvertimePayment || 0) + organizationOvertimePayment;
+      Number(order.organizationOvertimePayment || 0) + organizationOvertimePayment;
 
     // Calculate profit
     const currentProfit = organizationPayment - totalPayment;
-    order.profit = (order.profit || 0) + currentProfit;
+    order.profit = Number(order.profit || 0) + currentProfit;
 
     // Save additional work details
     order.distanceKm = workData.distanceKm || order.distanceKm;
