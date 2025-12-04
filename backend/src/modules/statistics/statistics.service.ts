@@ -967,13 +967,14 @@ export class StatisticsService {
   /**
    * Получает общую сумму выплат инженерам за период
    * ВАЖНО: Статистика теперь считается ТОЛЬКО из WorkSession (по workDate!)
+   * Используем calculatedAmount + carUsageAmount для согласованности с getAgentEarningsData
    */
   private async getTotalAgentPayments(startDate: Date, endDate: Date): Promise<number> {
     try {
       const result = await this.workSessionRepository
         .createQueryBuilder('session')
         .select(
-          'SUM(session.regularPayment + session.overtimePayment + session.carUsageAmount)',
+          'SUM(session.calculatedAmount + session.carUsageAmount)',
           'totalPayments'
         )
         .where('session.workDate >= :startDate', { startDate })
@@ -991,13 +992,14 @@ export class StatisticsService {
   /**
    * Получает общую сумму платежей от организаций за период
    * ВАЖНО: Статистика теперь считается ТОЛЬКО из WorkSession (по workDate!)
+   * Используем organizationPayment для согласованности с getOrganizationEarningsData
    */
   private async getTotalOrganizationPayments(startDate: Date, endDate: Date): Promise<number> {
     try {
       const result = await this.workSessionRepository
         .createQueryBuilder('session')
         .select(
-          'SUM(session.organizationRegularPayment + session.organizationOvertimePayment)',
+          'SUM(session.organizationPayment)',
           'totalPayments'
         )
         .where('session.workDate >= :startDate', { startDate })
@@ -1214,9 +1216,9 @@ export class StatisticsService {
     // Общая сумма к доплате за автомобили
     const totalCarAmount = carPayments.reduce((sum, session) => sum + session.carUsageAmount, 0);
 
-    // Уже заплачено за автомобили (пока используем все как неоплаченные)
+    // Уже заплачено за автомобили (проверяем по статусу заказа: paid_to_engineer)
     const paidCarAmount = carPayments
-      .filter(session => session.status === 'completed') // Временно используем статус
+      .filter(session => session.order?.status === 'paid_to_engineer')
       .reduce((sum, session) => sum + session.carUsageAmount, 0);
 
     // Группировка по организациям
@@ -1269,8 +1271,8 @@ export class StatisticsService {
 
       const orgData = orgMap.get(orgId);
       orgData.totalCarAmount += session.carUsageAmount;
-      if (session.status === 'completed') {
-        // Временно используем статус
+      // Оплата определяется по статусу заказа
+      if (session.order?.status === 'paid_to_engineer') {
         orgData.paidCarAmount += session.carUsageAmount;
       }
       orgData.sessions.push(session);
@@ -1316,8 +1318,8 @@ export class StatisticsService {
 
       const engineerData = engineerMap.get(engineerId);
       engineerData.totalCarAmount += session.carUsageAmount;
-      if (session.status === 'completed') {
-        // Временно используем статус
+      // Оплата определяется по статусу заказа
+      if (session.order?.status === 'paid_to_engineer') {
         engineerData.paidCarAmount += session.carUsageAmount;
       }
       engineerData.sessions.push(session);

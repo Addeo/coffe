@@ -1019,14 +1019,9 @@ export class OrdersService {
         `Order found: ${order.id}, status: ${order.status}, createdBy: ${order.createdById}`
       );
 
-      // Check permissions: Admin can delete any order, others can only delete waiting orders they created
+      // Check permissions: Admin and Manager can delete any order, others can only delete orders they created
       if (user.role !== UserRole.ADMIN && user.role !== UserRole.MANAGER) {
-        // Non-admins can only delete waiting orders they created
-        if (order.status !== OrderStatus.WAITING) {
-          console.log(`Cannot delete order: status is ${order.status}, not WAITING`);
-          throw new BadRequestException('Can only delete waiting orders');
-        }
-
+        // Non-admins/managers can only delete orders they created (any status)
         if (order.createdById !== user.id) {
           console.log(`User ${user.id} cannot delete order created by ${order.createdById}`);
           throw new BadRequestException('Insufficient permissions to delete this order');
