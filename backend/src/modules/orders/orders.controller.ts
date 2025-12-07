@@ -227,6 +227,7 @@ export class OrdersController {
       territoryType?: string;
       notes?: string;
       isFullyCompleted?: boolean;
+      workActNumber?: string;
       files?: string[];
     },
     @Request() req

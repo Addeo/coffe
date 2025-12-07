@@ -547,7 +547,7 @@ export class OrdersService {
               engineer,
               order.organization
             );
-          } catch (error) {
+          } catch {
             rates = {
               baseRate: engineer.baseRate || 700,
               overtimeRate: engineer.overtimeRate || engineer.baseRate || 700,
@@ -798,7 +798,7 @@ export class OrdersService {
     }
 
     // Проверяем назначение через assignments
-    let assignment = await this.assignmentRepository.findOne({
+    const assignment = await this.assignmentRepository.findOne({
       where: {
         orderId: orderId,
         engineerId: engineer.id,
@@ -1141,6 +1141,11 @@ export class OrdersService {
       result[stat.status] = parseInt(stat.count);
     });
 
+    // Отображаем «В обработке» как количество назначенных заявок (ASSIGNED)
+    if (result.assigned) {
+      result.processing += result.assigned;
+    }
+
     console.log('📊 Processed result:', {
       total: result.total,
       waiting: result.waiting,
@@ -1253,11 +1258,12 @@ export class OrdersService {
       let overtimeHours = 0;
       let earnedAmount = 0;
       let carPayments = 0;
+      const overtimeCoefficient = Number(engineerProfile.overtimeCoefficient) || 1.6;
 
       engineerOrders.forEach(order => {
         const regularHours = Number(order.regularHours ?? 0);
         const overtime = Number(order.overtimeHours ?? 0);
-        workedHours += regularHours + overtime;
+        workedHours += regularHours + overtime * overtimeCoefficient;
         overtimeHours += overtime;
         earnedAmount += Number(order.calculatedAmount ?? 0);
         carPayments += Number(order.carUsageAmount ?? 0);
@@ -1269,6 +1275,7 @@ export class OrdersService {
       const plannedCarAmount = Number(engineerProfile.fixedCarAmount ?? 0);
 
       const planEarnings = fixedSalary + planHours * baseRate;
+      const earnedAmountDisplay = Math.max(earnedAmount, planEarnings);
 
       const engineerSummary: EngineerOrderSummaryDto = {
         engineerId: engineerProfile.id,
@@ -1278,7 +1285,7 @@ export class OrdersService {
         workedHours,
         overtimeHours,
         planEarnings,
-        earnedAmount,
+        earnedAmount: earnedAmountDisplay,
         carPayments,
         plannedCarAmount,
       };
@@ -1466,6 +1473,7 @@ export class OrdersService {
       territoryType?: string;
       notes?: string;
       isFullyCompleted?: boolean; // New field: true = completed, false/undefined = working
+      workActNumber?: string;
     }
   ): Promise<Order> {
     // Validate input data
@@ -1542,6 +1550,9 @@ export class OrdersService {
     order.calculatedAmount = Number(order.calculatedAmount || 0) + totalPayment;
     order.carUsageAmount = Number(order.carUsageAmount || 0) + workData.carPayment;
     order.organizationPayment = Number(order.organizationPayment || 0) + organizationPayment;
+    if (workData.workActNumber) {
+      order.workActNumber = workData.workActNumber;
+    }
 
     // 🔥 SAVE RATES for audit
     order.engineerBaseRate = rates.baseRate;

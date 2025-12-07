@@ -11,6 +11,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { OrdersService } from '../../services/orders.service';
 import { ToastService } from '../../services/toast.service';
 import { OrderDto } from '@shared/dtos/order.dto';
@@ -40,6 +41,7 @@ export interface WorkCompletionDialogData {
     MatCardModule,
     MatCheckboxModule,
     MatRadioModule,
+    MatSlideToggleModule,
   ],
   template: `
     <div class="work-completion-dialog">
@@ -61,41 +63,31 @@ export interface WorkCompletionDialogData {
           <!-- Hours Section -->
           <div class="form-section">
             <h4>⏱ Время работы</h4>
-            <div class="form-row">
+            <div class="form-row single-row">
               <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Обычные часы</mat-label>
+                <mat-label>Часы работы</mat-label>
                 <input
                   matInput
                   type="number"
-                  formControlName="regularHours"
+                  formControlName="workHours"
                   placeholder="0"
                   min="0"
                   step="0.5"
                 />
                 <mat-icon matSuffix>schedule</mat-icon>
-                <mat-error *ngIf="workForm.get('regularHours')?.hasError('required')">
+                <mat-error *ngIf="workForm.get('workHours')?.hasError('required')">
                   Обязательное поле
                 </mat-error>
-                <mat-error *ngIf="workForm.get('regularHours')?.hasError('min')">
+                <mat-error *ngIf="workForm.get('workHours')?.hasError('min')">
                   Не может быть отрицательным
                 </mat-error>
               </mat-form-field>
-
-              <mat-form-field appearance="outline" class="form-field">
-                <mat-label>Сверхурочные часы</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  formControlName="overtimeHours"
-                  placeholder="0"
-                  min="0"
-                  step="0.5"
-                />
-                <mat-icon matSuffix>alarm_add</mat-icon>
-                <mat-error *ngIf="workForm.get('overtimeHours')?.hasError('min')">
-                  Не может быть отрицательным
-                </mat-error>
-              </mat-form-field>
+            </div>
+            <div class="form-row single-row">
+              <mat-slide-toggle color="primary" formControlName="isOvertime">
+                Внеурочное время
+              </mat-slide-toggle>
+              <span class="hint">При включении часы будут учтены по сверхурочной ставке</span>
             </div>
           </div>
 
@@ -157,6 +149,15 @@ export interface WorkCompletionDialogData {
 
           <div class="form-section">
             <h4>📝 Примечания</h4>
+            <mat-form-field appearance="outline" class="form-field-full">
+              <mat-label>Номер акта выполненных работ</mat-label>
+              <input
+                matInput
+                formControlName="workActNumber"
+                placeholder="Например, АВР-123/25"
+              />
+              <mat-icon matSuffix>receipt_long</mat-icon>
+            </mat-form-field>
             <mat-form-field appearance="outline" class="form-field-full">
               <mat-label>Комментарий о работе</mat-label>
               <textarea
@@ -320,6 +321,18 @@ export interface WorkCompletionDialogData {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 16px;
+      }
+
+      .form-row.single-row {
+        grid-template-columns: 1fr;
+        align-items: center;
+      }
+
+      .form-row .hint {
+        font-size: 12px;
+        color: #666;
+        margin-left: 12px;
+        align-self: center;
       }
 
       .form-field {
@@ -505,11 +518,12 @@ export class WorkCompletionDialogComponent implements OnInit {
 
   ngOnInit() {
     this.workForm = this.fb.group({
-      regularHours: [0, [Validators.required, Validators.min(0)]],
-      overtimeHours: [0, [Validators.min(0)]],
+      workHours: [0, [Validators.required, Validators.min(0)]],
+      isOvertime: [false],
       territoryType: [this.data.order.territoryType || null],
       distanceKm: [this.data.order.distanceKm || 0, [Validators.min(0)]],
       carPayment: [0, [Validators.min(0)]],
+      workActNumber: [this.data.order.workActNumber || ''],
       notes: [''],
       isFullyCompleted: [true, Validators.required],
     });
@@ -581,13 +595,16 @@ export class WorkCompletionDialogComponent implements OnInit {
   private submitWorkData(fileIds: string[]) {
     this.loadingMessage.set('Сохранение данных...');
     const formValue = this.workForm.value;
+    const hours = Number(formValue.workHours) || 0;
+    const isOvertime = !!formValue.isOvertime;
     const workData = {
-      regularHours: formValue.regularHours || 0,
-      overtimeHours: formValue.overtimeHours || 0,
+      regularHours: isOvertime ? 0 : hours,
+      overtimeHours: isOvertime ? hours : 0,
       territoryType: formValue.territoryType,
       distanceKm: formValue.distanceKm || 0,
       carPayment: formValue.carPayment || 0,
       notes: formValue.notes,
+      workActNumber: formValue.workActNumber,
       isFullyCompleted: formValue.isFullyCompleted,
       files: fileIds,
     };

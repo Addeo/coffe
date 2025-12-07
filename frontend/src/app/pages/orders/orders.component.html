@@ -359,7 +359,7 @@
         </div>
       </div>
       <!-- Mobile Statistics Card (for all roles in mobile view) -->
-      <mat-card class="mobile-summary-card" *ngIf="isMobileView()">
+      <mat-card class="mobile-summary-card" *ngIf="isMobileView() && !isEngineerView()">
         <mat-card-header (click)="toggleMobileStatistics()">
           <mat-card-title>
             <mat-icon>dashboard</mat-icon>
