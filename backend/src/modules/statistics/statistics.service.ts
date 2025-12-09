@@ -973,10 +973,7 @@ export class StatisticsService {
     try {
       const result = await this.workSessionRepository
         .createQueryBuilder('session')
-        .select(
-          'SUM(session.calculatedAmount + session.carUsageAmount)',
-          'totalPayments'
-        )
+        .select('SUM(session.calculatedAmount + session.carUsageAmount)', 'totalPayments')
         .where('session.workDate >= :startDate', { startDate })
         .andWhere('session.workDate < :endDate', { endDate })
         .andWhere('session.status = :status', { status: 'completed' })
@@ -998,10 +995,7 @@ export class StatisticsService {
     try {
       const result = await this.workSessionRepository
         .createQueryBuilder('session')
-        .select(
-          'SUM(session.organizationPayment)',
-          'totalPayments'
-        )
+        .select('SUM(session.organizationPayment)', 'totalPayments')
         .where('session.workDate >= :startDate', { startDate })
         .andWhere('session.workDate < :endDate', { endDate })
         .andWhere('session.status = :status', { status: 'completed' })

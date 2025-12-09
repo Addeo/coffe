@@ -6,14 +6,14 @@ export class AppController {
   getVersion() {
     // Определяем базовый URL в зависимости от окружения
     const baseUrl =
-      process.env.NODE_ENV === 'production' ? 'https://coffe-ug.ru' : 'http://localhost:3001';
+      process.env.NODE_ENV === 'production' ? 'https://servicecheck.tech' : 'http://localhost:3001';
 
     return {
-      version: '1.1.5', // Server version - should match latest APK version
+      version: '1.1.10', // Server version - should match latest APK version
       downloadUrl: `${baseUrl}/app-debug.apk`,
       required: false,
       releaseNotes:
-        'Исправления и улучшения: добавлена пагинация в мобильной версии, улучшено сворачивание статистики, оптимизирован код компонентов.',
+        'Исправления и улучшения: добавлена пагинация в мобильной версии, улучшено сворачивание статистики, оптимизирован код компонентов. Обновлён домен на servicecheck.tech.',
     };
   }
 }

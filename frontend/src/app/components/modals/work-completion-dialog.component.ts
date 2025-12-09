@@ -151,11 +151,7 @@ export interface WorkCompletionDialogData {
             <h4>📝 Примечания</h4>
             <mat-form-field appearance="outline" class="form-field-full">
               <mat-label>Номер акта выполненных работ</mat-label>
-              <input
-                matInput
-                formControlName="workActNumber"
-                placeholder="Например, АВР-123/25"
-              />
+              <input matInput formControlName="workActNumber" placeholder="Например, АВР-123/25" />
               <mat-icon matSuffix>receipt_long</mat-icon>
             </mat-form-field>
             <mat-form-field appearance="outline" class="form-field-full">
