@@ -1,41 +1,41 @@
 import { Controller, Get, Post, Param, Body } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Controller()
 export class TestController {
-  @Get('test')
-  getTest() {
-    // Читаем версию из package.json
-    let version = '1.1.6';
+  private getVersion(): string {
     try {
-      const pkg = require('../package.json');
-      version = pkg.version || '1.1.6';
+      // Пытаемся прочитать версию из package.json
+      const packagePath = path.join(__dirname, '../../package.json');
+      if (fs.existsSync(packagePath)) {
+        const pkg = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+        return pkg.version || '1.1.6';
+      }
     } catch {
       // Fallback если не удалось прочитать
     }
+    return '1.1.6';
+  }
+
+  @Get('test')
+  getTest() {
     return { 
       message: 'Server is working', 
       timestamp: new Date(),
-      version: version
+      version: this.getVersion()
     };
   }
 
   @Get('health')
   getHealth() {
-    // Читаем версию из package.json
-    let version = '1.1.6';
-    try {
-      const pkg = require('../package.json');
-      version = pkg.version || '1.1.6';
-    } catch {
-      // Fallback если не удалось прочитать
-    }
     return {
       status: 'ok',
       message: 'Service is healthy',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       memory: process.memoryUsage(),
-      version: version,
+      version: this.getVersion(),
     };
   }
 
