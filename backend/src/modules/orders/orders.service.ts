@@ -737,6 +737,36 @@ export class OrdersService {
 
     await this.ordersRepository.save(order);
 
+    // Создаем или обновляем assignment для обратной совместимости с новой системой назначений
+    let assignment = await this.assignmentRepository.findOne({
+      where: { orderId: id, engineerId: engineer.id },
+    });
+
+    if (assignment) {
+      // Если назначение существует и отклонено/отменено, обновляем
+      if (
+        assignment.status === AssignmentStatus.REJECTED ||
+        assignment.status === AssignmentStatus.CANCELLED
+      ) {
+        assignment.status = AssignmentStatus.PENDING;
+        assignment.acceptedAt = null;
+        assignment.rejectedAt = null;
+        assignment.rejectionReason = null;
+        assignment.assignedById = user.id;
+        await this.assignmentRepository.save(assignment);
+      }
+    } else {
+      // Создаем новое назначение
+      assignment = this.assignmentRepository.create({
+        orderId: id,
+        engineerId: engineer.id,
+        status: AssignmentStatus.PENDING,
+        assignedById: user.id,
+        isPrimary: true,
+      });
+      assignment = await this.assignmentRepository.save(assignment);
+    }
+
     // Log engineer assignment
     await this.logActivity(
       id,
