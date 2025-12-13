@@ -107,6 +107,19 @@ export class UsersService {
       createdById
     );
 
+    // Загружаем engineer отдельно и добавляем к user для возврата
+    if (createUserDto.role === UserRole.USER && createUserDto.engineerType) {
+      const engineer = await this.engineerRepository.findOne({
+        where: { userId: savedUser.id },
+      });
+      
+      // Возвращаем user с engineer как дополнительное свойство
+      return {
+        ...savedUser,
+        engineer: engineer || undefined,
+      } as User & { engineer?: Engineer };
+    }
+
     return savedUser;
   }
 
