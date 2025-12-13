@@ -4,18 +4,38 @@ import { Controller, Get, Post, Param, Body } from '@nestjs/common';
 export class TestController {
   @Get('test')
   getTest() {
-    return { message: 'Server is working', timestamp: new Date() };
+    // Читаем версию из package.json
+    let version = '1.1.6';
+    try {
+      const pkg = require('../package.json');
+      version = pkg.version || '1.1.6';
+    } catch {
+      // Fallback если не удалось прочитать
+    }
+    return { 
+      message: 'Server is working', 
+      timestamp: new Date(),
+      version: version
+    };
   }
 
   @Get('health')
   getHealth() {
+    // Читаем версию из package.json
+    let version = '1.1.6';
+    try {
+      const pkg = require('../package.json');
+      version = pkg.version || '1.1.6';
+    } catch {
+      // Fallback если не удалось прочитать
+    }
     return {
       status: 'ok',
       message: 'Service is healthy',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       memory: process.memoryUsage(),
-      version: process.env.npm_package_version || '1.0.0',
+      version: version,
     };
   }
 
