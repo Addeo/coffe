@@ -108,8 +108,29 @@ export class OrdersController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number, @Request() req) {
-    return this.ordersService.findOne(id, req.user);
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('debug') debug: string,
+    @Request() req
+  ) {
+    const includeDebug = debug === 'true' || process.env.ENABLE_DEBUG === 'true';
+    const order = await this.ordersService.findOne(id, req.user);
+    
+    if (includeDebug) {
+      return {
+        ...order,
+        debug: {
+          orderId: id,
+          userId: req.user.id,
+          userRole: req.user.role,
+          hasAssignments: order.engineerAssignments?.length > 0,
+          assignmentsCount: order.engineerAssignments?.length || 0,
+          assignedEngineerId: order.assignedEngineerId,
+        },
+      };
+    }
+    
+    return order;
   }
 
   @Patch(':id')
@@ -123,17 +144,13 @@ export class OrdersController {
 
   @Post(':id/assign-engineer')
   @Roles(UserRole.ADMIN, UserRole.MANAGER)
-  assignEngineer(
+  async assignEngineer(
     @Param('id', ParseIntPipe) id: number,
     @Body() assignEngineerDto: AssignEngineerDto,
+    @Query('debug') debug: string,
     @Request() req
   ) {
-    console.log('🎯 Controller: assignEngineer called', {
-      id,
-      engineerId: assignEngineerDto.engineerId,
-      engineerIds: assignEngineerDto.engineerIds,
-      userRole: req.user?.role,
-    });
+    const includeDebug = debug === 'true' || process.env.ENABLE_DEBUG === 'true';
 
     // Если передан массив engineerIds, используем множественное назначение
     if (assignEngineerDto.engineerIds && assignEngineerDto.engineerIds.length > 0) {
@@ -145,7 +162,26 @@ export class OrdersController {
       );
     }
 
-    return this.ordersService.assignEngineer(id, assignEngineerDto, req.user);
+    const order = await this.ordersService.assignEngineer(id, assignEngineerDto, req.user);
+    
+    if (includeDebug) {
+      // Получаем assignment для debug информации
+      const assignment = await this.ordersService.getOrderAssignments(id, req.user);
+      const currentAssignment = assignment.find(a => a.engineerId === assignEngineerDto.engineerId);
+      
+      return {
+        ...order,
+        debug: {
+          orderId: id,
+          engineerId: assignEngineerDto.engineerId,
+          assignmentCreated: !!currentAssignment,
+          assignmentId: currentAssignment?.id,
+          assignmentStatus: currentAssignment?.status,
+        },
+      };
+    }
+    
+    return order;
   }
 
   /**

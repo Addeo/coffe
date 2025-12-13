@@ -411,6 +411,9 @@ export class OrdersService {
       .leftJoinAndSelect('assignedEngineerEntity.user', 'assignedEngineerUser')
       .leftJoinAndSelect('order.createdBy', 'createdBy')
       .leftJoinAndSelect('order.assignedBy', 'assignedBy')
+      .leftJoinAndSelect('order.engineerAssignments', 'assignments')
+      .leftJoinAndSelect('assignments.engineer', 'assignmentEngineer')
+      .leftJoinAndSelect('assignmentEngineer.user', 'assignmentEngineerUser')
       .leftJoin('order.files', 'files')
       .leftJoin('files.uploadedBy', 'fileUploadedBy')
       .addSelect([
@@ -651,20 +654,11 @@ export class OrdersService {
     assignEngineerDto: AssignEngineerDto,
     user: User
   ): Promise<Order> {
-    console.log('🚀 assignEngineer called:', {
-      id,
-      engineerId: assignEngineerDto.engineerId,
-      userRole: user.role,
-      userId: user.id,
-    });
 
     // Only admins and managers can assign engineers
     if (user.role !== UserRole.ADMIN && user.role !== UserRole.MANAGER) {
-      console.log('❌ User role not allowed:', user.role);
       throw new BadRequestException('Only admins and managers can assign engineers to orders');
     }
-
-    console.log('✅ User role allowed, proceeding...');
 
     const order = await this.findOne(id, user);
 
@@ -677,32 +671,11 @@ export class OrdersService {
 
     // If not found by engineer ID, try to find by user ID
     if (!engineer) {
-      console.log('⚠️ Engineer not found by engineer ID, trying user ID...');
       engineer = await this.engineersRepository.findOne({
         where: { userId: assignEngineerDto.engineerId, isActive: true },
         relations: ['user'],
       });
     }
-
-    console.log('🔍 Engineer lookup result:', {
-      searchId: assignEngineerDto.engineerId,
-      engineerFound: !!engineer,
-      engineerData: engineer
-        ? {
-            id: engineer.id,
-            userId: engineer.userId,
-            isActive: engineer.isActive,
-            hasUser: !!engineer.user,
-            user: engineer.user
-              ? {
-                  id: engineer.user.id,
-                  email: engineer.user.email,
-                  isActive: engineer.user.isActive,
-                }
-              : null,
-          }
-        : null,
-    });
 
     if (!engineer) {
       throw new NotFoundException(
@@ -712,12 +685,6 @@ export class OrdersService {
 
     // Check if there's already a different assigned engineer
     if (order.assignedEngineerId && order.assignedEngineerId !== engineer.id) {
-      console.log(
-        '⚠️ Reassigning order from engineer',
-        order.assignedEngineerId,
-        'to',
-        engineer.id
-      );
       // Check if user wants to overwrite existing assignment
       // Additional confirmation logic can be added here
     }
@@ -753,7 +720,7 @@ export class OrdersService {
         assignment.rejectedAt = null;
         assignment.rejectionReason = null;
         assignment.assignedById = user.id;
-        await this.assignmentRepository.save(assignment);
+        assignment = await this.assignmentRepository.save(assignment);
       }
     } else {
       // Создаем новое назначение
