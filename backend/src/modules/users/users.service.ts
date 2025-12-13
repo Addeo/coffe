@@ -112,7 +112,7 @@ export class UsersService {
       const engineer = await this.engineerRepository.findOne({
         where: { userId: savedUser.id },
       });
-      
+
       // Возвращаем user с engineer как дополнительное свойство
       return {
         ...savedUser,

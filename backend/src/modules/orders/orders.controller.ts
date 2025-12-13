@@ -115,7 +115,7 @@ export class OrdersController {
   ) {
     const includeDebug = debug === 'true' || process.env.ENABLE_DEBUG === 'true';
     const order = await this.ordersService.findOne(id, req.user);
-    
+
     if (includeDebug) {
       return {
         ...order,
@@ -129,7 +129,7 @@ export class OrdersController {
         },
       };
     }
-    
+
     return order;
   }
 
@@ -163,12 +163,12 @@ export class OrdersController {
     }
 
     const order = await this.ordersService.assignEngineer(id, assignEngineerDto, req.user);
-    
+
     if (includeDebug) {
       // Получаем assignment для debug информации
       const assignment = await this.ordersService.getOrderAssignments(id, req.user);
       const currentAssignment = assignment.find(a => a.engineerId === assignEngineerDto.engineerId);
-      
+
       return {
         ...order,
         debug: {
@@ -180,7 +180,7 @@ export class OrdersController {
         },
       };
     }
-    
+
     return order;
   }
 

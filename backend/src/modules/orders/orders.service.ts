@@ -654,7 +654,6 @@ export class OrdersService {
     assignEngineerDto: AssignEngineerDto,
     user: User
   ): Promise<Order> {
-
     // Only admins and managers can assign engineers
     if (user.role !== UserRole.ADMIN && user.role !== UserRole.MANAGER) {
       throw new BadRequestException('Only admins and managers can assign engineers to orders');
