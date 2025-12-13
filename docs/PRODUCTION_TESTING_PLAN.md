@@ -11,6 +11,7 @@
 ## 📋 Обзор
 
 Этот план описывает последовательность API запросов для:
+
 1. Заполнения продакшн базы данных тестовыми данными по региону КМВ
 2. Проверки корректности работы статистики
 3. Валидации расчетов и отчетов для организаций и инженеров КМВ
@@ -47,11 +48,13 @@ PROD_API_URL=http://localhost:3001/api
 - **Описание:** Создает админ пользователя, если его еще нет
 
 **Пример запроса:**
+
 ```bash
 curl -X GET "${PROD_API_URL}/auth/init-admin"
 ```
 
 **Ожидаемый результат:**
+
 ```json
 {
   "email": "admin@example.com",
@@ -69,6 +72,7 @@ curl -X GET "${PROD_API_URL}/auth/init-admin"
 - **Endpoint:** `POST /auth/login`
 - **Метод:** POST
 - **Body:**
+
 ```json
 {
   "email": "admin@example.com",
@@ -77,6 +81,7 @@ curl -X GET "${PROD_API_URL}/auth/init-admin"
 ```
 
 **Пример запроса:**
+
 ```bash
 curl -X POST "${PROD_API_URL}/auth/login" \
   -H "Content-Type: application/json" \
@@ -87,6 +92,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 ```
 
 **Ожидаемый результат:**
+
 ```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -113,10 +119,11 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Аутентификация:** `Authorization: Bearer {adminToken}`
 - **Роль:** ADMIN
 - **Body:**
+
 ```json
 {
   "name": "ООО ТехСервис КМВ",
-  "baseRate": 800.00,
+  "baseRate": 800.0,
   "overtimeMultiplier": 1.5,
   "hasOvertime": true,
   "isActive": true
@@ -131,10 +138,11 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /organizations`
 - **Body:**
+
 ```json
 {
   "name": "ИП Санаторий Пятигорск",
-  "baseRate": 600.00,
+  "baseRate": 600.0,
   "overtimeMultiplier": 1.3,
   "hasOvertime": true,
   "isActive": true
@@ -149,10 +157,11 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /organizations`
 - **Body:**
+
 ```json
 {
   "name": "ЗАО Курортное Обслуживание КМВ",
-  "baseRate": 1000.00,
+  "baseRate": 1000.0,
   "overtimeMultiplier": 1.6,
   "hasOvertime": true,
   "isActive": true
@@ -181,6 +190,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Аутентификация:** `Authorization: Bearer {adminToken}`
 - **Роль:** ADMIN
 - **Body:**
+
 ```json
 {
   "email": "engineer1@test.com",
@@ -189,10 +199,10 @@ curl -X POST "${PROD_API_URL}/auth/login" \
   "lastName": "Петров",
   "role": "USER",
   "engineerType": "STAFF",
-  "baseRate": 500.00,
+  "baseRate": 500.0,
   "overtimeCoefficient": 1.6,
   "planHoursMonth": 160,
-  "homeTerritoryFixedAmount": 200.00,
+  "homeTerritoryFixedAmount": 200.0,
   "fixedSalary": 0,
   "fixedCarAmount": 0
 }
@@ -208,6 +218,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /users`
 - **Body:**
+
 ```json
 {
   "email": "engineer2@test.com",
@@ -216,7 +227,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
   "lastName": "Сидоров",
   "role": "USER",
   "engineerType": "CONTRACT",
-  "baseRate": 400.00,
+  "baseRate": 400.0,
   "overtimeCoefficient": 1.5,
   "planHoursMonth": 0,
   "homeTerritoryFixedAmount": 0,
@@ -235,6 +246,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /users`
 - **Body:**
+
 ```json
 {
   "email": "engineer3@test.com",
@@ -243,12 +255,12 @@ curl -X POST "${PROD_API_URL}/auth/login" \
   "lastName": "Козлов",
   "role": "USER",
   "engineerType": "STAFF",
-  "baseRate": 450.00,
+  "baseRate": 450.0,
   "overtimeCoefficient": 1.6,
   "planHoursMonth": 160,
-  "homeTerritoryFixedAmount": 180.00,
-  "fixedSalary": 50000.00,
-  "fixedCarAmount": 5000.00
+  "homeTerritoryFixedAmount": 180.0,
+  "fixedSalary": 50000.0,
+  "fixedCarAmount": 5000.0
 }
 ```
 
@@ -262,6 +274,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /users`
 - **Body:**
+
 ```json
 {
   "email": "engineer4@test.com",
@@ -270,10 +283,10 @@ curl -X POST "${PROD_API_URL}/auth/login" \
   "lastName": "Волков",
   "role": "USER",
   "engineerType": "STAFF",
-  "baseRate": 600.00,
+  "baseRate": 600.0,
   "overtimeCoefficient": 2.0,
   "planHoursMonth": 160,
-  "homeTerritoryFixedAmount": 250.00,
+  "homeTerritoryFixedAmount": 250.0,
   "fixedSalary": 0,
   "fixedCarAmount": 0
 }
@@ -289,6 +302,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /users`
 - **Body:**
+
 ```json
 {
   "email": "engineer5@test.com",
@@ -297,7 +311,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
   "lastName": "Орлов",
   "role": "USER",
   "engineerType": "CONTRACT",
-  "baseRate": 350.00,
+  "baseRate": 350.0,
   "overtimeCoefficient": 1.3,
   "planHoursMonth": 0,
   "homeTerritoryFixedAmount": 0,
@@ -316,6 +330,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /users`
 - **Body:**
+
 ```json
 {
   "email": "manager@test.com",
@@ -334,6 +349,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /auth/login`
 - **Body:**
+
 ```json
 {
   "email": "manager@test.com",
@@ -348,58 +364,73 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 ### 3.8 Логин инженеров (для принятия соглашений)
 
 **Инженер #1 (штатный, стандартная ставка):**
+
 - **Endpoint:** `POST /auth/login`
 - **Body:**
+
 ```json
 {
   "email": "engineer1@test.com",
   "password": "engineer123"
 }
 ```
+
 **Сохранить:** `engineer1Token`
 
 **Инженер #2 (наемный, контрактный):**
+
 - **Endpoint:** `POST /auth/login`
 - **Body:**
+
 ```json
 {
   "email": "engineer2@test.com",
   "password": "engineer123"
 }
 ```
+
 **Сохранить:** `engineer2Token`
 
 **Инженер #3 (штатный с фиксированной зарплатой):**
+
 - **Endpoint:** `POST /auth/login`
 - **Body:**
+
 ```json
 {
   "email": "engineer3@test.com",
   "password": "engineer123"
 }
 ```
+
 **Сохранить:** `engineer3Token`
 
 **Инженер #4 (штатный с высоким коэффициентом):**
+
 - **Endpoint:** `POST /auth/login`
 - **Body:**
+
 ```json
 {
   "email": "engineer4@test.com",
   "password": "engineer123"
 }
 ```
+
 **Сохранить:** `engineer4Token`
 
 **Инженер #5 (наемный с минимальными параметрами):**
+
 - **Endpoint:** `POST /auth/login`
 - **Body:**
+
 ```json
 {
   "email": "engineer5@test.com",
   "password": "engineer123"
 }
 ```
+
 **Сохранить:** `engineer5Token`
 
 ---
@@ -422,6 +453,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Метод:** POST
 - **Аутентификация:** `Authorization: Bearer {engineerToken}`
 - **Body:**
+
 ```json
 {
   "agreementIds": [1, 2, 3]
@@ -441,6 +473,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Аутентификация:** `Authorization: Bearer {managerToken}`
 - **Роль:** MANAGER
 - **Body:**
+
 ```json
 {
   "organizationId": {organizationId1},
@@ -462,6 +495,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /orders`
 - **Body:**
+
 ```json
 {
   "organizationId": {organizationId2},
@@ -483,6 +517,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /orders`
 - **Body:**
+
 ```json
 {
   "organizationId": {organizationId3},
@@ -504,6 +539,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /orders`
 - **Body:**
+
 ```json
 {
   "organizationId": {organizationId1},
@@ -525,6 +561,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /orders`
 - **Body:**
+
 ```json
 {
   "organizationId": {organizationId2},
@@ -551,6 +588,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Аутентификация:** `Authorization: Bearer {managerToken}`
 - **Роль:** MANAGER
 - **Body:**
+
 ```json
 {
   "engineerId": {engineer1Id},
@@ -564,6 +602,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /orders/{orderId2}/assign-engineer`
 - **Body:**
+
 ```json
 {
   "engineerId": {engineer1Id},
@@ -577,6 +616,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /orders/{orderId3}/assign-engineer`
 - **Body:**
+
 ```json
 {
   "engineerId": {engineer2Id},
@@ -590,6 +630,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /orders/{orderId4}/assign-engineer`
 - **Body:**
+
 ```json
 {
   "engineerId": {engineer2Id},
@@ -603,6 +644,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /orders/{orderId5}/assign-engineer`
 - **Body:**
+
 ```json
 {
   "engineerId": {engineer3Id},
@@ -615,8 +657,10 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 ### 6.6 Создать дополнительные заявки для инженеров #4 и #5
 
 **Заявка #6 (для инженера #4):**
+
 - **Endpoint:** `POST /orders`
 - **Body:**
+
 ```json
 {
   "organizationId": {organizationId3},
@@ -629,11 +673,14 @@ curl -X POST "${PROD_API_URL}/auth/login" \
   "plannedStartDate": "2025-01-20T10:00:00Z"
 }
 ```
+
 **Сохранить:** `orderId6`
 
 **Заявка #7 (для инженера #5):**
+
 - **Endpoint:** `POST /orders`
 - **Body:**
+
 ```json
 {
   "organizationId": {organizationId1},
@@ -646,6 +693,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
   "plannedStartDate": "2025-01-21T11:00:00Z"
 }
 ```
+
 **Сохранить:** `orderId7`
 
 ---
@@ -654,6 +702,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /orders/{orderId6}/assign-engineer`
 - **Body:**
+
 ```json
 {
   "engineerId": {engineer4Id},
@@ -667,6 +716,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /orders/{orderId7}/assign-engineer`
 - **Body:**
+
 ```json
 {
   "engineerId": {engineer5Id},
@@ -737,6 +787,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Метод:** POST
 - **Аутентификация:** `Authorization: Bearer {engineer1Token}`
 - **Body:**
+
 ```json
 {
   "workDate": "2025-01-15",
@@ -758,6 +809,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /orders/{orderId2}/work-sessions`
 - **Body:**
+
 ```json
 {
   "workDate": "2025-01-16",
@@ -780,6 +832,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Endpoint:** `POST /orders/{orderId3}/work-sessions`
 - **Аутентификация:** `Authorization: Bearer {engineer2Token}`
 - **Body:**
+
 ```json
 {
   "workDate": "2025-01-17",
@@ -802,6 +855,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Endpoint:** `POST /orders/{orderId4}/work-sessions`
 - **Аутентификация:** `Authorization: Bearer {engineer2Token}`
 - **Body:**
+
 ```json
 {
   "workDate": "2025-01-18",
@@ -824,6 +878,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Endpoint:** `POST /orders/{orderId5}/work-sessions`
 - **Аутентификация:** `Authorization: Bearer {engineer3Token}`
 - **Body:**
+
 ```json
 {
   "workDate": "2025-01-19",
@@ -846,6 +901,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Endpoint:** `POST /orders/{orderId6}/work-sessions`
 - **Аутентификация:** `Authorization: Bearer {engineer4Token}`
 - **Body:**
+
 ```json
 {
   "workDate": "2025-01-20",
@@ -868,6 +924,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Endpoint:** `POST /orders/{orderId7}/work-sessions`
 - **Аутентификация:** `Authorization: Bearer {engineer5Token}`
 - **Body:**
+
 ```json
 {
   "workDate": "2025-01-21",
@@ -894,6 +951,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Аутентификация:** `Authorization: Bearer {engineer1Token}`
 - **Роль:** USER
 - **Body:**
+
 ```json
 {
   "regularHours": 8,
@@ -912,6 +970,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 
 - **Endpoint:** `POST /orders/{orderId2}/complete-work`
 - **Body:**
+
 ```json
 {
   "regularHours": 6,
@@ -931,6 +990,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Endpoint:** `POST /orders/{orderId3}/complete-work`
 - **Аутентификация:** `Authorization: Bearer {engineer2Token}`
 - **Body:**
+
 ```json
 {
   "regularHours": 4,
@@ -950,6 +1010,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Endpoint:** `POST /orders/{orderId4}/complete-work`
 - **Аутентификация:** `Authorization: Bearer {engineer2Token}`
 - **Body:**
+
 ```json
 {
   "regularHours": 3,
@@ -969,6 +1030,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Endpoint:** `POST /orders/{orderId5}/complete-work`
 - **Аутентификация:** `Authorization: Bearer {engineer3Token}`
 - **Body:**
+
 ```json
 {
   "regularHours": 5,
@@ -988,6 +1050,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Endpoint:** `POST /orders/{orderId6}/complete-work`
 - **Аутентификация:** `Authorization: Bearer {engineer4Token}`
 - **Body:**
+
 ```json
 {
   "regularHours": 7,
@@ -1007,6 +1070,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Endpoint:** `POST /orders/{orderId7}/complete-work`
 - **Аутентификация:** `Authorization: Bearer {engineer5Token}`
 - **Body:**
+
 ```json
 {
   "regularHours": 4,
@@ -1024,27 +1088,34 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 ### 9.8 Завершить заявки (менеджер)
 
 **Завершить заявку #1:**
+
 - **Endpoint:** `POST /orders/{orderId1}/complete`
 - **Метод:** POST
 - **Аутентификация:** `Authorization: Bearer {managerToken}`
 - **Роль:** MANAGER
 
 **Завершить заявку #2:**
+
 - **Endpoint:** `POST /orders/{orderId2}/complete`
 
 **Завершить заявку #3:**
+
 - **Endpoint:** `POST /orders/{orderId3}/complete`
 
 **Завершить заявку #4:**
+
 - **Endpoint:** `POST /orders/{orderId4}/complete`
 
 **Завершить заявку #5:**
+
 - **Endpoint:** `POST /orders/{orderId5}/complete`
 
 **Завершить заявку #6:**
+
 - **Endpoint:** `POST /orders/{orderId6}/complete`
 
 **Завершить заявку #7:**
+
 - **Endpoint:** `POST /orders/{orderId7}/complete`
 
 ---
@@ -1057,6 +1128,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Метод:** GET
 - **Аутентификация:** `Authorization: Bearer {adminToken}` или `{managerToken}`
 - **Ожидаемый результат:**
+
 ```json
 {
   "total": 5,
@@ -1084,6 +1156,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 ```
 
 **Проверить:**
+
 - ✅ Общее количество заявок = 5
 - ✅ Все заявки завершены (completed = 5)
 - ✅ Статистика по источникам корректна
@@ -1099,6 +1172,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Ожидаемый результат:** Детальная статистика инженера за январь 2025
 
 **Проверить:**
+
 - ✅ Количество заявок = 2
 - ✅ Общее количество часов (regular + overtime)
 - ✅ Сумма заработка
@@ -1113,6 +1187,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Аутентификация:** `Authorization: Bearer {engineer2Token}`
 
 **Проверить:**
+
 - ✅ Количество заявок = 2
 - ✅ Общее количество часов
 - ✅ Сумма заработка
@@ -1126,6 +1201,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Аутентификация:** `Authorization: Bearer {engineer3Token}`
 
 **Проверить:**
+
 - ✅ Количество заявок = 1
 - ✅ Общее количество часов
 - ✅ Сумма заработка (с учетом фиксированной зарплаты)
@@ -1142,6 +1218,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Ожидаемый результат:** Месячная статистика за январь 2025
 
 **Проверить:**
+
 - ✅ Общее количество заявок
 - ✅ Общее количество часов (regular + overtime)
 - ✅ Общая сумма заработка инженеров
@@ -1160,6 +1237,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Ожидаемый результат:** Комплексная статистика
 
 **Проверить:**
+
 - ✅ Временные показатели (часы работы)
 - ✅ Финансовые показатели (заработок, оплаты)
 - ✅ Рейтинги инженеров
@@ -1176,6 +1254,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Ожидаемый результат:** Статистика по всем инженерам
 
 **Проверить:**
+
 - ✅ Список всех инженеров
 - ✅ Статистика по каждому инженеру
 - ✅ Сравнение показателей
@@ -1191,6 +1270,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Ожидаемый результат:** Статистика задолженностей
 
 **Проверить:**
+
 - ✅ Задолженности организаций перед системой
 - ✅ Задолженности системы перед инженерами
 - ✅ Суммы корректны
@@ -1206,6 +1286,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Ожидаемый результат:** Статус оплаты автомобильных отчислений
 
 **Проверить:**
+
 - ✅ Список инженеров с автомобильными выплатами
 - ✅ Статусы оплат
 - ✅ Суммы корректны
@@ -1220,6 +1301,7 @@ curl -X POST "${PROD_API_URL}/auth/login" \
 - **Ожидаемый результат:** Статистика заработка за последние 12 месяцев
 
 **Проверить:**
+
 - ✅ Данные за текущий месяц присутствуют
 - ✅ График заработка корректен
 
@@ -1327,13 +1409,13 @@ const API_URL = process.env.PROD_API_URL || 'https://your-production-api.com/api
 async function testProduction() {
   // 1. Аутентификация
   const adminToken = await loginAdmin();
-  
+
   // 2. Создание организаций
   const orgIds = await createOrganizations(adminToken);
-  
+
   // 3. Создание пользователей
   const userIds = await createUsers(adminToken);
-  
+
   // ... и так далее
 }
 
@@ -1343,4 +1425,3 @@ testProduction();
 ---
 
 **Дата последнего обновления:** 2025-01-XX
-

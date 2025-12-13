@@ -3,10 +3,10 @@
 /**
  * Скрипт автоматического тестирования продакшн API (КМВ - Кавказские Минеральные Воды)
  * Выполняет полный цикл заполнения данных и проверки статистики для региона КМВ
- * 
+ *
  * Регион: Кавказские Минеральные Воды (КМВ)
  * Города: Пятигорск, Кисловодск, Ессентуки, Железноводск, Минеральные Воды
- * 
+ *
  * Использование:
  *   PROD_API_URL=https://your-production-api.com/api node scripts/test-production-api.js
  */
@@ -35,12 +35,12 @@ const testData = {
   engineer3Token: null,
   engineer4Token: null,
   engineer5Token: null,
-  
+
   // Организации
   organizationId1: null,
   organizationId2: null,
   organizationId3: null,
-  
+
   // Пользователи
   engineer1UserId: null,
   engineer1Email: null,
@@ -59,7 +59,7 @@ const testData = {
   engineer5Id: null,
   managerUserId: null,
   managerEmail: null,
-  
+
   // Заявки
   orderId1: null,
   orderId2: null,
@@ -68,7 +68,7 @@ const testData = {
   orderId5: null,
   orderId6: null,
   orderId7: null,
-  
+
   // Рабочие сессии
   workSessionId1: null,
   workSessionId2: null,
@@ -77,7 +77,7 @@ const testData = {
   workSessionId5: null,
   workSessionId6: null,
   workSessionId7: null,
-  
+
   // Соглашения
   agreementIds: [],
 };
@@ -110,12 +110,54 @@ async function request(method, endpoint, options = {}) {
 
   try {
     const response = await fetch(url, config);
-    const data = await response.json().catch(() => ({}));
+    let data = {};
+    const contentType = response.headers.get('content-type');
+    
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json().catch(() => ({}));
+    } else {
+      const text = await response.text().catch(() => '');
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { message: text || response.statusText };
+      }
+    }
 
     if (!response.ok) {
-      throw new Error(
-        `HTTP ${response.status}: ${data.message || response.statusText}\n${JSON.stringify(data, null, 2)}`
-      );
+      // Формируем детальное сообщение об ошибке
+      let errorMessage = `HTTP ${response.status}: ${data.message || data.error?.message || response.statusText}`;
+      
+      // Добавляем детали валидации, если есть
+      if (data.errors && Array.isArray(data.errors)) {
+        errorMessage += `\n   Validation errors:`;
+        data.errors.forEach((err, idx) => {
+          errorMessage += `\n   ${idx + 1}. ${err.property || 'unknown'}: ${err.constraints ? Object.values(err.constraints).join(', ') : JSON.stringify(err)}`;
+        });
+      }
+      
+      // Добавляем validationErrors, если есть
+      if (data.error?.validationErrors && Array.isArray(data.error.validationErrors)) {
+        errorMessage += `\n   Validation errors:`;
+        data.error.validationErrors.forEach((err, idx) => {
+          errorMessage += `\n   ${idx + 1}. ${err.property || 'unknown'}: ${err.constraints ? Object.values(err.constraints).join(', ') : JSON.stringify(err)}`;
+        });
+      }
+      
+      // Добавляем полный ответ для отладки
+      const errorDetails = {
+        statusCode: data.statusCode || response.status,
+        timestamp: data.timestamp,
+        path: data.path,
+        method: data.method || config.method,
+        message: data.message || data.error?.message,
+        error: data.error,
+        errors: data.errors,
+      };
+      
+      errorMessage += `\n${JSON.stringify(errorDetails, null, 2)}`;
+      
+      throw new Error(errorMessage);
     }
 
     return { status: response.status, data };
@@ -139,13 +181,34 @@ async function test(name, testFn) {
     return true;
   } catch (error) {
     log(`❌ ${name} - ОШИБКА`, 'red');
-    log(`   ${error.message}`, 'red');
-    if (error.stack) {
-      const stackLines = error.stack.split('\n');
-      if (stackLines.length > 1) {
-        log(`   ${stackLines[1].trim()}`, 'yellow');
+    
+    // Выводим детальное сообщение об ошибке
+    const errorLines = error.message.split('\n');
+    errorLines.forEach((line, idx) => {
+      if (idx === 0) {
+        log(`   ${line}`, 'red');
+      } else if (line.trim().startsWith('{') || line.trim().startsWith('[')) {
+        // JSON данные - выводим с отступом
+        try {
+          const jsonData = JSON.parse(line.trim());
+          log(`   ${JSON.stringify(jsonData, null, 2).split('\n').join('\n   ')}`, 'yellow');
+        } catch {
+          log(`   ${line}`, 'yellow');
+        }
+      } else {
+        log(`   ${line}`, 'yellow');
       }
+    });
+    
+    // Выводим stack trace только в режиме отладки
+    if (process.env.DEBUG && error.stack) {
+      const stackLines = error.stack.split('\n').slice(1);
+      log(`   Stack trace:`, 'yellow');
+      stackLines.slice(0, 3).forEach(line => {
+        log(`   ${line.trim()}`, 'yellow');
+      });
     }
+    
     return false;
   }
 }
@@ -187,7 +250,7 @@ async function createOrganization1() {
     token: testData.adminToken,
     body: {
       name: `ООО ТехСервис КМВ ${timestamp}`,
-      baseRate: 800.00,
+      baseRate: 800.0,
       overtimeMultiplier: 1.5,
       hasOvertime: true,
       isActive: true,
@@ -204,7 +267,7 @@ async function createOrganization2() {
     token: testData.adminToken,
     body: {
       name: `ИП Санаторий Пятигорск ${timestamp}`,
-      baseRate: 600.00,
+      baseRate: 600.0,
       overtimeMultiplier: 1.3,
       hasOvertime: true,
       isActive: true,
@@ -221,7 +284,7 @@ async function createOrganization3() {
     token: testData.adminToken,
     body: {
       name: `ЗАО Курортное Обслуживание КМВ ${timestamp}`,
-      baseRate: 1000.00,
+      baseRate: 1000.0,
       overtimeMultiplier: 1.6,
       hasOvertime: true,
       isActive: true,
@@ -256,16 +319,19 @@ async function createEngineer1() {
       lastName: 'Петров',
       role: 'user',
       engineerType: 'staff',
-      baseRate: 500.00,
+      baseRate: 500.0,
       overtimeCoefficient: 1.6,
       planHoursMonth: 160,
-      homeTerritoryFixedAmount: 200.00,
+      homeTerritoryFixedAmount: 200.0,
     },
   });
   testData.engineer1UserId = data.id;
   testData.engineer1Email = email;
   testData.engineer1Id = data.engineer?.id;
-  log(`   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (STAFF, стандартная ставка)`, 'blue');
+  log(
+    `   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (STAFF, стандартная ставка)`,
+    'blue'
+  );
   return data;
 }
 
@@ -281,7 +347,7 @@ async function createEngineer2() {
       lastName: 'Сидоров',
       role: 'user',
       engineerType: 'contract',
-      baseRate: 400.00,
+      baseRate: 400.0,
       overtimeCoefficient: 1.5,
       // planHoursMonth не передаем для CONTRACT (валидатор требует минимум 1)
       homeTerritoryFixedAmount: 0,
@@ -290,7 +356,10 @@ async function createEngineer2() {
   testData.engineer2UserId = data.id;
   testData.engineer2Email = email;
   testData.engineer2Id = data.engineer?.id;
-  log(`   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (CONTRACT, наемный)`, 'blue');
+  log(
+    `   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (CONTRACT, наемный)`,
+    'blue'
+  );
   return data;
 }
 
@@ -306,10 +375,10 @@ async function createEngineer3() {
       lastName: 'Козлов',
       role: 'user',
       engineerType: 'staff',
-      baseRate: 450.00,
+      baseRate: 450.0,
       overtimeCoefficient: 1.6,
       planHoursMonth: 160,
-      homeTerritoryFixedAmount: 180.00,
+      homeTerritoryFixedAmount: 180.0,
       // Примечание: fixedSalary и fixedCarAmount не сохраняются при создании через API,
       // они используются только при обновлении через updateUserDto
     },
@@ -317,7 +386,10 @@ async function createEngineer3() {
   testData.engineer3UserId = data.id;
   testData.engineer3Email = email;
   testData.engineer3Id = data.engineer?.id;
-  log(`   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (STAFF, стандартная ставка)`, 'blue');
+  log(
+    `   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (STAFF, стандартная ставка)`,
+    'blue'
+  );
   return data;
 }
 
@@ -333,16 +405,19 @@ async function createEngineer4() {
       lastName: 'Волков',
       role: 'user',
       engineerType: 'staff',
-      baseRate: 600.00,
+      baseRate: 600.0,
       overtimeCoefficient: 2.0,
       planHoursMonth: 160,
-      homeTerritoryFixedAmount: 250.00,
+      homeTerritoryFixedAmount: 250.0,
     },
   });
   testData.engineer4UserId = data.id;
   testData.engineer4Email = email;
   testData.engineer4Id = data.engineer?.id;
-  log(`   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (STAFF, высокий коэффициент)`, 'blue');
+  log(
+    `   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (STAFF, высокий коэффициент)`,
+    'blue'
+  );
   return data;
 }
 
@@ -358,7 +433,7 @@ async function createEngineer5() {
       lastName: 'Орлов',
       role: 'user',
       engineerType: 'contract',
-      baseRate: 350.00,
+      baseRate: 350.0,
       overtimeCoefficient: 1.3,
       // planHoursMonth не передаем для CONTRACT (валидатор требует минимум 1)
       homeTerritoryFixedAmount: 0,
@@ -367,7 +442,10 @@ async function createEngineer5() {
   testData.engineer5UserId = data.id;
   testData.engineer5Email = email;
   testData.engineer5Id = data.engineer?.id;
-  log(`   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (CONTRACT, минимальные параметры)`, 'blue');
+  log(
+    `   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (CONTRACT, минимальные параметры)`,
+    'blue'
+  );
   return data;
 }
 
@@ -489,9 +567,7 @@ async function getAgreements(token, engineerName) {
     token,
   });
   const agreements = Array.isArray(data) ? data : data.agreements || [];
-  testData.agreementIds = agreements
-    .filter(ag => ag.isRequired && ag.isActive)
-    .map(ag => ag.id);
+  testData.agreementIds = agreements.filter(ag => ag.isRequired && ag.isActive).map(ag => ag.id);
   log(`   Найдено обязательных соглашений: ${testData.agreementIds.length}`, 'blue');
   return data;
 }
@@ -521,7 +597,8 @@ async function createOrder1() {
     body: {
       organizationId: testData.organizationId1,
       title: 'Ремонт оборудования в санатории Пятигорск',
-      description: 'Требуется диагностика и ремонт серверного оборудования в административном корпусе',
+      description:
+        'Требуется диагностика и ремонт серверного оборудования в административном корпусе',
       location: 'Пятигорск, пр. Кирова, 28',
       distanceKm: 5.0,
       territoryType: 'urban',
@@ -1031,7 +1108,8 @@ async function completeWork6() {
       carPayment: 550,
       distanceKm: 6.0,
       territoryType: 'urban',
-      notes: 'Работа завершена. Система кондиционирования в административном здании Пятигорск отремонтирована',
+      notes:
+        'Работа завершена. Система кондиционирования в административном здании Пятигорск отремонтирована',
       isFullyCompleted: true,
     },
   });
@@ -1122,7 +1200,10 @@ async function getOrderStats() {
   });
   log(`   Всего заявок: ${data.total}`, 'blue');
   log(`   Завершено: ${data.completed}`, 'blue');
-  log(`   По источникам: Manual=${data.bySource?.manual}, Automatic=${data.bySource?.automatic}`, 'blue');
+  log(
+    `   По источникам: Manual=${data.bySource?.manual}, Automatic=${data.bySource?.automatic}`,
+    'blue'
+  );
   return data;
 }
 
@@ -1130,9 +1211,13 @@ async function getEngineer1DetailedStats() {
   const currentDate = new Date();
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1;
-  const { data } = await request('GET', `/statistics/engineer/detailed?year=${year}&month=${month}`, {
-    token: testData.engineer1Token,
-  });
+  const { data } = await request(
+    'GET',
+    `/statistics/engineer/detailed?year=${year}&month=${month}`,
+    {
+      token: testData.engineer1Token,
+    }
+  );
   log(`   Заявок: ${data.ordersCount || 0}`, 'blue');
   log(`   Часов: ${data.totalHours || 0}`, 'blue');
   log(`   Заработок: ${data.totalEarnings || 0}`, 'blue');
@@ -1143,9 +1228,13 @@ async function getEngineer2DetailedStats() {
   const currentDate = new Date();
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1;
-  const { data } = await request('GET', `/statistics/engineer/detailed?year=${year}&month=${month}`, {
-    token: testData.engineer2Token,
-  });
+  const { data } = await request(
+    'GET',
+    `/statistics/engineer/detailed?year=${year}&month=${month}`,
+    {
+      token: testData.engineer2Token,
+    }
+  );
   log(`   Заявок: ${data.ordersCount || 0}`, 'blue');
   log(`   Часов: ${data.totalHours || 0}`, 'blue');
   log(`   Заработок: ${data.totalEarnings || 0}`, 'blue');
@@ -1156,9 +1245,13 @@ async function getEngineer3DetailedStats() {
   const currentDate = new Date();
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1;
-  const { data } = await request('GET', `/statistics/engineer/detailed?year=${year}&month=${month}`, {
-    token: testData.engineer3Token,
-  });
+  const { data } = await request(
+    'GET',
+    `/statistics/engineer/detailed?year=${year}&month=${month}`,
+    {
+      token: testData.engineer3Token,
+    }
+  );
   log(`   Заявок: ${data.ordersCount || 0}`, 'blue');
   log(`   Часов: ${data.totalHours || 0}`, 'blue');
   log(`   Заработок: ${data.totalEarnings || 0}`, 'blue');
@@ -1222,9 +1315,13 @@ async function getCarPaymentStatus() {
   const currentDate = new Date();
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth() + 1;
-  const { data } = await request('GET', `/statistics/car-payment-status?year=${year}&month=${month}`, {
-    token: testData.adminToken,
-  });
+  const { data } = await request(
+    'GET',
+    `/statistics/car-payment-status?year=${year}&month=${month}`,
+    {
+      token: testData.adminToken,
+    }
+  );
   log(`   Статус оплаты автомобильных отчислений получен`, 'blue');
   return data;
 }
@@ -1293,16 +1390,26 @@ async function runTests() {
   log('='.repeat(60), 'yellow');
 
   results.tests.push(
-    await test('Получить соглашения (инженер #1)', () => getAgreements(testData.engineer1Token, 'Инженер #1')),
-    await test('Принять соглашения (инженер #1)', () => acceptAgreements(testData.engineer1Token, 'Инженер #1')),
-    await test('Получить соглашения (инженер #2)', () => getAgreements(testData.engineer2Token, 'Инженер #2')),
-    await test('Принять соглашения (инженер #2)', () => acceptAgreements(testData.engineer2Token, 'Инженер #2')),
-    await test('Получить соглашения (инженер #3)', () => getAgreements(testData.engineer3Token, 'Инженер #3')),
-    await test('Принять соглашения (инженер #3)', () => acceptAgreements(testData.engineer3Token, 'Инженер #3')),
-    await test('Получить соглашения (инженер #4)', () => getAgreements(testData.engineer4Token, 'Инженер #4')),
-    await test('Принять соглашения (инженер #4)', () => acceptAgreements(testData.engineer4Token, 'Инженер #4')),
-    await test('Получить соглашения (инженер #5)', () => getAgreements(testData.engineer5Token, 'Инженер #5')),
-    await test('Принять соглашения (инженер #5)', () => acceptAgreements(testData.engineer5Token, 'Инженер #5'))
+    await test('Получить соглашения (инженер #1)', () =>
+      getAgreements(testData.engineer1Token, 'Инженер #1')),
+    await test('Принять соглашения (инженер #1)', () =>
+      acceptAgreements(testData.engineer1Token, 'Инженер #1')),
+    await test('Получить соглашения (инженер #2)', () =>
+      getAgreements(testData.engineer2Token, 'Инженер #2')),
+    await test('Принять соглашения (инженер #2)', () =>
+      acceptAgreements(testData.engineer2Token, 'Инженер #2')),
+    await test('Получить соглашения (инженер #3)', () =>
+      getAgreements(testData.engineer3Token, 'Инженер #3')),
+    await test('Принять соглашения (инженер #3)', () =>
+      acceptAgreements(testData.engineer3Token, 'Инженер #3')),
+    await test('Получить соглашения (инженер #4)', () =>
+      getAgreements(testData.engineer4Token, 'Инженер #4')),
+    await test('Принять соглашения (инженер #4)', () =>
+      acceptAgreements(testData.engineer4Token, 'Инженер #4')),
+    await test('Получить соглашения (инженер #5)', () =>
+      getAgreements(testData.engineer5Token, 'Инженер #5')),
+    await test('Принять соглашения (инженер #5)', () =>
+      acceptAgreements(testData.engineer5Token, 'Инженер #5'))
   );
 
   // ЭТАП 5: СОЗДАНИЕ ЗАЯВОК
@@ -1424,7 +1531,14 @@ async function runTests() {
 // Запуск
 runTests().catch(error => {
   log(`\n❌ Критическая ошибка: ${error.message}`, 'red');
+  if (error.stack) {
+    log(`\nStack trace:`, 'yellow');
+    log(error.stack, 'yellow');
+  }
+  if (error.response) {
+    log(`\nResponse data:`, 'yellow');
+    log(JSON.stringify(error.response, null, 2), 'yellow');
+  }
   console.error(error);
   process.exit(1);
 });
-

@@ -18,7 +18,7 @@ export class TestController {
     return {
       message: 'Backend is working!',
       timestamp: new Date().toISOString(),
-      version: '1.0.0',
+      version: '1.1.6',
       status: 'success',
     };
   }
