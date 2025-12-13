@@ -112,7 +112,7 @@ async function request(method, endpoint, options = {}) {
     const response = await fetch(url, config);
     let data = {};
     const contentType = response.headers.get('content-type');
-    
+
     if (contentType && contentType.includes('application/json')) {
       data = await response.json().catch(() => ({}));
     } else {
@@ -127,7 +127,7 @@ async function request(method, endpoint, options = {}) {
     if (!response.ok) {
       // Формируем детальное сообщение об ошибке
       let errorMessage = `HTTP ${response.status}: ${data.message || data.error?.message || response.statusText}`;
-      
+
       // Добавляем детали валидации, если есть
       if (data.errors && Array.isArray(data.errors)) {
         errorMessage += `\n   Validation errors:`;
@@ -135,7 +135,7 @@ async function request(method, endpoint, options = {}) {
           errorMessage += `\n   ${idx + 1}. ${err.property || 'unknown'}: ${err.constraints ? Object.values(err.constraints).join(', ') : JSON.stringify(err)}`;
         });
       }
-      
+
       // Добавляем validationErrors, если есть
       if (data.error?.validationErrors && Array.isArray(data.error.validationErrors)) {
         errorMessage += `\n   Validation errors:`;
@@ -143,7 +143,7 @@ async function request(method, endpoint, options = {}) {
           errorMessage += `\n   ${idx + 1}. ${err.property || 'unknown'}: ${err.constraints ? Object.values(err.constraints).join(', ') : JSON.stringify(err)}`;
         });
       }
-      
+
       // Добавляем полный ответ для отладки
       const errorDetails = {
         statusCode: data.statusCode || response.status,
@@ -154,9 +154,9 @@ async function request(method, endpoint, options = {}) {
         error: data.error,
         errors: data.errors,
       };
-      
+
       errorMessage += `\n${JSON.stringify(errorDetails, null, 2)}`;
-      
+
       throw new Error(errorMessage);
     }
 
@@ -181,7 +181,7 @@ async function test(name, testFn) {
     return true;
   } catch (error) {
     log(`❌ ${name} - ОШИБКА`, 'red');
-    
+
     // Выводим детальное сообщение об ошибке
     const errorLines = error.message.split('\n');
     errorLines.forEach((line, idx) => {
@@ -199,7 +199,7 @@ async function test(name, testFn) {
         log(`   ${line}`, 'yellow');
       }
     });
-    
+
     // Выводим stack trace только в режиме отладки
     if (process.env.DEBUG && error.stack) {
       const stackLines = error.stack.split('\n').slice(1);
@@ -208,7 +208,7 @@ async function test(name, testFn) {
         log(`   ${line.trim()}`, 'yellow');
       });
     }
-    
+
     return false;
   }
 }

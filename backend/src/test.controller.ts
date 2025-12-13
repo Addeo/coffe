@@ -20,10 +20,10 @@ export class TestController {
 
   @Get('test')
   getTest() {
-    return { 
-      message: 'Server is working', 
+    return {
+      message: 'Server is working',
       timestamp: new Date(),
-      version: this.getVersion()
+      version: this.getVersion(),
     };
   }
 
