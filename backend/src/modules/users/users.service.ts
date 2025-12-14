@@ -125,8 +125,6 @@ export class UsersService {
 
   async findAll(currentUser: any, queryDto: UsersQueryDto = {}): Promise<UsersResponse> {
     const {
-      page = 1,
-      limit = 10,
       search,
       role,
       isActive,
@@ -161,8 +159,8 @@ export class UsersService {
       return {
         data: [],
         total: 0,
-        page,
-        limit,
+        page: 1,
+        limit: 0,
         totalPages: 0,
       };
     }
@@ -201,8 +199,7 @@ export class UsersService {
     // Apply sorting
     query.orderBy(`user.${sortBy}`, sortOrder);
 
-    // Apply pagination
-    query.skip((page - 1) * limit).take(limit);
+    // Pagination removed - return all records
 
     const [data, total] = await query.getManyAndCount();
 
@@ -221,9 +218,9 @@ export class UsersService {
     return {
       data,
       total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      page: 1,
+      limit: total,
+      totalPages: 1,
     };
   }
 

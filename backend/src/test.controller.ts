@@ -10,12 +10,12 @@ export class TestController {
       const packagePath = path.join(__dirname, '../../package.json');
       if (fs.existsSync(packagePath)) {
         const pkg = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
-        return pkg.version || '1.1.6';
+        return pkg.version || '1.1.7';
       }
     } catch {
       // Fallback если не удалось прочитать
     }
-    return '1.1.6';
+    return '1.1.7';
   }
 
   @Get('test')

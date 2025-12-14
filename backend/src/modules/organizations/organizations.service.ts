@@ -57,8 +57,6 @@ export class OrganizationsService {
     console.log('queryDto:', queryDto);
 
     const {
-      page = 1,
-      limit = 10,
       search,
       isActive,
       hasOvertime,
@@ -70,7 +68,7 @@ export class OrganizationsService {
       sortOrder = 'ASC',
     } = queryDto;
 
-    console.log('Parsed params:', { page, limit, search, isActive });
+    console.log('Parsed params:', { search, isActive });
 
     const query = this.organizationRepository
       .createQueryBuilder('organization')
@@ -121,15 +119,14 @@ export class OrganizationsService {
     // Apply sorting
     query.orderBy(`organization.${sortBy}`, sortOrder);
 
-    // Apply pagination
-    query.skip((page - 1) * limit).take(limit);
+    // Pagination removed - return all records
 
     const sql = query.getSql();
     console.log('Generated SQL:', sql);
 
     const [data, total] = await query.getManyAndCount();
 
-    console.log('Query result:', { data: data.length, total, page, limit });
+    console.log('Query result:', { data: data.length, total });
     console.log(
       'Data items:',
       data.map(d => ({ id: d.id, name: d.name }))
@@ -138,9 +135,9 @@ export class OrganizationsService {
     return {
       data,
       total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      page: 1,
+      limit: total,
+      totalPages: 1,
     };
   }
 

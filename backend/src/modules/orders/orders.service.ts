@@ -225,15 +225,13 @@ export class OrdersService {
         return {
           data: [],
           total: 0,
-          page: query.page || 1,
-          limit: query.limit || 10,
+          page: 1,
+          limit: 0,
           totalPages: 0,
         };
       }
     }
     const {
-      page = 1,
-      limit = 10,
       status,
       organizationId,
       engineerId,
@@ -387,19 +385,18 @@ export class OrdersService {
       queryBuilder.andWhere('order.completionDate <= :completionDateTo', { completionDateTo });
     }
 
-    queryBuilder
-      .orderBy(`order.${sortBy}`, sortOrder)
-      .skip((page - 1) * limit)
-      .take(limit);
+    queryBuilder.orderBy(`order.${sortBy}`, sortOrder);
+
+    // Pagination removed - return all records
 
     const [data, total] = await queryBuilder.getManyAndCount();
 
     return {
       data,
       total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      page: 1,
+      limit: total,
+      totalPages: 1,
     };
   }
 
