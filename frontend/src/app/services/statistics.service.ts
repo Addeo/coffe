@@ -196,4 +196,28 @@ export class StatisticsService {
       params: { year: year.toString(), month: month.toString() },
     });
   }
+
+  /**
+   * Получить список организаций с долгами по автомобильным расходам
+   */
+  getOrganizationCarPayments(year?: number, month?: number): Observable<any> {
+    let params: any = {};
+    if (year) params['year'] = year.toString();
+    if (month) params['month'] = month.toString();
+    return this.http.get<any>(`${environment.apiUrl}/statistics/car-payments/organizations`, {
+      params,
+    });
+  }
+
+  /**
+   * Получить список инженеров с автомобильными расходами
+   */
+  getEngineerCarPayments(year?: number, month?: number): Observable<any> {
+    let params: any = {};
+    if (year) params['year'] = year.toString();
+    if (month) params['month'] = month.toString();
+    return this.http.get<any>(`${environment.apiUrl}/statistics/car-payments/engineers`, {
+      params,
+    });
+  }
 }

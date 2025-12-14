@@ -123,4 +123,36 @@ export class StatisticsController {
 
     return this.statisticsService.getCarPaymentStatus(targetYear, targetMonth);
   }
+
+  /**
+   * Получить список организаций с долгами по автомобильным расходам
+   */
+  @Get('car-payments/organizations')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  async getOrganizationCarPayments(
+    @Query('year', ParseIntPipe) year?: number,
+    @Query('month', ParseIntPipe) month?: number
+  ) {
+    const currentDate = new Date();
+    const targetYear = year || currentDate.getFullYear();
+    const targetMonth = month || currentDate.getMonth() + 1;
+
+    return this.statisticsService.getOrganizationCarPayments(targetYear, targetMonth);
+  }
+
+  /**
+   * Получить список инженеров с автомобильными расходами
+   */
+  @Get('car-payments/engineers')
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  async getEngineerCarPayments(
+    @Query('year', ParseIntPipe) year?: number,
+    @Query('month', ParseIntPipe) month?: number
+  ) {
+    const currentDate = new Date();
+    const targetYear = year || currentDate.getFullYear();
+    const targetMonth = month || currentDate.getMonth() + 1;
+
+    return this.statisticsService.getEngineerCarPayments(targetYear, targetMonth);
+  }
 }

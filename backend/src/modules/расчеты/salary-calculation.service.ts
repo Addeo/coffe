@@ -134,7 +134,9 @@ export class SalaryCalculationService {
       clientRevenue += session.organizationPayment;
     }
 
-    const totalAmount = baseAmount + overtimeAmount + carUsageAmount;
+    // ВАЖНО: carUsageAmount оплачивает организация, поэтому не включаем в выплаты инженеру
+    const totalAmount = baseAmount + overtimeAmount;
+    // Прибыль = выручка от организации (включает carUsageAmount) - выплаты инженеру (только за работу)
     const profitMargin = clientRevenue - totalAmount;
 
     // Сохраняем расчет (упрощённая структура, так как данные уже суммированы в сессиях)

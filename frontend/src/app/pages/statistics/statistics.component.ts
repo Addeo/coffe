@@ -170,6 +170,11 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     'paymentStatus',
   ];
 
+  // Новые данные для списков организаций и инженеров с автомобильными расходами
+  organizationCarPayments = signal<any>(null);
+  engineerCarPayments = signal<any>(null);
+  isLoadingCarPayments = signal(false);
+
   // Engineer hours statistics (similar to orders component)
   engineerHoursStats = signal<{
     engineers: Array<{
@@ -295,7 +300,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   readonly canDeleteUsers = this.authService.isAdmin();
 
   // Table columns
-  agentEarningsColumns = ['agentName', 'totalEarnings', 'completedOrders', 'averageOrderValue'];
+  agentEarningsColumns = ['agentName', 'totalEarnings', 'carPayments', 'fixedCarAmount', 'completedOrders', 'averageOrderValue'];
   organizationEarningsColumns = [
     'organizationName',
     'totalRevenue',
@@ -596,6 +601,71 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Загрузить список организаций с долгами по автомобильным расходам
+   */
+  private async loadOrganizationCarPayments(): Promise<void> {
+    // Загружаем данные только для админов и менеджеров
+    if (!this.canViewAllData) {
+      return;
+    }
+
+    try {
+      this.isLoadingCarPayments.set(true);
+      const year = this.selectedYear();
+      const month = this.selectedMonth();
+
+      const response = await this.statisticsService
+        .getOrganizationCarPayments(year, month)
+        .toPromise();
+      this.organizationCarPayments.set(response);
+    } catch (error) {
+      console.error('Ошибка загрузки списка организаций с автомобильными расходами:', error);
+      this.snackBar.open('Не удалось загрузить список организаций', 'Закрыть', {
+        duration: 3000,
+      });
+    } finally {
+      this.isLoadingCarPayments.set(false);
+    }
+  }
+
+  /**
+   * Загрузить список инженеров с автомобильными расходами
+   */
+  private async loadEngineerCarPayments(): Promise<void> {
+    // Загружаем данные только для админов и менеджеров
+    if (!this.canViewAllData) {
+      return;
+    }
+
+    try {
+      this.isLoadingCarPayments.set(true);
+      const year = this.selectedYear();
+      const month = this.selectedMonth();
+
+      const response = await this.statisticsService.getEngineerCarPayments(year, month).toPromise();
+      this.engineerCarPayments.set(response);
+    } catch (error) {
+      console.error('Ошибка загрузки списка инженеров с автомобильными расходами:', error);
+      this.snackBar.open('Не удалось загрузить список инженеров', 'Закрыть', {
+        duration: 3000,
+      });
+    } finally {
+      this.isLoadingCarPayments.set(false);
+    }
+  }
+
+  /**
+   * Загрузить все данные по автомобильным расходам
+   */
+  private async loadAllCarPayments(): Promise<void> {
+    await Promise.all([
+      this.loadCarPaymentStatus(),
+      this.loadOrganizationCarPayments(),
+      this.loadEngineerCarPayments(),
+    ]);
+  }
+
+  /**
    * Загрузить статистику по часам инженеров (аналогично orders component)
    */
   private loadEngineerHoursStats(): void {
@@ -888,7 +958,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.loadStatistics();
-    this.loadCarPaymentStatus();
+    this.loadAllCarPayments();
     this.loadUserStats();
     this.loadOrderStats();
     if (this.canViewAllData) {
@@ -1086,7 +1156,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   onYearChange(year: number) {
     this.selectedYear.set(year);
     this.loadStatistics();
-    this.loadCarPaymentStatus();
+    this.loadAllCarPayments();
     this.loadEngineerHoursStats();
   }
 
@@ -1102,7 +1172,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
       this.selectedYear.update(year => year - 1);
     }
     this.loadStatistics();
-    this.loadCarPaymentStatus();
+    this.loadAllCarPayments();
     this.loadEngineerHoursStats();
   }
 
@@ -1110,7 +1180,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     this.selectedMonth.set(event.month);
     this.selectedYear.set(event.year);
     this.loadStatistics();
-    this.loadCarPaymentStatus();
+    this.loadAllCarPayments();
     this.loadEngineerHoursStats();
   }
 
@@ -1128,7 +1198,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     this.selectedMonth.set(month);
     this.selectedYear.set(year);
     this.loadStatistics();
-    this.loadCarPaymentStatus();
+    this.loadAllCarPayments();
     this.loadEngineerHoursStats();
   }
 
@@ -1146,13 +1216,13 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     this.selectedMonth.set(month);
     this.selectedYear.set(year);
     this.loadStatistics();
-    this.loadCarPaymentStatus();
+    this.loadAllCarPayments();
     this.loadEngineerHoursStats();
   }
 
   refreshStatistics() {
     this.loadStatistics();
-    this.loadCarPaymentStatus();
+    this.loadAllCarPayments();
     if (this.canViewAllData) {
       this.loadEngineerHoursStats();
     }

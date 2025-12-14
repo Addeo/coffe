@@ -1531,17 +1531,19 @@ export class OrdersService {
     const totalPayment = regularPayment + overtimePayment;
 
     // Calculate organization payment
+    // ВАЖНО: Организация оплачивает работу + расходы на автомобиль
     const organizationRegularPayment = workData.regularHours * order.organization.baseRate;
     const organizationOvertimePayment = order.organization.hasOvertime
       ? workData.overtimeHours * order.organization.baseRate * order.organization.overtimeMultiplier
       : workData.overtimeHours * order.organization.baseRate;
-    const organizationPayment = organizationRegularPayment + organizationOvertimePayment;
+    const organizationPayment = organizationRegularPayment + organizationOvertimePayment + workData.carPayment;
 
     // Update order with work data AND RATES
     order.regularHours = Number(order.regularHours || 0) + workData.regularHours;
     order.overtimeHours = Number(order.overtimeHours || 0) + workData.overtimeHours;
     order.calculatedAmount = Number(order.calculatedAmount || 0) + totalPayment;
     order.carUsageAmount = Number(order.carUsageAmount || 0) + workData.carPayment;
+    // ВАЖНО: organizationPayment включает carPayment, так как организация оплачивает расходы на авто
     order.organizationPayment = Number(order.organizationPayment || 0) + organizationPayment;
     if (workData.workActNumber) {
       order.workActNumber = workData.workActNumber;
@@ -1562,6 +1564,8 @@ export class OrdersService {
       Number(order.organizationOvertimePayment || 0) + organizationOvertimePayment;
 
     // Calculate profit
+    // ВАЖНО: organizationPayment уже включает carPayment (организация платит за работу + авто)
+    // Прибыль = организация платит - мы платим инженеру за работу
     const currentProfit = organizationPayment - totalPayment;
     order.profit = Number(order.profit || 0) + currentProfit;
 
@@ -1618,6 +1622,7 @@ export class OrdersService {
         engineerOvertimeRate: rates.overtimeRate || rates.baseRate, // Legacy
 
         // Organization payments
+        // ВАЖНО: organizationPayment включает carUsageAmount, так как организация оплачивает расходы на авто
         organizationPayment: organizationPayment,
         organizationBaseRate: order.organization.baseRate,
         organizationOvertimeCoefficient: order.organization.overtimeMultiplier || 1.5, // Map multiplier to coefficient

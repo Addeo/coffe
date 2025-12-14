@@ -27,7 +27,8 @@ export interface AgentEarningsData {
   agentName: string;
   totalEarnings: number;
   earnedAmount?: number; // Оплата за часы (calculatedAmount)
-  carPayments?: number; // Оплата за авто (carUsageAmount)
+  carPayments?: number; // Оплата за авто (carUsageAmount) - расходы на авто по заказам
+  fixedCarAmount?: number; // Ежемесячная фиксированная оплата за авто (из профиля инженера)
   completedOrders: number;
   averageOrderValue: number;
 }
