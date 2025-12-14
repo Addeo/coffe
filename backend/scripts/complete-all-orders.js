@@ -51,6 +51,7 @@ async function makeRequest(method, endpoint, token = null, body = null, queryPar
       url.searchParams.append(key, queryParams[key]);
     }
   });
+  
 
   const options = {
     method,
