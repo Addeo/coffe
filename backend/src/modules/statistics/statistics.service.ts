@@ -1172,13 +1172,16 @@ export class StatisticsService {
       .getMany();
 
     // Общая сумма к доплате за автомобили (организации должны заплатить)
-    const totalCarAmount = carPayments.reduce((sum, session) => sum + session.carUsageAmount, 0);
+    const totalCarAmount = carPayments.reduce(
+      (sum, session) => sum + (Number(session.carUsageAmount) || 0),
+      0
+    );
 
     // Уже заплачено за автомобили (проверяем по receivedFromOrganization)
     // ВАЖНО: Организации оплачивают расходы на авто отдельно, поэтому проверяем получение оплаты от организации
     const paidCarAmount = carPayments
       .filter(session => session.order?.receivedFromOrganization === true)
-      .reduce((sum, session) => sum + session.carUsageAmount, 0);
+      .reduce((sum, session) => sum + (Number(session.carUsageAmount) || 0), 0);
 
     // Группировка по организациям
     const organizationBreakdown = this.groupCarPaymentsByOrganization(carPayments);
@@ -1267,11 +1270,12 @@ export class StatisticsService {
       }
 
       const orgData = orgMap.get(orgId);
-      orgData.totalCarAmount += session.carUsageAmount;
+      const carAmount = Number(session.carUsageAmount) || 0;
+      orgData.totalCarAmount += carAmount;
 
       // ВАЖНО: Оплата определяется по receivedFromOrganization
       if (session.order?.receivedFromOrganization === true) {
-        orgData.paidCarAmount += session.carUsageAmount;
+        orgData.paidCarAmount += carAmount;
       }
 
       // Подсчитываем уникальные заказы
@@ -1386,11 +1390,12 @@ export class StatisticsService {
       }
 
       const engineerData = engineerMap.get(engineerId);
-      engineerData.totalCarAmount += session.carUsageAmount;
+      const carAmount = Number(session.carUsageAmount) || 0;
+      engineerData.totalCarAmount += carAmount;
 
       // ВАЖНО: Оплата определяется по статусу заказа (paid_to_engineer)
       if (session.order?.status === 'paid_to_engineer') {
-        engineerData.paidCarAmount += session.carUsageAmount;
+        engineerData.paidCarAmount += carAmount;
       }
 
       // Подсчитываем уникальные заказы
@@ -1486,11 +1491,12 @@ export class StatisticsService {
       }
 
       const orgData = orgMap.get(orgId);
-      orgData.totalCarAmount += session.carUsageAmount;
+      const carAmount = Number(session.carUsageAmount) || 0;
+      orgData.totalCarAmount += carAmount;
       
       // ВАЖНО: Оплата определяется по receivedFromOrganization (организация оплатила счет)
       if (session.order?.receivedFromOrganization === true) {
-        orgData.paidCarAmount += session.carUsageAmount;
+        orgData.paidCarAmount += carAmount;
       }
       
       // Подсчитываем уникальные заказы
@@ -1550,10 +1556,11 @@ export class StatisticsService {
       }
 
       const engineerData = engineerMap.get(engineerId);
-      engineerData.totalCarAmount += session.carUsageAmount;
+      const carAmount = Number(session.carUsageAmount) || 0;
+      engineerData.totalCarAmount += carAmount;
       // Оплата определяется по статусу заказа
       if (session.order?.status === 'paid_to_engineer') {
-        engineerData.paidCarAmount += session.carUsageAmount;
+        engineerData.paidCarAmount += carAmount;
       }
       engineerData.sessions.push(session);
     }
