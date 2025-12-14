@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Coffee Admin</string>
-    <string name="title_activity_main">Coffee Admin</string>
+    <string name="app_name">ServiceCheck</string>
+    <string name="title_activity_main">ServiceCheck</string>
     <string name="package_name">com.coffee.admin</string>
     <string name="custom_url_scheme">com.coffee.admin</string>
 </resources>

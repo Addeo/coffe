@@ -3,11 +3,11 @@
 /**
  * Расширенный тест для работы с заявками
  * Покрывает все возможные операции с заявками:
- * - Создание заявок (обычных и автоматических)
+ * - Получение существующих организаций и инженеров (не создает новых)
+ * - Создание различных типов заявок (обычных, автоматических, с разными параметрами)
  * - Обновление заявок
  * - Назначение инженеров (одиночное и множественное)
  * - Принятие заявок инженерами
- * - Отклонение заявок
  * - Создание рабочих сессий
  * - Завершение работы
  * - Завершение заявок
@@ -15,6 +15,8 @@
  * - Удаление заявок
  * - Получение списков с различными фильтрами
  * - Получение статистики заявок
+ *
+ * ВАЖНО: Скрипт использует существующие организации и инженеров, не создает новых!
  *
  * Использование:
  *   API_URL=http://localhost:3001/api node scripts/test-orders-comprehensive.js
@@ -163,124 +165,109 @@ async function testInitialization() {
 }
 
 /**
- * 2. Создание тестовых данных (организации и инженеры)
+ * 2. Получение существующих данных (организации и инженеры)
  */
-async function testCreateTestData() {
-  const timestamp = Date.now();
-
-  // Создание организаций
-  for (let i = 1; i <= 3; i++) {
-    const orgResponse = await makeRequest(
-      'POST',
-      '/organizations',
-      testData.tokens.admin,
-      {
-        name: `Тестовая Организация ${i} - ${timestamp}`,
-        baseRate: 500 + i * 50,
-        overtimeMultiplier: 1.5 + i * 0.1,
-        hasOvertime: true,
-        isActive: true,
-      }
-    );
-    if (orgResponse.ok && orgResponse.data.id) {
-      testData.organizations.push(orgResponse.data);
-      logTest(`Создать организацию #${i}`, true);
+async function testGetExistingData() {
+  // Получение существующих организаций
+  const orgsResponse = await makeRequest('GET', '/organizations', testData.tokens.admin, null, {
+    limit: 10,
+    page: 1,
+  });
+  
+  if (orgsResponse.ok && orgsResponse.data?.data) {
+    const organizations = orgsResponse.data.data;
+    if (organizations.length > 0) {
+      testData.organizations = organizations.slice(0, 3); // Берем первые 3
+      logTest('Получить существующие организации', true, `Найдено: ${testData.organizations.length}`);
     } else {
-      logTest(`Создать организацию #${i}`, false, JSON.stringify(orgResponse.data));
+      logTest('Получить существующие организации', false, 'Организации не найдены');
+      throw new Error('Нет доступных организаций для тестирования');
     }
+  } else {
+    logTest('Получить существующие организации', false, JSON.stringify(orgsResponse.data));
+    throw new Error('Не удалось получить организации');
   }
 
-  // Создание инженеров
-  const engineerConfigs = [
-    {
-      email: `engineer1-${timestamp}@test.com`,
-      engineerType: 'staff',
-      baseRate: 500,
-      overtimeCoefficient: 1.6,
-      planHoursMonth: 160,
-      homeTerritoryFixedAmount: 200,
-    },
-    {
-      email: `engineer2-${timestamp}@test.com`,
-      engineerType: 'contract',
-      baseRate: 600,
-      overtimeCoefficient: 1.8,
-      homeTerritoryFixedAmount: 250,
-    },
-    {
-      email: `engineer3-${timestamp}@test.com`,
-      engineerType: 'staff',
-      baseRate: 550,
-      overtimeCoefficient: 1.7,
-      planHoursMonth: 160,
-      fixedSalary: 10000,
-      fixedCarAmount: 5000,
-    },
-  ];
+  // Получение существующих инженеров (пользователей с ролью user)
+  const usersResponse = await makeRequest('GET', '/users', testData.tokens.admin, null, {
+    role: 'user',
+    limit: 10,
+    page: 1,
+  });
 
-  for (let i = 0; i < engineerConfigs.length; i++) {
-    const config = engineerConfigs[i];
-    const userResponse = await makeRequest(
-      'POST',
-      '/users',
-      testData.tokens.admin,
-      {
-        email: config.email,
-        password: 'engineer123',
-        firstName: `Инженер${i + 1}`,
-        lastName: 'Тестовый',
-        role: 'user',
-        ...config,
-      }
-    );
-    if (userResponse.ok && userResponse.data.id) {
-      const engineerId = userResponse.data.engineer?.id;
-      testData.engineers.push({
-        userId: userResponse.data.id,
-        engineerId: engineerId,
-        email: config.email,
-      });
-      logTest(`Создать инженера #${i + 1}`, true, `ID: ${engineerId}`);
+  if (usersResponse.ok && usersResponse.data?.data) {
+    const users = usersResponse.data.data;
+    const engineers = users
+      .filter(user => user.engineer?.id) // Только те, у кого есть engineer
+      .slice(0, 3); // Берем первых 3
+
+    if (engineers.length > 0) {
+      testData.engineers = engineers.map(user => ({
+        userId: user.id,
+        engineerId: user.engineer.id,
+        email: user.email,
+      }));
+      logTest('Получить существующих инженеров', true, `Найдено: ${testData.engineers.length}`);
     } else {
-      logTest(`Создать инженера #${i + 1}`, false, JSON.stringify(userResponse.data));
+      logTest('Получить существующих инженеров', false, 'Инженеры не найдены');
+      throw new Error('Нет доступных инженеров для тестирования');
     }
+  } else {
+    logTest('Получить существующих инженеров', false, JSON.stringify(usersResponse.data));
+    throw new Error('Не удалось получить инженеров');
   }
 
-  // Логин инженеров
+  // Логин инженеров (пробуем залогиниться, если знаем пароль)
   for (let i = 0; i < testData.engineers.length; i++) {
     const engineer = testData.engineers[i];
-    const loginResponse = await makeRequest('POST', '/auth/login', null, {
-      email: engineer.email,
-      password: 'engineer123',
-    });
-    if (loginResponse.ok && loginResponse.data.access_token) {
-      testData.tokens[`engineer${i + 1}`] = loginResponse.data.access_token;
-      logTest(`Логин инженера #${i + 1}`, true);
-    } else {
-      logTest(`Логин инженера #${i + 1}`, false, JSON.stringify(loginResponse.data));
+    // Пробуем стандартные пароли
+    const passwords = ['engineer123', '123456', 'password'];
+    let loggedIn = false;
+
+    for (const password of passwords) {
+      const loginResponse = await makeRequest('POST', '/auth/login', null, {
+        email: engineer.email,
+        password: password,
+      });
+      if (loginResponse.ok && loginResponse.data.access_token) {
+        testData.tokens[`engineer${i + 1}`] = loginResponse.data.access_token;
+        logTest(`Логин инженера #${i + 1}`, true, `Email: ${engineer.email}`);
+        loggedIn = true;
+        break;
+      }
+    }
+
+    if (!loggedIn) {
+      logTest(`Логин инженера #${i + 1}`, false, `Не удалось залогиниться: ${engineer.email}`);
     }
   }
 }
 
 /**
- * 3. Создание заявок
+ * 3. Создание заявок (различных типов)
  */
 async function testCreateOrders() {
   const timestamp = Date.now();
-  const orgId = testData.organizations[0]?.id;
-  if (!orgId) {
+  
+  // Используем разные организации для разнообразия
+  const orgs = testData.organizations;
+  if (!orgs || orgs.length === 0) {
     throw new Error('Нет доступных организаций');
   }
 
-  // Создание обычной заявки менеджером
+  const orgId1 = orgs[0]?.id;
+  const orgId2 = orgs[1]?.id || orgId1;
+  const orgId3 = orgs[2]?.id || orgId1;
+
+  // 1. Обычная заявка с полными данными
   const order1Response = await makeRequest(
     'POST',
     '/orders',
     testData.tokens.manager,
     {
-      organizationId: orgId,
-      title: `Тестовая заявка #1 - ${timestamp}`,
-      description: 'Описание тестовой заявки #1',
+      organizationId: orgId1,
+      title: `Заявка с полными данными - ${timestamp}`,
+      description: 'Подробное описание заявки с полным набором данных',
       location: 'Пятигорск, ул. Ленина, 1',
       distanceKm: 5.5,
       territoryType: 'urban',
@@ -290,20 +277,20 @@ async function testCreateOrders() {
   );
   if (order1Response.ok && order1Response.data.id) {
     testData.orders.push(order1Response.data);
-    logTest('Создать обычную заявку менеджером', true, `ID: ${order1Response.data.id}`);
+    logTest('Создать заявку с полными данными', true, `ID: ${order1Response.data.id}`);
   } else {
-    logTest('Создать обычную заявку менеджером', false, JSON.stringify(order1Response.data));
+    logTest('Создать заявку с полными данными', false, JSON.stringify(order1Response.data));
   }
 
-  // Создание автоматической заявки
+  // 2. Автоматическая заявка
   const order2Response = await makeRequest(
     'POST',
     '/orders/automatic',
     testData.tokens.manager,
     {
-      organizationId: orgId,
-      title: `Автоматическая заявка #2 - ${timestamp}`,
-      description: 'Описание автоматической заявки',
+      organizationId: orgId2,
+      title: `Автоматическая заявка - ${timestamp}`,
+      description: 'Заявка созданная автоматически',
       location: 'Кисловодск, ул. Мира, 10',
       distanceKm: 8.2,
       territoryType: 'urban',
@@ -318,41 +305,87 @@ async function testCreateOrders() {
     logTest('Создать автоматическую заявку', false, JSON.stringify(order2Response.data));
   }
 
-  // Попытка создать заявку администратором (должна быть ошибка)
+  // 3. Заявка с минимальными данными
   const order3Response = await makeRequest(
     'POST',
     '/orders',
-    testData.tokens.admin,
+    testData.tokens.manager,
     {
-      organizationId: orgId,
-      title: `Заявка от админа - ${timestamp}`,
-      description: 'Эта заявка не должна быть создана',
-      location: 'Ессентуки, ул. Тестовая, 1',
-      distanceKm: 3.0,
+      organizationId: orgId3,
+      title: `Минимальная заявка - ${timestamp}`,
+      location: 'Ессентуки, ул. Минимальная, 1',
       territoryType: 'urban',
-      source: 'manual',
     }
   );
-  logTest('Попытка создать заявку администратором (должна быть ошибка)', !order3Response.ok);
+  if (order3Response.ok && order3Response.data.id) {
+    testData.orders.push(order3Response.data);
+    logTest('Создать заявку с минимальными данными', true, `ID: ${order3Response.data.id}`);
+  } else {
+    logTest('Создать заявку с минимальными данными', false, JSON.stringify(order3Response.data));
+  }
 
-  // Создание заявки с минимальными данными
+  // 4. Заявка для сельской местности
   const order4Response = await makeRequest(
     'POST',
     '/orders',
     testData.tokens.manager,
     {
-      organizationId: orgId,
-      title: `Минимальная заявка #4 - ${timestamp}`,
-      location: 'Железноводск, ул. Минимальная, 1',
-      territoryType: 'urban',
+      organizationId: orgId1,
+      title: `Заявка для сельской местности - ${timestamp}`,
+      description: 'Заявка в сельской местности',
+      location: 'Минеральные Воды, ул. Сельская, 5',
+      distanceKm: 15.3,
+      territoryType: 'rural',
+      source: 'manual',
+      plannedStartDate: new Date(Date.now() + 259200000).toISOString(),
     }
   );
   if (order4Response.ok && order4Response.data.id) {
     testData.orders.push(order4Response.data);
-    logTest('Создать заявку с минимальными данными', true, `ID: ${order4Response.data.id}`);
+    logTest('Создать заявку для сельской местности', true, `ID: ${order4Response.data.id}`);
   } else {
-    logTest('Создать заявку с минимальными данными', false, JSON.stringify(order4Response.data));
+    logTest('Создать заявку для сельской местности', false, JSON.stringify(order4Response.data));
   }
+
+  // 5. Заявка с большой дистанцией
+  const order5Response = await makeRequest(
+    'POST',
+    '/orders',
+    testData.tokens.manager,
+    {
+      organizationId: orgId2,
+      title: `Заявка с большой дистанцией - ${timestamp}`,
+      description: 'Заявка с большим расстоянием',
+      location: 'Железноводск, ул. Дальняя, 20',
+      distanceKm: 25.7,
+      territoryType: 'urban',
+      source: 'manual',
+      plannedStartDate: new Date(Date.now() + 345600000).toISOString(),
+    }
+  );
+  if (order5Response.ok && order5Response.data.id) {
+    testData.orders.push(order5Response.data);
+    logTest('Создать заявку с большой дистанцией', true, `ID: ${order5Response.data.id}`);
+  } else {
+    logTest('Создать заявку с большой дистанцией', false, JSON.stringify(order5Response.data));
+  }
+
+  // 6. Попытка создать заявку администратором (должна быть ошибка)
+  const order6Response = await makeRequest(
+    'POST',
+    '/orders',
+    testData.tokens.admin,
+    {
+      organizationId: orgId1,
+      title: `Заявка от админа - ${timestamp}`,
+      description: 'Эта заявка не должна быть создана',
+      location: 'Пятигорск, ул. Тестовая, 1',
+      distanceKm: 3.0,
+      territoryType: 'urban',
+      source: 'manual',
+    }
+  );
+  logTest('Попытка создать заявку администратором (должна быть ошибка)', !order6Response.ok);
 }
 
 /**
@@ -841,8 +874,8 @@ async function main() {
     // 1. Инициализация
     await runTest('Инициализация и аутентификация', testInitialization);
 
-    // 2. Создание тестовых данных
-    await runTest('Создание тестовых данных', testCreateTestData);
+    // 2. Получение существующих данных
+    await runTest('Получение существующих данных', testGetExistingData);
 
     // 3. Создание заявок
     await runTest('Создание заявок', testCreateOrders);

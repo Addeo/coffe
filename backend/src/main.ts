@@ -163,7 +163,7 @@ async function bootstrap() {
     const port = process.env.PORT || 3001;
     const host = process.env.HOST || '0.0.0.0';
     await app.listen(port, host);
-    console.log(`Coffee Admin API is running on: http://${host}:${port}`);
+    console.log(`ServiceCheck API is running on: http://${host}:${port}`);
   } catch (error) {
     console.error('Error starting application:', error);
     process.exit(1);

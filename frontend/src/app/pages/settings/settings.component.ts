@@ -72,7 +72,7 @@ export class SettingsComponent implements OnInit {
 
   private initializeForm() {
     this.settingsForm = this.fb.group({
-      siteName: ['Coffee Admin', [Validators.required]],
+      siteName: ['ServiceCheck', [Validators.required]],
       theme: [this.themeService.currentTheme(), [Validators.required]],
       language: ['ru', [Validators.required]],
       emailNotifications: [true],

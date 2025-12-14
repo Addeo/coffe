@@ -1,7 +1,7 @@
 {
-  "name": "coffee-admin-backend",
+  "name": "servicecheck-backend",
   "version": "1.1.7",
-  "description": "Coffee Admin Panel Backend API",
+  "description": "ServiceCheck Panel Backend API",
   "author": "",
   "private": true,
   "license": "UNLICENSED",

@@ -1,7 +1,7 @@
 {
-  "name": "Coffee Admin Panel",
-  "short_name": "Coffee Admin",
-  "description": "Administrative panel for coffee shop management",
+  "name": "ServiceCheck Panel",
+  "short_name": "ServiceCheck",
+  "description": "Service management and administration panel",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fafafa",

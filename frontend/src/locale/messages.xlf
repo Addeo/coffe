@@ -122,7 +122,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="navigation.brand" datatype="html">
-        <source>Coffee Admin</source>
+        <source>ServiceCheck</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/components/navigation/navigation.component.html</context>
           <context context-type="linenumber">6</context>
@@ -281,7 +281,7 @@
         </context-group>
       </trans-unit>
       <trans-unit id="login.title" datatype="html">
-        <source>Coffee Admin Panel</source>
+        <source>ServiceCheck Panel</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/pages/login/login.component.html</context>
           <context context-type="linenumber">4</context>

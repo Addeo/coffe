@@ -1,5 +1,5 @@
 {
-  "name": "coffee-admin",
+  "name": "servicecheck",
   "integrations": {
     "capacitor": {}
   },

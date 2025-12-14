@@ -147,7 +147,7 @@ export class EmailService {
         <p>The status of your order <strong>"${orderTitle}"</strong> has been updated to <strong>${newStatus}</strong>.</p>
         <p>You can check the details in your account.</p>
         <br>
-        <p>Best regards,<br>Coffee Admin Team</p>
+        <p>Best regards,<br>ServiceCheck Team</p>
       </div>
     `;
 
@@ -167,7 +167,7 @@ export class EmailService {
         <p>You have been assigned to a new order: <strong>"${orderTitle}"</strong>.</p>
         <p>Please check your dashboard for details and start working on it.</p>
         <br>
-        <p>Best regards,<br>Coffee Admin Team</p>
+        <p>Best regards,<br>ServiceCheck Team</p>
       </div>
     `;
 
@@ -188,7 +188,7 @@ export class EmailService {
             : '<p>Please contact an administrator if you need to reactivate your account.</p>'
         }
         <br>
-        <p>Best regards,<br>Coffee Admin Team</p>
+        <p>Best regards,<br>ServiceCheck Team</p>
       </div>
     `;
 
@@ -210,7 +210,7 @@ export class EmailService {
         <p>${message}</p>
         <p>Please check your admin panel for more details.</p>
         <br>
-        <p>Best regards,<br>Coffee Admin Team</p>
+        <p>Best regards,<br>ServiceCheck Team</p>
       </div>
     `;
 
@@ -253,7 +253,7 @@ export class EmailService {
         </div>
 
         <br>
-        <p>С уважением,<br>Команда Coffee Admin</p>
+        <p>С уважением,<br>Команда ServiceCheck</p>
       </div>
     `;
 
@@ -303,7 +303,7 @@ export class EmailService {
         </div>
 
         <br>
-        <p>С уважением,<br>Команда Coffee Admin</p>
+        <p>С уважением,<br>Команда ServiceCheck</p>
       </div>
     `;
 
@@ -386,7 +386,7 @@ export class EmailService {
         </div>
 
         <br>
-        <p>С уважением,<br>Система Coffee Admin</p>
+        <p>С уважением,<br>Система ServiceCheck</p>
       </div>
     `;
 
@@ -437,7 +437,7 @@ export class EmailService {
         </div>
 
         <br>
-        <p>С уважением,<br>Система мониторинга Coffee Admin</p>
+        <p>С уважением,<br>Система мониторинга ServiceCheck</p>
       </div>
     `;
 

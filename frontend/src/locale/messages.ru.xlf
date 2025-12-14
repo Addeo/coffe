@@ -4,8 +4,8 @@
     <body>
       <!-- Navigation -->
       <trans-unit id="navigation.brand" datatype="html">
-        <source>Coffee Admin</source>
-        <target>Админка Кофе</target>
+        <source>ServiceCheck</source>
+        <target>Сервис Ремонта</target>
       </trans-unit>
       <trans-unit id="navigation.logout" datatype="html">
         <source>Logout</source>
@@ -34,8 +34,8 @@
 
       <!-- Login -->
       <trans-unit id="login.title" datatype="html">
-        <source>Coffee Admin Panel</source>
-        <target>Панель администратора Кофе</target>
+        <source>ServiceCheck Panel</source>
+        <target>Панель Сервис Ремонта</target>
       </trans-unit>
       <trans-unit id="login.subtitle" datatype="html">
         <source>Please sign in to continue</source>

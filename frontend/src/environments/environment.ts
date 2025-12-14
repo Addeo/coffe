@@ -2,7 +2,7 @@ export const environment = {
   production: false,
   apiUrl: 'http://localhost:3001/api',
   authUrl: 'http://localhost:3001/api/auth/login',
-  appName: 'Coffee Admin Mobile',
+  appName: 'ServiceCheck Mobile',
   appVersion: '1.1.9', // Текущая версия приложения (зашита в код)
   demo: false,
 };

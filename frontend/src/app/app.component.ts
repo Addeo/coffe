@@ -102,7 +102,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private agreementDialogShown = false; // Флаг, чтобы не показывать диалог повторно
 
-  title = 'coffee-admin';
+  title = 'servicecheck';
 
   /* Reactive computed values */
   isAuthenticated = this.authService.isAuthenticated;

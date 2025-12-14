@@ -164,8 +164,21 @@
     margin-bottom: var(--spacing-lg);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    overflow: hidden;
+    overflow: visible;
     transition: box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+
+    mat-card-content {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: visible;
+
+      &.collapsed {
+        overflow: hidden;
+      }
+    }
 
     &.summary-cards-section {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -445,6 +458,25 @@
                 height: 16px;
               }
             }
+          }
+        }
+
+        .export-btn {
+          color: var(--text-secondary);
+          transition:
+            transform 0.3s ease,
+            color 0.2s ease;
+
+          &:hover {
+            color: var(--primary-color, #1976d2);
+            transform: scale(1.1);
+          }
+
+          mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
           }
         }
 
@@ -1498,6 +1530,11 @@
   // Organizations and Users content styles
   .organizations-content,
   .users-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+
     .actions-row,
     .header-actions {
       display: flex;
@@ -1505,6 +1542,7 @@
       margin-bottom: var(--spacing-lg);
       flex-wrap: wrap;
       align-items: flex-start;
+      flex-shrink: 0;
 
       .search-field {
         flex: 1;
@@ -1514,11 +1552,31 @@
 
     .table-container {
       overflow-x: auto;
+      overflow-y: auto;
+      max-height: calc(100vh - 450px);
+      min-height: 400px;
       margin-top: 16px;
+      position: relative;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      flex: 1;
+      min-height: 0;
 
       table {
         width: 100%;
         min-width: 600px;
+
+        // Sticky header
+        thead {
+          position: sticky;
+          top: 0;
+          z-index: 10;
+          background-color: white;
+
+          th {
+            background-color: #f5f5f5;
+          }
+        }
 
         th,
         td {
@@ -1601,6 +1659,7 @@
 
     mat-paginator {
       margin-top: var(--spacing-lg);
+      flex-shrink: 0;
     }
   }
 }

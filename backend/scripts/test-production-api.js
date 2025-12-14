@@ -2,7 +2,9 @@
 
 /**
  * Скрипт автоматического тестирования продакшн API (КМВ - Кавказские Минеральные Воды)
- * Выполняет полный цикл заполнения данных и проверки статистики для региона КМВ
+ * Выполняет полный цикл создания заявок и проверки статистики для региона КМВ
+ *
+ * ВАЖНО: Скрипт использует существующие организации и инженеров, не создает новых!
  *
  * Регион: Кавказские Минеральные Воды (КМВ)
  * Города: Пятигорск, Кисловодск, Ессентуки, Железноводск, Минеральные Воды
@@ -241,58 +243,56 @@ async function loginAdmin() {
 }
 
 // ============================================
-// ЭТАП 2: СОЗДАНИЕ ОРГАНИЗАЦИЙ
+// ЭТАП 2: ПОЛУЧЕНИЕ СУЩЕСТВУЮЩИХ ОРГАНИЗАЦИЙ
 // ============================================
 
-async function createOrganization1() {
-  const timestamp = Date.now();
-  const { data } = await request('POST', '/organizations', {
+async function getOrganization1() {
+  const { data } = await request('GET', '/organizations', {
     token: testData.adminToken,
-    body: {
-      name: `ООО ТехСервис КМВ ${timestamp}`,
-      baseRate: 800.0,
-      overtimeMultiplier: 1.5,
-      hasOvertime: true,
-      isActive: true,
-    },
+    query: { limit: 10, page: 1 },
   });
-  testData.organizationId1 = data.id;
-  log(`   ID организации: ${data.id}`, 'blue');
-  return data;
+  const organizations = Array.isArray(data) ? data : data.data || [];
+  if (organizations.length === 0) {
+    throw new Error('Нет доступных организаций для тестирования');
+  }
+  testData.organizationId1 = organizations[0].id;
+  log(`   ID организации #1: ${organizations[0].id} (${organizations[0].name})`, 'blue');
+  return organizations[0];
 }
 
-async function createOrganization2() {
-  const timestamp = Date.now();
-  const { data } = await request('POST', '/organizations', {
+async function getOrganization2() {
+  const { data } = await request('GET', '/organizations', {
     token: testData.adminToken,
-    body: {
-      name: `ИП Санаторий Пятигорск ${timestamp}`,
-      baseRate: 600.0,
-      overtimeMultiplier: 1.3,
-      hasOvertime: true,
-      isActive: true,
-    },
+    query: { limit: 10, page: 1 },
   });
-  testData.organizationId2 = data.id;
-  log(`   ID организации: ${data.id}`, 'blue');
-  return data;
+  const organizations = Array.isArray(data) ? data : data.data || [];
+  if (organizations.length < 2) {
+    // Если нет второй организации, используем первую
+    testData.organizationId2 = organizations[0]?.id || testData.organizationId1;
+    log(`   ID организации #2: ${testData.organizationId2} (используется та же, что и #1)`, 'blue');
+    return organizations[0] || { id: testData.organizationId1 };
+  }
+  testData.organizationId2 = organizations[1].id;
+  log(`   ID организации #2: ${organizations[1].id} (${organizations[1].name})`, 'blue');
+  return organizations[1];
 }
 
-async function createOrganization3() {
-  const timestamp = Date.now();
-  const { data } = await request('POST', '/organizations', {
+async function getOrganization3() {
+  const { data } = await request('GET', '/organizations', {
     token: testData.adminToken,
-    body: {
-      name: `ЗАО Курортное Обслуживание КМВ ${timestamp}`,
-      baseRate: 1000.0,
-      overtimeMultiplier: 1.6,
-      hasOvertime: true,
-      isActive: true,
-    },
+    query: { limit: 10, page: 1 },
   });
-  testData.organizationId3 = data.id;
-  log(`   ID организации: ${data.id}`, 'blue');
-  return data;
+  const organizations = Array.isArray(data) ? data : data.data || [];
+  if (organizations.length < 3) {
+    // Если нет третьей организации, используем доступную
+    const orgId = organizations[organizations.length - 1]?.id || testData.organizationId1;
+    testData.organizationId3 = orgId;
+    log(`   ID организации #3: ${orgId} (используется существующая)`, 'blue');
+    return organizations[organizations.length - 1] || { id: orgId };
+  }
+  testData.organizationId3 = organizations[2].id;
+  log(`   ID организации #3: ${organizations[2].id} (${organizations[2].name})`, 'blue');
+  return organizations[2];
 }
 
 async function getOrganizations() {
@@ -304,184 +304,174 @@ async function getOrganizations() {
 }
 
 // ============================================
-// ЭТАП 3: СОЗДАНИЕ ПОЛЬЗОВАТЕЛЕЙ
+// ЭТАП 3: ПОЛУЧЕНИЕ СУЩЕСТВУЮЩИХ ПОЛЬЗОВАТЕЛЕЙ
 // ============================================
 
-async function createEngineer1() {
-  const timestamp = Date.now();
-  const email = `engineer1-kmv-${timestamp}@test.com`;
-  const { data } = await request('POST', '/users', {
+async function getEngineer1() {
+  const { data } = await request('GET', '/users', {
     token: testData.adminToken,
-    body: {
-      email: email,
-      password: 'engineer123',
-      firstName: 'Иван',
-      lastName: 'Петров',
-      role: 'user',
-      engineerType: 'staff',
-      baseRate: 500.0,
-      overtimeCoefficient: 1.6,
-      planHoursMonth: 160,
-      homeTerritoryFixedAmount: 200.0,
-    },
+    query: { role: 'user', limit: 10, page: 1 },
   });
-  testData.engineer1UserId = data.id;
-  testData.engineer1Email = email;
-  testData.engineer1Id = data.engineer?.id;
-  log(
-    `   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (STAFF, стандартная ставка)`,
-    'blue'
-  );
-  return data;
-}
-
-async function createEngineer2() {
-  const timestamp = Date.now();
-  const email = `engineer2-kmv-${timestamp}@test.com`;
-  const { data } = await request('POST', '/users', {
-    token: testData.adminToken,
-    body: {
-      email: email,
-      password: 'engineer123',
-      firstName: 'Сергей',
-      lastName: 'Сидоров',
-      role: 'user',
-      engineerType: 'contract',
-      baseRate: 400.0,
-      overtimeCoefficient: 1.5,
-      // planHoursMonth не передаем для CONTRACT (валидатор требует минимум 1)
-      homeTerritoryFixedAmount: 0,
-    },
-  });
-  testData.engineer2UserId = data.id;
-  testData.engineer2Email = email;
-  testData.engineer2Id = data.engineer?.id;
-  log(
-    `   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (CONTRACT, наемный)`,
-    'blue'
-  );
-  return data;
-}
-
-async function createEngineer3() {
-  const timestamp = Date.now();
-  const email = `engineer3-kmv-${timestamp}@test.com`;
-  const { data } = await request('POST', '/users', {
-    token: testData.adminToken,
-    body: {
-      email: email,
-      password: 'engineer123',
-      firstName: 'Алексей',
-      lastName: 'Козлов',
-      role: 'user',
-      engineerType: 'staff',
-      baseRate: 450.0,
-      overtimeCoefficient: 1.6,
-      planHoursMonth: 160,
-      homeTerritoryFixedAmount: 180.0,
-      // Примечание: fixedSalary и fixedCarAmount не сохраняются при создании через API,
-      // они используются только при обновлении через updateUserDto
-    },
-  });
-  testData.engineer3UserId = data.id;
-  testData.engineer3Email = email;
-  testData.engineer3Id = data.engineer?.id;
-  log(
-    `   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (STAFF, стандартная ставка)`,
-    'blue'
-  );
-  return data;
-}
-
-async function createEngineer4() {
-  const timestamp = Date.now();
-  const email = `engineer4-kmv-${timestamp}@test.com`;
-  const { data } = await request('POST', '/users', {
-    token: testData.adminToken,
-    body: {
-      email: email,
-      password: 'engineer123',
-      firstName: 'Дмитрий',
-      lastName: 'Волков',
-      role: 'user',
-      engineerType: 'staff',
-      baseRate: 600.0,
-      overtimeCoefficient: 2.0,
-      planHoursMonth: 160,
-      homeTerritoryFixedAmount: 250.0,
-    },
-  });
-  testData.engineer4UserId = data.id;
-  testData.engineer4Email = email;
-  testData.engineer4Id = data.engineer?.id;
-  log(
-    `   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (STAFF, высокий коэффициент)`,
-    'blue'
-  );
-  return data;
-}
-
-async function createEngineer5() {
-  const timestamp = Date.now();
-  const email = `engineer5-kmv-${timestamp}@test.com`;
-  const { data } = await request('POST', '/users', {
-    token: testData.adminToken,
-    body: {
-      email: email,
-      password: 'engineer123',
-      firstName: 'Николай',
-      lastName: 'Орлов',
-      role: 'user',
-      engineerType: 'contract',
-      baseRate: 350.0,
-      overtimeCoefficient: 1.3,
-      // planHoursMonth не передаем для CONTRACT (валидатор требует минимум 1)
-      homeTerritoryFixedAmount: 0,
-    },
-  });
-  testData.engineer5UserId = data.id;
-  testData.engineer5Email = email;
-  testData.engineer5Id = data.engineer?.id;
-  log(
-    `   ID пользователя: ${data.id}, ID инженера: ${data.engineer?.id} (CONTRACT, минимальные параметры)`,
-    'blue'
-  );
-  return data;
-}
-
-async function createManager() {
-  const timestamp = Date.now();
-  const email = `manager-kmv-${timestamp}@test.com`;
-  const { data } = await request('POST', '/users', {
-    token: testData.adminToken,
-    body: {
-      email: email,
-      password: 'manager123',
-      firstName: 'Мария',
-      lastName: 'Смирнова',
-      role: 'manager',
-    },
-  });
-  testData.managerUserId = data.id;
-  testData.managerEmail = email;
-  log(`   ID пользователя: ${data.id}`, 'blue');
-  return data;
-}
-
-async function loginManager() {
-  if (!testData.managerEmail) {
-    throw new Error('Manager email not found');
+  const users = Array.isArray(data) ? data : data.data || [];
+  const engineers = users.filter(user => user.engineer?.id);
+  if (engineers.length === 0) {
+    throw new Error('Нет доступных инженеров для тестирования');
   }
+  const engineer = engineers[0];
+  testData.engineer1UserId = engineer.id;
+  testData.engineer1Email = engineer.email;
+  testData.engineer1Id = engineer.engineer.id;
+  log(
+    `   ID пользователя: ${engineer.id}, ID инженера: ${engineer.engineer.id} (${engineer.email})`,
+    'blue'
+  );
+  return engineer;
+}
+
+async function getEngineer2() {
+  const { data } = await request('GET', '/users', {
+    token: testData.adminToken,
+    query: { role: 'user', limit: 10, page: 1 },
+  });
+  const users = Array.isArray(data) ? data : data.data || [];
+  const engineers = users.filter(user => user.engineer?.id);
+  if (engineers.length < 2) {
+    // Если нет второго инженера, используем первого
+    const engineer = engineers[0];
+    testData.engineer2UserId = engineer.id;
+    testData.engineer2Email = engineer.email;
+    testData.engineer2Id = engineer.engineer.id;
+    log(
+      `   ID пользователя: ${engineer.id}, ID инженера: ${engineer.engineer.id} (используется тот же, что и #1)`,
+      'blue'
+    );
+    return engineer;
+  }
+  const engineer = engineers[1];
+  testData.engineer2UserId = engineer.id;
+  testData.engineer2Email = engineer.email;
+  testData.engineer2Id = engineer.engineer.id;
+  log(
+    `   ID пользователя: ${engineer.id}, ID инженера: ${engineer.engineer.id} (${engineer.email})`,
+    'blue'
+  );
+  return engineer;
+}
+
+async function getEngineer3() {
+  const { data } = await request('GET', '/users', {
+    token: testData.adminToken,
+    query: { role: 'user', limit: 10, page: 1 },
+  });
+  const users = Array.isArray(data) ? data : data.data || [];
+  const engineers = users.filter(user => user.engineer?.id);
+  if (engineers.length < 3) {
+    const engineer = engineers[engineers.length - 1] || engineers[0];
+    testData.engineer3UserId = engineer.id;
+    testData.engineer3Email = engineer.email;
+    testData.engineer3Id = engineer.engineer.id;
+    log(
+      `   ID пользователя: ${engineer.id}, ID инженера: ${engineer.engineer.id} (используется существующий)`,
+      'blue'
+    );
+    return engineer;
+  }
+  const engineer = engineers[2];
+  testData.engineer3UserId = engineer.id;
+  testData.engineer3Email = engineer.email;
+  testData.engineer3Id = engineer.engineer.id;
+  log(
+    `   ID пользователя: ${engineer.id}, ID инженера: ${engineer.engineer.id} (${engineer.email})`,
+    'blue'
+  );
+  return engineer;
+}
+
+async function getEngineer4() {
+  const { data } = await request('GET', '/users', {
+    token: testData.adminToken,
+    query: { role: 'user', limit: 10, page: 1 },
+  });
+  const users = Array.isArray(data) ? data : data.data || [];
+  const engineers = users.filter(user => user.engineer?.id);
+  if (engineers.length < 4) {
+    const engineer = engineers[engineers.length - 1] || engineers[0];
+    testData.engineer4UserId = engineer.id;
+    testData.engineer4Email = engineer.email;
+    testData.engineer4Id = engineer.engineer.id;
+    log(
+      `   ID пользователя: ${engineer.id}, ID инженера: ${engineer.engineer.id} (используется существующий)`,
+      'blue'
+    );
+    return engineer;
+  }
+  const engineer = engineers[3];
+  testData.engineer4UserId = engineer.id;
+  testData.engineer4Email = engineer.email;
+  testData.engineer4Id = engineer.engineer.id;
+  log(
+    `   ID пользователя: ${engineer.id}, ID инженера: ${engineer.engineer.id} (${engineer.email})`,
+    'blue'
+  );
+  return engineer;
+}
+
+async function getEngineer5() {
+  const { data } = await request('GET', '/users', {
+    token: testData.adminToken,
+    query: { role: 'user', limit: 10, page: 1 },
+  });
+  const users = Array.isArray(data) ? data : data.data || [];
+  const engineers = users.filter(user => user.engineer?.id);
+  if (engineers.length < 5) {
+    const engineer = engineers[engineers.length - 1] || engineers[0];
+    testData.engineer5UserId = engineer.id;
+    testData.engineer5Email = engineer.email;
+    testData.engineer5Id = engineer.engineer.id;
+    log(
+      `   ID пользователя: ${engineer.id}, ID инженера: ${engineer.engineer.id} (используется существующий)`,
+      'blue'
+    );
+    return engineer;
+  }
+  const engineer = engineers[4];
+  testData.engineer5UserId = engineer.id;
+  testData.engineer5Email = engineer.email;
+  testData.engineer5Id = engineer.engineer.id;
+  log(
+    `   ID пользователя: ${engineer.id}, ID инженера: ${engineer.engineer.id} (${engineer.email})`,
+    'blue'
+  );
+  return engineer;
+}
+
+async function getManager() {
+  // Пробуем использовать существующего менеджера
   const { data } = await request('POST', '/auth/login', {
     body: {
-      email: testData.managerEmail,
+      email: 'manager@coffee.com',
       password: 'manager123',
     },
   });
-  testData.managerToken = data.access_token;
-  log(`   Токен получен`, 'blue');
-  return data;
+  if (data.access_token) {
+    testData.managerToken = data.access_token;
+    // Получаем информацию о менеджере
+    const userData = await request('GET', '/users', {
+      token: testData.adminToken,
+      query: { role: 'manager', limit: 1 },
+    });
+    const managers = Array.isArray(userData.data) ? userData.data : userData.data?.data || [];
+    if (managers.length > 0) {
+      testData.managerUserId = managers[0].id;
+      testData.managerEmail = managers[0].email;
+      log(`   ID пользователя: ${managers[0].id} (${managers[0].email})`, 'blue');
+      return managers[0];
+    }
+  }
+  throw new Error('Не удалось получить менеджера. Убедитесь, что manager@coffee.com существует.');
 }
+
+// loginManager больше не нужен, так как getManager уже логинит менеджера
 
 async function loginEngineer1() {
   if (!testData.engineer1Email) {
@@ -1352,31 +1342,30 @@ async function runTests() {
     await test('Логин администратора', loginAdmin)
   );
 
-  // ЭТАП 2: СОЗДАНИЕ ОРГАНИЗАЦИЙ
+  // ЭТАП 2: ПОЛУЧЕНИЕ СУЩЕСТВУЮЩИХ ОРГАНИЗАЦИЙ
   log('\n' + '='.repeat(60), 'yellow');
-  log('ЭТАП 2: СОЗДАНИЕ ОРГАНИЗАЦИЙ', 'yellow');
+  log('ЭТАП 2: ПОЛУЧЕНИЕ СУЩЕСТВУЮЩИХ ОРГАНИЗАЦИЙ', 'yellow');
   log('='.repeat(60), 'yellow');
 
   results.tests.push(
-    await test('Создать организацию #1', createOrganization1),
-    await test('Создать организацию #2', createOrganization2),
-    await test('Создать организацию #3', createOrganization3),
+    await test('Получить организацию #1', getOrganization1),
+    await test('Получить организацию #2', getOrganization2),
+    await test('Получить организацию #3', getOrganization3),
     await test('Получить список организаций', getOrganizations)
   );
 
-  // ЭТАП 3: СОЗДАНИЕ ПОЛЬЗОВАТЕЛЕЙ
+  // ЭТАП 3: ПОЛУЧЕНИЕ СУЩЕСТВУЮЩИХ ПОЛЬЗОВАТЕЛЕЙ
   log('\n' + '='.repeat(60), 'yellow');
-  log('ЭТАП 3: СОЗДАНИЕ ПОЛЬЗОВАТЕЛЕЙ', 'yellow');
+  log('ЭТАП 3: ПОЛУЧЕНИЕ СУЩЕСТВУЮЩИХ ПОЛЬЗОВАТЕЛЕЙ', 'yellow');
   log('='.repeat(60), 'yellow');
 
   results.tests.push(
-    await test('Создать инженера #1 (STAFF, стандартная ставка)', createEngineer1),
-    await test('Создать инженера #2 (CONTRACT, наемный)', createEngineer2),
-    await test('Создать инженера #3 (STAFF, с фиксированной зарплатой)', createEngineer3),
-    await test('Создать инженера #4 (STAFF, высокий коэффициент)', createEngineer4),
-    await test('Создать инженера #5 (CONTRACT, минимальные параметры)', createEngineer5),
-    await test('Создать менеджера', createManager),
-    await test('Логин менеджера', loginManager),
+    await test('Получить инженера #1', getEngineer1),
+    await test('Получить инженера #2', getEngineer2),
+    await test('Получить инженера #3', getEngineer3),
+    await test('Получить инженера #4', getEngineer4),
+    await test('Получить инженера #5', getEngineer5),
+    await test('Получить менеджера', getManager),
     await test('Логин инженера #1', loginEngineer1),
     await test('Логин инженера #2', loginEngineer2),
     await test('Логин инженера #3', loginEngineer3),

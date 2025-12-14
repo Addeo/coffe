@@ -1,7 +1,7 @@
 {
-  "name": "coffee-shared",
+  "name": "servicecheck-shared",
   "version": "1.1.5",
-  "description": "Shared types and DTOs for Coffee Admin Panel",
+  "description": "Shared types and DTOs for ServiceCheck Panel",
   "main": "index.ts",
   "types": "index.ts",
   "scripts": {

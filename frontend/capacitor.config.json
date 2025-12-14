@@ -1,6 +1,6 @@
 {
   "appId": "com.coffee.admin",
-  "appName": "Coffee Admin",
+  "appName": "ServiceCheck",
   "webDir": "dist/coffee-admin",
   "server": {
     "androidScheme": "http"

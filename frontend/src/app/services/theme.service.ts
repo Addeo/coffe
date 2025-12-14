@@ -8,7 +8,7 @@ export type Theme = 'light' | 'dark' | 'auto';
 })
 export class ThemeService {
   private platformId = inject(PLATFORM_ID);
-  private readonly THEME_KEY = 'coffee-admin-theme';
+  private readonly THEME_KEY = 'servicecheck-theme';
 
   // Current theme signal
   currentTheme = signal<Theme>('light');

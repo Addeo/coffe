@@ -9,6 +9,15 @@
       <div class="header-actions-right">
         <button
           mat-icon-button
+          (click)="exportFinancialSummaryToExcel()"
+          matTooltip="Экспортировать финансовую сводку в Excel"
+          class="export-btn"
+          [attr.aria-label]="'Экспорт в Excel'"
+        >
+          <mat-icon>file_download</mat-icon>
+        </button>
+        <button
+          mat-icon-button
           (click)="toggleFinancialSummaryCards()"
           matTooltip="{{ financialSummaryCards() ? 'Развернуть' : 'Свернуть' }}"
           class="collapse-toggle-btn"

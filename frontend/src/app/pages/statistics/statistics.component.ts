@@ -32,6 +32,7 @@ import { ChartConfiguration, ChartData } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { HttpErrorResponse } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
+import * as XLSX from 'xlsx';
 
 import { StatisticsService } from '../../services/statistics.service';
 import { UsersService } from '../../services/users.service';
@@ -1883,5 +1884,112 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     if (this.usersDataSource.paginator) {
       this.usersDataSource.paginator.firstPage();
     }
+  }
+
+  /**
+   * Экспорт финансовой сводки в Excel
+   */
+  exportFinancialSummaryToExcel(): void {
+    const totalIncome = this.getTotalIncomeFromCustomers();
+    const totalHoursPayment = this.getTotalHoursPayment();
+    const totalCarPayment = this.getTotalCarPayment();
+    const engineerStats = this.engineerHoursStats();
+    const month = this.selectedMonth();
+    const year = this.selectedYear();
+    const monthName = this.getMonthName(month);
+
+    // Подготовка данных для экспорта
+    const summaryData = [
+      {
+        Показатель: 'Итого доход',
+        Сумма: totalIncome,
+        Описание: 'Вся сумма к оплате от заказчиков',
+      },
+      {
+        Показатель: 'К оплате за часы',
+        Сумма: totalHoursPayment,
+        Описание: 'Вся сумма к оплате за часы инженерам',
+      },
+      {
+        Показатель: 'К оплате за авто',
+        Сумма: totalCarPayment,
+        Описание: 'Вся сумма к оплате за эксплуатацию авто штатных и наемных инженеров',
+      },
+    ];
+
+    // Детализация по инженерам для оплаты за часы
+    const engineersHoursData =
+      engineerStats?.engineers.map(engineer => ({
+        Инженер: engineer.engineerName,
+        'Тип инженера': engineer.engineerType === 'staff' ? 'Штатный' : 'Наемный',
+        'Отработано часов': engineer.totalHours.toFixed(2),
+        'Обычные часы': engineer.regularHours.toFixed(2),
+        'Часы переработки': engineer.overtimeHours.toFixed(2),
+        'План часов': engineer.planHours,
+        'Завершено заказов': engineer.completedOrders,
+        'К оплате за часы': engineer.earnedAmount || 0,
+        'К оплате за авто': engineer.carPayments || 0,
+        'Всего к оплате': (engineer.earnedAmount || 0) + (engineer.carPayments || 0),
+      })) || [];
+
+    // Детализация по инженерам для оплаты за авто
+    const engineersCarData =
+      engineerStats?.engineers.map(engineer => ({
+        Инженер: engineer.engineerName,
+        'Тип инженера': engineer.engineerType === 'staff' ? 'Штатный' : 'Наемный',
+        'К оплате за авто': engineer.carPayments || 0,
+      })) || [];
+
+    // Создание рабочих листов
+    const summaryWorksheet = XLSX.utils.json_to_sheet(summaryData);
+    const engineersHoursWorksheet = XLSX.utils.json_to_sheet(engineersHoursData);
+    const engineersCarWorksheet = XLSX.utils.json_to_sheet(engineersCarData);
+
+    // Настройка ширины колонок для сводки
+    summaryWorksheet['!cols'] = [
+      { wch: 25 }, // Показатель
+      { wch: 20 }, // Сумма
+      { wch: 50 }, // Описание
+    ];
+
+    // Настройка ширины колонок для инженеров (часы)
+    engineersHoursWorksheet['!cols'] = [
+      { wch: 25 }, // Инженер
+      { wch: 15 }, // Тип инженера
+      { wch: 15 }, // Отработано часов
+      { wch: 15 }, // Обычные часы
+      { wch: 18 }, // Часы переработки
+      { wch: 12 }, // План часов
+      { wch: 15 }, // Завершено заказов
+      { wch: 18 }, // К оплате за часы
+      { wch: 18 }, // К оплате за авто
+      { wch: 18 }, // Всего к оплате
+    ];
+
+    // Настройка ширины колонок для инженеров (авто)
+    engineersCarWorksheet['!cols'] = [
+      { wch: 25 }, // Инженер
+      { wch: 15 }, // Тип инженера
+      { wch: 18 }, // К оплате за авто
+    ];
+
+    // Создание рабочей книги
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, summaryWorksheet, 'Финансовая сводка');
+    if (engineersHoursData.length > 0) {
+      XLSX.utils.book_append_sheet(workbook, engineersHoursWorksheet, 'Инженеры (часы)');
+    }
+    if (engineersCarData.length > 0) {
+      XLSX.utils.book_append_sheet(workbook, engineersCarWorksheet, 'Инженеры (авто)');
+    }
+
+    // Генерация имени файла
+    const currentDate = new Date().toISOString().split('T')[0];
+    const filename = `financial_summary_${monthName}_${year}_${currentDate}.xlsx`;
+
+    // Сохранение файла
+    XLSX.writeFile(workbook, filename);
+
+    this.toastService.success('Финансовая сводка успешно экспортирована в Excel');
   }
 }

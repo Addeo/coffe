@@ -59,7 +59,7 @@ else
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coffee Admin - Maintenance</title>
+    <title>ServiceCheck - Maintenance</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -104,7 +104,7 @@ else
 <body>
     <div class="container">
         <div class="icon">☕</div>
-        <h1>Coffee Admin</h1>
+        <h1>ServiceCheck</h1>
         <p>Система временно недоступна</p>
         <p>Выполняется обновление...</p>
         <div class="status">🔄 Maintenance Mode</div>
