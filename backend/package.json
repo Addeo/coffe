@@ -24,7 +24,11 @@
     "test:api": "node scripts/test-api.js",
     "test:production": "node scripts/test-production-api.js",
     "test:orders": "node scripts/test-orders-comprehensive.js",
-    "test:statistics": "node scripts/analyze-statistics.js"
+    "test:statistics": "node scripts/analyze-statistics.js",
+    "complete:orders": "node scripts/complete-all-orders.js",
+    "assign:complete": "node scripts/assign-and-complete-orders.js",
+    "cleanup:engineers": "node scripts/cleanup-test-engineers.js",
+    "verify:statistics": "node scripts/verify-statistics.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

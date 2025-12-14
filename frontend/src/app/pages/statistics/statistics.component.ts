@@ -450,8 +450,10 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
 
   // Manager summary methods
   getTotalIncomeFromCustomers(): number {
-    // Итого доход - вся сумма к оплате от заказчиков
-    return this.getTotalOrganizationRevenue();
+    // Итого доход - сумма всех выплат (инженерам + за авто)
+    const hoursPayment = this.getTotalHoursPayment();
+    const carPayment = this.getTotalCarPayment();
+    return hoursPayment + carPayment;
   }
 
   getTotalHoursPayment(): number {

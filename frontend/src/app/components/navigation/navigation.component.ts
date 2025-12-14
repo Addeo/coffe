@@ -381,9 +381,12 @@ export class NavigationComponent implements OnInit, OnDestroy {
         // Если текущая страница доступна - остаемся на ней
         else {
           console.log(`✅ Current page ${currentPath} is accessible for ${newRole}, staying here`);
-          // Просто обновляем сигналы, не перезагружаем страницу
-          // Сигналы уже обновлены в authService.switchRole
         }
+
+        // Перезагружаем страницу для применения всех изменений роли
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
       },
       error: error => {
         console.error('❌ Failed to switch role:', error);

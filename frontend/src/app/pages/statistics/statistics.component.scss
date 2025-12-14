@@ -2038,7 +2038,8 @@
 
   .engineer-payment-list {
     max-height: 600px;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     transition:
       max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
       opacity 0.3s ease,
@@ -2057,6 +2058,8 @@
   .engineer-items {
     border-top: 1px solid rgba(0, 0, 0, 0.08);
     padding-top: 12px;
+    max-height: 100%;
+    overflow-y: auto;
   }
 
   .engineer-payment-item {
