@@ -615,6 +615,7 @@ export class StatisticsService {
       const engineerEarnings = Number(stat.engineerEarnings) || 0;
       const organizationPayments = Number(stat.organizationPayments) || 0;
       const carUsageAmount = Number(stat.carUsageAmount) || 0;
+      const fixedCarAmount = Number(stat.fixedCarAmount) || 0;
 
       // Прибыль = (оплата от организации) - (оплата инженеру за работу)
       // ВАЖНО: organizationPayments уже включает carUsageAmount (организация платит за работу + авто)
