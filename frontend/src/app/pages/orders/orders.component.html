@@ -126,17 +126,6 @@
         <mat-icon>dashboard</mat-icon>
         Обзор заявок
       </mat-card-title>
-      <div class="header-actions-right" *ngIf="canExportOrders()">
-        <button
-          mat-icon-button
-          (click)="exportAllOrdersToExcel()"
-          matTooltip="Экспортировать все данные по заявкам в Excel"
-          class="export-btn"
-          [attr.aria-label]="'Экспорт заявок в Excel'"
-        >
-          <mat-icon>file_download</mat-icon>
-        </button>
-      </div>
     </mat-card-header>
 
     <mat-card-content [class.collapsed]="ordersOverviewCollapsed()">

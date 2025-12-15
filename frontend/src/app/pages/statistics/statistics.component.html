@@ -117,107 +117,121 @@
         <div class="car-payment-lists" [class.collapsed]="carPaymentListCollapsed()">
           <!-- Список организаций -->
           <div class="payment-list-section">
-            <h4 class="list-title">
-              <mat-icon>business</mat-icon>
-              Организации (кто должен заплатить за авто)
-            </h4>
-            <div
-              *ngIf="isLoadingCarPayments()"
-              class="loading-section"
-            >
-              <mat-spinner diameter="30"></mat-spinner>
-              <p>Загрузка данных...</p>
+            <div class="list-header" (click)="toggleOrganizationCarPaymentList()">
+              <h4 class="list-title">
+                <mat-icon>business</mat-icon>
+                Организации (кто должен заплатить за авто)
+              </h4>
+              <button mat-icon-button class="expand-button">
+                <mat-icon>{{ organizationCarPaymentListCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+              </button>
             </div>
-            <div
-              *ngIf="!isLoadingCarPayments() && organizationCarPayments() && organizationCarPayments()!.organizations.length > 0"
-              class="organization-items"
-            >
+            <div class="list-content" [class.collapsed]="organizationCarPaymentListCollapsed()">
               <div
-                *ngFor="let org of organizationCarPayments()!.organizations"
-                class="organization-payment-item"
+                *ngIf="isLoadingCarPayments()"
+                class="loading-section"
               >
-                <div class="organization-info">
-                  <mat-icon class="organization-icon">business</mat-icon>
-                  <span class="organization-name">{{ org.organizationName }}</span>
-                </div>
-                <div class="payment-details">
-                  <span class="payment-label">К оплате:</span>
-                  <span class="payment-amount pending">{{
-                    org.pendingCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
-                  }}</span>
-                </div>
-                <div class="payment-details">
-                  <span class="payment-label">Оплачено:</span>
-                  <span class="payment-amount paid">{{
-                    org.paidCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
-                  }}</span>
-                </div>
-                <div class="payment-status">
-                  <span class="status-badge" [class.fully-paid]="org.paymentStatus === 100">
-                    {{ org.paymentStatus }}%
-                  </span>
+                <mat-spinner diameter="30"></mat-spinner>
+                <p>Загрузка данных...</p>
+              </div>
+              <div
+                *ngIf="!isLoadingCarPayments() && organizationCarPayments() && organizationCarPayments()!.organizations.length > 0"
+                class="organization-items"
+              >
+                <div
+                  *ngFor="let org of organizationCarPayments()!.organizations"
+                  class="organization-payment-item"
+                >
+                  <div class="organization-info">
+                    <mat-icon class="organization-icon">business</mat-icon>
+                    <span class="organization-name">{{ org.organizationName }}</span>
+                  </div>
+                  <div class="payment-details">
+                    <span class="payment-label">К оплате:</span>
+                    <span class="payment-amount pending">{{
+                      org.pendingCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
+                    }}</span>
+                  </div>
+                  <div class="payment-details">
+                    <span class="payment-label">Оплачено:</span>
+                    <span class="payment-amount paid">{{
+                      org.paidCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
+                    }}</span>
+                  </div>
+                  <div class="payment-status">
+                    <span class="status-badge" [class.fully-paid]="org.paymentStatus === 100">
+                      {{ org.paymentStatus }}%
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div
-              *ngIf="!isLoadingCarPayments() && (!organizationCarPayments() || organizationCarPayments()!.organizations.length === 0)"
-              class="no-data"
-            >
-              <mat-icon>info</mat-icon>
-              <p>Нет данных по организациям</p>
+              <div
+                *ngIf="!isLoadingCarPayments() && (!organizationCarPayments() || organizationCarPayments()!.organizations.length === 0)"
+                class="no-data"
+              >
+                <mat-icon>info</mat-icon>
+                <p>Нет данных по организациям</p>
+              </div>
             </div>
           </div>
 
           <!-- Список инженеров -->
           <div class="payment-list-section">
-            <h4 class="list-title">
-              <mat-icon>person</mat-icon>
-              Инженеры (расходы на авто)
-            </h4>
-            <div
-              *ngIf="isLoadingCarPayments()"
-              class="loading-section"
-            >
-              <mat-spinner diameter="30"></mat-spinner>
-              <p>Загрузка данных...</p>
+            <div class="list-header" (click)="toggleEngineerCarPaymentList()">
+              <h4 class="list-title">
+                <mat-icon>person</mat-icon>
+                Инженеры (расходы на авто)
+              </h4>
+              <button mat-icon-button class="expand-button">
+                <mat-icon>{{ engineerCarPaymentListCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+              </button>
             </div>
-            <div
-              *ngIf="!isLoadingCarPayments() && engineerCarPayments() && engineerCarPayments()!.engineers.length > 0"
-              class="engineer-items"
-            >
+            <div class="list-content" [class.collapsed]="engineerCarPaymentListCollapsed()">
               <div
-                *ngFor="let engineer of engineerCarPayments()!.engineers"
-                class="engineer-payment-item"
+                *ngIf="isLoadingCarPayments()"
+                class="loading-section"
               >
-                <div class="engineer-info">
-                  <mat-icon class="engineer-icon">person</mat-icon>
-                  <span class="engineer-name">{{ engineer.engineerName }}</span>
-                </div>
-                <div class="payment-details">
-                  <span class="payment-label">Всего:</span>
-                  <span class="payment-amount">{{
-                    engineer.totalCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
-                  }}</span>
-                </div>
-                <div class="payment-details">
-                  <span class="payment-label">Оплачено:</span>
-                  <span class="payment-amount paid">{{
-                    engineer.paidCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
-                  }}</span>
-                </div>
-                <div class="payment-status">
-                  <span class="status-badge" [class.fully-paid]="engineer.paymentStatus === 100">
-                    {{ engineer.paymentStatus }}%
-                  </span>
+                <mat-spinner diameter="30"></mat-spinner>
+                <p>Загрузка данных...</p>
+              </div>
+              <div
+                *ngIf="!isLoadingCarPayments() && engineerCarPayments() && engineerCarPayments()!.engineers.length > 0"
+                class="engineer-items"
+              >
+                <div
+                  *ngFor="let engineer of engineerCarPayments()!.engineers"
+                  class="engineer-payment-item"
+                >
+                  <div class="engineer-info">
+                    <mat-icon class="engineer-icon">person</mat-icon>
+                    <span class="engineer-name">{{ engineer.engineerName }}</span>
+                  </div>
+                  <div class="payment-details">
+                    <span class="payment-label">Всего:</span>
+                    <span class="payment-amount">{{
+                      engineer.totalCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
+                    }}</span>
+                  </div>
+                  <div class="payment-details">
+                    <span class="payment-label">Оплачено:</span>
+                    <span class="payment-amount paid">{{
+                      engineer.paidCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
+                    }}</span>
+                  </div>
+                  <div class="payment-status">
+                    <span class="status-badge" [class.fully-paid]="engineer.paymentStatus === 100">
+                      {{ engineer.paymentStatus }}%
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div
-              *ngIf="!isLoadingCarPayments() && (!engineerCarPayments() || engineerCarPayments()!.engineers.length === 0)"
-              class="no-data"
-            >
-              <mat-icon>info</mat-icon>
-              <p>Нет данных по инженерам</p>
+              <div
+                *ngIf="!isLoadingCarPayments() && (!engineerCarPayments() || engineerCarPayments()!.engineers.length === 0)"
+                class="no-data"
+              >
+                <mat-icon>info</mat-icon>
+                <p>Нет данных по инженерам</p>
+              </div>
             </div>
           </div>
         </div>
@@ -241,6 +255,15 @@
           Обзор заявок
         </mat-card-title>
         <div class="header-actions-right">
+          <button
+            mat-icon-button
+            (click)="exportOrdersToExcel()"
+            matTooltip="Экспортировать данные по заявкам в Excel"
+            class="export-btn"
+            [attr.aria-label]="'Экспорт заявок в Excel'"
+          >
+            <mat-icon>description</mat-icon>
+          </button>
           <button
             mat-icon-button
             (click)="toggleSummaryCards()"

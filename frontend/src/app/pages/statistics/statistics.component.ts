@@ -240,6 +240,8 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   financialSummaryCards = signal(true);
   hoursPaymentListCollapsed = signal(true); // Для списка "К оплате за часы"
   carPaymentListCollapsed = signal(true); // Для списка "К оплате за авто"
+  organizationCarPaymentListCollapsed = signal(true); // Для списка организаций в оплате за авто
+  engineerCarPaymentListCollapsed = signal(true); // Для списка инженеров в оплате за авто
   carPaymentsCollapsed = signal(true);
   engineersStatsCollapsed = signal(true);
   statisticsTabsCollapsed = signal(true);
@@ -1020,6 +1022,14 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
 
   toggleCarPaymentList(): void {
     this.carPaymentListCollapsed.set(!this.carPaymentListCollapsed());
+  }
+
+  toggleOrganizationCarPaymentList(): void {
+    this.organizationCarPaymentListCollapsed.set(!this.organizationCarPaymentListCollapsed());
+  }
+
+  toggleEngineerCarPaymentList(): void {
+    this.engineerCarPaymentListCollapsed.set(!this.engineerCarPaymentListCollapsed());
   }
 
   toggleCarPayments(): void {
@@ -2067,54 +2077,21 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
 
   /**
    * Экспорт данных по заявкам в Excel
+   * Загружает все заявки без фильтра по периоду
    */
   exportOrdersToExcel(): void {
-    const year = this.selectedYear();
-    const month = this.selectedMonth();
-    const monthName = this.getMonthName(month);
-
     // Показываем сообщение о загрузке
     this.toastService.info('Загрузка данных по заявкам...');
 
-    // Вычисляем даты начала и конца месяца
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 0, 23, 59, 59);
-
-    // Загружаем заявки за выбранный период
-    // Используем фильтр по дате завершения для завершенных заявок
-    // и по дате начала для незавершенных
+    // Загружаем все заявки без фильтра по дате
     this.ordersService
       .getOrders({
-        completionDateFrom: startDate,
-        completionDateTo: endDate,
         limit: 10000, // Большое число для получения всех заявок
       })
       .subscribe({
         next: response => {
-          let orders = response.data || [];
-
-          // Если нет завершенных заявок, загружаем заявки по дате начала
-          if (orders.length === 0) {
-            this.ordersService
-              .getOrders({
-                actualStartDateFrom: startDate,
-                actualStartDateTo: endDate,
-                limit: 10000,
-              })
-              .subscribe({
-                next: response2 => {
-                  orders = response2.data || [];
-                  this.processOrdersExport(orders, year, month, monthName);
-                },
-                error: error => {
-                  console.error('Ошибка загрузки заявок:', error);
-                  this.toastService.error('Не удалось загрузить данные по заявкам');
-                },
-              });
-            return;
-          }
-
-          this.processOrdersExport(orders, year, month, monthName);
+          const orders = response.data || [];
+          this.processOrdersExport(orders);
         },
         error: error => {
           console.error('Ошибка загрузки заявок:', error);
@@ -2126,9 +2103,9 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   /**
    * Обработка экспорта заявок в Excel
    */
-  private processOrdersExport(orders: OrderDto[], year: number, month: number, monthName: string): void {
+  private processOrdersExport(orders: OrderDto[]): void {
     if (orders.length === 0) {
-      this.toastService.warning('Нет данных по заявкам за выбранный период');
+      this.toastService.warning('Нет данных по заявкам для экспорта');
       return;
     }
 
@@ -2204,7 +2181,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
 
     // Генерация имени файла
     const currentDate = new Date().toISOString().split('T')[0];
-    const filename = `orders_${monthName}_${year}_${currentDate}.xlsx`;
+    const filename = `orders_export_${currentDate}.xlsx`;
 
     // Сохранение файла
     try {
