@@ -1245,9 +1245,19 @@ export class StatisticsService {
         organizationName: string;
         totalCarAmount: number;
         paidCarAmount: number;
+        totalRevenue: number; // Поступления от организаций (organizationPayment)
+        engineerCost: number; // Выплаты инженерам (calculatedAmount)
         completedOrders: number;
         paidOrders: number;
         orderIds: Set<number>;
+        sessions: Array<{
+          orderId: number;
+          carAmount: number;
+          organizationPayment: number;
+          engineerPayment: number;
+          paid: boolean;
+          workDate: Date;
+        }>;
       }
     >();
 
@@ -1263,15 +1273,22 @@ export class StatisticsService {
           organizationName: orgName,
           totalCarAmount: 0,
           paidCarAmount: 0,
+        totalRevenue: 0,
+        engineerCost: 0,
           completedOrders: 0,
           paidOrders: 0,
           orderIds: new Set(),
+        sessions: [],
         });
       }
 
       const orgData = orgMap.get(orgId);
       const carAmount = Number(session.carUsageAmount) || 0;
+    const organizationPayment = Number(session.organizationPayment) || 0;
+    const engineerPayment = Number(session.calculatedAmount) || 0;
       orgData.totalCarAmount += carAmount;
+    orgData.totalRevenue += organizationPayment;
+    orgData.engineerCost += engineerPayment;
 
       // ВАЖНО: Оплата определяется по receivedFromOrganization
       if (session.order?.receivedFromOrganization === true) {
@@ -1287,6 +1304,15 @@ export class StatisticsService {
           orgData.paidOrders += 1;
         }
       }
+
+      orgData.sessions.push({
+        orderId,
+        carAmount,
+        organizationPayment,
+        engineerPayment,
+        paid: session.order?.receivedFromOrganization === true,
+        workDate: session.workDate,
+      });
     }
 
     // Преобразуем в массив и сортируем по сумме к оплате (от большей к меньшей)
@@ -1297,6 +1323,9 @@ export class StatisticsService {
         totalCarAmount: Number(org.totalCarAmount.toFixed(2)),
         paidCarAmount: Number(org.paidCarAmount.toFixed(2)),
         pendingCarAmount: Number((org.totalCarAmount - org.paidCarAmount).toFixed(2)),
+        totalRevenue: Number(org.totalRevenue.toFixed(2)),
+        engineerCost: Number(org.engineerCost.toFixed(2)),
+        netIncome: Number((org.totalRevenue - org.engineerCost).toFixed(2)),
         completedOrders: org.completedOrders,
         paidOrders: org.paidOrders,
         pendingOrders: org.completedOrders - org.paidOrders,
@@ -1304,6 +1333,7 @@ export class StatisticsService {
           org.totalCarAmount > 0
             ? Number(((org.paidCarAmount / org.totalCarAmount) * 100).toFixed(2))
             : 0,
+        sessions: org.sessions,
       }))
       .sort((a, b) => b.pendingCarAmount - a.pendingCarAmount);
 
@@ -1311,6 +1341,8 @@ export class StatisticsService {
     const totalCarAmount = organizations.reduce((sum, org) => sum + org.totalCarAmount, 0);
     const totalPaidAmount = organizations.reduce((sum, org) => sum + org.paidCarAmount, 0);
     const totalPendingAmount = organizations.reduce((sum, org) => sum + org.pendingCarAmount, 0);
+    const totalRevenue = organizations.reduce((sum, org) => sum + org.totalRevenue, 0);
+    const totalEngineerCost = organizations.reduce((sum, org) => sum + org.engineerCost, 0);
 
     return {
       year,
@@ -1322,6 +1354,9 @@ export class StatisticsService {
         totalCarAmount: Number(totalCarAmount.toFixed(2)),
         totalPaidAmount: Number(totalPaidAmount.toFixed(2)),
         totalPendingAmount: Number(totalPendingAmount.toFixed(2)),
+        totalRevenue: Number(totalRevenue.toFixed(2)),
+        totalEngineerCost: Number(totalEngineerCost.toFixed(2)),
+        netIncome: Number((totalRevenue - totalEngineerCost).toFixed(2)),
         organizationsWithPendingPayments: organizations.filter(org => org.pendingCarAmount > 0).length,
         organizationsFullyPaid: organizations.filter(org => org.pendingCarAmount === 0).length,
         averagePaymentStatus:

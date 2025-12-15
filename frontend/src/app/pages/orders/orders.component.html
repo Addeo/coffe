@@ -126,6 +126,17 @@
         <mat-icon>dashboard</mat-icon>
         Обзор заявок
       </mat-card-title>
+      <div class="header-actions-right" *ngIf="canExportOrders()">
+        <button
+          mat-icon-button
+          (click)="exportAllOrdersToExcel()"
+          matTooltip="Экспортировать все данные по заявкам в Excel"
+          class="export-btn"
+          [attr.aria-label]="'Экспорт заявок в Excel'"
+        >
+          <mat-icon>file_download</mat-icon>
+        </button>
+      </div>
     </mat-card-header>
 
     <mat-card-content [class.collapsed]="ordersOverviewCollapsed()">
@@ -301,8 +312,8 @@
           iconColor="accent"
           [showSlider]="true"
           [statistics]="{
-            regularHours: (summary.workedHours ?? 0) - (summary.overtimeHours ?? 0),
-            overtimeHours: summary.overtimeHours ?? 0,
+            regularHours: summary.workedHours - summary.overtimeHours,
+            overtimeHours: summary.overtimeHours,
           }"
         ></app-hours-progress-item>
 
@@ -332,7 +343,7 @@
               <div class="item-label">Итого авто:</div>
               <div class="item-value">
                 {{
-                  (summary.carPayments ?? 0) + (summary.plannedCarAmount ?? 0)
+                  summary.carPayments + summary.plannedCarAmount
                     | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
                 }}
               </div>

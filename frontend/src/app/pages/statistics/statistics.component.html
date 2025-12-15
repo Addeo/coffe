@@ -1390,7 +1390,7 @@
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Статус</th>
               <td mat-cell *matCellDef="let user">
                 <mat-chip [color]="getStatusColor(user.isActive)" selected>
-                  {{ getStatusDisplay(user.isActive) }}
+                  {{ getUserStatusDisplay(user.isActive) }}
                 </mat-chip>
               </td>
             </ng-container>

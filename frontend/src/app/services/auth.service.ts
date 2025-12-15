@@ -78,9 +78,10 @@ export class AuthService {
     let authUrl = environment.authUrl;
     const apiUrl = environment.apiUrl;
 
-    // Проверяем, что authUrl абсолютный, а не относительный
-    if (authUrl.startsWith('/')) {
-      console.warn('⚠️ WARNING: authUrl is relative! Converting to absolute URL.');
+    // Преобразуем относительный URL в абсолютный только если apiUrl тоже абсолютный
+    // Если apiUrl относительный (начинается с '/'), оставляем authUrl относительным для работы прокси
+    if (authUrl.startsWith('/') && !apiUrl.startsWith('/')) {
+      console.warn('⚠️ WARNING: authUrl is relative but apiUrl is absolute! Converting to absolute URL.');
       // Если authUrl относительный, формируем абсолютный на основе apiUrl
       if (authUrl.startsWith('/api')) {
         // Если начинается с /api, убираем /api из apiUrl и добавляем authUrl
@@ -91,6 +92,9 @@ export class AuthService {
         authUrl = `${apiUrl}${authUrl}`;
       }
       console.log('🔧 Converted authUrl to:', authUrl);
+    } else if (authUrl.startsWith('/') && apiUrl.startsWith('/')) {
+      // Оба относительные - прокси обработает запрос
+      console.log('🔧 Using relative URL with proxy:', authUrl);
     }
 
     console.log('🔐 Login attempt:', {

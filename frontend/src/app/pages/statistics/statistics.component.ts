@@ -46,7 +46,7 @@ import { HoursProgressItemComponent } from '../../components/hours-progress-item
 import { UserRole } from '@shared/interfaces/user.interface';
 import { OrganizationDto, OrganizationsQueryDto } from '@shared/dtos/organization.dto';
 import { UserDto } from '@shared/dtos/user.dto';
-import { EngineerType } from '@shared/interfaces/order.interface';
+import { EngineerType, OrderStatus, OrderStatusLabel } from '@shared/interfaces/order.interface';
 import { OrganizationDialogComponent } from '../../components/modals/organization-dialog.component';
 import { UserDialogComponent } from '../../components/modals/user-dialog.component';
 import { DeleteConfirmationDialogComponent } from '../../components/modals/delete-confirmation-dialog.component';
@@ -57,7 +57,7 @@ import {
   OrganizationEarningsData,
   OvertimeStatisticsData,
 } from '@shared/dtos/reports.dto';
-import { OrderStatsDto } from '@shared/dtos/order.dto';
+import { OrderStatsDto, OrderDto } from '@shared/dtos/order.dto';
 
 // Временный интерфейс до обновления shared модуля
 interface ComprehensiveStatisticsDto {
@@ -1873,7 +1873,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     }
   }
 
-  getStatusDisplay(isActive: boolean): string {
+  getUserStatusDisplay(isActive: boolean): string {
     return isActive ? 'Active' : 'Inactive';
   }
 
@@ -2063,5 +2063,195 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     XLSX.writeFile(workbook, filename);
 
     this.toastService.success('Финансовая сводка успешно экспортирована в Excel');
+  }
+
+  /**
+   * Экспорт данных по заявкам в Excel
+   */
+  exportOrdersToExcel(): void {
+    const year = this.selectedYear();
+    const month = this.selectedMonth();
+    const monthName = this.getMonthName(month);
+
+    // Показываем сообщение о загрузке
+    this.toastService.info('Загрузка данных по заявкам...');
+
+    // Вычисляем даты начала и конца месяца
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59);
+
+    // Загружаем заявки за выбранный период
+    // Используем фильтр по дате завершения для завершенных заявок
+    // и по дате начала для незавершенных
+    this.ordersService
+      .getOrders({
+        completionDateFrom: startDate,
+        completionDateTo: endDate,
+        limit: 10000, // Большое число для получения всех заявок
+      })
+      .subscribe({
+        next: response => {
+          let orders = response.data || [];
+
+          // Если нет завершенных заявок, загружаем заявки по дате начала
+          if (orders.length === 0) {
+            this.ordersService
+              .getOrders({
+                actualStartDateFrom: startDate,
+                actualStartDateTo: endDate,
+                limit: 10000,
+              })
+              .subscribe({
+                next: response2 => {
+                  orders = response2.data || [];
+                  this.processOrdersExport(orders, year, month, monthName);
+                },
+                error: error => {
+                  console.error('Ошибка загрузки заявок:', error);
+                  this.toastService.error('Не удалось загрузить данные по заявкам');
+                },
+              });
+            return;
+          }
+
+          this.processOrdersExport(orders, year, month, monthName);
+        },
+        error: error => {
+          console.error('Ошибка загрузки заявок:', error);
+          this.toastService.error('Не удалось загрузить данные по заявкам');
+        },
+      });
+  }
+
+  /**
+   * Обработка экспорта заявок в Excel
+   */
+  private processOrdersExport(orders: OrderDto[], year: number, month: number, monthName: string): void {
+    if (orders.length === 0) {
+      this.toastService.warning('Нет данных по заявкам за выбранный период');
+      return;
+    }
+
+    // Подготовка данных для экспорта
+    const exportData = orders.map(order => {
+            const overtimeCoefficient = order.organizationOvertimeMultiplier ?? 1.6;
+            const regularHours = order.regularHours ?? 0;
+            const overtimeHours = order.overtimeHours ?? 0;
+            const totalHours = regularHours + overtimeHours * overtimeCoefficient;
+            const engineerPayment = (order.calculatedAmount ?? 0) + (order.carUsageAmount ?? 0);
+
+            return {
+              'ID заказа': order.id,
+              'Название заказа': order.title,
+              'Организация-заказчик': order.organization?.name ?? 'N/A',
+              Инженер: this.getEngineerName(order),
+              Статус: this.getStatusDisplay(order.status),
+              'Ставка оплаты от организации (₽/час)': order.organizationBaseRate ?? 0,
+              'Коэффициент переработки организации': order.organizationOvertimeMultiplier ?? 0,
+              'Ставка оплаты инженера (₽/час)': order.engineerBaseRate ?? 0,
+              'Ставка переработки инженера (₽/час)': order.engineerOvertimeRate ?? 0,
+              'Обычные часы': regularHours,
+              'Часы переработки': overtimeHours,
+              'Всего часов': totalHours.toFixed(2),
+              'Сумма к оплате от организации (₽)': order.organizationPayment ?? 0,
+              'Оплата инженеру за работу (₽)': order.calculatedAmount ?? 0,
+              'Доплата за автомобиль (₽)': order.carUsageAmount ?? 0,
+              'Всего к оплате инженеру (₽)': engineerPayment,
+              'ДОХОД (₽)': order.profit ?? (order.organizationPayment ?? 0) - engineerPayment,
+              'Дата создания': order.createdAt
+                ? new Date(order.createdAt).toLocaleDateString('ru-RU')
+                : '',
+              'Дата начала работ': order.actualStartDate
+                ? new Date(order.actualStartDate).toLocaleDateString('ru-RU')
+                : '',
+              'Дата завершения': order.completionDate
+                ? new Date(order.completionDate).toLocaleDateString('ru-RU')
+                : '',
+            };
+          });
+
+    // Создание рабочего листа
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+    // Настройка ширины колонок
+    const columnWidths = [
+      { wch: 10 }, // ID заказа
+      { wch: 30 }, // Название заказа
+      { wch: 25 }, // Организация-заказчик
+      { wch: 20 }, // Инженер
+      { wch: 15 }, // Статус
+      { wch: 25 }, // Ставка оплаты от организации
+      { wch: 30 }, // Коэффициент переработки
+      { wch: 25 }, // Ставка оплаты инженера
+      { wch: 30 }, // Ставка переработки инженера
+      { wch: 15 }, // Обычные часы
+      { wch: 18 }, // Часы переработки
+      { wch: 12 }, // Всего часов
+      { wch: 30 }, // Сумма к оплате от организации
+      { wch: 25 }, // Оплата инженеру за работу
+      { wch: 20 }, // Доплата за автомобиль
+      { wch: 25 }, // Всего к оплате инженеру
+      { wch: 15 }, // ДОХОД
+      { wch: 15 }, // Дата создания
+      { wch: 18 }, // Дата начала работ
+      { wch: 18 }, // Дата завершения
+    ];
+    worksheet['!cols'] = columnWidths;
+
+    // Создание рабочей книги
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Заявки');
+
+    // Генерация имени файла
+    const currentDate = new Date().toISOString().split('T')[0];
+    const filename = `orders_${monthName}_${year}_${currentDate}.xlsx`;
+
+    // Сохранение файла
+    try {
+      XLSX.writeFile(workbook, filename);
+      this.toastService.success(`Данные по заявкам успешно экспортированы в Excel (${orders.length} записей)`);
+    } catch (error) {
+      console.error('Ошибка при сохранении файла:', error);
+      this.toastService.error('Ошибка при экспорте файла. Попробуйте еще раз.');
+    }
+  }
+
+  /**
+   * Получить имя инженера из заявки
+   */
+  private getEngineerName(order: OrderDto): string {
+    if (!order.assignedEngineer) return 'Не назначен';
+
+    const firstName =
+      order.assignedEngineer.user?.firstName || order.assignedEngineer.firstName || '';
+    const lastName =
+      order.assignedEngineer.user?.lastName || order.assignedEngineer.lastName || '';
+
+    if (!firstName && !lastName) return 'Не назначен';
+    return `${firstName} ${lastName}`.trim();
+  }
+
+  /**
+   * Получить отображаемое название статуса заявки
+   */
+  private getStatusDisplay(status: OrderStatus): string {
+    switch (status) {
+      case OrderStatus.WAITING:
+        return OrderStatusLabel.WAITING;
+      case OrderStatus.ASSIGNED:
+        return OrderStatusLabel.ASSIGNED;
+      case OrderStatus.PROCESSING:
+        return OrderStatusLabel.PROCESSING;
+      case OrderStatus.WORKING:
+        return OrderStatusLabel.WORKING;
+      case OrderStatus.REVIEW:
+        return OrderStatusLabel.REVIEW;
+      case OrderStatus.COMPLETED:
+        return OrderStatusLabel.COMPLETED;
+      case OrderStatus.PAID_TO_ENGINEER:
+        return OrderStatusLabel.PAID_TO_ENGINEER;
+      default:
+        return status;
+    }
   }
 }
