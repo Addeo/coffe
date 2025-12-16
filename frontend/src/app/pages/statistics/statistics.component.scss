@@ -1958,6 +1958,15 @@
     .financial-description {
       color: white;
     }
+
+    .financial-values {
+      .financial-value-item {
+        .value-label,
+        .value-amount {
+          color: white;
+        }
+      }
+    }
   }
 
   &.collapsible {
@@ -2020,6 +2029,58 @@
     font-size: 12px;
     color: rgba(0, 0, 0, 0.6);
     line-height: 1.4;
+  }
+
+  .financial-values {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 12px;
+    }
+  }
+
+  .financial-value-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    &.margin {
+      background: rgba(255, 255, 255, 0.25);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      font-weight: 600;
+
+      .value-amount {
+        font-size: 20px;
+        font-weight: 700;
+      }
+    }
+
+    .value-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .value-amount {
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+    }
   }
 
   .expand-button {

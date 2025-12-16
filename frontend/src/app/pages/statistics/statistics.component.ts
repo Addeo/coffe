@@ -456,6 +456,24 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   }
 
   // Manager summary methods
+  /**
+   * Сколько зарплата инженерам (за часы + за авто)
+   */
+  getTotalEngineerSalary(): number {
+    const hoursPayment = this.getTotalHoursPayment();
+    const carPayment = this.getTotalCarPayment();
+    return hoursPayment + carPayment;
+  }
+
+  /**
+   * Сколько остается маржа (выручка - зарплата инженерам)
+   */
+  getTotalMargin(): number {
+    const revenue = this.getTotalOrganizationRevenue();
+    const salary = this.getTotalEngineerSalary();
+    return revenue - salary;
+  }
+
   getTotalIncomeFromCustomers(): number {
     // Итого доход - сумма всех выплат (инженерам + за авто)
     const hoursPayment = this.getTotalHoursPayment();

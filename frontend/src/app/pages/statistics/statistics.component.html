@@ -36,10 +36,20 @@
         </div>
         <div class="financial-content">
           <div class="financial-label">Итого доход</div>
-          <div class="financial-value">
-            {{ getTotalIncomeFromCustomers() | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}
+          <div class="financial-values">
+            <div class="financial-value-item">
+              <span class="value-label">Организации должны:</span>
+              <span class="value-amount">{{ getTotalOrganizationRevenue() | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</span>
+            </div>
+            <div class="financial-value-item">
+              <span class="value-label">Зарплата инженерам:</span>
+              <span class="value-amount">{{ getTotalEngineerSalary() | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</span>
+            </div>
+            <div class="financial-value-item margin">
+              <span class="value-label">Маржа:</span>
+              <span class="value-amount">{{ getTotalMargin() | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU' }}</span>
+            </div>
           </div>
-          <div class="financial-description">Вся сумма к оплате от заказчиков</div>
         </div>
       </div>
 
@@ -152,17 +162,6 @@
                       org.pendingCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
                     }}</span>
                   </div>
-                  <div class="payment-details">
-                    <span class="payment-label">Оплачено:</span>
-                    <span class="payment-amount paid">{{
-                      org.paidCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
-                    }}</span>
-                  </div>
-                  <div class="payment-status">
-                    <span class="status-badge" [class.fully-paid]="org.paymentStatus === 100">
-                      {{ org.paymentStatus }}%
-                    </span>
-                  </div>
                 </div>
               </div>
               <div
@@ -211,17 +210,6 @@
                     <span class="payment-amount">{{
                       engineer.totalCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
                     }}</span>
-                  </div>
-                  <div class="payment-details">
-                    <span class="payment-label">Оплачено:</span>
-                    <span class="payment-amount paid">{{
-                      engineer.paidCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
-                    }}</span>
-                  </div>
-                  <div class="payment-status">
-                    <span class="status-badge" [class.fully-paid]="engineer.paymentStatus === 100">
-                      {{ engineer.paymentStatus }}%
-                    </span>
                   </div>
                 </div>
               </div>
