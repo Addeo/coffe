@@ -174,12 +174,12 @@
             </div>
           </div>
 
-          <!-- Список инженеров -->
+          <!-- Список инженеров (фактические расходы) -->
           <div class="payment-list-section">
             <div class="list-header" (click)="toggleEngineerCarPaymentList()">
               <h4 class="list-title">
                 <mat-icon>person</mat-icon>
-                Инженеры (расходы на авто)
+                Инженеры (фактические расходы на авто)
               </h4>
               <button mat-icon-button class="expand-button">
                 <mat-icon>{{ engineerCarPaymentListCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
@@ -205,11 +205,19 @@
                     <mat-icon class="engineer-icon">person</mat-icon>
                     <span class="engineer-name">{{ engineer.engineerName }}</span>
                   </div>
-                  <div class="payment-details">
-                    <span class="payment-label">Всего:</span>
-                    <span class="payment-amount">{{
-                      engineer.totalCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
-                    }}</span>
+                  <div class="payment-details-multi">
+                    <div class="payment-row">
+                      <span class="payment-label">Фактические:</span>
+                      <span class="payment-amount">{{
+                        engineer.totalCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
+                      }}</span>
+                    </div>
+                    <div class="payment-row" *ngIf="engineer.fixedCarAmount > 0">
+                      <span class="payment-label">Обязательный платеж:</span>
+                      <span class="payment-amount fixed">{{
+                        engineer.fixedCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
+                      }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -219,6 +227,38 @@
               >
                 <mat-icon>info</mat-icon>
                 <p>Нет данных по инженерам</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Список инженеров (только обязательные платежи) -->
+          <div class="payment-list-section" *ngIf="engineerCarPayments()?.engineersWithOnlyFixedPayments?.length > 0">
+            <div class="list-header" (click)="toggleEngineerFixedCarPaymentList()">
+              <h4 class="list-title">
+                <mat-icon>event_note</mat-icon>
+                Инженеры (обязательные платежи за авто)
+              </h4>
+              <button mat-icon-button class="expand-button">
+                <mat-icon>{{ engineerFixedCarPaymentListCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
+              </button>
+            </div>
+            <div class="list-content" [class.collapsed]="engineerFixedCarPaymentListCollapsed()">
+              <div class="engineer-items">
+                <div
+                  *ngFor="let engineer of engineerCarPayments()!.engineersWithOnlyFixedPayments"
+                  class="engineer-payment-item fixed-only"
+                >
+                  <div class="engineer-info">
+                    <mat-icon class="engineer-icon">person</mat-icon>
+                    <span class="engineer-name">{{ engineer.engineerName }}</span>
+                  </div>
+                  <div class="payment-details">
+                    <span class="payment-label">Обязательный платеж:</span>
+                    <span class="payment-amount fixed">{{
+                      engineer.fixedCarAmount | currency: 'RUB' : 'symbol' : '1.0-0' : 'ru-RU'
+                    }}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -242,6 +242,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   carPaymentListCollapsed = signal(true); // Для списка "К оплате за авто"
   organizationCarPaymentListCollapsed = signal(true); // Для списка организаций в оплате за авто
   engineerCarPaymentListCollapsed = signal(true); // Для списка инженеров в оплате за авто
+  engineerFixedCarPaymentListCollapsed = signal(true); // Для списка инженеров с обязательными платежами
   carPaymentsCollapsed = signal(true);
   engineersStatsCollapsed = signal(true);
   statisticsTabsCollapsed = signal(true);
@@ -1048,6 +1049,10 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
 
   toggleEngineerCarPaymentList(): void {
     this.engineerCarPaymentListCollapsed.set(!this.engineerCarPaymentListCollapsed());
+  }
+
+  toggleEngineerFixedCarPaymentList(): void {
+    this.engineerFixedCarPaymentListCollapsed.set(!this.engineerFixedCarPaymentListCollapsed());
   }
 
   toggleCarPayments(): void {

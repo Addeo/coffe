@@ -1444,39 +1444,74 @@ export class StatisticsService {
       }
     }
 
+    // Получаем всех активных инженеров с fixedCarAmount
+    const allEngineers = await this.engineerRepository.find({
+      where: { isActive: true },
+      relations: ['user'],
+    });
+
+    // Создаем карту fixedCarAmount для каждого инженера
+    const fixedCarAmountMap = new Map<number, { name: string; amount: number }>();
+    for (const eng of allEngineers) {
+      if (eng.fixedCarAmount > 0) {
+        const name = eng.user ? `${eng.user.firstName} ${eng.user.lastName}` : 'Неизвестный инженер';
+        fixedCarAmountMap.set(eng.id, { name, amount: Number(eng.fixedCarAmount) });
+      }
+    }
+
     // Преобразуем в массив и сортируем по сумме (от большей к меньшей)
     const engineers = Array.from(engineerMap.values())
-      .map(engineer => ({
-        engineerId: engineer.engineerId,
-        engineerName: engineer.engineerName,
-        totalCarAmount: Number(engineer.totalCarAmount.toFixed(2)),
-        paidCarAmount: Number(engineer.paidCarAmount.toFixed(2)),
-        pendingCarAmount: Number((engineer.totalCarAmount - engineer.paidCarAmount).toFixed(2)),
-        completedOrders: engineer.completedOrders,
-        paidOrders: engineer.paidOrders,
-        pendingOrders: engineer.completedOrders - engineer.paidOrders,
-        paymentStatus:
-          engineer.totalCarAmount > 0
-            ? Number(((engineer.paidCarAmount / engineer.totalCarAmount) * 100).toFixed(2))
-            : 0,
-      }))
+      .map(engineer => {
+        const fixedCar = fixedCarAmountMap.get(engineer.engineerId);
+        return {
+          engineerId: engineer.engineerId,
+          engineerName: engineer.engineerName,
+          totalCarAmount: Number(engineer.totalCarAmount.toFixed(2)),
+          paidCarAmount: Number(engineer.paidCarAmount.toFixed(2)),
+          pendingCarAmount: Number((engineer.totalCarAmount - engineer.paidCarAmount).toFixed(2)),
+          completedOrders: engineer.completedOrders,
+          paidOrders: engineer.paidOrders,
+          pendingOrders: engineer.completedOrders - engineer.paidOrders,
+          paymentStatus:
+            engineer.totalCarAmount > 0
+              ? Number(((engineer.paidCarAmount / engineer.totalCarAmount) * 100).toFixed(2))
+              : 0,
+          fixedCarAmount: fixedCar?.amount || 0,
+        };
+      })
       .sort((a, b) => b.totalCarAmount - a.totalCarAmount);
+
+    // Создаем список инженеров с только фиксированными платежами (у которых нет фактических расходов в этом месяце)
+    const engineersWithOnlyFixedPayments = Array.from(fixedCarAmountMap.entries())
+      .filter(([engineerId]) => !engineerMap.has(engineerId))
+      .map(([engineerId, data]) => ({
+        engineerId,
+        engineerName: data.name,
+        fixedCarAmount: data.amount,
+      }))
+      .sort((a, b) => b.fixedCarAmount - a.fixedCarAmount);
 
     // Подсчитываем общую статистику
     const totalCarAmount = engineers.reduce((sum, eng) => sum + eng.totalCarAmount, 0);
     const totalPaidAmount = engineers.reduce((sum, eng) => sum + eng.paidCarAmount, 0);
     const totalPendingAmount = engineers.reduce((sum, eng) => sum + eng.pendingCarAmount, 0);
+    const totalFixedCarAmount = Array.from(fixedCarAmountMap.values()).reduce(
+      (sum, data) => sum + data.amount,
+      0,
+    );
 
     return {
       year,
       month,
       monthName: new Date(year, month - 1, 1).toLocaleString('ru-RU', { month: 'long' }),
       engineers,
+      engineersWithOnlyFixedPayments,
       summary: {
         totalEngineers: engineers.length,
         totalCarAmount: Number(totalCarAmount.toFixed(2)),
         totalPaidAmount: Number(totalPaidAmount.toFixed(2)),
         totalPendingAmount: Number(totalPendingAmount.toFixed(2)),
+        totalFixedCarAmount: Number(totalFixedCarAmount.toFixed(2)),
         engineersWithPendingPayments: engineers.filter(eng => eng.pendingCarAmount > 0).length,
         engineersFullyPaid: engineers.filter(eng => eng.pendingCarAmount === 0).length,
         averagePaymentStatus:
