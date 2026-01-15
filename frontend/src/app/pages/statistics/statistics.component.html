@@ -1,34 +1,28 @@
 <div class="statistics-container">
   <!-- Manager Summary Buttons -->
-  <mat-card *ngIf="!isLoading() && statistics()" class="manager-summary-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>account_balance_wallet</mat-icon>
-        Финансовая сводка
-      </mat-card-title>
-      <div class="header-actions-right">
-        <button
-          mat-icon-button
-          (click)="exportFinancialSummaryToExcel()"
-          matTooltip="Экспортировать финансовую сводку в Excel"
-          class="export-btn"
-          [attr.aria-label]="'Экспорт в Excel'"
-        >
-          <mat-icon>file_download</mat-icon>
-        </button>
-        <button
-          mat-icon-button
-          (click)="toggleFinancialSummaryCards()"
-          matTooltip="{{ financialSummaryCards() ? 'Развернуть' : 'Свернуть' }}"
-          class="collapse-toggle-btn"
-          [attr.aria-label]="financialSummaryCards() ? 'Развернуть' : 'Свернуть'"
-        >
-          <mat-icon>{{ financialSummaryCards() ? 'expand_more' : 'expand_less' }}</mat-icon>
-        </button>
-      </div>
-    </mat-card-header>
-
-    <mat-card-content [class.collapsed]="financialSummaryCards()">
+  <app-collapsible-card
+    *ngIf="!isLoading() && statistics()"
+    class="manager-summary-card"
+    title="Финансовая сводка"
+    icon="account_balance_wallet"
+    [collapsed]="financialSummaryCards()"
+    (collapsedChange)="financialSummaryCards.set($event)"
+    [toggleTooltipCollapsed]="'Развернуть'"
+    [toggleTooltipExpanded]="'Свернуть'"
+    [toggleAriaLabelCollapsed]="'Развернуть'"
+    [toggleAriaLabelExpanded]="'Свернуть'"
+    [toggleOnHeaderClick]="false"
+  >
+    <button
+      collapsible-actions
+      mat-icon-button
+      (click)="exportFinancialSummaryToExcel()"
+      matTooltip="Экспортировать финансовую сводку в Excel"
+      class="export-btn"
+      [attr.aria-label]="'Экспорт в Excel'"
+    >
+      <mat-icon>file_download</mat-icon>
+    </button>
       <!-- 1. Итого доход -->
       <div class="financial-item total-revenue">
         <div class="financial-icon">
@@ -264,8 +258,7 @@
           </div>
         </div>
       </div>
-    </mat-card-content>
-  </mat-card>
+  </app-collapsible-card>
 
   <!-- Loading Spinner -->
   <div *ngIf="isLoading()" class="loading-container">
@@ -276,36 +269,28 @@
   <!-- Statistics Content -->
   <div *ngIf="!isLoading() && statistics()" class="statistics-content">
     <!-- Orders Overview Card -->
-    <mat-card class="orders-overview-card">
-      <mat-card-header>
-        <mat-card-title>
-          <mat-icon>dashboard</mat-icon>
-          Обзор заявок
-        </mat-card-title>
-        <div class="header-actions-right">
-          <button
-            mat-icon-button
-            (click)="exportOrdersToExcel()"
-            matTooltip="Экспортировать данные по заявкам в Excel"
-            class="export-btn"
-            [attr.aria-label]="'Экспорт заявок в Excel'"
-          >
-            <mat-icon>description</mat-icon>
-          </button>
-          <button
-            mat-icon-button
-            (click)="toggleSummaryCards()"
-            matTooltip="{{ summaryCardsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-            class="collapse-toggle-btn"
-            [attr.aria-label]="summaryCardsCollapsed() ? 'Развернуть' : 'Свернуть'"
-          >
-            <mat-icon>{{ summaryCardsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-          </button>
-        </div>
-      </mat-card-header>
-
-      <mat-card-content [class.collapsed]="summaryCardsCollapsed()">
-        <div class="orders-overview-grid">
+    <app-collapsible-card
+      class="orders-overview-card"
+      title="Обзор заявок"
+      icon="dashboard"
+      [collapsed]="summaryCardsCollapsed()"
+      (collapsedChange)="summaryCardsCollapsed.set($event)"
+      [toggleTooltipCollapsed]="'Развернуть'"
+      [toggleTooltipExpanded]="'Свернуть'"
+      [toggleAriaLabelCollapsed]="'Развернуть'"
+      [toggleAriaLabelExpanded]="'Свернуть'"
+    >
+      <button
+        collapsible-actions
+        mat-icon-button
+        (click)="exportOrdersToExcel()"
+        matTooltip="Экспортировать данные по заявкам в Excel"
+        class="export-btn"
+        [attr.aria-label]="'Экспорт заявок в Excel'"
+      >
+        <mat-icon>description</mat-icon>
+      </button>
+      <div class="orders-overview-grid">
           <!-- Всего заявок -->
           <div
             class="summary-item primary"
@@ -414,9 +399,8 @@
               <div class="summary-label">Завершено</div>
             </div>
           </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </app-collapsible-card>
 
     <!-- Car Payments Card -->
     <!-- <mat-card class="car-payments-card collapsible-section">
@@ -814,7 +798,7 @@
                     <div class="chart-wrapper-large">
                       <canvas
                         baseChart
-                        [data]="agentEarningsChartData"
+                        [data]="agentEarningsChartData()"
                         [options]="barChartOptions"
                         [type]="'bar'"
                       ></canvas>
@@ -923,7 +907,7 @@
                         <div class="chart-wrapper-large">
                           <canvas
                             baseChart
-                            [data]="organizationEarningsChartData"
+                            [data]="organizationEarningsChartData()"
                             [options]="barChartOptions"
                             [type]="'bar'"
                           ></canvas>
@@ -935,7 +919,7 @@
                         <div class="chart-wrapper-large">
                           <canvas
                             baseChart
-                            [data]="profitMarginChartData"
+                            [data]="profitMarginChartData()"
                             [options]="lineChartOptions"
                             [type]="'line'"
                           ></canvas>
@@ -1045,7 +1029,7 @@
                         <div class="chart-wrapper-medium">
                           <canvas
                             baseChart
-                            [data]="overtimeChartData"
+                            [data]="overtimeChartData()"
                             [options]="doughnutChartOptions"
                             [type]="'doughnut'"
                             [plugins]="chartPlugins"
@@ -1074,7 +1058,7 @@
                         <div class="chart-wrapper-medium">
                           <canvas
                             baseChart
-                            [data]="agentOvertimeChartData"
+                            [data]="agentOvertimeChartData()"
                             [options]="stackedBarChartOptions"
                             [type]="'bar'"
                           ></canvas>
@@ -1156,24 +1140,18 @@
   </div>
 
   <!-- Organizations Management -->
-  <mat-card class="collapsible-section" *ngIf="canViewAllData">
-    <mat-card-header (click)="toggleOrganizations()" class="collapsible-header">
-      <mat-card-title>
-        <mat-icon>business</mat-icon>
-        Управление организациями
-      </mat-card-title>
-      <div class="header-actions-right">
-        <button
-          mat-icon-button
-          matTooltip="{{ organizationsCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-          class="collapse-toggle-btn"
-          (click)="toggleOrganizations(); $event.stopPropagation()"
-        >
-          <mat-icon>{{ organizationsCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-        </button>
-      </div>
-    </mat-card-header>
-    <mat-card-content [class.collapsed]="organizationsCollapsed()">
+  <app-collapsible-card
+    class="collapsible-section"
+    *ngIf="canViewAllData"
+    title="Управление организациями"
+    icon="business"
+    [collapsed]="organizationsCollapsed()"
+    (collapsedChange)="organizationsCollapsed.set($event)"
+    [toggleTooltipCollapsed]="'Развернуть'"
+    [toggleTooltipExpanded]="'Свернуть'"
+    [toggleAriaLabelCollapsed]="'Развернуть'"
+    [toggleAriaLabelExpanded]="'Свернуть'"
+  >
       <div class="organizations-content">
         <div class="actions-row">
           <mat-form-field class="search-field" appearance="outline">
@@ -1346,28 +1324,21 @@
         >
         </mat-paginator>
       </div>
-    </mat-card-content>
-  </mat-card>
+  </app-collapsible-card>
 
   <!-- Users Management -->
-  <mat-card class="collapsible-section" *ngIf="canViewUsers">
-    <mat-card-header (click)="toggleUsers()" class="collapsible-header">
-      <mat-card-title>
-        <mat-icon>people</mat-icon>
-        Управление пользователями
-      </mat-card-title>
-      <div class="header-actions-right">
-        <button
-          mat-icon-button
-          matTooltip="{{ usersCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-          class="collapse-toggle-btn"
-          (click)="toggleUsers(); $event.stopPropagation()"
-        >
-          <mat-icon>{{ usersCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-        </button>
-      </div>
-    </mat-card-header>
-    <mat-card-content [class.collapsed]="usersCollapsed()">
+  <app-collapsible-card
+    class="collapsible-section"
+    *ngIf="canViewUsers"
+    title="Управление пользователями"
+    icon="people"
+    [collapsed]="usersCollapsed()"
+    (collapsedChange)="usersCollapsed.set($event)"
+    [toggleTooltipCollapsed]="'Развернуть'"
+    [toggleTooltipExpanded]="'Свернуть'"
+    [toggleAriaLabelCollapsed]="'Развернуть'"
+    [toggleAriaLabelExpanded]="'Свернуть'"
+  >
       <div class="users-content">
         <div class="header-actions" *ngIf="canViewUsers">
           <mat-form-field class="search-field">
@@ -1508,8 +1479,7 @@
         >
         </mat-paginator>
       </div>
-    </mat-card-content>
-  </mat-card>
+  </app-collapsible-card>
 </div>
 
 <!-- Earnings Summary Component -->

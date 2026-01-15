@@ -56,6 +56,7 @@ import { WorkCompletionDialogComponent } from '../../components/modals/work-comp
 import { OrderStatusDialogComponent } from '../../components/modals/order-status-dialog.component';
 import { EngineerSummaryCardComponent } from '../../components/engineer-summary-card/engineer-summary-card.component';
 import { HoursProgressItemComponent } from '../../components/hours-progress-item/hours-progress-item.component';
+import { CollapsibleCardComponent } from '../../components/collapsible-card/collapsible-card.component';
 
 @Component({
   selector: 'app-orders',
@@ -82,6 +83,7 @@ import { HoursProgressItemComponent } from '../../components/hours-progress-item
     BaseChartDirective,
     EngineerSummaryCardComponent,
     HoursProgressItemComponent,
+    CollapsibleCardComponent,
     OrderDialogComponent,
     OrderDeleteConfirmationDialogComponent,
     AssignEngineerDialogComponent,
@@ -1252,6 +1254,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   // Collapse states for blocks
   ordersOverviewCollapsed = signal(false);
   ordersHeaderCollapsed = signal(false);
+  ordersContentCollapsed = signal(false);
   engineerSummaryCollapsed = signal(true);
   carPaymentsCollapsed = signal(true);
   mobileStatisticsCollapsed = signal(false);
@@ -1351,7 +1354,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   // Данные для графика статусов (Donut)
-  get statusChartData(): ChartData<'doughnut'> {
+  statusChartData = computed((): ChartData<'doughnut'> => {
     return {
       labels: [
         'Ожидают',
@@ -1384,10 +1387,10 @@ export class OrdersComponent implements OnInit, OnDestroy {
         },
       ],
     };
-  }
+  });
 
   // Данные для графика источников (Bar)
-  get sourceChartData(): ChartData<'bar'> {
+  sourceChartData = computed((): ChartData<'bar'> => {
     return {
       labels: ['Вручную', 'Автоматически', 'Email', 'API'],
       datasets: [
@@ -1404,7 +1407,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
         },
       ],
     };
-  }
+  });
 
   // Опции для Donut графика
   doughnutChartOptions: ChartConfiguration['options'] = {
@@ -1475,7 +1478,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   };
 
   // Данные для графика платежей (Donut)
-  get paymentChartData(): ChartData<'doughnut'> {
+  paymentChartData = computed((): ChartData<'doughnut'> => {
     return {
       labels: [
         'Получено от организаций',
@@ -1502,45 +1505,41 @@ export class OrdersComponent implements OnInit, OnDestroy {
         },
       ],
     };
-  }
+  });
 
   // Статистика для бейджей под графиком статусов
-  get statusStats() {
-    return [
-      { label: 'Ожидают', value: this.orderStats().waiting, color: '#FFA726' },
-      { label: 'В обработке', value: this.orderStats().processing, color: '#42A5F5' },
-      { label: 'В работе', value: this.orderStats().working, color: '#66BB6A' },
-      { label: 'На проверке', value: this.orderStats().review, color: '#FFCA28' },
-      { label: 'Завершено', value: this.orderStats().completed, color: '#26A69A' },
-      { label: 'Выплачено инженеру', value: this.orderStats().paid_to_engineer, color: '#2196F3' },
-    ];
-  }
+  statusStats = computed(() => [
+    { label: 'Ожидают', value: this.orderStats().waiting, color: '#FFA726' },
+    { label: 'В обработке', value: this.orderStats().processing, color: '#42A5F5' },
+    { label: 'В работе', value: this.orderStats().working, color: '#66BB6A' },
+    { label: 'На проверке', value: this.orderStats().review, color: '#FFCA28' },
+    { label: 'Завершено', value: this.orderStats().completed, color: '#26A69A' },
+    { label: 'Выплачено инженеру', value: this.orderStats().paid_to_engineer, color: '#2196F3' },
+  ]);
 
   // Статистика для бейджей под графиком платежей
-  get paymentStats() {
-    return [
-      {
-        label: 'Получено от организаций',
-        value: this.orderStats().paymentStats.receivedFromOrganization,
-        color: '#4CAF50',
-      },
-      {
-        label: 'Ожидает от организаций',
-        value: this.orderStats().paymentStats.pendingFromOrganization,
-        color: '#FF9800',
-      },
-      {
-        label: 'Выплачено инженерам',
-        value: this.orderStats().paymentStats.paidToEngineer,
-        color: '#2196F3',
-      },
-      {
-        label: 'Ожидает выплаты',
-        value: this.orderStats().paymentStats.pendingToEngineer,
-        color: '#FFC107',
-      },
-    ];
-  }
+  paymentStats = computed(() => [
+    {
+      label: 'Получено от организаций',
+      value: this.orderStats().paymentStats.receivedFromOrganization,
+      color: '#4CAF50',
+    },
+    {
+      label: 'Ожидает от организаций',
+      value: this.orderStats().paymentStats.pendingFromOrganization,
+      color: '#FF9800',
+    },
+    {
+      label: 'Выплачено инженерам',
+      value: this.orderStats().paymentStats.paidToEngineer,
+      color: '#2196F3',
+    },
+    {
+      label: 'Ожидает выплаты',
+      value: this.orderStats().paymentStats.pendingToEngineer,
+      color: '#FFC107',
+    },
+  ]);
 
   // Расчёт процента для прогресс-баров
   getProgressPercentage(value: number): number {

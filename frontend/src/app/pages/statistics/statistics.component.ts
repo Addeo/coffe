@@ -43,6 +43,7 @@ import { ModalService } from '../../services/modal.service';
 import { ToastService } from '../../services/toast.service';
 import { EarningsSummaryComponent } from '../../components/earnings-summary/earnings-summary.component';
 import { HoursProgressItemComponent } from '../../components/hours-progress-item/hours-progress-item.component';
+import { CollapsibleCardComponent } from '../../components/collapsible-card/collapsible-card.component';
 import { UserRole } from '@shared/interfaces/user.interface';
 import { OrganizationDto, OrganizationsQueryDto } from '@shared/dtos/organization.dto';
 import { UserDto } from '@shared/dtos/user.dto';
@@ -119,6 +120,7 @@ interface ComprehensiveStatisticsDto {
     BaseChartDirective,
     EarningsSummaryComponent,
     HoursProgressItemComponent,
+    CollapsibleCardComponent,
   ],
   templateUrl: './statistics.component.html',
   styleUrls: ['./statistics.component.scss'],
@@ -360,17 +362,9 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   growthPotential = signal<number>(0);
 
   // Data source for table
-  get financialDetailsDataSource() {
-    return this.financialDetailsData();
-  }
-
-  get organizationDataSource() {
-    return this.statistics()?.organizationEarnings || [];
-  }
-
-  get agentDataSource() {
-    return this.statistics()?.agentEarnings || [];
-  }
+  financialDetailsDataSource = computed(() => this.financialDetailsData());
+  organizationDataSource = computed(() => this.statistics()?.organizationEarnings || []);
+  agentDataSource = computed(() => this.statistics()?.agentEarnings || []);
 
   // Organization analytics methods
   getTotalOrganizationRevenue(): number {
@@ -431,30 +425,13 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
     return companyRevenue - agentEarnings;
   }
 
-  // Временные геттеры для новых полей до обновления shared модуля
-  get totalOrganizationRevenue(): number {
-    return this.getTotalOrganizationRevenue();
-  }
-
-  get totalOrganizationPaid(): number {
-    return this.getTotalOrganizationRevenue(); // Пока считаем что все заплатили
-  }
-
-  get totalAgentEarnings(): number {
-    return this.getTotalAgentEarnings();
-  }
-
-  get totalCompanyRevenue(): number {
-    return this.getTotalOrganizationRevenue();
-  }
-
-  get totalAgentPayments(): number {
-    return this.getTotalAgentEarnings(); // Пока считаем что все выплатили
-  }
-
-  get companyProfit(): number {
-    return this.getCompanyAgentDifference();
-  }
+  // Временные computed сигналы для новых полей до обновления shared модуля
+  totalOrganizationRevenue = computed(() => this.getTotalOrganizationRevenue());
+  totalOrganizationPaid = computed(() => this.getTotalOrganizationRevenue()); // Пока считаем что все заплатили
+  totalAgentEarnings = computed(() => this.getTotalAgentEarnings());
+  totalCompanyRevenue = computed(() => this.getTotalOrganizationRevenue());
+  totalAgentPayments = computed(() => this.getTotalAgentEarnings()); // Пока считаем что все выплатили
+  companyProfit = computed(() => this.getCompanyAgentDifference());
 
   // Manager summary methods
   /**
@@ -494,7 +471,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   }
 
   // Chart data for Agent Earnings (Bar Chart)
-  get agentEarningsChartData(): ChartData<'bar'> {
+  agentEarningsChartData = computed((): ChartData<'bar'> => {
     const data = this.statistics()?.agentEarnings || [];
     return {
       labels: data.map(a => a.agentName),
@@ -507,10 +484,10 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         },
       ],
     };
-  }
+  });
 
   // Chart data for Organization Earnings (Grouped Bar Chart)
-  get organizationEarningsChartData(): ChartData<'bar'> {
+  organizationEarningsChartData = computed((): ChartData<'bar'> => {
     const data = this.statistics()?.organizationEarnings || [];
     return {
       labels: data.map(o => o.organizationName),
@@ -535,10 +512,10 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         },
       ],
     };
-  }
+  });
 
   // Chart data for Profit Margin (Line Chart)
-  get profitMarginChartData(): ChartData<'line'> {
+  profitMarginChartData = computed((): ChartData<'line'> => {
     const data = this.statistics()?.organizationEarnings || [];
     return {
       labels: data.map(o => o.organizationName),
@@ -555,10 +532,10 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         },
       ],
     };
-  }
+  });
 
   // Chart data for Overtime (Doughnut Chart)
-  get overtimeChartData(): ChartData<'doughnut'> {
+  overtimeChartData = computed((): ChartData<'doughnut'> => {
     const data = this.statistics()?.overtimeStatistics || [];
     const totalOvertime = data.reduce((sum, a) => sum + a.overtimeHours, 0);
     const totalRegular = data.reduce((sum, a) => sum + a.regularHours, 0);
@@ -574,10 +551,10 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         },
       ],
     };
-  }
+  });
 
   // Chart data for Agent Overtime Distribution (Bar Chart)
-  get agentOvertimeChartData(): ChartData<'bar'> {
+  agentOvertimeChartData = computed((): ChartData<'bar'> => {
     const data = this.statistics()?.overtimeStatistics || [];
     return {
       labels: data.map(a => a.agentName),
@@ -596,7 +573,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         },
       ],
     };
-  }
+  });
 
   /**
    * Загрузить статус автомобильных отчислений
@@ -1397,7 +1374,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   }
 
   // Chart data for User Statistics (Doughnut Chart)
-  get userStatsChartData(): ChartData<'doughnut'> {
+  userStatsChartData = computed((): ChartData<'doughnut'> => {
     const stats = this.userStats();
     return {
       labels: ['Руководители', 'Логисты', 'Инженеры'],
@@ -1410,7 +1387,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         },
       ],
     };
-  }
+  });
 
   // Получение цвета для статистики сверхурочных
   getOvertimeColor(stat: any): string {
@@ -1420,7 +1397,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
   }
 
   // New chart data methods
-  get salaryTimeChartData(): ChartData<'line'> {
+  salaryTimeChartData = computed((): ChartData<'line'> => {
     const comprehensiveData = this.comprehensiveStatistics();
     const timeBasedData = comprehensiveData?.timeBasedAnalytics?.salaryChart || [];
 
@@ -1454,9 +1431,9 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
       labels: timeBasedData[0]?.data.map((point: any) => point.date) || [],
       datasets,
     };
-  }
+  });
 
-  get hoursTimeChartData(): ChartData<'line'> {
+  hoursTimeChartData = computed((): ChartData<'line'> => {
     const comprehensiveData = this.comprehensiveStatistics();
     const timeBasedData = comprehensiveData?.timeBasedAnalytics?.hoursChart || [];
 
@@ -1490,9 +1467,9 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
       labels: timeBasedData[0]?.data.map((point: any) => point.date) || [],
       datasets,
     };
-  }
+  });
 
-  get salaryBreakdownChartData(): ChartData<'bar'> {
+  salaryBreakdownChartData = computed((): ChartData<'bar'> => {
     // TODO: Implement salary breakdown data
     const data = this.statistics()?.agentEarnings || [];
     return {
@@ -1515,9 +1492,9 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         },
       ],
     };
-  }
+  });
 
-  get monthlyComparisonChartData(): ChartData<'bar'> {
+  monthlyComparisonChartData = computed((): ChartData<'bar'> => {
     const comprehensiveData = this.comprehensiveStatistics();
     const financialData = comprehensiveData?.financialAnalytics?.monthlyComparison;
 
@@ -1555,9 +1532,9 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         },
       ],
     };
-  }
+  });
 
-  get efficiencyChartData(): ChartData<'bar'> {
+  efficiencyChartData = computed((): ChartData<'bar'> => {
     const comprehensiveData = this.comprehensiveStatistics();
     const efficiencyData = comprehensiveData?.rankings?.efficiency || [];
 
@@ -1585,9 +1562,9 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         },
       ],
     };
-  }
+  });
 
-  get forecastChartData(): ChartData<'line'> {
+  forecastChartData = computed((): ChartData<'line'> => {
     const comprehensiveData = this.comprehensiveStatistics();
     const forecastData = comprehensiveData?.forecast;
 
@@ -1634,10 +1611,10 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         },
       ],
     };
-  }
+  });
 
   // New chart options
-  get lineChartTimeOptions(): ChartConfiguration['options'] {
+  lineChartTimeOptions = computed((): ChartConfiguration['options'] => {
     return {
       responsive: true,
       maintainAspectRatio: false,
@@ -1672,7 +1649,7 @@ export class StatisticsComponent implements OnInit, AfterViewInit {
         },
       },
     };
-  }
+  });
 
   // Load additional data
   loadAdditionalData() {

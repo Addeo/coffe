@@ -1,0 +1,33 @@
+<mat-card class="collapsible-card">
+  <mat-card-header class="collapsible-header" (click)="toggleOnHeaderClick ? onToggle() : null">
+    <div class="header-title-section">
+      <ng-container *ngIf="useProjectedTitle; else defaultTitle">
+        <ng-content select="[collapsible-title]"></ng-content>
+      </ng-container>
+      <ng-template #defaultTitle>
+        <mat-card-title>
+          <mat-icon *ngIf="icon">{{ icon }}</mat-icon>
+          {{ title }}
+        </mat-card-title>
+        <mat-card-subtitle *ngIf="subtitle">{{ subtitle }}</mat-card-subtitle>
+      </ng-template>
+    </div>
+    <div class="header-actions-right" (click)="$event.stopPropagation()">
+      <ng-content select="[collapsible-actions]"></ng-content>
+      <button
+        *ngIf="collapsible"
+        mat-icon-button
+        class="collapse-toggle-btn"
+        (click)="onToggle($event)"
+        [matTooltip]="collapsedState() ? toggleTooltipCollapsed : toggleTooltipExpanded"
+        [attr.aria-label]="collapsedState() ? toggleAriaLabelCollapsed : toggleAriaLabelExpanded"
+      >
+        <mat-icon>{{ collapsedState() ? 'expand_more' : 'expand_less' }}</mat-icon>
+      </button>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content [class.collapsed]="collapsedState()">
+    <ng-content></ng-content>
+  </mat-card-content>
+</mat-card>
