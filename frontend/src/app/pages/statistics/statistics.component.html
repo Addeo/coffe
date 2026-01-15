@@ -2,7 +2,6 @@
   <!-- Manager Summary Buttons -->
   <app-collapsible-card
     *ngIf="!isLoading() && statistics()"
-    class="manager-summary-card"
     title="Финансовая сводка"
     icon="account_balance_wallet"
     [collapsed]="financialSummaryCards()"
@@ -270,7 +269,6 @@
   <div *ngIf="!isLoading() && statistics()" class="statistics-content">
     <!-- Orders Overview Card -->
     <app-collapsible-card
-      class="orders-overview-card"
       title="Обзор заявок"
       icon="dashboard"
       [collapsed]="summaryCardsCollapsed()"
@@ -1141,7 +1139,6 @@
 
   <!-- Organizations Management -->
   <app-collapsible-card
-    class="collapsible-section"
     *ngIf="canViewAllData"
     title="Управление организациями"
     icon="business"
@@ -1328,7 +1325,6 @@
 
   <!-- Users Management -->
   <app-collapsible-card
-    class="collapsible-section"
     *ngIf="canViewUsers"
     title="Управление пользователями"
     icon="people"

@@ -1249,16 +1249,16 @@ export class OrdersComponent implements OnInit, OnDestroy {
   statsView: 'compact' | 'charts' | 'progress' = 'charts'; // По умолчанию графики
 
   // Order statistics collapse state
-  orderStatsCollapsed = signal(false);
+  orderStatsCollapsed = signal(true);
 
   // Collapse states for blocks
-  ordersOverviewCollapsed = signal(false);
+  ordersOverviewCollapsed = signal(true);
   ordersHeaderCollapsed = signal(false);
-  ordersContentCollapsed = signal(false);
+  ordersContentCollapsed = signal(true);
   engineerSummaryCollapsed = signal(true);
   carPaymentsCollapsed = signal(true);
-  mobileStatisticsCollapsed = signal(false);
-  managerStatsCollapsed = signal(false);
+  mobileStatisticsCollapsed = signal(true);
+  managerStatsCollapsed = signal(true);
 
   // Mobile view detection - reactive signal
   private windowWidth = signal(window.innerWidth);

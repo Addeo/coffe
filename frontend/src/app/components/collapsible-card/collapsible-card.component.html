@@ -1,33 +1,46 @@
-<mat-card class="collapsible-card">
-  <mat-card-header class="collapsible-header" (click)="toggleOnHeaderClick ? onToggle() : null">
-    <div class="header-title-section">
-      <ng-container *ngIf="useProjectedTitle; else defaultTitle">
-        <ng-content select="[collapsible-title]"></ng-content>
+<mat-card class="collapsible-card collapsible-section">
+  <div class="collapsible-header-minimal" (click)="toggleOnHeaderClick ? onToggle() : null">
+    <div class="header-title-minimal">
+      <ng-container *ngIf="useProjectedTitle; else defaultTitleMinimal">
+        <ng-content select="[collapsible-title-minimal]"></ng-content>
       </ng-container>
-      <ng-template #defaultTitle>
-        <mat-card-title>
-          <mat-icon *ngIf="icon">{{ icon }}</mat-icon>
-          {{ title }}
-        </mat-card-title>
-        <mat-card-subtitle *ngIf="subtitle">{{ subtitle }}</mat-card-subtitle>
+      <ng-template #defaultTitleMinimal>
+        <mat-icon *ngIf="icon" class="header-icon">{{ icon }}</mat-icon>
+        <span class="header-title-text">{{ title }}</span>
       </ng-template>
     </div>
-    <div class="header-actions-right" (click)="$event.stopPropagation()">
-      <ng-content select="[collapsible-actions]"></ng-content>
-      <button
-        *ngIf="collapsible"
-        mat-icon-button
-        class="collapse-toggle-btn"
-        (click)="onToggle($event)"
-        [matTooltip]="collapsedState() ? toggleTooltipCollapsed : toggleTooltipExpanded"
-        [attr.aria-label]="collapsedState() ? toggleAriaLabelCollapsed : toggleAriaLabelExpanded"
-      >
-        <mat-icon>{{ collapsedState() ? 'expand_more' : 'expand_less' }}</mat-icon>
-      </button>
-    </div>
-  </mat-card-header>
+    <button
+      *ngIf="collapsible"
+      mat-icon-button
+      class="collapse-toggle-btn"
+      (click)="onToggle($event); $event.stopPropagation()"
+      [matTooltip]="collapsedState() ? toggleTooltipCollapsed : toggleTooltipExpanded"
+      [attr.aria-label]="collapsedState() ? toggleAriaLabelCollapsed : toggleAriaLabelExpanded"
+    >
+      <mat-icon>{{ collapsedState() ? 'expand_more' : 'expand_less' }}</mat-icon>
+    </button>
+  </div>
 
   <mat-card-content [class.collapsed]="collapsedState()">
-    <ng-content></ng-content>
+    <div class="collapsible-content-header">
+      <div class="header-title-section">
+        <ng-container *ngIf="useProjectedTitle; else defaultTitle">
+          <ng-content select="[collapsible-title]"></ng-content>
+        </ng-container>
+        <ng-template #defaultTitle>
+          <mat-card-title>
+            <mat-icon *ngIf="icon">{{ icon }}</mat-icon>
+            {{ title }}
+          </mat-card-title>
+          <mat-card-subtitle *ngIf="subtitle">{{ subtitle }}</mat-card-subtitle>
+        </ng-template>
+      </div>
+      <div class="header-actions-right" (click)="$event.stopPropagation()">
+        <ng-content select="[collapsible-actions]"></ng-content>
+      </div>
+    </div>
+    <div class="collapsible-content-body">
+      <ng-content></ng-content>
+    </div>
   </mat-card-content>
 </mat-card>
