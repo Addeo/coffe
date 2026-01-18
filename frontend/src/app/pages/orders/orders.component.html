@@ -1,4 +1,4 @@
-<div>
+<div class="statistics-container">
   <app-collapsible-card
     *ngIf="isManager()"
     title="Часы инженеров"
@@ -44,7 +44,6 @@
 
       <div
         class="mobile-summary-grid"
-        style="display: flex; flex-direction: column; gap: 16px; width: 100%"
         *ngIf="!isLoadingManagerStats()"
       >
         <div class="summary-item">
@@ -116,17 +115,7 @@
     [toggleAriaLabelCollapsed]="'Развернуть'"
     [toggleAriaLabelExpanded]="'Свернуть'"
   >
-    <button
-      collapsible-actions
-      mat-icon-button
-      (click)="exportAllOrdersToExcel()"
-      matTooltip="Экспортировать данные по заявкам в Excel"
-      class="export-btn"
-      [attr.aria-label]="'Экспорт заявок в Excel'"
-      *ngIf="canExportOrders()"
-    >
-      <mat-icon>description</mat-icon>
-    </button>
+   
     <div class="orders-overview-grid">
         <!-- Всего заявок -->
         <div
@@ -237,6 +226,17 @@
           </div>
         </div>
     </div>
+    <button
+    collapsible-actions
+    mat-icon-button
+    (click)="exportAllOrdersToExcel()"
+    matTooltip="Экспортировать данные по заявкам в Excel"
+    class="export-btn"
+    [attr.aria-label]="'Экспорт заявок в Excel'"
+    *ngIf="canExportOrders()"
+  >
+    <mat-icon>description</mat-icon>
+  </button>
   </app-collapsible-card>
 
   <app-collapsible-card
@@ -460,11 +460,11 @@
     [toggleOnHeaderClick]="true"
     [useProjectedTitle]="true"
   >
-    <div collapsible-title-minimal class="header-title-minimal">
+    <div class="header-title-minimal">
       <mat-icon class="header-icon">assignment</mat-icon>
       <span class="header-title-text">Управление заявками</span>
     </div>
-    <div collapsible-title class="header-title-section inline">
+    <div  class="header-title-section inline">
       <h1 *ngIf="!isMobileView()" i18n="@@orders.management">Управление заявками</h1>
       <button
         *ngIf="!isMobileView()"
@@ -476,7 +476,7 @@
         <mat-icon>{{ ordersHeaderCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
       </button>
     </div>
-    <div collapsible-actions class="header-actions" [class.collapsed]="ordersHeaderCollapsed()">
+    <div  class="header-actions" [class.collapsed]="ordersHeaderCollapsed()">
       <mat-form-field class="filter-field" *ngIf="!isMobileView()">
         <mat-label>Фильтр по статусу</mat-label>
         <mat-select

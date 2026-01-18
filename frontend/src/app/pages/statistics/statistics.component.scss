@@ -60,6 +60,8 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 16px;
+      padding: 0;
+      margin: 0;
 
       @media (max-width: 768px) {
         grid-template-columns: 1fr;
@@ -76,10 +78,17 @@
         transition: all 0.3s ease;
         border: 2px solid transparent;
         cursor: pointer;
+        min-height: 80px;
+        box-sizing: border-box;
 
         &:hover {
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        &:focus {
+          outline: 2px solid #667eea;
+          outline-offset: 2px;
         }
 
         &.primary {
@@ -154,6 +163,118 @@
             line-height: 1.3;
             word-break: break-word;
           }
+        }
+      }
+    }
+  }
+
+  // Orders overview grid styles (для app-collapsible-card)
+  .orders-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 0;
+    margin: 0;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .summary-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      cursor: pointer;
+      min-height: 80px;
+      box-sizing: border-box;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      &:focus {
+        outline: 2px solid #667eea;
+        outline-offset: 2px;
+      }
+
+      &.primary {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      }
+
+      &.info {
+        background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+      }
+
+      &.accent {
+        background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+      }
+
+      &.warning {
+        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+      }
+
+      &.success {
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      }
+
+      &.review {
+        background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+      }
+
+      .summary-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 12px;
+        flex-shrink: 0;
+
+        mat-icon {
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+          color: #667eea;
+        }
+      }
+
+      .summary-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+
+        .summary-value {
+          font-size: 24px;
+          font-weight: 700;
+          color: #1a237e;
+          line-height: 1.2;
+          word-break: break-word;
+        }
+
+        .summary-label {
+          font-size: 12px;
+          font-weight: 500;
+          color: rgba(0, 0, 0, 0.6);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .summary-description {
+          font-size: 11px;
+          color: rgba(0, 0, 0, 0.6);
+          margin-top: 2px;
+          line-height: 1.3;
+          word-break: break-word;
         }
       }
     }
@@ -479,55 +600,54 @@
             transition: transform 0.3s ease;
           }
         }
-
-        .collapse-toggle-btn {
-          color: var(--text-secondary);
-          transition:
-            transform 0.3s ease,
-            color 0.2s ease;
-
-          &:hover {
-            color: var(--primary-color, #1976d2);
-            transform: scale(1.1);
-          }
-
-          mat-icon {
-            transition: transform 0.3s ease;
-          }
-        }
       }
     }
+  }
 
-    mat-card-content {
-      padding: var(--spacing-lg);
-      transition:
-        max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-        opacity 0.3s ease,
-        margin 0.3s ease,
-        padding 0.3s ease;
-      overflow: hidden;
-      max-height: 5000px;
-      opacity: 1;
+  // Стили для кнопки экспорта заявок (collapsible-actions)
+  ::ng-deep app-collapsible-card {
+    button[collapsible-actions].export-btn,
+    [collapsible-actions].export-btn,
+    button.export-btn[collapsible-actions] {
+      background-color: var(--color-primary, #6f4e37) !important;
+      color: white !important;
+      border-radius: 8px;
+      padding: 8px;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(111, 78, 55, 0.3);
+      transition: all 0.3s ease;
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-      &.collapsed {
-        max-height: 0;
-        opacity: 0;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
+      &:hover {
+        background-color: var(--color-primary-dark, #3e2723) !important;
+        box-shadow: 0 4px 12px rgba(111, 78, 55, 0.4);
+        transform: translateY(-2px) scale(1.05);
       }
 
-      // Hide earnings-summary header when inside collapsible section
-      app-earnings-summary {
-        ::ng-deep .earnings-card {
-          mat-card-header {
-            display: none;
-          }
+      &:active {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 2px 4px rgba(111, 78, 55, 0.3);
+      }
 
-          mat-card-content {
-            padding-top: 0;
-          }
-        }
+      .mat-icon {
+        color: white !important;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+      }
+
+      .mat-mdc-button-persistent-ripple,
+      .mdc-button__ripple {
+        color: rgba(255, 255, 255, 0.2) !important;
+      }
+
+      .mdc-button {
+        background-color: transparent !important;
       }
     }
   }
@@ -1548,6 +1668,103 @@
         flex: 1;
         min-width: 200px;
       }
+
+      .add-organization-btn {
+        height: 56px;
+        min-height: 56px;
+        padding: 0 24px;
+        background-color: var(--color-primary, #6f4e37) !important;
+        color: white !important;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        box-shadow: 0 2px 8px rgba(111, 78, 55, 0.3);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &:hover {
+          background-color: var(--color-primary-dark, #3e2723) !important;
+          box-shadow: 0 4px 12px rgba(111, 78, 55, 0.4);
+          transform: translateY(-2px);
+        }
+
+        &:active {
+          transform: translateY(0);
+          box-shadow: 0 2px 4px rgba(111, 78, 55, 0.3);
+        }
+
+        ::ng-deep {
+          .mat-icon {
+            color: white !important;
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+          }
+
+          .mdc-button__label {
+            color: white !important;
+          }
+
+          .mdc-button {
+            background-color: transparent !important;
+          }
+        }
+
+        span {
+          color: white;
+        }
+      }
+    }
+
+    // Стили для кнопки добавления организации вне actions-row
+    .add-organization-btn {
+      height: 56px;
+      min-height: 56px;
+      padding: 0 24px;
+      background-color: var(--color-primary, #6f4e37) !important;
+      color: white !important;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(111, 78, 55, 0.3);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      &:hover {
+        background-color: var(--color-primary-dark, #3e2723) !important;
+        box-shadow: 0 4px 12px rgba(111, 78, 55, 0.4);
+        transform: translateY(-2px);
+      }
+
+      &:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(111, 78, 55, 0.3);
+      }
+
+      ::ng-deep {
+        .mat-icon {
+          color: white !important;
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+
+        .mdc-button__label {
+          color: white !important;
+        }
+
+        .mdc-button {
+          background-color: transparent !important;
+        }
+      }
+
+      span {
+        color: white;
+      }
     }
 
     .table-container {
@@ -1933,14 +2150,78 @@
 }
 
 // Financial summary with collapsible lists
-.financial-item {
-  padding: 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  transition: background-color 0.2s ease;
+// Remove default Material button background
+.mat-mdc-raised-button:not(:disabled) {
+  background-color: unset !important;
+}
 
-  &:last-child {
-    border-bottom: none;
+.download-btn-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+  .export-btn {
+    background-color: var(--color-primary, #6f4e37) !important;
+    color: white !important;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-weight: 500;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(111, 78, 55, 0.3);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: auto;
+
+    &:hover {
+      background-color: var(--color-primary-dark, #3e2723) !important;
+      box-shadow: 0 4px 12px rgba(111, 78, 55, 0.4);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(111, 78, 55, 0.3);
+    }
+
+    ::ng-deep {
+      .mat-icon {
+        color: white !important;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+
+      .mdc-button__label {
+        color: white !important;
+      }
+    }
+
+    span {
+      color: white;
+    }
   }
+
+  // Стили для кнопки внутри total-revenue (переопределяются выше)
+  .financial-item.total-revenue & {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+}
+
+  .financial-item {
+    padding: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    transition: background-color 0.2s ease;
+
+    &:last-child {
+      border-bottom: none;
+    }
 
   &.total-revenue {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -1948,6 +2229,10 @@
     border-radius: 12px;
     margin-bottom: 16px;
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    position: relative;
 
     .financial-icon mat-icon {
       color: white;
@@ -1967,6 +2252,42 @@
         }
       }
     }
+
+    .download-btn-container {
+      margin-top: 0;
+      margin-left: auto;
+      padding-top: 0;
+      border-top: none;
+      flex-shrink: 0;
+      align-self: flex-start;
+
+      .export-btn {
+        background-color: rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(10px);
+
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.3) !important;
+          border-color: rgba(255, 255, 255, 0.5);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        ::ng-deep {
+          .mat-icon {
+            color: white !important;
+          }
+
+          .mdc-button__label {
+            color: white !important;
+          }
+        }
+
+        span {
+          color: white;
+        }
+      }
+    }
   }
 
   &.collapsible {
@@ -1982,6 +2303,13 @@
     align-items: center;
     gap: 16px;
     width: 100%;
+  }
+
+  &.total-revenue {
+    .financial-content {
+      flex: 1;
+      min-width: 0;
+    }
   }
 
   .financial-icon {
@@ -2579,6 +2907,22 @@
       font-size: 11px;
     }
 
+    &.total-revenue {
+      flex-direction: column;
+      align-items: stretch;
+
+      .download-btn-container {
+        margin-left: 0;
+        margin-top: 16px;
+        align-self: stretch;
+
+        .export-btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+
     .engineer-payment-item {
       flex-direction: column;
       align-items: flex-start;
@@ -2607,6 +2951,27 @@
 
     .financial-value {
       font-size: 20px;
+    }
+
+    &.total-revenue {
+      .download-btn-container {
+        .export-btn {
+          padding: 10px 16px;
+          font-size: 12px;
+
+          ::ng-deep {
+            .mat-icon {
+              font-size: 18px;
+              width: 18px;
+              height: 18px;
+            }
+          }
+
+          span {
+            font-size: 12px;
+          }
+        }
+      }
     }
 
     .engineer-payment-item {

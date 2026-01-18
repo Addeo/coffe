@@ -12,21 +12,26 @@
     [toggleAriaLabelExpanded]="'Свернуть'"
     [toggleOnHeaderClick]="false"
   >
-    <button
-      collapsible-actions
-      mat-icon-button
-      (click)="exportFinancialSummaryToExcel()"
-      matTooltip="Экспортировать финансовую сводку в Excel"
-      class="export-btn"
-      [attr.aria-label]="'Экспорт в Excel'"
-    >
-      <mat-icon>file_download</mat-icon>
-    </button>
       <!-- 1. Итого доход -->
-      <div class="financial-item total-revenue">
+    <div class="financial-item total-revenue">
+      <div style="display: flex; align-items: center; gap: 16px; justify-content: space-between;">
         <div class="financial-icon">
           <mat-icon>account_balance</mat-icon>
+         
         </div>
+        <button
+        mat-raised-button
+        color="primary"
+        (click)="exportFinancialSummaryToExcel()"
+        matTooltip="Экспортировать финансовую сводку в Excel"
+        class="export-btn"
+        [attr.aria-label]="'Экспорт в Excel'"
+      >
+        <mat-icon>file_download</mat-icon>
+        <!-- <span>Скачать в Excel</span> -->
+      </button>
+      </div>
+        
         <div class="financial-content">
           <div class="financial-label">Итого доход</div>
           <div class="financial-values">
@@ -44,10 +49,10 @@
             </div>
           </div>
         </div>
-      </div>
+    </div>
 
       <!-- 2. К оплате за часы (раскрывающийся список) -->
-      <div class="financial-item collapsible">
+    <div class="financial-item collapsible">
         <div class="financial-header" (click)="toggleHoursPaymentList()">
           <div class="financial-icon">
             <mat-icon>schedule</mat-icon>
@@ -94,10 +99,10 @@
             <p>Нет данных по инженерам</p>
           </div>
         </div>
-      </div>
+    </div>
 
       <!-- 3. К оплате за авто (раскрывающийся список) -->
-      <div class="financial-item collapsible">
+    <div class="financial-item collapsible">
         <div class="financial-header" (click)="toggleCarPaymentList()">
           <div class="financial-icon">
             <mat-icon>directions_car</mat-icon>
@@ -256,7 +261,8 @@
             </div>
           </div>
         </div>
-      </div>
+    </div>
+
   </app-collapsible-card>
 
   <!-- Loading Spinner -->
@@ -278,16 +284,7 @@
       [toggleAriaLabelCollapsed]="'Развернуть'"
       [toggleAriaLabelExpanded]="'Свернуть'"
     >
-      <button
-        collapsible-actions
-        mat-icon-button
-        (click)="exportOrdersToExcel()"
-        matTooltip="Экспортировать данные по заявкам в Excel"
-        class="export-btn"
-        [attr.aria-label]="'Экспорт заявок в Excel'"
-      >
-        <mat-icon>description</mat-icon>
-      </button>
+     
       <div class="orders-overview-grid">
           <!-- Всего заявок -->
           <div
@@ -398,6 +395,19 @@
             </div>
           </div>
       </div>
+
+      <button
+      collapsible-actions
+      style="margin-top: 16px; margin-left: 8px; width: 100%; min-width: 200px;"
+      mat-icon-button
+      (click)="exportOrdersToExcel()"
+      matTooltip="Экспортировать данные по заявкам в Excel"
+      class="export-btn"
+      [attr.aria-label]="'Экспорт заявок в Excel'"
+    >
+      Экспорт
+      <mat-icon>description</mat-icon>
+    </button>
     </app-collapsible-card>
 
     <!-- Car Payments Card -->
@@ -1167,6 +1177,7 @@
             color="primary"
             (click)="onCreateOrganization()"
             *ngIf="canEditOrganizations()"
+            class="add-organization-btn"
           >
             <mat-icon>add</mat-icon>
             <span>Добавить организацию</span>
@@ -1306,6 +1317,7 @@
               mat-raised-button
               color="primary"
               (click)="onCreateOrganization()"
+              class="add-organization-btn"
             >
               <mat-icon>add</mat-icon>
               <span>Добавить организацию</span>
@@ -1346,7 +1358,13 @@
             />
             <mat-icon matSuffix>search</mat-icon>
           </mat-form-field>
-          <button mat-raised-button color="primary" (click)="onCreateUser()" *ngIf="canCreateUsers">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="onCreateUser()"
+            *ngIf="canCreateUsers"
+            class="add-organization-btn"
+          >
             <mat-icon>add</mat-icon>
             <span>Добавить пользователя</span>
           </button>

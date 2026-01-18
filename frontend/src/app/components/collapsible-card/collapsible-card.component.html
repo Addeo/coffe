@@ -22,7 +22,7 @@
   </div>
 
   <mat-card-content [class.collapsed]="collapsedState()">
-    <div class="collapsible-content-header">
+    <!-- <div class="collapsible-content-header">
       <div class="header-title-section">
         <ng-container *ngIf="useProjectedTitle; else defaultTitle">
           <ng-content select="[collapsible-title]"></ng-content>
@@ -38,7 +38,7 @@
       <div class="header-actions-right" (click)="$event.stopPropagation()">
         <ng-content select="[collapsible-actions]"></ng-content>
       </div>
-    </div>
+    </div> -->
     <div class="collapsible-content-body">
       <ng-content></ng-content>
     </div>
