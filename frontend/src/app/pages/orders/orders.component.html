@@ -1,5 +1,139 @@
 <div class="orders-container">
   <app-collapsible-card
+  title="Обзор заявок"
+  icon="dashboard"
+  [collapsed]="ordersOverviewCollapsed()"
+  (collapsedChange)="ordersOverviewCollapsed.set($event)"
+  [toggleTooltipCollapsed]="'Развернуть'"
+  [toggleTooltipExpanded]="'Свернуть'"
+  [toggleAriaLabelCollapsed]="'Развернуть'"
+  [toggleAriaLabelExpanded]="'Свернуть'"
+>
+ 
+  <div class="orders-overview-grid">
+      <!-- Всего заявок -->
+      <div
+        class="summary-item primary"
+        role="button"
+        tabindex="0"
+        aria-label="Показать все заявки"
+        [class.active]="!selectedStatus()"
+        (click)="onSummaryStatusClick(undefined)"
+        (keydown)="onSummaryStatusKeydown($event, undefined)"
+      >
+        <div class="summary-icon">
+          <mat-icon>assignment</mat-icon>
+        </div>
+        <div class="summary-content">
+          <div class="summary-value">{{ orderStats().total }}</div>
+          <div class="summary-label">Всего заявок</div>
+        </div>
+      </div>
+
+      <div
+        class="summary-item warning"
+        role="button"
+        tabindex="0"
+        aria-label="Показать ожидающие заявки"
+        [class.active]="selectedStatus() === OrderStatus.WAITING"
+        (click)="onSummaryStatusClick('waiting')"
+        (keydown)="onSummaryStatusKeydown($event, 'waiting')"
+      >
+        <div class="summary-icon">
+          <mat-icon>schedule</mat-icon>
+        </div>
+        <div class="summary-content">
+          <div class="summary-value">{{ orderStats().waiting }}</div>
+          <div class="summary-label">Ожидают</div>
+        </div>
+      </div>
+
+      <div
+        class="summary-item info"
+        role="button"
+        tabindex="0"
+        aria-label="Показать заявки в обработке"
+        [class.active]="selectedStatus() === OrderStatus.PROCESSING"
+        (click)="onSummaryStatusClick('processing')"
+        (keydown)="onSummaryStatusKeydown($event, 'processing')"
+      >
+        <div class="summary-icon">
+          <mat-icon>person_add</mat-icon>
+        </div>
+        <div class="summary-content">
+          <div class="summary-value">{{ orderStats().processing }}</div>
+          <div class="summary-label">В обработке</div>
+        </div>
+      </div>
+
+      <div
+        class="summary-item accent"
+        role="button"
+        tabindex="0"
+        aria-label="Показать заявки в работе"
+        [class.active]="selectedStatus() === OrderStatus.WORKING"
+        (click)="onSummaryStatusClick('working')"
+        (keydown)="onSummaryStatusKeydown($event, 'working')"
+      >
+        <div class="summary-icon">
+          <mat-icon>build</mat-icon>
+        </div>
+        <div class="summary-content">
+          <div class="summary-value">{{ orderStats().working }}</div>
+          <div class="summary-label">В работе</div>
+        </div>
+      </div>
+
+      <div
+        class="summary-item review"
+        role="button"
+        tabindex="0"
+        aria-label="Показать заявки на проверке"
+        [class.active]="selectedStatus() === OrderStatus.REVIEW"
+        (click)="onSummaryStatusClick('review')"
+        (keydown)="onSummaryStatusKeydown($event, 'review')"
+      >
+        <div class="summary-icon">
+          <mat-icon>visibility</mat-icon>
+        </div>
+        <div class="summary-content">
+          <div class="summary-value">{{ orderStats().review }}</div>
+          <div class="summary-label">На проверке</div>
+        </div>
+      </div>
+
+      <div
+        class="summary-item success"
+        role="button"
+        tabindex="0"
+        aria-label="Показать завершённые заявки"
+        [class.active]="selectedStatus() === OrderStatus.COMPLETED"
+        (click)="onSummaryStatusClick('completed')"
+        (keydown)="onSummaryStatusKeydown($event, 'completed')"
+      >
+        <div class="summary-icon">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <div class="summary-content">
+          <div class="summary-value">{{ orderStats().completed }}</div>
+          <div class="summary-label">Завершено</div>
+        </div>
+      </div>
+  </div>
+  <button
+  collapsible-actions
+  mat-icon-button
+  (click)="exportAllOrdersToExcel()"
+  matTooltip="Экспортировать данные по заявкам в Excel"
+  class="export-btn"
+  [attr.aria-label]="'Экспорт заявок в Excel'"
+  *ngIf="canExportOrders()"
+>
+  <mat-icon>description</mat-icon>
+</button>
+</app-collapsible-card>
+
+  <app-collapsible-card
     *ngIf="isManager()"
     title="Часы инженеров"
     icon="schedule"
@@ -103,140 +237,6 @@
         <mat-icon>info</mat-icon>
         <p>Нет данных за выбранный период</p>
       </div>
-  </app-collapsible-card>
-
-  <app-collapsible-card
-    title="Обзор заявок"
-    icon="dashboard"
-    [collapsed]="ordersOverviewCollapsed()"
-    (collapsedChange)="ordersOverviewCollapsed.set($event)"
-    [toggleTooltipCollapsed]="'Развернуть'"
-    [toggleTooltipExpanded]="'Свернуть'"
-    [toggleAriaLabelCollapsed]="'Развернуть'"
-    [toggleAriaLabelExpanded]="'Свернуть'"
-  >
-   
-    <div class="orders-overview-grid">
-        <!-- Всего заявок -->
-        <div
-          class="summary-item primary"
-          role="button"
-          tabindex="0"
-          aria-label="Показать все заявки"
-          [class.active]="!selectedStatus()"
-          (click)="onSummaryStatusClick(undefined)"
-          (keydown)="onSummaryStatusKeydown($event, undefined)"
-        >
-          <div class="summary-icon">
-            <mat-icon>assignment</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().total }}</div>
-            <div class="summary-label">Всего заявок</div>
-          </div>
-        </div>
-
-        <div
-          class="summary-item warning"
-          role="button"
-          tabindex="0"
-          aria-label="Показать ожидающие заявки"
-          [class.active]="selectedStatus() === OrderStatus.WAITING"
-          (click)="onSummaryStatusClick('waiting')"
-          (keydown)="onSummaryStatusKeydown($event, 'waiting')"
-        >
-          <div class="summary-icon">
-            <mat-icon>schedule</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().waiting }}</div>
-            <div class="summary-label">Ожидают</div>
-          </div>
-        </div>
-
-        <div
-          class="summary-item info"
-          role="button"
-          tabindex="0"
-          aria-label="Показать заявки в обработке"
-          [class.active]="selectedStatus() === OrderStatus.PROCESSING"
-          (click)="onSummaryStatusClick('processing')"
-          (keydown)="onSummaryStatusKeydown($event, 'processing')"
-        >
-          <div class="summary-icon">
-            <mat-icon>person_add</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().processing }}</div>
-            <div class="summary-label">В обработке</div>
-          </div>
-        </div>
-
-        <div
-          class="summary-item accent"
-          role="button"
-          tabindex="0"
-          aria-label="Показать заявки в работе"
-          [class.active]="selectedStatus() === OrderStatus.WORKING"
-          (click)="onSummaryStatusClick('working')"
-          (keydown)="onSummaryStatusKeydown($event, 'working')"
-        >
-          <div class="summary-icon">
-            <mat-icon>build</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().working }}</div>
-            <div class="summary-label">В работе</div>
-          </div>
-        </div>
-
-        <div
-          class="summary-item review"
-          role="button"
-          tabindex="0"
-          aria-label="Показать заявки на проверке"
-          [class.active]="selectedStatus() === OrderStatus.REVIEW"
-          (click)="onSummaryStatusClick('review')"
-          (keydown)="onSummaryStatusKeydown($event, 'review')"
-        >
-          <div class="summary-icon">
-            <mat-icon>visibility</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().review }}</div>
-            <div class="summary-label">На проверке</div>
-          </div>
-        </div>
-
-        <div
-          class="summary-item success"
-          role="button"
-          tabindex="0"
-          aria-label="Показать завершённые заявки"
-          [class.active]="selectedStatus() === OrderStatus.COMPLETED"
-          (click)="onSummaryStatusClick('completed')"
-          (keydown)="onSummaryStatusKeydown($event, 'completed')"
-        >
-          <div class="summary-icon">
-            <mat-icon>check_circle</mat-icon>
-          </div>
-          <div class="summary-content">
-            <div class="summary-value">{{ orderStats().completed }}</div>
-            <div class="summary-label">Завершено</div>
-          </div>
-        </div>
-    </div>
-    <button
-    collapsible-actions
-    mat-icon-button
-    (click)="exportAllOrdersToExcel()"
-    matTooltip="Экспортировать данные по заявкам в Excel"
-    class="export-btn"
-    [attr.aria-label]="'Экспорт заявок в Excel'"
-    *ngIf="canExportOrders()"
-  >
-    <mat-icon>description</mat-icon>
-  </button>
   </app-collapsible-card>
 
   <app-collapsible-card

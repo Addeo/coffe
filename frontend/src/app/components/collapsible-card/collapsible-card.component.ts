@@ -17,7 +17,7 @@ export class CollapsibleCardComponent implements OnInit {
   @Input() icon?: string;
   @Input() subtitle?: string;
   @Input() collapsible = true;
-  @Input() defaultCollapsed = false;
+  @Input() defaultCollapsed = true;
   @Input() toggleOnHeaderClick = true;
   @Input() useProjectedTitle = false;
   @Input() toggleTooltipCollapsed = '';
@@ -29,7 +29,7 @@ export class CollapsibleCardComponent implements OnInit {
 
   private hasExternalControl = signal(false);
   private externalCollapsedValue = signal<boolean | null | undefined>(null);
-  collapsedState = signal(false);
+  collapsedState = signal(true);
 
   constructor() {
     effect(() => {
