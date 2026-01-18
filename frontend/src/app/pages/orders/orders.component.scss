@@ -1,3 +1,18 @@
+// Statistics container for collapsible cards
+.statistics-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  @media (max-width: 600px) {
+    padding: 16px;
+  }
+
+  // Styles for app-collapsible-card content (same as in .orders-container)
+  // Note: Full styles are defined in .orders-container block below
+  // and will apply via ::ng-deep to all app-collapsible-card components
+}
+
 // Orders container with responsive design
 .orders-container {
   padding: 24px;
@@ -249,6 +264,276 @@
 
       .mdc-button {
         background-color: transparent !important;
+      }
+    }
+
+    // Engineer summary grid styles
+    .engineer-summary-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+
+      .summary-item {
+        background: white;
+        border-radius: 12px;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        box-shadow: 0 4px 12px rgba(57, 73, 171, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.06);
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(57, 73, 171, 0.15);
+        }
+
+        mat-progress-bar {
+          height: 8px;
+          border-radius: 4px;
+          --mdc-linear-progress-active-indicator-color: #667eea;
+          --mdc-linear-progress-track-color: rgba(102, 126, 234, 0.15);
+        }
+      }
+
+      .summary-item--compact {
+        padding-bottom: 18px;
+      }
+
+      .item-header {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+
+        mat-icon {
+          font-size: 28px;
+          width: 28px;
+          height: 28px;
+        }
+      }
+
+      .item-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: rgba(0, 0, 0, 0.54);
+        margin-bottom: 6px;
+      }
+
+      .item-value {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a237e;
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .item-plan {
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(26, 35, 126, 0.6);
+      }
+
+      .item-details {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .detail-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 14px;
+
+          .detail-label {
+            color: rgba(0, 0, 0, 0.6);
+          }
+
+          .detail-value {
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.87);
+          }
+        }
+      }
+
+      .collapse-icon {
+        margin-left: auto;
+        color: rgba(0, 0, 0, 0.54);
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        transition: transform 0.3s ease;
+      }
+
+      .summary-item.collapsible {
+        cursor: pointer;
+
+        &.collapsed .collapse-icon {
+          transform: rotate(0deg);
+        }
+
+        &:not(.collapsed) .collapse-icon {
+          transform: rotate(180deg);
+        }
+      }
+    }
+
+    // Engineers list mobile styles
+    .engineers-list-mobile {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
+
+      h3 {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.87);
+      }
+
+      .engineers-progress-list-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        app-hours-progress-item {
+          display: block;
+          width: 100%;
+        }
+      }
+    }
+
+    // Header actions right styles (for collapsible-actions)
+    .header-actions-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      flex-wrap: wrap;
+
+      .month-nav-btn {
+        color: rgba(0, 0, 0, 0.54);
+        transition:
+          transform 0.3s ease,
+          color 0.2s ease;
+
+        &:hover {
+          color: var(--primary-color, #1976d2);
+          transform: scale(1.1);
+        }
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .current-month {
+        padding: 0 16px;
+        min-width: 200px;
+
+        .month-header {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+
+          .month-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.87);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+
+            mat-icon {
+              font-size: 16px;
+              width: 16px;
+              height: 16px;
+              color: #667eea;
+            }
+          }
+
+          .month-date {
+            font-size: 16px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.87);
+            white-space: nowrap;
+          }
+        }
+
+        @media (max-width: 600px) {
+          min-width: 160px;
+
+          .month-header {
+            .month-label {
+              font-size: 11px;
+              gap: 4px;
+
+              mat-icon {
+                font-size: 14px;
+                width: 14px;
+                height: 14px;
+              }
+            }
+
+            .month-date {
+              font-size: 14px;
+            }
+          }
+        }
+      }
+    }
+
+    // No data styles for content inside cards
+    .no-data {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: rgba(0, 0, 0, 0.38);
+        margin-bottom: 16px;
+      }
+
+      h3 {
+        margin: 0 0 8px 0;
+        font-size: 18px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.87);
+      }
+
+      p {
+        margin: 0;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.6);
+      }
+    }
+
+    // Progress bar styles
+    mat-progress-bar {
+      width: 100%;
+      margin-bottom: 16px;
+
+      &[mode='indeterminate'] {
+        height: 4px;
       }
     }
   }

@@ -1,4 +1,4 @@
-<div class="statistics-container">
+<div class="orders-container">
   <app-collapsible-card
     *ngIf="isManager()"
     title="Часы инженеров"
@@ -349,7 +349,7 @@
   </app-collapsible-card>
 
   <!-- Mobile Statistics Card (for all roles in mobile view) -->
-  <app-collapsible-card
+  <!-- <app-collapsible-card
     *ngIf="isMobileView() && !isEngineerView()"
     title="Обзор заявок"
     icon="dashboard"
@@ -434,7 +434,6 @@
         </div>
       </div>
 
-      <!-- Search Field in Mobile -->
     <div class="mobile-search-field">
       <mat-form-field class="search-field" appearance="outline">
         <mat-label>Поиск заказов</mat-label>
@@ -446,7 +445,7 @@
         <mat-icon matSuffix>search</mat-icon>
       </mat-form-field>
     </div>
-  </app-collapsible-card>
+  </app-collapsible-card> -->
 
   <app-collapsible-card
     title="Управление заявками"
@@ -457,25 +456,7 @@
     [toggleTooltipExpanded]="'Свернуть'"
     [toggleAriaLabelCollapsed]="'Развернуть'"
     [toggleAriaLabelExpanded]="'Свернуть'"
-    [toggleOnHeaderClick]="true"
-    [useProjectedTitle]="true"
   >
-    <div class="header-title-minimal">
-      <mat-icon class="header-icon">assignment</mat-icon>
-      <span class="header-title-text">Управление заявками</span>
-    </div>
-    <div  class="header-title-section inline">
-      <h1 *ngIf="!isMobileView()" i18n="@@orders.management">Управление заявками</h1>
-      <button
-        *ngIf="!isMobileView()"
-        mat-icon-button
-        (click)="toggleOrdersHeader()"
-        matTooltip="{{ ordersHeaderCollapsed() ? 'Развернуть' : 'Свернуть' }}"
-        class="collapse-toggle-btn"
-      >
-        <mat-icon>{{ ordersHeaderCollapsed() ? 'expand_more' : 'expand_less' }}</mat-icon>
-      </button>
-    </div>
     <div  class="header-actions" [class.collapsed]="ordersHeaderCollapsed()">
       <mat-form-field class="filter-field" *ngIf="!isMobileView()">
         <mat-label>Фильтр по статусу</mat-label>
