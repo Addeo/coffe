@@ -563,7 +563,7 @@ export class UserDialogComponent {
     lastName: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     role: [UserRole.USER, [Validators.required]],
-    password: ['', [Validators.required]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
     isActive: [true],
     // Engineer-specific fields
     engineerType: [EngineerType.STAFF],

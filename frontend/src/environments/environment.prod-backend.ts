@@ -3,7 +3,7 @@ export const environment = {
   apiUrl: '/api',
   authUrl: '/api/auth/login',
   appName: 'ServiceCheck Panel (Prod Backend)',
-  appVersion: '1.1.10',
+  appVersion: '1.1.11',
   demo: false,
 };
 

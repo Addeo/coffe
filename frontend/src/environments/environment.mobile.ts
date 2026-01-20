@@ -3,6 +3,6 @@ export const environment = {
   apiUrl: 'https://servicecheck.tech/api',
   authUrl: 'https://servicecheck.tech/api/auth/login',
   appName: 'ServiceCheck Mobile',
-  appVersion: '1.1.10', // Текущая версия приложения (зашита в код)
+  appVersion: '1.1.11', // Текущая версия приложения (зашита в код)
   demo: false,
 };
